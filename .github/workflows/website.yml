@@ -1,8 +1,10 @@
 name: Website (knowlin.de)
 # Baut website/ mit tools/website.py, prüft sie im Browser (axe, Tastatur, Breiten) und veröffentlicht sie auf GitHub
 # Pages. GitHub Pages gibt es kostenlos nur für öffentliche Repos – solange privat, wird nur gebaut und geprüft.
-# Vorerst nur von Hand (seit dem Launch 8.11.: knowlin.de leitet auf GitHub um, die Website folgt später).
 on:
+  push:
+    branches: [main]
+    paths: ["website/**", "tools/website*.py"]
   workflow_dispatch:
 permissions:
   contents: read
