@@ -735,6 +735,19 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     axe(page, b, axe_js, "Einstellungen: Sicherungspunkte", "#set-sicherung")
     b.foto(page, "13e-sicherungspunkte", "Einstellungen → Sicherungspunkte")
 
+    # 13i · Seit 0.38.32: Updates – Schalter und „Jetzt nach Updates suchen“ unter Über (offline: ehrliche Meldung)
+    page.evaluate("() => document.getElementById('set-ueber').scrollIntoView()")
+    page.wait_for_timeout(500)
+    schalter = page.evaluate("() => !!document.querySelector('#set-ueber input[data-set=updates_suchen]')")
+    page.click("#update-pruefen")
+    try:
+        page.wait_for_function("() => /offline|aktuell|ist da/.test(document.getElementById('update-stand').textContent)",
+                               timeout=20000)
+    except Exception:  # noqa: BLE001
+        pass
+    stand = page.text_content("#update-stand") or ""
+    b.pruefe("Updates: Schalter und Suche unter Über, offline ehrlich gemeldet", schalter and "offline" in stand, stand)
+
     # 13f · Seit 0.38.27: Policies aus Isaac Lab – Karte, falsche Datei wird abgewiesen, nichts übernommen
     ansicht(page, "training")
     page.wait_for_timeout(1500)

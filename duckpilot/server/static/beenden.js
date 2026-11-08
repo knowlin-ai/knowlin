@@ -16,8 +16,18 @@ export function initBeenden(h) {
     $('quit-restart').hidden = !fresh;
     $('quit-restart-title').textContent = fresh ? `Neu starten mit ${msg.neu}` : 'Neu starten';
     $('quit-version').textContent = `Läuft: Knowlin ${msg.version}` + (fresh ? ` · bereit: ${msg.neu}` : '');
-    $('update-bar').hidden = !fresh || later;
+    // Seit 0.38.32: neue Version auf GitHub (nur wenn nicht schon eine im Programmordner bereitliegt)
+    const on = msg.online && msg.online.neu && !fresh && !isRemote() ? msg.online : null;
+    $('update-bar').hidden = !(fresh || on) || later;
+    $('update-go').hidden = !fresh;
+    $('update-install').hidden = !(on && on.kann && can);
+    $('update-notes').hidden = !on;
+    if (on) $('update-notes').href = on.neu.seite;
     if (fresh) $('update-text').textContent = `Knowlin ${msg.neu} liegt bereit (läuft noch ${msg.version}).`;
+    else if (on) {
+      $('update-text').textContent = on.kann && can ? `Knowlin ${on.neu.version} ist da.`
+        : `Knowlin ${on.neu.version} ist da – ${on.art === 'quelle' ? 'neuen Stand holen und start.bat starten' : 'auf der Release-Seite herunterladen'}.`;
+    }
     const ul = $('quit-running');
     ul.replaceChildren(...(msg.laeuft || []).map((t) => el('li', null, t)));
     ul.hidden = !(msg.laeuft || []).length;
@@ -69,6 +79,31 @@ export function initBeenden(h) {
   dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });      // Klick neben den Dialog
   $('update-go').addEventListener('click', () => choose('neustart'));
   $('update-later').addEventListener('click', () => { later = true; $('update-bar').hidden = true; });
+  $('update-install').addEventListener('click', async () => {
+    const knopf = $('update-install');
+    knopf.disabled = true;
+    knopf.classList.add('is-busy');
+    $('update-text').textContent = 'Lade das Update und prüfe es …';
+    const r = await api('/api/update/installieren', 'POST').catch(() => null);
+    if (!r || !r.ok) {
+      knopf.disabled = false;
+      knopf.classList.remove('is-busy');
+      $('update-text').textContent = (r && r.fehler) || 'Das Update ging nicht.';
+      return;
+    }
+    done(`Knowlin ${r.version} wird installiert …`, 'Knowlin startet gleich von selbst neu – dieses Fenster lädt sich dann neu.');
+    waitForRestart(info && info.version);
+  });
+
+  // Einstellungen → Über: von Hand nach Updates suchen (seit 0.38.32)
+  $('update-pruefen')?.addEventListener('click', async () => {
+    const st = $('update-stand');
+    st.textContent = 'Suche …';
+    const r = await api('/api/update/pruefen', 'POST').catch(() => null);
+    if (!r || !r.ok) { st.textContent = (r && r.fehler) || 'GitHub war nicht erreichbar.'; return; }
+    later = false;
+    st.textContent = r.neu ? `Knowlin ${r.neu.version} ist da – siehe Hinweis oben.` : `Knowlin ${r.version} ist aktuell.`;
+  });
 
   return { update, open };
 }

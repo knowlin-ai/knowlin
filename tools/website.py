@@ -80,8 +80,13 @@ def sitemap() -> str:
 # Download-Knopf (seit 0.38.31): direkt auf den Installer der aktuellen Version. Die Website baut bei jedem Release neu
 # (website.yml), der Link stimmt also immer – und funktioniert ohne Skript und ohne Anfrage an fremde Server.
 def version() -> str:
+    """Version des neuesten Releases (auf GitHub setzt website.yml KNOWLIN_RELEASE), sonst die aus pyproject.toml –
+    so zeigt der Knopf nie auf einen Installer, den es noch nicht gibt, wenn zwischen zwei Releases gebaut wird."""
     import tomllib
 
+    tag = os.environ.get("KNOWLIN_RELEASE", "").strip().lstrip("v")
+    if re.fullmatch(r"\d+\.\d+\.\d+", tag):
+        return tag
     return tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
 
 

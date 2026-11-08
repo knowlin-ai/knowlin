@@ -70,6 +70,7 @@ PC_ONLY: list[tuple[str, re.Pattern[str]]] = [(m, re.compile(p)) for m, p in [
     ("*", r"^/api/fehlerbericht(/|$)"),     # enthält Einstellungen und Protokollzeilen – nur am PC (seit 0.38.6)
     ("*", r"^/api/spiele(/|$)"),            # Kamera-Spiele mit Reachy: Webcam nur am PC (seit 0.38.13)
     ("*", r"^/api/verbindungstest$"),       # prüft Adressen im Heimnetz – nur am PC (seit 0.38.16)
+    ("POST", r"^/api/update(/|$)"),          # Updates prüfen und installieren nur am PC (seit 0.38.32)
     ("POST", r"^/api/isaaclab(/|$)"),       # Policy-Dateien übernehmen und einsetzen nur am PC (seit 0.38.27)
 ]]
 # Einstellungen, die ein Handy nicht ändern darf: wohin duckpilot sich verbindet, welches (bezahlte) Modell,

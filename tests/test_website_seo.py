@@ -57,3 +57,12 @@ def test_bildschirmfotos_einheitlich_gross():
     assert fotos and set(groessen.values()) == {(1600, 965)}, groessen
     seite = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
     assert 'height="673"' not in seite and 'width="1065"' not in seite
+
+
+def test_download_knopf_folgt_dem_neuesten_release(monkeypatch):
+    import website
+
+    monkeypatch.setenv("KNOWLIN_RELEASE", "v0.38.31")
+    assert website.version() == "0.38.31" and website.download_url().endswith("/v0.38.31/Knowlin-Setup-0.38.31.exe")
+    monkeypatch.setenv("KNOWLIN_RELEASE", "")
+    assert website.version() != ""

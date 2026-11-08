@@ -168,6 +168,7 @@ Speech recognition “Local”, after a one-time `.venv/bin/pip install faster-w
 | **People and camera** | faces and names only on the PC, only when enrolled and with consent. Camera games analyse the image only in the browser – no image leaves the PC. |
 | **Data** | map, sightings and memory stay on this PC and never go into a Knowlet. |
 | **Costs** | paid cloud training only starts after two clicks. |
+| **Updates** | Once a day a request to GitHub to see whether there is a new version (can be turned off). Knowlin only updates when you click, with a checksum, and never while the real robot is connected. |
 
 Please report security issues privately: [`SECURITY.md`](SECURITY.md).
 

@@ -98,6 +98,8 @@ duckpilot.toml
 neustart.log*
 .claude/
 *.teil
+build/
+dist/
 # Pollens Modelle (CC BY-NC-SA) werden auf dem PC gebaut und nie eingecheckt – die Open Duck (Apache-2.0) schon
 duckpilot/server/static/model/microduck.dpm
 duckpilot/server/static/model/reachy_mini.dpm

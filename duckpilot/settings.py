@@ -89,6 +89,7 @@ EDITABLE: dict[str, Any] = {
     "eigenstaendig": ("aus", "ab_und_zu", "oft"),   # ohne Befehle selbst etwas tun (Wunsch des Maintainers 5.11.)
     "radio_adressen": "radio_urls",            # seit 0.38.13: zuletzt genutzte Webradios (Mitwippen), höchstens 5
     "kopf_stabil": bool,
+    "updates_suchen": bool,                    # seit 0.38.32: einmal am Tag bei GitHub nach Updates sehen
     "memory": bool,
     "humor": "unit",
     "energie": "unit",

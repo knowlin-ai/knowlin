@@ -9,6 +9,32 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.32 – 2026-11-08 – Updates aus dem Programm
+
+### Neu
+- **Update-Hinweis** (Frage: „Bekommen die Leute eine Update-Info und können aus dem Programm heraus aktualisieren?“):
+  Knowlin sieht höchstens einmal am Tag bei GitHub nach, ob es eine neue Version gibt, und zeigt dann oben „Knowlin
+  0.38.xx ist da“ mit „Was ist neu“. Abschaltbar unter Einstellungen → Über; dort auch „Jetzt nach Updates suchen“.
+- **„Jetzt aktualisieren“**: Mit dem Installer lädt Knowlin den neuen Installer aus dem Release, prüft die Prüfsumme
+  gegen die Angabe von GitHub, beendet sich, installiert still und startet neu. Mit pipx/pip aktualisiert es das Paket
+  und startet neu. Aus dem Quellcode (start.bat) gibt es nur den Hinweis.
+
+### Geändert
+- GitHub-Abläufe auf neue Versionen (CodeQL 4, Pages 5) und `fast-simplification` ab 0.2.0 – Vorschläge von Dependabot.
+
+### Behoben
+- Nach einem stillen Update öffnete sich ein zweites Fenster – jetzt lädt sich das offene neu.
+- Der Download-Knopf der Website folgt dem neuesten veröffentlichten Release (zeigte zwischen zwei Releases sonst auf
+  einen Installer, den es noch nicht gab).
+- Einstellungen → Über: Abstand zwischen Schalter und Text im Update-Block.
+
+### Sicherheit
+- Geladen wird nur aus den Releases von knowlin-ai/knowlin, nur mit passender SHA-256-Prüfsumme; nie mit dem echten
+  Roboter verbunden, nur am PC, nur im Programmfenster. Die Suche schickt nur die übliche Anfrage an GitHub.
+
+### Nicht geprüft
+- Das stille Update auf einem echten Windows-PC (erstmals mit dem Schritt von 0.38.31 auf 0.38.32).
+
 ## 0.38.31 – 2026-11-08 – Windows-Installer und pip
 
 ### Neu

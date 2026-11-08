@@ -168,6 +168,7 @@ Spracherkennung „Lokal“, dazu einmal `.venv/bin/pip install faster-whisper`)
 | **Personen und Kamera** | Gesichter und Namen nur am PC, nur angelernt und mit Einwilligung. Kamera-Spiele werten das Bild nur im Browser aus – kein Bild verlässt den PC. |
 | **Daten** | Karte, Sichtungen und Gedächtnis bleiben auf diesem PC und gehen nie in ein Knowlet. |
 | **Kosten** | Bezahltes Training in der Cloud startet nur mit zwei Klicks. |
+| **Updates** | Einmal am Tag eine Anfrage an GitHub, ob es eine neue Version gibt (abschaltbar). Aktualisiert wird nur auf deinen Klick, mit Prüfsumme und nie, während der echte Roboter verbunden ist. |
 
 Sicherheitslücken bitte vertraulich melden: [`SECURITY.md`](SECURITY.md).
 

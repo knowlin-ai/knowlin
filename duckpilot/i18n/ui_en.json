@@ -3231,5 +3231,14 @@
  "Hugging Face war nicht erreichbar – die Adresse kannst du trotzdem eingeben.": "Hugging Face could not be reached – you can still enter the address.",
  "Gefunden über die Suche nach „microduck“, meistgeladene zuerst. Ob eine Policy passt, zeigt erst der Prüfstand.": "Found by searching for “microduck”, most downloaded first. Only the test bench shows whether a policy fits.",
  "Gerade keine öffentlichen Microduck-Policies gefunden – die Adresse kannst du trotzdem eingeben.": "No public Microduck policies found right now – you can still enter the address.",
- "keine Lizenz angegeben": "no licence given"
+ "keine Lizenz angegeben": "no licence given",
+ "Was ist neu": "What's new",
+ "Jetzt aktualisieren": "Update now",
+ "Einmal am Tag nach Updates suchen": "Check for updates once a day",
+ "Fragt bei GitHub, ob es eine neue Version gibt – nur die übliche Anfrage, keine Daten über dich. Aktualisiert wird nur, wenn du es willst.": "Asks GitHub whether there is a new version – just the usual request, no data about you. Knowlin only updates when you say so.",
+ "Jetzt nach Updates suchen": "Check for updates now",
+ "Suche …": "Checking …",
+ "Lade das Update und prüfe es …": "Downloading and checking the update …",
+ "Das Update ging nicht.": "The update didn't work.",
+ "GitHub war nicht erreichbar.": "GitHub could not be reached."
 }

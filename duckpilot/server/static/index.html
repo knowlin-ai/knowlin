@@ -133,7 +133,9 @@
 
     <div class="update-bar pc-only" id="update-bar" role="status" hidden>
       <span id="update-text"></span>
+      <a class="update-link" id="update-notes" href="https://github.com/knowlin-ai/knowlin/releases/latest" target="_blank" rel="noopener" hidden>Was ist neu</a>
       <button class="btn btn--sm btn--primary" type="button" id="update-go">Jetzt neu starten</button>
+      <button class="btn btn--sm btn--primary" type="button" id="update-install" hidden>Jetzt aktualisieren</button>
       <button class="btn btn--sm btn--ghost" type="button" id="update-later">Später</button>
     </div>
 
@@ -1508,6 +1510,12 @@
                 (Codenamen der Module: duckpilot für die Enten, deskpilot für Reachy). Es steht in keiner Verbindung zu Pollen
                 Robotics oder Hugging Face und wird von ihnen weder unterstützt noch geprüft. „Microduck“ und „Reachy Mini“ sind
                 Namen von Pollen Robotics.</p>
+              <div class="update-einstellung pc-only">
+                <label class="switch"><input type="checkbox" data-set="updates_suchen" checked><span>Einmal am Tag nach Updates suchen</span></label>
+                <p class="field-help">Fragt bei GitHub, ob es eine neue Version gibt – nur die übliche Anfrage, keine Daten über dich. Aktualisiert wird nur, wenn du es willst.</p>
+                <div class="key-actions"><button type="button" class="btn btn--sm btn--ghost" id="update-pruefen">Jetzt nach Updates suchen</button></div>
+                <p class="field-msg" id="update-stand" role="status"></p>
+              </div>
               <dl class="facts" id="about"></dl>
               <div class="key-actions"><button type="button" class="btn btn--sm" data-fehler>Das lief schief – Fehlerbericht</button></div>
               <div class="about-model">

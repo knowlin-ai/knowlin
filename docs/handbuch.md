@@ -1105,6 +1105,20 @@ beenden“ auf derselben Karte). Mit **„Mit Windows starten“** legt duckpilo
 Autostart-Ordner: Nach dem Anmelden startet es ohne Fenster und schickt die Ente in den Ruhemodus – vom
 Handy aus weckst du sie. Ausschalten (oder die Fernbedienung ausschalten) entfernt die Verknüpfung wieder (sie startet `pythonw -m duckpilot --app --hintergrund`).
 
+## Installieren und Updates (seit 0.38.31)
+
+- **Windows:** `Knowlin-Setup-….exe` aus dem neuesten Release (oder „Download“ auf knowlin.de). Installiert für den
+  angemeldeten Benutzer unter `%LOCALAPPDATA%\Programs\Knowlin`, mit eigenem Python, ohne Administratorrechte.
+  Gedächtnis, Einstellungen und Schlüssel liegen davon getrennt (`%LOCALAPPDATA%\duckpilot`, Tresor) und bleiben bei
+  Updates und beim Deinstallieren erhalten.
+- **pipx:** `pipx install knowlin`, dann `knowlin --app`; unter Windows legt `knowlin --verknuepfung` die Einträge im
+  Startmenü und auf dem Desktop an.
+- **Updates (seit 0.38.32):** Knowlin sieht höchstens einmal am Tag bei GitHub nach einer neuen Version. Gibt es eine,
+  steht oben „Knowlin 0.38.xx ist da“ mit „Was ist neu“. **Jetzt aktualisieren** lädt beim Installer den neuen
+  Installer aus dem Release, prüft die SHA-256-Prüfsumme gegen GitHub, beendet Knowlin, installiert still und startet
+  neu; mit pipx aktualisiert es das Paket. Nie, während der echte Roboter verbunden ist, und nur am PC. Abschalten und
+  von Hand suchen: Einstellungen → Über.
+
 ## Wenn der Roboter kommt
 
 Pollen plant die ersten Auslieferungen vor Weihnachten 2026. Dann:

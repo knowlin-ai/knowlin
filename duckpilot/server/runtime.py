@@ -126,6 +126,9 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.keep_open = False          # „Im Hintergrund weiterlaufen“ gewählt: Fenster zu beendet nicht
         self.restart = False            # nach dem Beenden neu starten (neue Version)
         self.update_ready: str | None = None
+        from ..aktualisieren import Aktualisierer  # Updates aus dem Netz (seit 0.38.32)
+
+        self.aktualisierer = Aktualisierer(S.settings_path().parent)
         self.remote = R.RemoteAccess(S.settings_path().parent / "fernzugang.json")
         self.remote_listener = R.RemoteListener()
         self.app: Any = None                                  # die FastAPI-App (für den Handy-Zugang)
@@ -389,6 +392,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self._tasks.append(asyncio.create_task(self._watch_training(), name="watch-training"))
         self._tasks.append(asyncio.create_task(self._watch_people(), name="watch-people"))
         self._tasks.append(asyncio.create_task(self._watch_update(), name="watch-update"))
+        self._tasks.append(asyncio.create_task(self._watch_online_update(), name="watch-online-update"))
         self._tasks.append(asyncio.create_task(self.laser_watch.run(self), name="watch-laser"))
         self._tasks.append(asyncio.create_task(self.erfahrung.run(), name="erfahrungsnetz"))
         if self.modell.missing():
@@ -935,6 +939,23 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                 self.update_ready = new
                 await self.broadcast_local(self.quit_message())
 
+    async def _watch_online_update(self) -> None:
+        """Seit 0.38.32: höchstens einmal am Tag bei GitHub nach einer neuen Version sehen (abschaltbar)."""
+        from ..aktualisieren import UpdateFehler
+
+        await asyncio.sleep(20)
+        while True:
+            if getattr(self.config, "updates_suchen", True):
+                vorher = (self.aktualisierer.status().get("neu") or {}).get("version")
+                try:
+                    st = await asyncio.to_thread(self.aktualisierer.pruefen)
+                except UpdateFehler as exc:
+                    log.info("Update-Suche: %s", exc)
+                else:
+                    if (st.get("neu") or {}).get("version") != vorher:
+                        await self.broadcast_local(self.quit_message())
+            await asyncio.sleep(6 * 3600)
+
     def quit_message(self) -> dict[str, Any]:
         """Für den Beenden-Dialog: was läuft noch, kann man beenden, liegt eine neue Version bereit?"""
         from ..kaggle_training import ACTIVE as K_ACTIVE
@@ -950,7 +971,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             laeuft.append("eine Installation – sie würde abbrechen")
         return {"type": "beenden", "kann": self.on_idle_exit is not None and bool(self.config.app_mode),
                 "version": __version__, "neu": self.update_ready, "laeuft": laeuft,
-                "fernbedienung": bool(self.remote.enabled), "hintergrund": self.keep_open}
+                "fernbedienung": bool(self.remote.enabled), "hintergrund": self.keep_open,
+                "online": self.aktualisierer.status() if getattr(self.config, "updates_suchen", True) else None}
 
     async def handle_client_message(self, msg: dict[str, Any], remote: bool = False) -> None:
         kind = msg.get("type")

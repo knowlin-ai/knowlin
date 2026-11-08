@@ -1518,6 +1518,9 @@ details.ak-joints[open] > summary { margin-bottom: var(--spacing-03); }
   box-shadow: inset 3px 0 0 var(--accent); font-size: var(--t-small); max-width: calc(100vw - 32px); flex-wrap: wrap;
 }
 .update-bar[hidden] { display: none; }
+.update-link { color: var(--link); text-underline-offset: 3px; }
+.update-einstellung { display: grid; gap: var(--spacing-03); margin: var(--spacing-04) 0 var(--spacing-05); }
+.update-einstellung .field-help, .update-einstellung .field-msg, .update-einstellung .key-actions { margin: 0; }
 @media (max-width: 671.98px) { .quit-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
 /* „?“ oben rechts im HUD: der erste Messwert rückt davor, damit nichts überlappt */
 .hud-tele > .gauge:first-of-type { padding-right: var(--spacing-07); }

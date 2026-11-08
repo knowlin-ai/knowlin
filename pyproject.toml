@@ -1,6 +1,6 @@
 [project]
 name = "knowlin"                 # Name auf PyPI (pip install knowlin); das Python-Paket heißt weiter duckpilot
-version = "0.38.31"
+version = "0.38.32"
 description = "Knowlin – ein Kopf, viele Körper. Ein selbstlernender Begleiter: Microduck, Reachy Mini und Open Duck Mini am PC simulieren, mit Claude und Sprache steuern und auf den echten Roboter umschalten."
 readme = "README.en.md"           # PyPI ist international – die englische README
 requires-python = ">=3.11"
@@ -13,7 +13,7 @@ dependencies = [
   "keyring>=24",
   "numpy>=1.24",   # baut beim ersten Start Pollens 3D-Modell auf dem PC (duckpilot/modell)
   # vereinfacht dabei die CAD-Teile nach Fläche (für Linux x86_64 mit Python 3.14 gibt es noch kein Rad – dort volle Auflösung)
-  "fast-simplification>=0.1.12; platform_system != 'Linux' or platform_machine != 'x86_64' or python_version < '3.14'",
+  "fast-simplification>=0.2.0; platform_system != 'Linux' or platform_machine != 'x86_64' or python_version < '3.14'",
   "zeroconf>=0.130",   # knowlin.local im Heimnetz, solange die Handy-Fernbedienung an ist (fehlt es, geht es ohne Namen)
 ]
 

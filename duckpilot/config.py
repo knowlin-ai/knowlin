@@ -76,6 +76,7 @@ class Config:
     reachy_begruessung: bool = True            # Reachy Mini grüßt beim Aufwecken (Geste und kurzer Satz, seit 0.38.13)
     eigenstaendig: str = "ab_und_zu"           # ohne Befehle selbst etwas tun, passend zum Charakter: aus | ab_und_zu | oft
     radio_adressen: list[str] = field(default_factory=list)   # zuletzt genutzte Webradios (Mitwippen), höchstens 5
+    updates_suchen: bool = True                # seit 0.38.32: einmal am Tag bei GitHub nach einer neuen Version sehen
     kopf_stabil: bool = False                  # Kopf-Stabilisator: Kopf bleibt beim Laufen ruhig wie beim Huhn
     # [personality] – Punkt im X/Y-Regler
     energie: float = 0.55                      # X: ruhig 0 … 1 lebhaft
@@ -146,6 +147,7 @@ class Config:
             "reachy_begruessung": self.reachy_begruessung,
             "eigenstaendig": self.eigenstaendig,
             "radio_adressen": list(self.radio_adressen),
+            "updates_suchen": self.updates_suchen,
         }
 
 

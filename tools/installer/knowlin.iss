@@ -69,6 +69,9 @@ Name: "{userdesktop}\Knowlin"; Filename: "{app}\python\pythonw.exe"; Parameters:
 
 [Run]
 Filename: "{app}\python\pythonw.exe"; Parameters: "-m duckpilot --app"; WorkingDir: "{app}"; Description: "{cm:Starten}"; Flags: postinstall nowait skipifsilent
+; Update aus Knowlin heraus (seit 0.38.32): still installiert – danach Knowlin von selbst wieder starten, ohne zweites
+; Fenster (--neustart: das offene Fenster lädt sich selbst neu)
+Filename: "{app}\python\pythonw.exe"; Parameters: "-m duckpilot --app --neustart"; WorkingDir: "{app}"; Flags: nowait; Check: WizardSilent
 
 [UninstallDelete]
 ; Was Knowlin selbst nachinstalliert (Physik, Stimme) liegt im Programmordner – mit weg. Gedächtnis bleibt.

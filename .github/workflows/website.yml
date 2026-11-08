@@ -23,6 +23,10 @@ jobs:
           python-version: "3.13"
       - run: pip install playwright && python -m playwright install --with-deps chromium
       - run: npm install --no-save axe-core@4.10.2
+      - name: Neuestes Release (für den Download-Knopf)
+        run: echo "KNOWLIN_RELEASE=$(gh release view --repo "${{ github.repository }}" --json tagName -q .tagName 2>/dev/null)" >> "$GITHUB_ENV"
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: python tools/website_pruefen.py pruefung --axe node_modules/axe-core/axe.min.js
         env:
           KNOWLIN_IMPRESSUM: ${{ vars.KNOWLIN_IMPRESSUM }}   # Name|Straße|PLZ Ort – nur als Repo-Variable, nie im Repo
@@ -32,7 +36,7 @@ jobs:
           if [ -f pruefung/seite/.impressum-offen ]; then
             echo "::error::Impressum – Name und Anschrift fehlen (Repo-Variable KNOWLIN_IMPRESSUM)"; exit 1
           fi
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: pruefung/seite
   veroeffentlichen:
@@ -47,4 +51,4 @@ jobs:
       url: ${{ steps.pages.outputs.page_url }}
     steps:
       - id: pages
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
