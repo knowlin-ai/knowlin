@@ -47,7 +47,7 @@ PRIVAT = {
     "docs/befund-architektur-design.md",             # interner Prüfbericht                        # Namen aus Umfeld für den Scan – nie veröffentlichen
 }
 OHNE_ORDNER = {"__pycache__", ".pytest_cache", ".ruff_cache", ".git", ".venv", "venv", "node_modules", ".mypy_cache",
-               ".claude"}                  # Arbeitsordner von Helfern (git-Worktrees) – nie veröffentlichen
+               ".claude", "build", "dist"}   # Bauergebnisse (pip wheel, Installer) – nie veröffentlichen                  # Arbeitsordner von Helfern (git-Worktrees) – nie veröffentlichen
 OHNE_ENDUNG = {".pyc", ".pyo", ".teil", ".log"}
 
 # Geheimnis-Scan: (Name, Muster). Bewusst streng – lieber einmal zu viel anhalten.
@@ -160,7 +160,7 @@ def files() -> list[Path]:
     out = []
     for p in sorted(ROOT.rglob("*")):
         rel = p.relative_to(ROOT)
-        if p.is_dir() or any(part in OHNE_ORDNER for part in rel.parts) or p.suffix in OHNE_ENDUNG:
+        if p.is_dir() or any(part in OHNE_ORDNER or part.endswith(".egg-info") for part in rel.parts) or p.suffix in OHNE_ENDUNG:
             continue
         if rel.as_posix() in PRIVAT:
             continue
