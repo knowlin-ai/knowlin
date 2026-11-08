@@ -16,6 +16,7 @@ import os
 import re
 import shutil
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,13 +36,45 @@ KOPF = """<!doctype html>
 <meta property="og:url" content="{adresse}">
 <meta property="og:title" content="Knowlin – ein Kopf, viele Körper">
 <meta property="og:description" content="{beschreibung}">
-<meta property="og:image" content="{adresse}bilder/vorschau.png">
+<meta property="og:image" content="{basis}bilder/vorschau.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Knowlin – ein Kopf, viele Körper: die Startseite mit Knowlins Netz und drei Roboter-Körpern">
+<meta property="og:site_name" content="Knowlin">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Knowlin – ein Kopf, viele Körper">
+<meta name="twitter:description" content="{beschreibung}">
+<meta name="twitter:image" content="{basis}bilder/vorschau.png">
+<script type="application/ld+json">{daten}</script>
 <link rel="preload" href="schrift/bricolage.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="schrift/plex-400.woff2" as="font" type="font/woff2" crossorigin>
 """
+
+
+# Suchmaschinen (seit 0.38.30): strukturierte Daten als Software-Eintrag – ohne Personennamen, Herausgeber ist „Knowlin“
+def strukturiert(beschreibung: str) -> str:
+    return json.dumps({
+        "@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Knowlin",
+        "alternateName": "duckpilot", "url": ADRESSE, "description": beschreibung,
+        "applicationCategory": "DeveloperApplication", "operatingSystem": "Windows, macOS, Linux",
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
+        "license": "https://www.apache.org/licenses/LICENSE-2.0",
+        "codeRepository": "https://github.com/knowlin-ai/knowlin", "image": ADRESSE + "bilder/vorschau.png",
+        "inLanguage": ["de", "en"], "isAccessibleForFree": True,
+        "keywords": "Microduck, Open Duck Mini, Reachy Mini, Roboter, Simulator, Claude, Sprachsteuerung, Open Source",
+        "publisher": {"@type": "Organization", "name": "Knowlin", "url": ADRESSE},
+    }, ensure_ascii=False)
+
+
+ROBOTS = "User-agent: *\nAllow: /\nSitemap: {adresse}sitemap.xml\n"
+
+
+def sitemap() -> str:
+    tag = time.strftime("%Y-%m-%d")
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+            f"  <url><loc>{ADRESSE}</loc><lastmod>{tag}</lastmod></url>\n</urlset>\n")
 
 
 def teilen(text: str) -> tuple[str, str]:
@@ -73,7 +106,7 @@ def unterseite(name: str, titel: tuple[str, str], inhalt: str, kopf: str, beschr
     sprachskript = kopf[kopf.index("<script>"):kopf.index("</script>") + len("</script>")]
     de, en = titel
     seite_adresse = f"{ADRESSE}{name}.html"
-    return (KOPF.format(adresse=seite_adresse, beschreibung=beschreibung).replace(
+    return (KOPF.format(adresse=seite_adresse, basis=ADRESSE, beschreibung=beschreibung, daten=strukturiert(beschreibung)).replace(
         '<meta property="og:title" content="Knowlin – ein Kopf, viele Körper">', f'<meta property="og:title" content="{de}">')
         + f"<title>{de}</title>\n" + ("" if index else '<meta name="robots" content="noindex">\n')
         + '<link rel="icon" href="favicon.png">\n'
@@ -142,7 +175,7 @@ def bauen(ziel: Path) -> Path:
     text = (QUELLE / "index.html").read_text(encoding="utf-8")
     kopf, koerper = teilen(text)
     beschreibung = re.search(r'<meta name="description" content="([^"]+)"', kopf).group(1)
-    seite = KOPF.format(adresse=ADRESSE, beschreibung=beschreibung) + kopf + "</head>\n<body>\n" + koerper + "\n</body>\n</html>\n"
+    seite = KOPF.format(adresse=ADRESSE, basis=ADRESSE, beschreibung=beschreibung, daten=strukturiert(beschreibung)) + kopf + "</head>\n<body>\n" + koerper + "\n</body>\n</html>\n"
     (ziel / "index.html").write_text(seite, encoding="utf-8")
     fuss = koerper[koerper.index("<footer>"):koerper.index("</footer>") + len("</footer>")] + "\n"
     adresse = anschrift()
@@ -156,6 +189,8 @@ def bauen(ziel: Path) -> Path:
         demo_dazulegen(ziel)
     if adresse is None:
         (ziel / ".impressum-offen").write_text("Name und Anschrift fehlen (KNOWLIN_IMPRESSUM)\n", encoding="utf-8")
+    (ziel / "robots.txt").write_text(ROBOTS.format(adresse=ADRESSE), encoding="utf-8")
+    (ziel / "sitemap.xml").write_text(sitemap(), encoding="utf-8")
     (ziel / ".nojekyll").write_text("", encoding="utf-8")        # GitHub Pages: Dateien unverändert ausliefern
     (ziel / "CNAME").write_text("knowlin.de\n", encoding="utf-8")
     return ziel

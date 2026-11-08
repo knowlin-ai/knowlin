@@ -24,6 +24,9 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 ### Geändert
 - **Website: „Odi ausprobieren“ vorerst abgeschaltet** (Hinweis: „enttäuscht ggf. die Erwartungen – die App kann ja viel
   mehr“). Startseite wieder mit „So startest du“; Seite und Demo bleiben im Repo und kommen zurück, wenn sie mehr zeigen.
+- **Website für Suchmaschinen** (Wunsch: „kannst du Knowlin noch SEO-optimieren?“): aussagekräftiger Titel und
+  Beschreibung, strukturierte Daten (Software, kostenlos, Open Source, ohne Personennamen), `robots.txt` und
+  `sitemap.xml`, vollständige Vorschau für soziale Netze. Behoben: Vorschaubild der Rechtsseiten zeigte auf eine falsche Adresse.
 - Karte „Policies aus Isaac Lab“: Abstand zur Karte „Robustheit gegen Stöße“, kein leerer Platz mehr unter dem Knopf,
   Überschrift und Text so eng wie in den anderen Karten, „Noch keine Policy übernommen.“
 
