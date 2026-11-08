@@ -1,0 +1,235 @@
+/* Knowlin Designsystem · Tokens
+   Gerüst nach IBM Carbon (Apache-2.0): 4/8-px-Abstände, Raster, Schrift IBM Plex, Bewegungskurven und Größen der
+   Bedienelemente. Seit 0.38.19 eigene Anmutung „Bühne zuerst“ (Vorbilder: Rivian/Tesla für die 3D-Bühne, visionOS für
+   Glasflächen, Linear für Präzision): warmes Graphit statt Carbon-Grau, Flächen mit Tiefe (Lichtkante oben, weicher
+   Schatten), Glas über der Bühne, größere Radien, Anzeigeschrift Bricolage Grotesque. Das Schnabel-Orange bleibt der
+   einzige Markenakzent; Weiß bleibt der Fokusrahmen (Kontrast).
+
+   Drei Ebenen: Grundwerte (--p-*) → Bedeutung (--surface-*, --ink-*, …) → Bausteine (--control-*, …).
+   Komponenten und Seiten benutzen nur Bedeutungs- und Baustein-Tokens, nie Grundwerte direkt. */
+
+@font-face { font-family: 'IBM Plex Sans'; src: url('../vendor/plex/IBMPlexSans-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'IBM Plex Sans'; src: url('../vendor/plex/IBMPlexSans-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'IBM Plex Sans'; src: url('../vendor/plex/IBMPlexSans-SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Bricolage Grotesque'; src: url('../vendor/bricolage.woff2') format('woff2'); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: 'IBM Plex Mono'; src: url('../vendor/plex/IBMPlexMono-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+
+:root {
+  color-scheme: dark;
+
+  /* ── Grundwerte: Carbon-Farben ──────────────────────────────────────── */
+  --p-gray-100: #0d0e10;
+  --p-gray-95: #141518;
+  --p-gray-90: #18191c;
+  --p-gray-hover-90: #212327;
+  --p-gray-80: #222428;
+  --p-gray-hover-80: #2c2f34;
+  --p-gray-hover-70: #3d4148;
+  --p-gray-70: #33363c;
+  --p-gray-60: #6c717a;
+  --p-gray-50: #8b9099;
+  --p-gray-40: #a9adb5;
+  --p-gray-30: #cbced4;
+  --p-gray-10: #f3f4f6;
+
+  --p-blue-40: #78a9ff;
+  --p-blue-50: #4589ff;
+  --p-blue-60: #0f62fe;
+  --p-magenta-50: #ee5396;
+  --p-green-30: #6fdc8c;
+  --p-green-40: #42be65;
+  --p-yellow-30: #f1c21b;
+  --p-orange-40: #ff832b;
+  --p-red-40: #ff8389;
+  --p-red-50: #fa4d56;
+  --p-red-60: #da1e28;
+
+  /* duckpilot: der Schnabel */
+  --p-beak-300: #ffb35c;
+  --p-beak-400: #f6a94b;
+  --p-beak-500: #f0962c;
+  --p-beak-600: #c97316;
+
+  /* ── Bedeutung (Carbon-Rollen, Theme Gray 90) ───────────────────────── */
+  --surface-0: var(--p-gray-90);           /* $background – Grund, 3D-Bühne */
+  --surface-1: var(--p-gray-80);           /* $layer-01 – Leisten, Kacheln */
+  --surface-2: var(--p-gray-70);           /* $layer-02 – auf einer Kachel, gewählt */
+  --surface-3: var(--p-gray-hover-70);     /* $layer-hover-02 */
+  --surface-hover: var(--p-gray-hover-80); /* $layer-hover-01 */
+  --surface-sunken: var(--p-gray-90);      /* Spuren, Regler, Lagebild – eine Stufe unter der Kachel */
+  --surface-glass: rgba(26, 28, 32, .62);  /* Glas über der 3D-Bühne (mit --glass) */
+  --surface-glass-fest: rgba(20, 21, 24, .9);   /* Glas, das fest über Inhalt liegt (Leiste unten am Handy) */
+  --glass: blur(22px) saturate(150%);      /* Unschärfe hinter Glas */
+  --surface-raised: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, 0) 40%), var(--p-gray-80); /* Kachel mit Lichtkante */
+  --rail-bg: linear-gradient(180deg, rgba(255, 255, 255, .015), rgba(0, 0, 0, .12)); /* Leiste: leicht dunkler als die Bühne */
+  --bg-glow: radial-gradient(1100px 560px at 72% -12%, rgba(240, 150, 44, .07), rgba(240, 150, 44, 0) 62%), radial-gradient(900px 600px at -10% 110%, rgba(120, 140, 170, .06), rgba(120, 140, 170, 0) 60%);
+  --field: var(--p-gray-90);               /* Felder liegen vertieft */
+  --field-hover: var(--p-gray-hover-90);
+
+  --line: var(--p-gray-80);                /* Trennkante auf dem Grund */
+  --line-strong: var(--p-gray-60);
+  --line-soft: rgba(255, 255, 255, .08);   /* Trennlinien auf Kacheln */
+  --edge: rgba(255, 255, 255, .075);       /* feine Kante um Kacheln und Flächen */
+
+  --ink: var(--p-gray-10);                 /* $text-primary */
+  --ink-2: var(--p-gray-30);               /* $text-secondary */
+  --ink-3: var(--p-gray-40);               /* $text-helper */
+  --ink-disabled: rgba(244, 244, 244, .25);
+  --ink-on-accent: var(--p-gray-100);
+  --ink-on-ink: var(--p-gray-100);
+  --link: var(--ink);                      /* Links hell + unterstrichen (Blau = Messwerte) */
+  --ink-on-color: #ffffff;                 /* $text-on-color / $icon-on-color – Griffe, Text auf Farbe */
+  --ink-placeholder: rgba(244, 244, 244, .4); /* $text-placeholder */
+  --ink-on-accent-muted: rgba(22, 22, 22, .25);
+
+  /* Tönungen über dem Grund (statt freier rgba-Werte): Füllung, Kontur */
+  --fill-subtle: rgba(255, 255, 255, .06);
+  --fill-hover: rgba(255, 255, 255, .1);
+  --fill-active: rgba(255, 255, 255, .14);
+  --border-disabled: rgba(255, 255, 255, .06);
+  --border-subtle: rgba(255, 255, 255, .12); /* $border-subtle */
+  --border-hover: rgba(255, 255, 255, .24);
+  --border-strong-overlay: rgba(255, 255, 255, .5); /* $border-strong */
+  --scrim: rgba(22, 22, 22, .8);           /* $overlay – über Bild und 3D */
+  --shadow-float: 0 12px 32px -10px rgba(0, 0, 0, .6), 0 2px 6px rgba(0, 0, 0, .3); /* Schwebendes */
+  --media-bg: #000000;                     /* Video, Kamera */
+  --stage-bg: #16171a;                     /* 3D-Bühnen in Kacheln */
+
+  --accent: var(--p-beak-500);             /* die Ente – Hauptaktion, Auswahl, Sprechen */
+  --accent-hover: var(--p-beak-400);
+  --accent-strong: var(--p-beak-600);
+  --accent-soft: rgba(240, 150, 44, .16);
+  --accent-tint: rgba(240, 150, 44, .08);
+  --accent-line: rgba(240, 150, 44, .5);
+  --accent-clear: rgba(240, 150, 44, 0);
+  --field-focus: var(--p-beak-400);        /* Feld mit Fokus: Schnabel statt Carbon-Blau */
+  --border-strong: var(--p-gray-50);       /* $border-strong-01 – Unterkante von Feldern, Regler, Schalter (≥ 3 : 1) */
+  --track: var(--p-gray-70);               /* Spur von Balken auf Kacheln */
+  --toggle-off: var(--p-gray-50);          /* Schalter aus: ≥ 3 : 1 auf Ebene 1 */
+  --toggle-disabled: var(--p-gray-70);
+  --toggle-thumb-disabled: var(--p-gray-50);
+  --accent-text: var(--p-beak-300);        /* Orange als Text auf orangener Tönung */
+  --estop-lamp: var(--p-red-50);
+  --focus: #ffffff;                        /* $focus – Carbon: weißer Fokusrahmen */
+  --focus-inset: var(--p-gray-100);
+
+  --data-1: var(--p-blue-50);              /* Messwert / angewendet (geprüft: CVD ΔE 15,7) */
+  /* 2D-Karte beim Kartieren (seit 0.37.11) */
+  --raum-frei: var(--surface-3);
+  --raum-belegt: var(--ink-3);
+  --raum-ding: var(--data-1);
+  --raum-ente: var(--accent);
+  --data-1-ink: var(--p-blue-40);
+  --data-1-soft: rgba(69, 137, 255, .22);
+  --data-1-tint: rgba(69, 137, 255, .14);
+  --data-1-line: rgba(69, 137, 255, .4);
+  --data-1-text: #a6c8ff;                  /* blue-30 – Text auf blauer Tönung */
+  --data-2: var(--p-magenta-50);           /* Sollwert / angefordert */
+  /* Daten mit fester Bedeutung: Gelenkachsen (wie die Ringe in 3D), Parcours-Elemente, Punktwolke */
+  --axis-yaw: var(--p-blue-50); --axis-roll: var(--p-red-50); --axis-pitch: var(--p-green-40);
+  --axis-yaw-ink: var(--p-blue-40); --axis-roll-ink: var(--p-red-40); --axis-pitch-ink: var(--p-green-30); /* als Text: ≥ 4,5 : 1 */
+  --course-rampe: #8a6f4f; --course-stufen: #6f7f99; --course-schwelle: #9a7a3d;
+  --course-uneben: #5f7f6a; --course-slalom: #a37f05; --course-engstelle: #7d6f99;
+  --cloud-ramp: linear-gradient(90deg, #6a6a6a 0 14%, #0f62fe 14%, #4589ff 32%, #78a9ff 50%, #a6c8ff 68%, #d0e2ff 84%, #edf5ff);
+  --farbe-cream: #f4f2ec; --farbe-graphite: #4a4d53; --farbe-lavender: #c6b3e6; --farbe-sky: #a6cbe9; /* Microduck-Farben */
+  --laser: #e8341f;                        /* der echte Laserpunkt */
+  /* Kategorien der Hirnaktivität (validiert, alle Paare; immer mit Namen) – hirn.js liest dieselben Tokens */
+  --cat-wer: #3987e5; --cat-erleben: #199e70; --cat-gefuehl: #d95926; --cat-rahmen: #8d8d8d;
+
+  --good: var(--p-green-40);               /* $support-success */
+  --good-ink: var(--p-green-30);
+  --warning: var(--p-yellow-30);           /* $support-warning */
+  --serious: var(--p-orange-40);           /* $support-caution-major */
+  --critical: var(--p-red-50);             /* $support-error */
+  --critical-ink: var(--p-red-40);         /* $text-error */
+  --good-tint: rgba(66, 190, 101, .14);
+  --good-line: rgba(66, 190, 101, .55);
+  --warning-tint: rgba(241, 194, 27, .1);
+  --warning-line: rgba(241, 194, 27, .45);
+  --critical-tint: rgba(250, 77, 86, .18);
+  --critical-line: rgba(250, 77, 86, .6);
+  --danger: var(--p-red-60);               /* $button-danger-primary */
+  --danger-hover: #b81921;                 /* $button-danger-hover */
+  --danger-active: #a2191f;                /* red-70 */
+  --button-secondary: var(--p-gray-70);
+  --button-secondary-hover: #3f434a;       /* zweitrangiger Knopf, darüber */
+  --button-secondary-active: var(--p-gray-hover-80);
+  --estop-schein: rgba(218, 30, 40, .45);  /* Not-Aus: roter Schein unter dem Knopf */
+
+  /* ── Schrift: IBM Plex, Carbon-Typografie (produktiv) ───────────────── */
+  --font: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Menlo', 'Consolas', monospace;
+  --t-micro: 12px;         /* label-01, helper-text-01 */
+  --t-caption: 12px;
+  --t-small: 14px;         /* body-compact-01 */
+  --t-body: 14px;          /* body-01 */
+  --t-lead: 16px;          /* body-02, heading-compact-02 */
+  --t-h2: 20px;            /* heading-03 */
+  --t-h1: 28px;            /* heading-04 */
+  --t-display-s: 32px;     /* heading-05 */
+  --t-display-m: 44px;     /* Anzeige (Bricolage) */
+  --t-display-l: 56px;     /* Anzeige groß (Bricolage) */
+  --font-display: 'Bricolage Grotesque', 'IBM Plex Sans', system-ui, sans-serif;
+  --ls-display: -.02em;    /* Anzeigeschrift enger */
+  --ls-small: .16px;       /* Carbon-Laufweite für 14 px */
+  --ls-micro: .32px;       /* … für 12 px */
+
+  /* ── Abstand: Carbon spacing-01 … -13 (Namen und Werte wie Carbon) ───── */
+  --spacing-01: 2px;  --spacing-02: 4px;  --spacing-03: 8px;  --spacing-04: 12px; --spacing-05: 16px;
+  --spacing-06: 24px; --spacing-07: 32px; --spacing-08: 40px; --spacing-09: 48px; --spacing-10: 64px;
+  --spacing-11: 80px; --spacing-12: 96px; --spacing-13: 160px;
+
+  /* ── Raster: Carbon 2x Grid ─────────────────────────────────────────────
+     Umbruchpunkte (Fenster): sm < 672 · md 672 · lg 1056 · xlg 1312 · max 1584.
+     Spalten 4 / 8 / 16, schmaler Abstand (narrow gutter) 16 px, Rand 16 px (sm) bzw. 32 px.
+     Das Raster wächst fließend bis max (1584 px samt Rand) und steht darüber mittig.
+     Hinweis: Custom Properties gehen nicht in @media – die Werte stehen dort als Zahlen. */
+  --grid-gap: var(--spacing-05);
+  --grid-max: 1520px;                      /* 1584 px minus 2 × 32 px Rand */
+
+  --r-control: 10px;        /* Knöpfe, Felder, Tags */
+  --r-card: 16px;           /* Kacheln */
+  --r-sheet: 20px;          /* Popover, Glas über der Bühne */
+  --r-pill: 999px;
+  --r-bar: 2px;             /* Spuren, Balken, kleine Marken */
+  --r-duck: 22px;           /* am weichsten, wo die Verkörperung selbst agiert */
+
+  /* Tiefe: feine Kontur, Lichtkante oben, weicher Schatten nach unten (seit 0.38.19) */
+  --e-1: inset 0 0 0 1px var(--edge), inset 0 1px 0 rgba(255, 255, 255, .04), 0 10px 28px -16px rgba(0, 0, 0, .55);   /* Kachel */
+  --e-2: inset 0 0 0 1px rgba(255, 255, 255, .09), inset 0 1px 0 rgba(255, 255, 255, .08), 0 20px 50px -18px rgba(0, 0, 0, .65); /* Glas */
+  --e-3: inset 0 0 0 1px rgba(255, 255, 255, .12), inset 0 1px 0 rgba(255, 255, 255, .08), 0 24px 60px -20px rgba(0, 0, 0, .7);  /* Popover */
+  --e-portrait: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 8px 20px -10px rgba(0, 0, 0, .7);                         /* Porträt */
+  --e-accent: inset 0 1px 0 rgba(255, 255, 255, .28), 0 8px 22px -8px rgba(240, 150, 44, .55);                          /* Hauptknopf */
+
+  /* Bewegung: Carbon-Dauern (Namen und Werte wie Carbon) */
+  --duration-fast-01: 70ms;
+  --duration-fast-02: 110ms;
+  --duration-moderate-01: 150ms;
+  --duration-moderate-02: 240ms;
+  --duration-slow-01: 400ms;
+  --duration-slow-02: 700ms;
+  --duration-spin: 690ms;          /* Carbon-Ladekreis, linear */
+  --duration-tick: 1000ms;         /* folgt einem Wert, der sich je Sekunde ändert (Timer) */
+  --duration-loop: 1200ms;         /* Dauerschleifen: Pulsieren, Leuchten */
+  --duration-loop-slow: 2400ms;
+  --duration-splash: 2400ms;       /* Start: ein Funkenumlauf ins Knowlin-Zeichen */
+  --duration-toast: 2600ms;        /* so lange steht eine Meldung */
+  --ease-out: cubic-bezier(.2, 0, .38, .9);        /* standard productive */
+  --ease-enter: cubic-bezier(0, 0, .38, .9);       /* entrance productive */
+  --ease-exit: cubic-bezier(.2, 0, 1, .9);         /* exit productive */
+  --ease-spring: cubic-bezier(.3, 1.5, .5, 1);     /* duckpilot: nur für Enten-Momente */
+
+  --z-hud: 5; --z-rail: 20; --z-pop: 40; --z-toast: 50;
+
+  /* ── Bausteine ──────────────────────────────────────────────────────── */
+  --control-h-sm: 32px;
+  --control-h-md: 40px;
+  --control-h-lg: 48px;
+  --rail-w: 84px;
+  --top-h: 52px;            /* Kopfzeile */
+  --talk-w: 384px;
+}
+/* Finger statt Maus (Tablet, Handy – seit 0.38.27, T1): Bedienelemente mindestens 44 px hoch (WCAG 2.5.5, Apple HIG) */
+@media (pointer: coarse) {
+  :root { --control-h-sm: 44px; --control-h-md: 48px; }
+}

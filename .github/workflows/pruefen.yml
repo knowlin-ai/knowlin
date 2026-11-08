@@ -1,0 +1,30 @@
+name: Prüfen
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]" ruff
+      - run: ruff check duckpilot tests tools
+      - run: python -m duckpilot.modell     # Pollens Modell von GitHub laden (wie beim ersten Start)
+      - run: python -m pytest -q
+  pakete:
+    # Bekannte Sicherheitslücken in den Abhängigkeiten (PyPI-Advisory-Datenbank)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: pip install pip-audit
+      - run: pip-audit -r requirements.txt

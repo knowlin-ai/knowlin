@@ -1,0 +1,28 @@
+name: Something went wrong / Das lief schief
+description: A bug – ideally with the report file from “Das lief schief” / “Something went wrong” in Knowlin
+labels: [fehlerbericht]
+body:
+  - type: textarea
+    id: was
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: bericht
+    attributes:
+      label: Report file
+      description: In Knowlin click “Das lief schief” / “Something went wrong” (System → Body or Settings → About, on the PC) and attach the JSON file here. It contains the last 30 seconds of the robot's state – never conversations, people, images or keys.
+  - type: dropdown
+    id: koerper
+    attributes:
+      label: Body
+      options: [No body (start page), Microduck – simulator, Microduck – real physics, Microduck – real robot, Reachy Mini – simulator, Reachy Mini – real robot, Open Duck Mini v2 – simulator]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version (Settings → About)
+      placeholder: "z. B. 0.38.16 – steht unter System → Über"

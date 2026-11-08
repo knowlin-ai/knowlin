@@ -1,0 +1,125 @@
+<style>
+/* Odi ausprobieren (T4, seit 0.38.29): läuft ganz im Browser – kein Server, kein Konto, kein KI-Schlüssel */
+.probe { padding-block: 40px 72px; display: grid; gap: 28px; }
+.probe h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); }
+.probe .leit { max-width: 64ch; color: var(--tinte-2); font-size: 1.125rem; margin: 12px 0 0; }
+.odi-buehne { position: relative; border-radius: var(--r-rahmen); overflow: hidden; background: #24262b; box-shadow: var(--schatten);
+  aspect-ratio: 16 / 9; max-height: 70vh; width: 100%; }
+@media (max-width: 720px) { .odi-buehne { aspect-ratio: 4 / 5; } }
+.odi-buehne canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.odi-buehne canvas:focus-visible { outline: 3px solid var(--akzent); outline-offset: -3px; }
+.vorhang { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px;
+  background: center / cover no-repeat; color: #f3f4f6; }
+html:not([lang="en"]) .vorhang { background-image: url("bilder/odi-de-1600.webp"); }
+html[lang="en"] .vorhang { background-image: url("bilder/odi-en-1600.webp"); }
+@media (max-width: 720px) { html:not([lang="en"]) .vorhang { background-image: url("bilder/odi-de-900.webp"); }
+  html[lang="en"] .vorhang { background-image: url("bilder/odi-en-900.webp"); } }
+.vorhang::before { content: ""; position: absolute; inset: 0; background: rgb(13 15 18 / 0.62); }
+.vorhang > div { position: relative; display: grid; gap: 14px; justify-items: center; max-width: 46ch; }
+.vorhang p { margin: 0; color: #e6e8eb; }
+.vorhang[hidden] { display: none; }
+.pult { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .pult { grid-template-columns: auto minmax(0, 1fr); align-items: start; } }
+.pult h2 { font-size: 1.05rem; font-family: var(--schrift-text); font-weight: 600; margin: 0 0 10px; }
+.kreuz { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 6px; }
+.kreuz button, .tricks button { min-height: 48px; border-radius: 14px; border: 1px solid var(--linie); background: var(--flaeche);
+  color: var(--tinte); font: 600 0.95rem/1.1 var(--schrift-text); cursor: pointer; padding: 0 14px; touch-action: none; }
+.kreuz button { padding: 0; display: grid; place-items: center; }
+.kreuz svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.kreuz [data-fahrt="vor"] { grid-column: 2; grid-row: 1; }
+.kreuz [data-fahrt="links"] { grid-column: 1; grid-row: 2; }
+.kreuz [data-fahrt="halt"] { grid-column: 2; grid-row: 2; }
+.kreuz [data-fahrt="rechts"] { grid-column: 3; grid-row: 2; }
+.kreuz [data-fahrt="zurueck"] { grid-column: 2; grid-row: 3; }
+.kreuz button[aria-pressed="true"], .tricks button[aria-pressed="true"] { background: var(--akzent); color: var(--auf-akzent); border-color: transparent; }
+.kreuz button:focus-visible, .tricks button:focus-visible, .sagen input:focus-visible, .sagen button:focus-visible {
+  outline: 3px solid var(--akzent); outline-offset: 2px; }
+.tricks { display: flex; flex-wrap: wrap; gap: 8px; }
+.sagen { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.sagen label { flex-basis: 100%; font-weight: 600; }
+.sagen input { flex: 1 1 220px; min-height: 48px; border-radius: 14px; border: 1px solid var(--linie); background: var(--flaeche);
+  color: var(--tinte); font: 400 1rem var(--schrift-text); padding: 0 14px; }
+.antwort { margin: 12px 0 0; min-height: 1.5em; color: var(--tinte-2); }
+.hinweise { color: var(--tinte-3); font-size: 0.95rem; max-width: 72ch; display: grid; gap: 8px; }
+.hinweise p { margin: 0; }
+.tasten { font-family: var(--schrift-mono); font-size: 0.9em; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: reduce) { .kreuz button, .tricks button { transition: none; } }
+</style>
+
+<section class="probe" aria-labelledby="titel">
+  <div>
+    <h1 id="titel"><span class="t" lang="de">Odi ausprobieren</span><span class="t" lang="en">Try Odi</span></h1>
+    <p class="leit"><span class="t" lang="de">Odi ist eine Open Duck Mini, so wie Knowlin sie im Simulator zeigt. Lass ihn laufen, sich setzen, nicken oder
+      tanzen – direkt hier im Browser, ohne Installation und ohne Konto.</span><span class="t" lang="en">Odi is an Open Duck Mini, just
+      as Knowlin shows it in the simulator. Make him walk, sit, nod or dance – right here in your browser, no install, no
+      account.</span></p>
+  </div>
+
+  <div class="odi-buehne" id="buehne">
+    <canvas id="odi-bild" tabindex="0" aria-label="Odi in 3D – mit den Pfeiltasten steuern" hidden></canvas>
+    <div class="vorhang" id="vorhang">
+      <div>
+        <p id="vorhang-text"><span class="t" lang="de">Odi wird erst geladen, wenn du willst (etwa 4 MB).</span><span class="t" lang="en">Odi only
+          loads when you want him to (about 4 MB).</span></p>
+        <button type="button" class="knopf knopf--voll" id="odi-start"><span class="t" lang="de">Odi starten</span><span class="t" lang="en">Start Odi</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pult" id="pult" aria-label="Odi steuern">
+    <div>
+      <h2><span class="t" lang="de">Laufen</span><span class="t" lang="en">Walk</span></h2>
+      <div class="kreuz" role="group" aria-label="Laufen">
+        <button type="button" data-fahrt="vor" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span class="sr-only t" lang="de">Vorwärts</span><span class="sr-only t" lang="en">Forward</span></button>
+        <button type="button" data-fahrt="links" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 4 12l5 5M4 12h11a5 5 0 0 1 5 5"/></svg><span class="sr-only t" lang="de">Links drehen</span><span class="sr-only t" lang="en">Turn left</span></button>
+        <button type="button" data-fahrt="halt" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg><span class="sr-only t" lang="de">Anhalten</span><span class="sr-only t" lang="en">Stop</span></button>
+        <button type="button" data-fahrt="rechts" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 7 5 5-5 5M20 12H9a5 5 0 0 0-5 5"/></svg><span class="sr-only t" lang="de">Rechts drehen</span><span class="sr-only t" lang="en">Turn right</span></button>
+        <button type="button" data-fahrt="zurueck" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg><span class="sr-only t" lang="de">Rückwärts</span><span class="sr-only t" lang="en">Backward</span></button>
+      </div>
+    </div>
+    <div>
+      <h2><span class="t" lang="de">Tricks</span><span class="t" lang="en">Tricks</span></h2>
+      <div class="tricks" role="group" aria-label="Tricks">
+        <button type="button" data-trick="sitzen" aria-pressed="false"><span class="t" lang="de">Hinsetzen</span><span class="t" lang="en">Sit down</span></button>
+        <button type="button" data-trick="nicken"><span class="t" lang="de">Nicken</span><span class="t" lang="en">Nod</span></button>
+        <button type="button" data-trick="schuetteln"><span class="t" lang="de">Kopf schütteln</span><span class="t" lang="en">Shake head</span></button>
+        <button type="button" data-trick="umschauen"><span class="t" lang="de">Umschauen</span><span class="t" lang="en">Look around</span></button>
+        <button type="button" data-trick="tanzen"><span class="t" lang="de">Tanzen</span><span class="t" lang="en">Dance</span></button>
+        <button type="button" data-trick="ball"><span class="t" lang="de">Zum Ball</span><span class="t" lang="en">Go to the ball</span></button>
+      </div>
+      <form class="sagen" id="sagen">
+        <label for="sagen-text"><span class="t" lang="de">Sag Odi, was er tun soll</span><span class="t" lang="en">Tell Odi what to do</span></label>
+        <input id="sagen-text" autocomplete="off" maxlength="80" placeholder="z. B. geh zum Ball">
+        <button type="submit" class="knopf knopf--rand"><span class="t" lang="de">Sagen</span><span class="t" lang="en">Say</span></button>
+      </form>
+      <p class="antwort" id="antwort" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <div class="hinweise">
+    <p><span class="t" lang="de">Steuern: Pfeiltasten oder <span class="tasten">WASD</span>, wenn das Bild ausgewählt ist; Leertaste hält an.
+      Ziehen dreht die Ansicht, Mausrad oder zwei Finger zoomen.</span><span class="t" lang="en">Controls: arrow keys or
+      <span class="tasten">WASD</span> when the picture is selected; space stops. Drag to orbit, scroll or pinch to zoom.</span></p>
+    <p><span class="t" lang="de">Hier versteht Odi nur ein paar Wörter. In Knowlin auf deinem PC spricht Claude mit dir, Odi lernt, erinnert sich und
+      läuft in echter Physik – auch mit der Microduck und Reachy Mini.</span><span class="t" lang="en">Here Odi only knows a
+      few words. In Knowlin on your PC, Claude talks with you, Odi learns, remembers and walks in real physics – with the
+      Microduck and Reachy Mini too.</span> <a href="./#loslegen"><span class="t" lang="de">So startest du</span><span class="t" lang="en">How to start</span></a></p>
+    <p><span class="t" lang="de">Alles läuft in deinem Browser. Diese Seite schickt nichts weg und speichert nichts. Modell: Open Duck Mini v2,
+      © Antoine Pirrone und Mitwirkende, Apache-2.0.</span><span class="t" lang="en">Everything runs in your browser. This page
+      sends nothing and stores nothing. Model: Open Duck Mini v2, © Antoine Pirrone and contributors, Apache-2.0.</span></p>
+  </div>
+</section>
+<script type="module" src="demo/odi.js"></script>
+<script>
+  // Falls das Odi-Skript gar nicht lädt (alter Browser, blockierte Skripte): nicht stumm bleiben, sondern es sagen
+  document.getElementById('odi-start').addEventListener('click', function () {
+    setTimeout(function () {
+      if (window.odiBereit) return;
+      var en = document.documentElement.lang === 'en';
+      document.getElementById('vorhang-text').textContent = en
+        ? 'Odi could not start here: this browser blocked his script. A current Chrome, Edge, Firefox or Safari will do.'
+        : 'Odi konnte hier nicht starten: Der Browser hat sein Skript nicht geladen. Mit einem aktuellen Chrome, Edge, Firefox oder Safari geht es.';
+    }, 4000);
+  });
+</script>

@@ -1,0 +1,29 @@
+name: CodeQL
+# Statische Sicherheitsanalyse für Python und JavaScript (GitHub Code Scanning, kostenlos für öffentliche Repos)
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 4 * * 1"
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  analyse:
+    # Code Scanning gibt es kostenlos nur für öffentliche Repos – solange privat, wird der Lauf übersprungen
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          config: |
+            paths-ignore:
+              - duckpilot/server/static/vendor
+      - uses: github/codeql-action/analyze@v3

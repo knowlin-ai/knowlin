@@ -1,0 +1,46 @@
+name: Website (knowlin.de)
+# Baut website/ mit tools/website.py, prüft sie im Browser (axe, Tastatur, Breiten) und veröffentlicht sie auf GitHub
+# Pages. GitHub Pages gibt es kostenlos nur für öffentliche Repos – solange privat, wird nur gebaut und geprüft.
+# Vorerst nur von Hand (seit dem Launch 8.11.: knowlin.de leitet auf GitHub um, die Website folgt später).
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: website
+  cancel-in-progress: true
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - run: npm install --no-save axe-core@4.10.2
+      - run: python tools/website_pruefen.py pruefung --axe node_modules/axe-core/axe.min.js
+        env:
+          KNOWLIN_IMPRESSUM: ${{ vars.KNOWLIN_IMPRESSUM }}   # Name|Straße|PLZ Ort – nur als Repo-Variable, nie im Repo
+      - name: Impressum vollständig?
+        if: ${{ !github.event.repository.private }}
+        run: |
+          if [ -f pruefung/seite/.impressum-offen ]; then
+            echo "::error::Impressum – Name und Anschrift fehlen (Repo-Variable KNOWLIN_IMPRESSUM)"; exit 1
+          fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pruefung/seite
+  veroeffentlichen:
+    needs: bauen
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - id: pages
+        uses: actions/deploy-pages@v4

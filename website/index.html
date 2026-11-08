@@ -1,0 +1,1029 @@
+<title>Knowlin</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Knowlin – ein Kopf, viele Körper. Ein lernender Begleiter, der mit demselben Gedächtnis in kleine Roboter einzieht: Microduck, Reachy Mini und Open Duck Mini. Erst virtuell im Simulator, dann in deiner echten Umgebung. Open Source.">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+  // Sprache vor dem ersten Bild festlegen: gespeicherte Wahl, sonst die des Browsers (Deutsch als Vorgabe)
+  (function () {
+    var l = null;
+    try { l = localStorage.getItem('knowlin.sprache'); } catch (e) { /* egal */ }
+    if (l !== 'de' && l !== 'en') l = (navigator.language || 'de').slice(0, 2) === 'de' ? 'de' : 'en';
+    document.documentElement.lang = l;
+  })();
+</script>
+<style>
+/* Schriften liegen bei der Seite – keine Anfragen an fremde Server */
+@font-face { font-family: "Bricolage Grotesque"; src: url("schrift/bricolage.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("schrift/plex-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Sans"; src: url("schrift/plex-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("schrift/plex-mono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+
+/* Layout: eine ruhige Spalte bis 1120 px; Bilder im Fensterrahmen tragen die Seite, Text bleibt links ausgerichtet.
+   Farbe: kühles Grau wie ein Schreibtisch unter Tageslicht, dazu das Orange aus Knowlins Zeichen – nur für Handlungen. */
+:root {
+  --bg: #f3f4f6;
+  --flaeche: #ffffff;
+  --tinte: #111317;
+  --tinte-2: #4b515b;
+  --tinte-3: #5d636d;
+  --linie: #dcdfe4;
+  --akzent: #f0962c;           /* Schnabel-Orange, Fläche */
+  --akzent-text: #a85a0c;      /* Orange als Schrift auf hellem Grund (Kontrast ≥ 4,5:1) */
+  --auf-akzent: #1a1206;
+  --gut: #1f7a4d;
+  --hinweis: #8a5a00;
+  --glas: rgb(243 244 246 / 0.78);
+  --schatten: 0 1px 2px rgb(17 19 23 / 0.06), 0 12px 40px -12px rgb(17 19 23 / 0.22);
+  --schrift-anzeige: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --schrift-text: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --schrift-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --raus: cubic-bezier(0.23, 1, 0.32, 1);      /* ease-out für alles, was erscheint */
+  --r-rahmen: 18px;
+  --r-knopf: 999px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d0f12; --flaeche: #171a1f; --tinte: #f1f2f4; --tinte-2: #aab0ba; --tinte-3: #8a919c; --linie: #2a2e35;
+    --akzent: #f6a94b; --akzent-text: #f6a94b; --auf-akzent: #1a1206; --gut: #5cc48f; --hinweis: #f0c060;
+    --glas: rgb(13 15 18 / 0.72); --schatten: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 48px -16px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d0f12; --flaeche: #171a1f; --tinte: #f1f2f4; --tinte-2: #aab0ba; --tinte-3: #8a919c; --linie: #2a2e35;
+  --akzent: #f6a94b; --akzent-text: #f6a94b; --auf-akzent: #1a1206; --gut: #5cc48f; --hinweis: #f0c060;
+  --glas: rgb(13 15 18 / 0.72); --schatten: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 48px -16px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
+/* Zweisprachig: jeder Text steht zweimal, gezeigt wird die gewählte Sprache (ohne Skript: Deutsch) */
+html:not([lang="en"]) .t[lang="en"], html[lang="en"] .t[lang="de"] { display: none !important; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 80px; }
+body {
+  margin: 0; background: var(--bg); color: var(--tinte);
+  font: 400 1.0625rem/1.6 var(--schrift-text);
+  -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: rgb(7 8 10 / 0.9); }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--akzent); outline-offset: 3px; border-radius: 6px; }
+.huelle {
+  width: 100%; max-width: 1120px; margin-inline: auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sprung {
+  position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 50;
+  padding: 10px 16px; border-radius: 10px; background: var(--tinte); color: var(--bg); font-weight: 600; text-decoration: none;
+  transform: translateY(-160%); transition: transform 180ms var(--raus);
+}
+.sprung:focus-visible { transform: none; }
+
+/* ── Kopfleiste ── */
+.leiste {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: rgb(7 8 10 / 0.9); -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px);
+  border-bottom: 1px solid rgb(255 255 255 / 0.08); color: #f3f4f6; color-scheme: dark;
+}
+.leiste .huelle { display: flex; align-items: center; gap: 24px; min-height: 60px; }
+.marke { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 650 1.125rem/1 var(--schrift-anzeige); letter-spacing: -0.01em; }
+.marke img { width: 30px; height: 30px; border-radius: 8px; }
+.navi { display: flex; gap: 22px; margin-left: auto; }
+.navi a { position: relative; text-decoration: none; color: #a2a9b3; font-size: 0.9375rem; padding-block: 6px; }
+.navi a::after {         /* feine Linie, die beim Zeigen von links einläuft */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: left; transition: transform 220ms var(--raus);
+}
+.sprache {
+  display: inline-flex; border: 1px solid rgb(255 255 255 / 0.16); border-radius: var(--r-knopf); padding: 3px; gap: 2px;
+}
+.sprache button {
+  font: 600 0.8125rem/1 var(--schrift-text); letter-spacing: 0.02em; color: #a2a9b3;
+  background: none; border: 0; border-radius: var(--r-knopf); min-width: 40px; min-height: 30px; cursor: pointer;
+}
+.sprache button[aria-pressed="true"] { background: #f3f4f6; color: #07080a; }
+@media (max-width: 760px) { .navi { display: none; } .sprache { margin-left: auto; } }
+
+/* ── Knöpfe ── */
+.knopf {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px;
+  border-radius: var(--r-knopf); font: 600 1rem/1 var(--schrift-text); text-decoration: none; cursor: pointer;
+  border: 1px solid transparent; transition: transform 140ms var(--raus), background-color 160ms ease;
+}
+.knopf:active { transform: scale(0.97); }
+.knopf--voll { background: var(--akzent); color: var(--auf-akzent); }
+.knopf--rand { border-color: var(--linie); color: var(--tinte); background: var(--flaeche); }
+@media (hover: hover) and (pointer: fine) {
+  .knopf--voll:hover { background: color-mix(in srgb, var(--akzent) 88%, var(--tinte)); }
+  .knopf--rand:hover { background: color-mix(in srgb, var(--flaeche) 92%, var(--tinte)); }
+  .navi a:hover { color: #f3f4f6; }
+  .navi a:hover::after { transform: scaleX(1); }
+}
+.knopf svg { width: 18px; height: 18px; }
+
+/* ── Typografie ── */
+h1, h2, h3 { font-family: var(--schrift-anzeige); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.9rem, 8.2vw, 6.4rem); font-weight: 700; line-height: 0.96; letter-spacing: -0.035em; }
+h1 .zweite { display: block; color: var(--tinte-3); font-weight: 300; }
+h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); font-weight: 650; line-height: 1.02; letter-spacing: -0.028em; }
+h3 { font-size: 1.3rem; font-weight: 650; line-height: 1.2; letter-spacing: -0.01em; }
+p { margin: 0; text-wrap: pretty; }
+.leit { font-size: clamp(1.125rem, 1.9vw, 1.35rem); line-height: 1.55; color: var(--tinte-2); max-width: 38em; }
+.klein { font-size: 0.9375rem; color: var(--tinte-3); }
+
+section { padding-block: clamp(72px, 10vw, 136px); }
+
+/* ── Einstieg: dunkle Bühne mit Knowlins Gedankennetz – unabhängig vom Farbmodus, wie eine Produktbühne ── */
+.held {
+  --held-bg: #07080a; --held-tinte: #f3f4f6; --held-tinte-2: #a2a9b3; --held-linie: #22262c;
+  position: relative; overflow: hidden; isolation: isolate; background: var(--held-bg); color: var(--held-tinte);
+  padding-block: clamp(56px, 8vw, 112px) clamp(150px, 20vw, 260px); color-scheme: dark;
+}
+.held::after {             /* weicher Übergang ins Licht des Netzes */
+  content: ""; position: absolute; inset: auto 0 0; height: 40%; z-index: -1; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgb(240 150 44 / 0.07));
+}
+#geist { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.held-raster { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr); gap: 32px; align-items: center; min-height: min(620px, 72svh); }
+.held-text { display: grid; gap: 28px; max-width: 640px; }
+.held h1 { font-size: clamp(2.9rem, 6.4vw, 5.6rem); }
+.held h1 .zweite { color: var(--held-tinte-2); white-space: nowrap; }
+.held .fakten { flex-direction: column; gap: 4px; }
+.held .fakten li + li::before { display: none; }
+.held .leit { color: var(--held-tinte-2); }
+.held .fakten { color: var(--held-tinte-2); }
+.held .knopf--rand { background: rgb(255 255 255 / 0.06); border-color: rgb(255 255 255 / 0.16); color: var(--held-tinte); }
+.held :focus-visible { outline-color: var(--akzent); }
+@media (hover: hover) and (pointer: fine) { .held .knopf--rand:hover { background: rgb(255 255 255 / 0.12); } }
+.handeln { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.fakten { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; color: var(--tinte-3); font-size: 0.9375rem; }
+.fakten li { display: flex; align-items: center; gap: 8px; }
+.fakten .ic { width: 16px; height: 16px; flex: none; fill: none; stroke: var(--akzent); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.held .fakten { gap: 8px; }
+.fakten li + li::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--linie); margin-right: 10px; }
+@media (max-width: 520px) { .fakten { flex-direction: column; gap: 4px; } .fakten li + li::before { display: none; } }
+
+/* Die drei Körper als Ziele für den Impuls aus dem Kopf */
+.anker-reihe { align-self: end; justify-self: center; display: flex; gap: 10px; flex-wrap: nowrap; justify-content: center; margin-bottom: -8px; }
+.anker {
+  display: grid; gap: 2px; justify-items: start; min-width: 0; min-height: 56px; padding: 10px 14px 11px;
+  border-radius: 14px; border: 1px solid rgb(255 255 255 / 0.14); background: rgb(12 14 17 / 0.72);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  color: var(--held-tinte); font: 600 0.9375rem/1.25 var(--schrift-text); text-align: left; cursor: pointer;
+  transition: border-color 220ms ease, box-shadow 320ms var(--raus), transform 140ms var(--raus);
+}
+.anker small { font: 400 0.75rem/1.3 var(--schrift-mono); color: var(--held-tinte-2); letter-spacing: 0.02em; }
+.anker:active { transform: scale(0.97); }
+.anker[aria-pressed="true"] { border-color: rgb(246 169 75 / 0.75); box-shadow: 0 0 0 4px rgb(240 150 44 / 0.14), 0 0 32px -4px rgb(240 150 44 / 0.45); }
+.anker[aria-pressed="true"] small { color: #f6c48a; }
+@media (hover: hover) and (pointer: fine) { .anker:hover { border-color: rgb(255 255 255 / 0.32); } }
+@media (max-width: 860px) {
+  .held { padding-block: 40px 140px; }
+  .held-raster { grid-template-columns: 1fr; min-height: 0; gap: 20px; }
+  .held-text { order: 2; }
+  .anker-reihe { order: 1; margin: 230px 0 8px; justify-self: stretch; }
+  .anker { flex: 1 1 0; min-width: 0; }
+}
+@media (max-width: 420px) { .anker { padding-inline: 10px; } .anker small { display: none; } }
+
+/* Das Produkt schaut aus der Bühne heraus */
+.produkt { margin-top: clamp(-220px, -16vw, -110px); position: relative; z-index: 2; }
+.unterschrift { margin: 16px auto 0; max-width: 60ch; text-align: center; color: var(--tinte-3); font-size: 0.9375rem; }
+/* Fensterrahmen für Bildschirmfotos – die einzige Tiefe auf der Seite */
+.fenster {
+  border-radius: var(--r-rahmen); overflow: hidden; background: #1b1d21; box-shadow: var(--schatten);
+  border: 1px solid color-mix(in srgb, var(--linie) 60%, transparent);
+}
+.fenster .titel { display: flex; gap: 7px; padding: 12px 14px; background: #24272c; }
+.fenster .titel i { width: 11px; height: 11px; border-radius: 50%; background: #4a4e56; }
+.fenster img { width: 100%; aspect-ratio: 1600 / 965; object-fit: cover; }
+
+/* ── Körper ── */
+.kopfzeile { display: grid; gap: 18px; max-width: 760px; margin-bottom: 40px; }
+.wahl {
+  position: relative; display: inline-grid; grid-template-columns: repeat(3, 1fr); padding: 4px;
+  background: color-mix(in srgb, var(--linie) 55%, var(--bg)); border-radius: 14px; max-width: 100%;
+}
+.wahl .schieber {
+  position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 10px;
+  background: var(--flaeche); box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  transition: transform 260ms var(--raus);
+}
+.wahl button {
+  position: relative; z-index: 1; border: 0; background: none; cursor: pointer; min-height: 44px; padding: 8px 18px;
+  font: 600 0.9375rem/1.2 var(--schrift-text); color: var(--tinte-2); border-radius: 10px; white-space: nowrap;
+}
+.wahl button[aria-selected="true"] { color: var(--tinte); }
+.buehne { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 56px); align-items: start; margin-top: 28px; }
+.buehne .fenster img { transition: opacity 200ms var(--raus), transform 260ms var(--raus); }
+.buehne.wechselt .fenster img { opacity: 0; transform: scale(0.985); }
+.steckbrief { display: grid; gap: 18px; min-width: 0; }
+.steckbrief .hersteller { font-family: var(--schrift-mono); font-size: 0.8125rem; color: var(--tinte-3); letter-spacing: 0.02em; }
+.steckbrief dl { margin: 6px 0 0; display: grid; gap: 0; border-top: 1px solid var(--linie); }
+.steckbrief dl div { display: grid; grid-template-columns: 9.5em 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--linie); }
+.steckbrief dt { color: var(--tinte-3); font-size: 0.9375rem; }
+.steckbrief dd { margin: 0; font-size: 0.9375rem; }
+.verweise { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 0; padding: 0; list-style: none; }
+.verweise a { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--linie); border-radius: 999px;
+  color: var(--tinte); font-size: 0.875rem; text-decoration: none; transition: border-color 160ms cubic-bezier(0.23, 1, 0.32, 1), transform 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+.verweise a:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .verweise a:hover { border-color: var(--akzent); } }
+.raus { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0.6; }
+footer a { color: inherit; text-decoration: underline; text-decoration-color: var(--linie); text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { footer a:hover { text-decoration-color: currentColor; } }
+.stand { display: inline-flex; align-items: center; gap: 8px; }
+.stand::before { content: ""; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.stand--ja::before { background: var(--gut); }
+.stand--bald::before { background: transparent; box-shadow: inset 0 0 0 2px var(--hinweis); }
+@media (max-width: 860px) {
+  .buehne { grid-template-columns: 1fr; }
+  .wahl { display: grid; width: 100%; }
+  .wahl button { padding-inline: 6px; white-space: normal; font-size: 0.875rem; }
+}
+@media (max-width: 420px) { .steckbrief dl div { grid-template-columns: 1fr; gap: 2px; } }
+
+/* ── Was alle teilen ── */
+.geteilt { display: grid; gap: clamp(56px, 8vw, 96px); }
+.paar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+.paar.links { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+.paar.links .bild { order: -1; }
+.paar .text { display: grid; gap: 16px; min-width: 0; }
+.bild { border-radius: var(--r-rahmen); overflow: hidden; box-shadow: var(--schatten); background: #1b1d21; }
+.bild img { width: 100%; }
+@media (max-width: 860px) { .paar, .paar.links { grid-template-columns: 1fr; } .paar.links .bild { order: 0; } }
+.liste { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; color: var(--tinte-2); }
+.liste li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; }
+.liste li::before { content: ""; width: 6px; height: 6px; margin-top: 0.62em; border-radius: 50%; background: var(--akzent); justify-self: center; }
+
+/* ── Sicherheit: ein Datenblatt ── */
+.sicher { background: var(--flaeche); border-block: 1px solid var(--linie); }
+.blatt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 44px; border-top: 1px solid var(--linie); }
+.blatt > div { padding: 26px 24px 28px 0; border-bottom: 1px solid var(--linie); display: grid; gap: 8px; align-content: start; }
+.blatt .wert { font: 650 clamp(1.9rem, 3.4vw, 2.6rem)/1 var(--schrift-anzeige); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.blatt .wert--taste { justify-self: start; padding: 8px 14px 10px; border: 1px solid var(--linie); border-radius: 12px; font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--tinte) 12%, transparent); }
+.blatt .wert small { font-size: 0.5em; font-weight: 500; color: var(--tinte-3); margin-left: 4px; }
+.blatt p { color: var(--tinte-2); font-size: 0.9375rem; max-width: 30em; }
+@media (max-width: 860px) { .blatt { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .blatt { grid-template-columns: 1fr; } }
+
+/* ── Loslegen ── */
+.schritte { margin: 44px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; counter-reset: s; }
+.schritte li { counter-increment: s; display: grid; gap: 10px; align-content: start; }
+.schritte li::before {
+  content: counter(s); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  font: 650 0.9375rem/1 var(--schrift-anzeige); background: var(--tinte); color: var(--bg);
+}
+.schritte p { color: var(--tinte-2); }
+code { font-family: var(--schrift-mono); font-size: 0.88em; padding: 1px 6px; border-radius: 6px; background: color-mix(in srgb, var(--linie) 60%, transparent); color: var(--tinte); }
+@media (max-width: 860px) { .schritte { grid-template-columns: 1fr; } }
+.code {
+  margin-top: 40px; display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 20px;
+  background: #15171b; color: #e9ecf1; border-radius: 14px; max-width: 760px;
+}
+.code pre { margin: 0; flex: 1; min-width: 0; overflow-x: auto; font: 400 0.9375rem/1.7 var(--schrift-mono); }
+.code pre .k { color: #8b93a1; }
+.code button {
+  flex: none; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #343840; background: #1f2227;
+  color: #e9ecf1; font: 600 0.8125rem/1 var(--schrift-text); cursor: pointer; transition: transform 140ms var(--raus);
+}
+.code button:active { transform: scale(0.97); }
+.code button { display: inline-flex; align-items: center; gap: 6px; }
+.haken { width: 14px; height: 0; fill: none; stroke: #7fd6a4; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 16; stroke-dashoffset: 16; transition: height 0ms 200ms, stroke-dashoffset 260ms var(--raus); }
+.code button.fertig .haken { height: 14px; stroke-dashoffset: 0; transition: stroke-dashoffset 260ms var(--raus); }
+
+/* ── Gemeinschaft ── */
+.gemeinsam { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: end; }
+.gemeinsam .handeln { justify-content: flex-start; }
+@media (max-width: 860px) { .gemeinsam { grid-template-columns: 1fr; } }
+
+/* ── Fuß ── */
+footer { padding-block: 40px 56px; border-top: 1px solid var(--linie); color: var(--tinte-3); font-size: 0.875rem; }
+footer .huelle { display: grid; gap: 10px; }
+footer p { max-width: 70em; }
+footer .rechtliches { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+footer .rechtliches a { display: inline-block; padding-block: 6px; }
+/* ── Impressum und Datenschutz: eine ruhige Lesespalte ── */
+.recht { max-width: 760px; padding-block: 56px 72px; }
+.recht h1 { font-size: clamp(2.4rem, 6vw, 3.6rem); margin-bottom: 20px; }
+.recht h2 { font-size: 1.375rem; font-weight: 650; letter-spacing: -0.01em; margin: 36px 0 10px; }
+.recht p + p { margin-top: 12px; }
+.recht address { font-style: normal; }
+.recht .kurz { font-size: 1.1875rem; color: var(--tinte-2); }
+.recht .recht-stand { margin-top: 40px; color: var(--tinte-3); font-size: 0.875rem; }
+.recht a { color: var(--akzent-text); text-underline-offset: 3px; }
+.recht code { font: 0.9em var(--schrift-mono); }
+.platzhalter { display: inline-block; padding: 2px 8px; border-radius: 6px; border: 1px dashed var(--hinweis); color: var(--hinweis); }
+
+/* ── Scrollen wie auf einer Produktseite: Inhalte folgen dem Scrollen direkt (scroll-driven, ohne Zeitachse).
+   Nur Bewegung und Größe für Text (bleibt jederzeit lesbar), Deckkraft nur für Bilder. Ohne Unterstützung: ruhige Seite. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes aufrichten { from { transform: perspective(1400px) rotateX(16deg) scale(0.9); opacity: 0.55; } to { transform: none; opacity: 1; } }
+    @keyframes heben { from { transform: translateY(48px); } to { transform: none; } }
+    @keyframes einblenden { from { transform: translateY(40px) scale(0.97); opacity: 0.25; } to { transform: none; opacity: 1; } }
+    @keyframes zuruecktreten { from { transform: none; opacity: 1; } to { transform: scale(0.9) translateY(-6%); opacity: 0.15; } }
+    .produkt .fenster { transform-origin: 50% 100%; animation: aufrichten linear both; animation-timeline: view(); animation-range: entry 0% cover 42%; }
+    .kopfzeile, .paar .text, .schritte li, .blatt > div, .gemeinsam .handeln {
+      animation: heben linear both; animation-timeline: view(); animation-range: entry 0% entry 90%;
+    }
+    @keyframes naeher { from { transform: translateY(40px) scale(0.97); } to { transform: none; } }
+    /* Bilder dürfen aufblenden; Flächen mit Text nur gleiten – Kontrast bleibt in jedem Moment voll (WCAG 1.4.3) */
+    .bild { animation: einblenden linear both; animation-timeline: view(); animation-range: entry 5% cover 30%; }
+    .buehne .fenster, .code { animation: naeher linear both; animation-timeline: view(); animation-range: entry 5% cover 30%; }
+    @keyframes druecken { 0%, 40% { transform: none; } 55% { transform: translateY(2px); box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--tinte) 12%, transparent); } 75%, 100% { transform: none; } }
+    .blatt .wert--taste { animation: druecken linear both; animation-timeline: view(); animation-range: entry 40% cover 45%; }
+    #geist { animation: zuruecktreten linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+    .held-text { animation: heben linear both reverse; animation-timeline: view(); animation-range: exit 10% exit 90%; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .wahl .schieber, .knopf, .code button, .navi a::after, .haken, .anker, .sprung { transition: none; }
+  .buehne .fenster img { transition: opacity 160ms ease; }
+  .buehne.wechselt .fenster img { transform: none; }
+}
+</style>
+
+<a class="sprung" href="#inhalt"><span class="t" lang="de">Zum Inhalt springen</span><span class="t" lang="en">Skip to content</span></a>
+<header class="leiste">
+  <div class="huelle">
+    <a class="marke" href="#start" aria-label="Knowlin – Startseite"><img src="bilder/zeichen-64.webp" alt="" width="30" height="30">Knowlin</a>
+    <nav class="navi" aria-label="Seite">
+      <a href="#koerper"><span class="t" lang="de">Körper</span><span class="t" lang="en">Bodies</span></a>
+      <a href="#gemeinsam"><span class="t" lang="de">Funktionen</span><span class="t" lang="en">Features</span></a>
+      <a href="#sicherheit"><span class="t" lang="de">Sicherheit</span><span class="t" lang="en">Safety</span></a>
+      <a href="#loslegen"><span class="t" lang="de">Loslegen</span><span class="t" lang="en">Get started</span></a>
+      <a href="ausprobieren.html"><span class="t" lang="de">Ausprobieren</span><span class="t" lang="en">Try it</span></a>
+    </nav>
+    <div class="sprache" role="group" aria-label="Sprache · Language">
+      <button type="button" id="sprache-de" data-sprache="de" aria-pressed="true">DE</button>
+      <button type="button" id="sprache-en" data-sprache="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main id="start">
+  <section class="held" aria-labelledby="held-titel">
+    <canvas id="geist" aria-hidden="true"></canvas>
+    <div class="huelle held-raster">
+      <div class="held-text" id="inhalt" tabindex="-1">
+        <h1 id="held-titel">
+          <span class="t" lang="de">Ein Kopf.<span class="zweite">Viele Körper.</span></span>
+          <span class="t" lang="en">One mind.<span class="zweite">Many bodies.</span></span>
+        </h1>
+        <p class="leit">
+          <span class="t" lang="de">Knowlin ist ein lernender Begleiter. Er spricht mit dir, merkt sich, was er erlebt, und zieht in kleine Roboter ein – mit demselben Gedächtnis in jedem Körper. Heute virtuell im Simulator, bald bei dir zu Hause in deiner echten Umgebung.</span>
+          <span class="t" lang="en">Knowlin is a learning companion. It talks with you, remembers what it experiences and moves into small robots – with the same memory in every body. Virtual in the simulator today, soon out in your real surroundings at home.</span>
+        </p>
+        <div class="handeln">
+          <a class="knopf knopf--voll" href="https://github.com/knowlin-ai/knowlin" rel="noopener">
+            <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.66 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0Z"/></svg>
+            <span class="t" lang="de">Auf GitHub ansehen</span><span class="t" lang="en">View on GitHub</span>
+          </a>
+          <a class="knopf knopf--rand" href="ausprobieren.html"><span class="t" lang="de">Im Browser ausprobieren</span><span class="t" lang="en">Try it in your browser</span></a>
+        </div>
+        <ul class="fakten">
+          <li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5"/></svg><span class="t" lang="de">Kostenlos und Open Source (Apache-2.0)</span><span class="t" lang="en">Free and open source (Apache-2.0)</span></li>
+          <li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="8.5" rx="1.5"/><path d="M5.5 13.75h5M8 11.25v2.5"/></svg><span class="t" lang="de">Windows, macOS und Linux</span><span class="t" lang="en">Windows, macOS and Linux</span></li>
+          <li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg><span class="t" lang="de">Gedächtnis liegt nur auf deinem PC</span><span class="t" lang="en">Memory lives only on your PC</span></li>
+        </ul>
+      </div>
+      <div class="anker-reihe" role="group" aria-label="Verkörperung wecken">
+        <button type="button" class="anker" id="anker-microduck" data-anker="microduck" aria-pressed="false">Microduck<small><span class="t" lang="de">läuft und tanzt</span><span class="t" lang="en">walks and dances</span></small></button>
+        <button type="button" class="anker" id="anker-reachy" data-anker="reachy" aria-pressed="false">Reachy Mini<small><span class="t" lang="de">schaut und spielt</span><span class="t" lang="en">looks and plays</span></small></button>
+        <button type="button" class="anker" id="anker-odi" data-anker="odi" aria-pressed="false">Open Duck Mini<small><span class="t" lang="de">watschelt</span><span class="t" lang="en">waddles</span></small></button>
+      </div>
+    </div>
+  </section>
+  <div class="huelle produkt">
+    <div class="fenster">
+        <div class="titel" aria-hidden="true"><i></i><i></i><i></i></div>
+        <img data-bild="start" src="bilder/start-de-1600.webp" srcset="bilder/start-de-900.webp 900w, bilder/start-de-1600.webp 1600w" sizes="(max-width: 1120px) 100vw, 1080px" width="1600" height="965"
+             alt="Knowlins Startseite: links das Netz seiner Gedanken, daneben das Gespräch, darunter die drei Verkörperungen zum Aufwecken" data-alt-en="Knowlin's start page: its network of thoughts on the left, the conversation next to it, the three embodiments below, ready to wake">
+      </div>
+    <p class="unterschrift">
+      <span class="t" lang="de">Knowlin selbst – ganz ohne Roboter: Gespräch, Gedächtnis und Alltag am PC. Von hier aus weckst du eine Verkörperung.</span>
+      <span class="t" lang="en">Knowlin itself – no robot needed: conversation, memory and everyday help on your PC. From here you wake an embodiment.</span>
+    </p>
+  </div>
+
+  <section id="koerper">
+    <div class="huelle">
+      <div class="kopfzeile">
+        <h2><span class="t" lang="de">Drei Körper, ein Gedächtnis.</span><span class="t" lang="en">Three bodies, one memory.</span></h2>
+        <p class="leit">
+          <span class="t" lang="de">Jede Verkörperung hat ihren eigenen Namen, ihre Stimme und kann nur, was ihr Körper kann. Was einer erlebt, wissen alle.</span>
+          <span class="t" lang="en">Each embodiment has its own name and voice, and only does what its body can do. What one of them experiences, all of them know.</span>
+        </p>
+      </div>
+      <div class="wahl" role="tablist" aria-label="Verkörperung">
+        <span class="schieber" aria-hidden="true"></span>
+        <button type="button" role="tab" id="tab-microduck" aria-selected="true" aria-controls="koerper-buehne" data-koerper="microduck">Microduck</button>
+        <button type="button" role="tab" id="tab-reachy" aria-selected="false" aria-controls="koerper-buehne" data-koerper="reachy" tabindex="-1">Reachy Mini</button>
+        <button type="button" role="tab" id="tab-odi" aria-selected="false" aria-controls="koerper-buehne" data-koerper="odi" tabindex="-1">Open Duck Mini</button>
+      </div>
+      <div class="buehne" id="koerper-buehne" role="tabpanel" aria-labelledby="tab-microduck">
+        <div class="fenster">
+          <div class="titel" aria-hidden="true"><i></i><i></i><i></i></div>
+          <img data-bild="cockpit" src="bilder/cockpit-de-1600.webp" srcset="bilder/cockpit-de-900.webp 900w, bilder/cockpit-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 640px" width="1600" height="965" alt="">
+        </div>
+        <div class="steckbrief" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gemeinsam">
+    <div class="huelle geteilt">
+      <div class="paar">
+        <div class="text">
+          <h2><span class="t" lang="de">Er merkt sich, was passiert.</span><span class="t" lang="en">It remembers what happens.</span></h2>
+          <p class="leit">
+            <span class="t" lang="de">Orte, Dinge, Vorlieben und Erlebnisse wachsen zu einem Erfahrungsnetz. Du siehst live, was gerade aufleuchtet – und kannst einzelne Erinnerungen vergessen lassen.</span>
+            <span class="t" lang="en">Places, things, preferences and experiences grow into a network of experience. You see live what lights up – and can make it forget single memories.</span>
+          </p>
+          <ul class="liste">
+            <li><span class="t" lang="de">Liegt nur auf deinem PC – das Sprachmodell sieht je Nachricht nur den passenden Ausschnitt</span><span class="t" lang="en">Stored only on your PC – the language model only sees the relevant excerpt per message</span></li>
+            <li><span class="t" lang="de">Jede Erinnerung weiß, welcher Körper sie gelernt hat</span><span class="t" lang="en">Every memory knows which body learned it</span></li>
+          </ul>
+        </div>
+        <div class="bild"><img data-bild="synapsen" src="bilder/synapsen-de-1600.webp" srcset="bilder/synapsen-de-900.webp 900w, bilder/synapsen-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 600px" width="1600" height="673" loading="lazy"
+          alt="Hirnaktivität: das Erfahrungsnetz verknüpft Orte, Tätigkeiten, Gefühle und Tageszeiten, etwa Wohnzimmer, tanzen und Freude" data-alt-en="Brain activity: the experience network links places, activities, feelings and times of day, such as living room, dancing and joy"></div>
+      </div>
+      <div class="paar links">
+        <div class="text">
+          <h2><span class="t" lang="de">Ein Charakter, keine Fernbedienung.</span><span class="t" lang="en">A character, not a remote.</span></h2>
+          <p class="leit">
+            <span class="t" lang="de">Du legst Knowlins Grundcharakter fest – ruhig oder lebhaft, sachlich oder verspielt. Jede Verkörperung bringt ihre eigene Note mit und beschäftigt sich von selbst, wenn du gerade nichts sagst.</span>
+            <span class="t" lang="en">You set Knowlin's basic character – calm or lively, serious or playful. Each embodiment adds its own touch and keeps itself busy when you're not saying anything.</span>
+          </p>
+          <ul class="liste">
+            <li><span class="t" lang="de">Claude und andere Modelle (OpenAI, Gemini, Mistral) mit eigenem Schlüssel – oder kostenlos und lokal mit Ollama</span><span class="t" lang="en">Claude and other models (OpenAI, Gemini, Mistral) with your own key – or free and local with Ollama</span></li>
+            <li><span class="t" lang="de">Ohne KI gehen einfache Befehle trotzdem: „lauf vor“, „tanz“, „stopp“</span><span class="t" lang="en">Without any AI, simple commands still work: “walk forward”, “dance”, “stop”</span></li>
+            <li><span class="t" lang="de">Sprechen per Taste oder Weckwort, Antworten mit eigener Stimme</span><span class="t" lang="en">Talk with a key or a wake word, answers in its own voice</span></li>
+            <li><span class="t" lang="de">Charakter, Tricks und Tänze als Knowlet teilen – auch über Hugging Face</span><span class="t" lang="en">Share character, tricks and dances as a Knowlet – also via Hugging Face</span></li>
+          </ul>
+        </div>
+        <div class="bild"><img data-bild="charakter" src="bilder/charakter-de-1600.webp" srcset="bilder/charakter-de-900.webp 900w, bilder/charakter-de-1600.webp 1065w" sizes="(max-width: 860px) 100vw, 640px" width="1065" height="1042" loading="lazy"
+          alt="Charakterfeld: Knowlins Grundcharakter zwischen ruhig und lebhaft, seriös und verspielt, die Verkörperungen als Punkte" data-alt-en="Character field: Knowlin's basic character between calm and lively, serious and playful, with the embodiments as points"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sicher" id="sicherheit">
+    <div class="huelle">
+      <div class="kopfzeile">
+        <h2><span class="t" lang="de">Sicherheit ist nicht verhandelbar.</span><span class="t" lang="en">Safety is not negotiable.</span></h2>
+        <p class="leit">
+          <span class="t" lang="de">Diese Regeln stehen im Code und gelten für jedes Sprachmodell. Ein Beitrag, der sie aufweicht, wird nicht angenommen.</span>
+          <span class="t" lang="en">These rules live in the code and apply to every language model. A contribution that weakens them won't be accepted.</span>
+        </p>
+      </div>
+      <div class="blatt">
+        <div>
+          <span class="wert wert--taste">Esc</span>
+          <p><span class="t" lang="de">Not-Aus gewinnt immer – Taste, roter Knopf oder „Stopp“ in jeder Sprache, auch ohne KI.</span><span class="t" lang="en">The emergency stop always wins – key, red button or “stop” in any language, even without AI.</span></p>
+        </div>
+        <div>
+          <span class="wert">120<small>s</small></span>
+          <p><span class="t" lang="de">Sperre nach dem Not-Aus. In dieser Zeit steht nichts von selbst auf und nichts startet.</span><span class="t" lang="en">Lock after an emergency stop. Nothing gets up or starts by itself during that time.</span></p>
+        </div>
+        <div>
+          <span class="wert"><span class="t" lang="de">nie</span><span class="t" lang="en">never</span></span>
+          <p><span class="t" lang="de">Aufstehen nach einem Sturz nur nach dem Stopp-Fenster – und nie, wenn der Roboter hochgehoben ist.</span><span class="t" lang="en">Getting up after a fall only after the stop window – and never while the robot is picked up.</span></p>
+        </div>
+        <div>
+          <span class="wert">2 <small><span class="t" lang="de">Klicks</span><span class="t" lang="en">clicks</span></small></span>
+          <p><span class="t" lang="de">Bezahltes Training in der Cloud startet nur nach einer zweiten Bestätigung.</span><span class="t" lang="en">Paid training in the cloud only starts after a second confirmation.</span></p>
+        </div>
+        <div>
+          <span class="wert"><span class="t" lang="de">Tresor</span><span class="t" lang="en">Vault</span></span>
+          <p><span class="t" lang="de">API-Schlüssel liegen im Tresor des Betriebssystems, nie in Dateien, Protokollen oder Berichten.</span><span class="t" lang="en">API keys live in the operating system's vault, never in files, logs or reports.</span></p>
+        </div>
+        <div>
+          <span class="wert">PC</span>
+          <p><span class="t" lang="de">Personen erkennt Knowlin nur nach Einwilligung, nur am PC – nie vom Handy aus.</span><span class="t" lang="en">Knowlin only recognises people after consent, only on the PC – never from a phone.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="loslegen">
+    <div class="huelle">
+      <div class="kopfzeile">
+        <h2><span class="t" lang="de">In drei Schritten im Simulator.</span><span class="t" lang="en">In the simulator in three steps.</span></h2>
+        <p class="leit">
+          <span class="t" lang="de">Du brauchst keinen Roboter, um anzufangen. Wenn deiner ankommt, schaltest du um.</span>
+          <span class="t" lang="en">You don't need a robot to start. When yours arrives, you switch over.</span>
+        </p>
+      </div>
+      <ol class="schritte">
+        <li>
+          <h3><span class="t" lang="de">Python installieren</span><span class="t" lang="en">Install Python</span></h3>
+          <p><span class="t" lang="de">Version 3.11 oder neuer von python.org – unter Windows mit Haken bei „Add to PATH“.</span><span class="t" lang="en">Version 3.11 or newer from python.org – on Windows, tick “Add to PATH”.</span></p>
+        </li>
+        <li>
+          <h3><span class="t" lang="de">Knowlin starten</span><span class="t" lang="en">Start Knowlin</span></h3>
+          <p><span class="t" lang="de">Herunterladen, dann <code>start.bat</code> (Windows) oder <code>./start.sh</code> (macOS, Linux). Beim ersten Mal dauert es ein paar Minuten.</span><span class="t" lang="en">Download it, then run <code>start.bat</code> (Windows) or <code>./start.sh</code> (macOS, Linux). The first start takes a few minutes.</span></p>
+        </li>
+        <li>
+          <h3><span class="t" lang="de">Erste Schritte</span><span class="t" lang="en">First steps</span></h3>
+          <p><span class="t" lang="de">Der Assistent fragt nach Sprache, Körper und Gehirn. Für einen echten Roboter prüft er vorher die Verbindung.</span><span class="t" lang="en">The assistant asks for language, body and brain. For a real robot it checks the connection first.</span></p>
+        </li>
+      </ol>
+      <div class="code">
+        <pre id="befehle" tabindex="0" aria-label="Befehle zum Starten"><span class="k">$</span> git clone https://github.com/knowlin-ai/knowlin.git
+<span class="k">$</span> cd knowlin &amp;&amp; ./start.sh</pre>
+        <button type="button" id="kopieren"><svg class="haken" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg><span class="t" lang="de">Kopieren</span><span class="t" lang="en">Copy</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sicher" id="mitmachen">
+    <div class="huelle gemeinsam">
+      <div class="kopfzeile" style="margin-bottom:0">
+        <h2><span class="t" lang="de">Gebaut, um mitzumachen.</span><span class="t" lang="en">Built to be built on.</span></h2>
+        <p class="leit">
+          <span class="t" lang="de">Übersetzungen, neue Tricks, ein Modul für deinen eigenen Roboter oder ein Bericht vom echten Gerät – jeder Beitrag hilft. Die ersten Microducks werden ab Dezember ausgeliefert.</span>
+          <span class="t" lang="en">Translations, new tricks, a module for your own robot or a report from real hardware – every contribution helps. The first Microducks ship from December.</span>
+        </p>
+      </div>
+      <div class="handeln">
+        <a class="knopf knopf--voll" href="https://github.com/knowlin-ai/knowlin/issues?q=label%3A%22good+first+issue%22" rel="noopener"><span class="t" lang="de">Einsteiger-Aufgaben</span><span class="t" lang="en">Good first issues</span></a>
+        <a class="knopf knopf--rand" href="https://github.com/knowlin-ai/knowlin/discussions" rel="noopener"><span class="t" lang="de">Fragen und Zeigen</span><span class="t" lang="en">Questions and show &amp; tell</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="huelle">
+    <p>
+      <span class="t" lang="de">Knowlin ist ein freies, nicht-kommerzielles Hobbyprojekt und nicht mit <a href="https://pollen-robotics.com/" rel="noopener">Pollen Robotics</a> oder <a href="https://huggingface.co/" rel="noopener">Hugging Face</a> verbunden. <a href="https://pollen-robotics.com/microduck/" rel="noopener">Microduck</a> und <a href="https://pollen-robotics.com/reachy-mini/" rel="noopener">Reachy Mini</a> sind Produkte von Pollen Robotics, <a href="https://github.com/apirrone/Open_Duck_Mini" rel="noopener">Open Duck Mini</a> ist ein offenes Projekt von Antoine Pirrone und Community.</span>
+      <span class="t" lang="en">Knowlin is a free, non-commercial hobby project and not affiliated with <a href="https://pollen-robotics.com/" rel="noopener">Pollen Robotics</a> or <a href="https://huggingface.co/" rel="noopener">Hugging Face</a>. <a href="https://pollen-robotics.com/microduck/" rel="noopener">Microduck</a> and <a href="https://pollen-robotics.com/reachy-mini/" rel="noopener">Reachy Mini</a> are products of Pollen Robotics; <a href="https://github.com/apirrone/Open_Duck_Mini" rel="noopener">Open Duck Mini</a> is an open project by Antoine Pirrone and community.</span>
+    </p>
+    <p>
+      <span class="t" lang="de">© 2026 Knowlin, Quelltext unter Apache-2.0. Diese Seite setzt keine Cookies und lädt nichts von fremden Servern.</span>
+      <span class="t" lang="en">© 2026 Knowlin, source code under Apache-2.0. This page sets no cookies and loads nothing from other servers.</span>
+    </p>
+    <nav class="rechtliches" aria-label="Rechtliches · Legal">
+      <a href="impressum.html"><span class="t" lang="de">Impressum</span><span class="t" lang="en">Legal notice</span></a>
+      <a href="datenschutz.html"><span class="t" lang="de">Datenschutz</span><span class="t" lang="en">Privacy</span></a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const sprache = () => (document.documentElement.lang === 'en' ? 'en' : 'de');
+  let netz = null;                         // Knowlins neuronales Netz auf der Bühne (unten angelegt)
+
+  // Steckbriefe der Verkörperungen – nur, was heute stimmt
+  const KOERPER = {
+    microduck: {
+      bild: 'cockpit',
+      de: { name: 'Microduck', von: 'Pollen Robotics · Hugging Face', text: 'Läuft, tanzt, schießt den Ball und hebt Dinge auf. Im Simulator mit echter Physik und Pollens eigenen Bewegungs-Policies – in allen vier Farben von Pollen.',
+        zeilen: [['Simulator', 'ja', 'mit echter Physik'], ['Echter Roboter', 'bald', 'über Pollens robotd – getestet ab der ersten Lieferung'], ['Sinne', null, 'Tiefensensor 8 × 8, Kopfkamera, Mikrofon']],
+        alt: 'Cockpit mit der Microduck im Simulator-Wohnzimmer, daneben das Gespräch' },
+      en: { name: 'Microduck', von: 'Pollen Robotics · Hugging Face', text: 'Walks, dances, kicks the ball and picks things up. In the simulator with real physics and Pollen\'s own motion policies – in all four of Pollen\'s colours.',
+        zeilen: [['Simulator', 'ja', 'with real physics'], ['Real robot', 'bald', 'via Pollen\'s robotd – tested from the first deliveries'], ['Senses', null, '8 × 8 depth sensor, head camera, microphone']],
+        alt: 'Cockpit with the Microduck in the simulator living room and the conversation next to it' },
+    },
+    reachy: {
+      bild: 'reachy',
+      de: { name: 'Reachy Mini', von: 'Pollen Robotics · Hugging Face', text: 'Ein Kopf mit sechs Freiheitsgraden, Antennen und drehbarem Körper. Pollens Emotionen und Tänze, Pollens Apps per Klick starten, dazu Kamera-Spiele, die nur im Browser rechnen.',
+        zeilen: [['Simulator', 'ja', 'auf dem Couchtisch'], ['Echter Roboter', 'bald', 'über Pollens Daemon – noch ungetestet'], ['Sinne', null, 'Kamera, Mikrofon, Lautsprecher']],
+        alt: 'Reachy Mini im Simulator auf dem Couchtisch, daneben das Gespräch' },
+      en: { name: 'Reachy Mini', von: 'Pollen Robotics · Hugging Face', text: 'A head with six degrees of freedom, antennas and a rotating body. Pollen\'s emotions and dances, Pollen\'s apps started with one click, plus camera games that run only in your browser.',
+        zeilen: [['Simulator', 'ja', 'on the coffee table'], ['Real robot', 'bald', 'via Pollen\'s daemon – not yet tested'], ['Senses', null, 'camera, microphone, speaker']],
+        alt: 'Reachy Mini in the simulator on the coffee table, with the conversation next to it' },
+    },
+    odi: {
+      bild: 'odi',
+      de: { name: 'Open Duck Mini v2', von: 'Antoine Pirrone und Community · Selbstbau', text: 'Der offene Vorgänger zum Nachbauen, rund 42 cm groß. Im Simulator mit seinem offenen Modell; jede gebaute Ente bringt ihre eigenen Sensoren mit.',
+        zeilen: [['Simulator', 'ja', 'mit offenem 3D-Modell'], ['Echter Roboter', 'bald', 'geplant'], ['Sinne', null, 'je nach Bau']],
+        alt: 'Open Duck Mini im Simulator beim Tanzen, daneben das Gespräch' },
+      en: { name: 'Open Duck Mini v2', von: 'Antoine Pirrone and community · DIY', text: 'The open predecessor to build yourself, about 42 cm tall. In the simulator with its open model; every built duck brings its own sensors.',
+        zeilen: [['Simulator', 'ja', 'with its open 3D model'], ['Real robot', 'bald', 'planned'], ['Senses', null, 'depending on the build']],
+        alt: 'Open Duck Mini dancing in the simulator, with the conversation next to it' },
+    },
+  };
+
+  const quelle = (name, w) => `bilder/${name}-${sprache()}-${w}.webp`;
+  function bildSetzen(img, name) {
+    img.src = quelle(name, 1600);
+    img.srcset = `${quelle(name, 900)} 900w, ${quelle(name, 1600)} ${name === 'charakter' ? 1065 : 1600}w`;
+  }
+
+  // Weiterlesen bei den Herstellern und Projekten (offizielle Seiten, Code, Spaces)
+  const VERWEISE = {
+    microduck: [['Herstellerseite', 'Manufacturer page', 'https://pollen-robotics.com/microduck/'],
+      ['Code auf GitHub', 'Code on GitHub', 'https://github.com/pollen-robotics/microduck'],
+      ['Simulator-Space', 'Simulator Space', 'https://huggingface.co/spaces/pollen-robotics/microduck-simulator']],
+    reachy: [['Herstellerseite', 'Manufacturer page', 'https://pollen-robotics.com/reachy-mini/'],
+      ['Code auf GitHub', 'Code on GitHub', 'https://github.com/pollen-robotics/reachy_mini'],
+      ['Apps-Space', 'Apps Space', 'https://huggingface.co/spaces/pollen-robotics/Reachy_Mini_Apps']],
+    odi: [['Projekt auf GitHub', 'Project on GitHub', 'https://github.com/apirrone/Open_Duck_Mini']],
+  };
+  const RAUS = '<svg class="raus" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9"/></svg>';
+
+  let aktiv = 'microduck';
+  function steckbrief() {
+    const k = KOERPER[aktiv][sprache()];
+    const box = document.querySelector('.steckbrief');
+    box.replaceChildren();
+    const von = document.createElement('p'); von.className = 'hersteller'; von.textContent = k.von;
+    const h = document.createElement('h3'); h.textContent = k.name;
+    const p = document.createElement('p'); p.className = 'leit'; p.style.fontSize = '1.0625rem'; p.textContent = k.text;
+    const dl = document.createElement('dl');
+    for (const [dt, stand, dd] of k.zeilen) {
+      const d = document.createElement('div');
+      const t = document.createElement('dt'); t.textContent = dt;
+      const v = document.createElement('dd');
+      if (stand) { const s = document.createElement('span'); s.className = `stand stand--${stand}`; s.textContent = dd; v.append(s); } else v.textContent = dd;
+      d.append(t, v); dl.append(d);
+    }
+    const ul = document.createElement('ul'); ul.className = 'verweise';
+    ul.setAttribute('aria-label', sprache() === 'en' ? `Learn more about ${k.name}` : `Mehr zu ${k.name}`);
+    for (const [de, en, url] of VERWEISE[aktiv]) {
+      const li = document.createElement('li'); const a = document.createElement('a');
+      a.href = url; a.rel = 'noopener'; a.textContent = sprache() === 'en' ? en : de;
+      a.insertAdjacentHTML('beforeend', RAUS); li.append(a); ul.append(li);
+    }
+    box.append(von, h, p, dl, ul);
+    const img = document.querySelector('.buehne img');
+    img.alt = k.alt;
+  }
+
+  const tabs = [...document.querySelectorAll('.wahl [role="tab"]')];
+  const schieber = document.querySelector('.wahl .schieber');
+  const buehne = $('koerper-buehne');
+  function waehlen(name, fokus) {
+    if (name === aktiv && !fokus) return;
+    aktiv = name;
+    const i = tabs.findIndex((t) => t.dataset.koerper === name);
+    tabs.forEach((t, j) => { t.setAttribute('aria-selected', String(i === j)); t.tabIndex = i === j ? 0 : -1; });
+    schieber.style.transform = `translateX(${i * 100}%)`;
+    buehne.setAttribute('aria-labelledby', tabs[i].id);
+    if (fokus) tabs[i].focus();
+    // Wechsel: alt ausblenden, neues Bild laden, sanft einblenden (unterbrechbar, nur Transform und Deckkraft)
+    const img = buehne.querySelector('img');
+    buehne.classList.add('wechselt');
+    const neu = new Image();
+    neu.src = quelle(KOERPER[name].bild, 1600);
+    const zeigen = () => { if (aktiv !== name) return; bildSetzen(img, KOERPER[name].bild); steckbrief(); requestAnimationFrame(() => buehne.classList.remove('wechselt')); };
+    Promise.all([neu.decode().catch(() => {}), new Promise((r) => setTimeout(r, 120))]).then(zeigen);
+  }
+  tabs.forEach((t) => {
+    t.addEventListener('pointerdown', (e) => { if (e.button === 0) waehlen(t.dataset.koerper); });   // reagiert schon beim Drücken
+    t.addEventListener('click', () => waehlen(t.dataset.koerper));
+    t.addEventListener('keydown', (e) => {
+      const i = tabs.indexOf(t);
+      const n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
+      if (n === null) return;
+      e.preventDefault();
+      waehlen(tabs[(n + tabs.length) % tabs.length].dataset.koerper, true);
+    });
+  });
+
+  function spracheSetzen(l) {
+    document.documentElement.lang = l;
+    try { localStorage.setItem('knowlin.sprache', l); } catch (e) { /* egal */ }
+    for (const b of document.querySelectorAll('[data-sprache]')) b.setAttribute('aria-pressed', String(b.dataset.sprache === l));
+    for (const img of document.querySelectorAll('img[data-bild]')) {
+      if (!img.dataset.altDe) img.dataset.altDe = img.alt;
+      if (img.closest('.buehne')) continue;
+      bildSetzen(img, img.dataset.bild);
+      img.alt = l === 'en' && img.dataset.altEn ? img.dataset.altEn : img.dataset.altDe;
+    }
+    bildSetzen(buehne.querySelector('img'), KOERPER[aktiv].bild);
+    steckbrief();
+    netz?.neuZeichnen();
+    document.title = 'Knowlin';
+  }
+  for (const b of document.querySelectorAll('[data-sprache]')) b.addEventListener('click', () => spracheSetzen(b.dataset.sprache));
+  spracheSetzen(sprache());
+
+  $('kopieren').addEventListener('click', async () => {
+    const text = 'git clone https://github.com/knowlin-ai/knowlin.git\ncd knowlin && ./start.sh';
+    const b = $('kopieren');
+    const fertig = (de, en) => { b.querySelector('[lang="de"]').textContent = de; b.querySelector('[lang="en"]').textContent = en;
+      b.classList.add('fertig');
+      setTimeout(() => { b.classList.remove('fertig'); b.querySelector('[lang="de"]').textContent = 'Kopieren'; b.querySelector('[lang="en"]').textContent = 'Copy'; }, 1800); };
+    try { await navigator.clipboard.writeText(text); fertig('Kopiert', 'Copied'); }
+    catch {
+      const r = document.createRange(); r.selectNodeContents($('befehle'));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      fertig('Markiert – Strg+C', 'Selected – Ctrl+C');
+    }
+  });
+
+  const geist = (() => {
+    // Knowlins Kopf als räumliches Netz: einige hundert Neuronen in der Form eines Gehirns, jedes mit seinen nächsten
+    // Nachbarn verbunden. Es dreht sich langsam; ein Gedanke läuft als Lichtwelle durchs Netz und weckt am Ende über
+    // eine Leitung einen Körper (wie „Mind to Body“ in der App).
+    // Leistung: Punkte einmal erzeugt, Verbindungen nach Tiefe gebündelt (wenige Pfade je Bild), Pause außerhalb des
+    // Bildschirms und im Hintergrund-Tab. „Bewegung reduzieren“ zeigt ein ruhiges Standbild.
+    const cv = $('geist');
+    const held = document.querySelector('.held');
+    if (!cv || !cv.getContext) return null;
+    const ctx = cv.getContext('2d');
+    const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
+    const fein = matchMedia('(hover: hover) and (pointer: fine)');
+    const KOERPER = ['microduck', 'reachy', 'odi'];
+    const SCHRITT = 72;                         // ms, bis ein Signal ein Neuron weiter ist
+    let w = 0, h = 0, dpr = 1, schmal = null;
+    let knoten = [], kanten = [], nachbarn = [], mitte = { x: 0, y: 0, r: 1 }, chips = [], ausgang = [0, 0, 0];
+    let aktiv = null, ziel = null, leitung = null;
+    let sichtbar = true, laeuft = false, zuletzt = 0, naechsteWelle = 0, beruehrt = -1e9, t0 = performance.now();
+    let drehung = 0.55;
+    const blick = { x: 0, y: 0 }, blickZiel = { x: 0, y: 0 };
+
+    let saat = 7;
+    const zufall = () => ((saat = (saat * 16807) % 2147483647) / 2147483647);
+
+    const glut = document.createElement('canvas');
+    glut.width = glut.height = 64;
+    { const g = glut.getContext('2d'); const v = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      v.addColorStop(0, 'rgba(255,230,196,1)'); v.addColorStop(0.2, 'rgba(246,169,75,0.55)'); v.addColorStop(1, 'rgba(240,150,44,0)');
+      g.fillStyle = v; g.fillRect(0, 0, 64, 64); }
+
+    function erzeugen(n) {
+      saat = 7;
+      knoten = [];
+      for (let i = 0; i < n; i++) {
+        const u = zufall() * 2 - 1, phi = zufall() * Math.PI * 2, s = Math.sqrt(1 - u * u), th = Math.acos(u);
+        // Windungen: die Oberfläche ist nicht glatt, sondern gewellt
+        const beule = 1 + 0.11 * Math.sin(3 * phi + 1.2) * Math.sin(2 * th) + 0.07 * Math.sin(5 * phi) * Math.cos(3 * th + 0.5)
+          + 0.05 * Math.sin(7 * th + phi) + 0.03 * Math.sin(11 * phi + 2 * th);
+        const innen = zufall() < 0.2;
+        const r = (innen ? 0.25 + zufall() * 0.6 : 1 - Math.abs(zufall() + zufall() - 1) * 0.16) * beule;
+        const x = s * Math.cos(phi) * r;
+        const hinten = 1 - 0.16 / (1 + Math.exp((x + 0.45) * 9));          // Hinterkopf schmaler
+        const z = s * Math.sin(phi) * r * 0.8 * hinten;
+        let y = u * r * 0.7 * hinten;
+        if (y < 0) y = y * 0.78 - 0.13 * Math.exp(-(((x - 0.12) / 0.32) ** 2)) * Math.abs(s);  // Schläfenlappen hängt
+        else y *= (1 + 0.1 * x) * (1 - 0.28 * Math.exp(-((z / 0.11) ** 2)));  // Stirn höher, Furche zwischen den Hälften
+        knoten.push({ x, y, z, ph: zufall() * 6.3, hell: 0.45 + zufall() * 0.55, zuend: -1e9, frei: false });
+      }
+      // ein paar verstreute Neuronen um den Kopf – nah an der Kamera werden sie unscharf
+      for (let i = 0, m = Math.round(n * 0.04); i < m; i++) {
+        const u = zufall() * 2 - 1, phi = zufall() * Math.PI * 2, s = Math.sqrt(1 - u * u), r = 1.1 + zufall() * 0.32;
+        knoten.push({ x: s * Math.cos(phi) * r * 1.1, y: u * r * 0.72, z: s * Math.sin(phi) * r, ph: zufall() * 6.3,
+          hell: 0.4 + zufall() * 0.5, zuend: -1e9, frei: true });
+      }
+      // Verbindungen: jedes Neuron mit seinen nächsten Nachbarn
+      kanten = []; nachbarn = knoten.map(() => []);
+      const gesehen = new Set();
+      const K = 5;
+      knoten.forEach((a, i) => {
+        const nah = [];                                         // die K nächsten, sortiert (Einfügen statt Sortieren)
+        for (let j = 0; j < knoten.length; j++) {
+          if (j === i) continue;
+          const b = knoten[j], d = (a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2;
+          if (nah.length === K && d >= nah[K - 1][0]) continue;
+          let p = nah.length < K ? nah.length : K - 1;
+          while (p > 0 && nah[p - 1][0] > d) { nah[p] = nah[p - 1]; p--; }
+          nah[p] = [d, j];
+        }
+        const k = a.frei ? 2 : K, grenze = a.frei ? 0.09 : 0.1;
+        for (const [d, j] of nah.slice(0, k)) {
+          if (d > grenze) break;
+          const key = Math.min(i, j) * 100000 + Math.max(i, j);
+          if (gesehen.has(key)) continue;
+          gesehen.add(key); kanten.push([i, j]); nachbarn[i].push(j); nachbarn[j].push(i);
+        }
+      });
+    }
+
+    function groesse() {
+      const b = held.getBoundingClientRect();
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = b.width; h = b.height;
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      chips = KOERPER.map((k) => { const r = document.getElementById(`anker-${k}`).getBoundingClientRect();
+        return { x: r.left + r.width / 2 - b.left, y: r.top - b.top }; });
+      const neuSchmal = w < 860, unten = chips[0].y;
+      if (neuSchmal) {
+        const oben = 14, platz = unten - oben - 30;
+        mitte = { x: w / 2, y: oben + platz / 2, r: Math.min(w * 0.42, platz / 1.45) };
+      } else {
+        const links = chips[0].x - 90, rechts = chips[2].x + 90, oben = 70, platz = unten - 60 - oben;
+        mitte = { x: (links + rechts) / 2 + 10, y: oben + platz / 2, r: Math.min((rechts - links) / 2, platz / 1.4) };
+      }
+      if (neuSchmal !== schmal) { schmal = neuSchmal; erzeugen(schmal ? 480 : 1000); }
+      if (!laeuft) bild(performance.now(), true);
+    }
+
+    function projizieren() {
+      const ca = Math.cos(drehung + blick.x), sa = Math.sin(drehung + blick.x);
+      const kipp = 0.2 + blick.y, cb = Math.cos(kipp), sb = Math.sin(kipp);
+      for (const k of knoten) {
+        const x1 = k.x * ca + k.z * sa, z1 = -k.x * sa + k.z * ca;
+        const y1 = k.y * cb - z1 * sb, z2 = k.y * sb + z1 * cb;
+        const p = 3.4 / (3.4 - z2);
+        k.sx = mitte.x + x1 * mitte.r * p; k.sy = mitte.y - y1 * mitte.r * p; k.sz = z2; k.p = p;
+        k.t = Math.max(0, Math.min(1, (z2 + 1) / 2));      // 0 hinten, 1 vorn
+      }
+    }
+
+    // Eine Welle: von einem fernen Neuron aus breitet sich der Gedanke Nachbar für Nachbar aus
+    function welle(z) {
+      ziel = z;
+      const jetzt = performance.now();
+      projizieren();
+      const aus = naechstes(chips[KOERPER.indexOf(z)]);
+      let start = 0, weit = -1;
+      for (let n = 0; n < 40; n++) {
+        const i = Math.floor(zufall() * knoten.length), k = knoten[i];
+        if (k.frei) continue;
+        const d = (k.sx - knoten[aus].sx) ** 2 + (k.sy - knoten[aus].sy) ** 2;
+        if (d > weit) { weit = d; start = i; }
+      }
+      const schritt = new Int16Array(knoten.length).fill(-1);
+      schritt[start] = 0;
+      const reihe = [start];
+      for (let q = 0; q < reihe.length; q++) {
+        const i = reihe[q];
+        knoten[i].zuend = jetzt + schritt[i] * SCHRITT + zufall() * 24;
+        for (const j of nachbarn[i]) if (schritt[j] < 0) { schritt[j] = schritt[i] + 1; reihe.push(j); }
+      }
+      const ankunft = jetzt + Math.max(0, schritt[aus]) * SCHRITT;
+      leitung = { z, start: ankunft, dauer: 420 };
+    }
+
+    // Das vordere Neuron, das einem Körper am nächsten ist – dort beginnt seine Leitung
+    function naechstes(c) {
+      let best = 0, bd = Infinity;
+      knoten.forEach((k, i) => {
+        if (k.frei || k.sz < -0.2) return;
+        const d = (k.sx - c.x) ** 2 + (k.sy - c.y) ** 2 * 1.6;
+        if (d < bd) { bd = d; best = i; }
+      });
+      return best;
+    }
+
+    function markieren(name) {
+      aktiv = name;
+      for (const b of document.querySelectorAll('.anker')) b.setAttribute('aria-pressed', String(b.dataset.anker === name));
+    }
+
+    const glimmen = (k, jetzt) => {
+      const d = jetzt - k.zuend;
+      if (d < 0) return 0;
+      return d < 80 ? d / 80 : Math.exp(-(d - 80) / 220);
+    };
+
+    function bild(jetzt, einzel) {
+      const dt = Math.min(50, jetzt - (zuletzt || jetzt)); zuletzt = jetzt;
+      const bewegt = !ruhig.matches && !einzel;
+      const erwachen = ruhig.matches ? 1 : Math.min(1, (jetzt - t0) / 1400);
+      const e = 1 - (1 - erwachen) ** 3;
+      if (bewegt) {
+        drehung += dt * 0.00008;
+        const f = 1 - Math.exp(-dt / 420);
+        blick.x += (blickZiel.x - blick.x) * f; blick.y += (blickZiel.y - blick.y) * f;
+      }
+      projizieren();
+      for (const k of knoten) k.an = bewegt || leitung ? glimmen(k, jetzt) : 0;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'lighter';
+      // warmes Leuchten im Inneren
+      const r0 = mitte.r * (0.94 + 0.06 * e);
+      const hof = ctx.createRadialGradient(mitte.x, mitte.y, 0, mitte.x, mitte.y, r0 * 1.25);
+      hof.addColorStop(0, `rgba(240,150,44,${0.09 * e})`); hof.addColorStop(1, 'rgba(240,150,44,0)');
+      ctx.fillStyle = hof; ctx.fillRect(mitte.x - r0 * 1.3, mitte.y - r0 * 1.3, r0 * 2.6, r0 * 2.6);
+
+      // Verbindungen, nach Tiefe gebündelt; leuchtende extra
+      const STUFEN = 6, buendel = Array.from({ length: STUFEN }, () => []), heiss = [[], [], [], []];
+      for (const [i, j] of kanten) {
+        const a = knoten[i], b = knoten[j];
+        const g = Math.max(a.an, b.an);
+        if (g > 0.06) heiss[Math.min(3, Math.floor(g * 4))].push(a, b);
+        else buendel[Math.min(STUFEN - 1, Math.floor((a.t + b.t) / 2 * STUFEN))].push(a, b);
+      }
+      ctx.lineCap = 'round';
+      buendel.forEach((liste, s) => {
+        const t = s / (STUFEN - 1);
+        ctx.strokeStyle = `rgba(${240 + t * 10},${150 + t * 50},${44 + t * 90},${(0.045 + t * 0.17) * e})`;
+        ctx.lineWidth = 0.45 + t * 0.4;
+        ctx.beginPath();
+        for (let n = 0; n < liste.length; n += 2) { ctx.moveTo(liste[n].sx, liste[n].sy); ctx.lineTo(liste[n + 1].sx, liste[n + 1].sy); }
+        ctx.stroke();
+      });
+      heiss.forEach((liste, s) => {
+        if (!liste.length) return;
+        ctx.strokeStyle = `rgba(255,${190 + s * 12},${120 + s * 25},${(0.1 + s * 0.08) * e})`;
+        ctx.lineWidth = 0.7 + s * 0.2;
+        ctx.beginPath();
+        for (let n = 0; n < liste.length; n += 2) { ctx.moveTo(liste[n].sx, liste[n].sy); ctx.lineTo(liste[n + 1].sx, liste[n + 1].sy); }
+        ctx.stroke();
+      });
+
+      // Neuronen: Punkte in fünf Helligkeitsstufen, Leuchten nur für die aktiven, Unschärfe ganz vorn
+      const punkte = Array.from({ length: 5 }, () => []);
+      for (const k of knoten) {
+        const funkeln = bewegt ? 0.82 + 0.18 * Math.sin(jetzt / 900 + k.ph) : 1;
+        const hell = Math.min(1, (0.2 + k.t * 0.7) * k.hell * funkeln + k.an * 0.45);
+        if (k.frei && k.sz > 0.75) {                              // nah vor der Kamera: weich und groß
+          const g = 10 + (k.sz - 0.75) * 40;
+          ctx.globalAlpha = 0.16 * k.hell * e; ctx.drawImage(glut, k.sx - g, k.sy - g, g * 2, g * 2); ctx.globalAlpha = 1;
+          continue;
+        }
+        punkte[Math.min(4, Math.floor(hell * 5))].push(k);
+        if (k.an > 0.3 || (k.t > 0.9 && k.hell > 0.96)) {
+          const g = (4 + k.an * 6) * k.p;
+          ctx.globalAlpha = Math.max(k.an * 0.35, 0.3) * e; ctx.drawImage(glut, k.sx - g, k.sy - g, g * 2, g * 2); ctx.globalAlpha = 1;
+        }
+      }
+      punkte.forEach((liste, s) => {
+        const t = s / 4;
+        ctx.fillStyle = `rgba(255,${170 + t * 62},${90 + t * 110},${(0.25 + t * 0.75) * e})`;
+        ctx.beginPath();
+        for (const k of liste) { const r = (0.55 + k.t * 1.15) * k.p * (schmal ? 0.9 : 1); ctx.moveTo(k.sx + r, k.sy); ctx.arc(k.sx, k.sy, r, 0, Math.PI * 2); }
+        ctx.fill();
+      });
+
+      // Leitungen zu den Körpern
+      ctx.globalCompositeOperation = 'source-over';
+      chips.forEach((c, i) => {
+        const k = knoten[naechstes(c)];
+        const an = aktiv === KOERPER[i];
+        const cy = c.y - 3, my = (k.sy + cy) / 2;
+        ctx.strokeStyle = an ? `rgba(246,169,75,${0.75 * e})` : `rgba(246,169,75,${0.16 * e})`;
+        ctx.lineWidth = an ? 1.6 : 1;
+        ctx.beginPath(); ctx.moveTo(k.sx, k.sy); ctx.bezierCurveTo(k.sx, my, c.x, my, c.x, cy); ctx.stroke();
+        if (leitung && leitung.z === KOERPER[i]) {
+          const u = (jetzt - leitung.start) / leitung.dauer;
+          if (u >= 1) { markieren(leitung.z); leitung = null; }
+          else if (u > 0) {
+            const t = 1 - (1 - u) ** 2, m = 1 - t;
+            const x = m ** 3 * k.sx + 3 * m * m * t * k.sx + 3 * m * t * t * c.x + t ** 3 * c.x;
+            const y = m ** 3 * k.sy + 3 * m * m * t * my + 3 * m * t * t * my + t ** 3 * cy;
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.drawImage(glut, x - 14, y - 14, 28, 28);
+            ctx.globalCompositeOperation = 'source-over';
+          }
+        }
+      });
+    }
+
+    function schleife(jetzt) {
+      if (!laeuft) return;
+      if (jetzt > naechsteWelle && jetzt - beruehrt > 7000) {
+        naechsteWelle = jetzt + 4200;
+        welle(ziel ? KOERPER[(KOERPER.indexOf(ziel) + 1) % 3] : 'microduck');
+      }
+      bild(jetzt);
+      requestAnimationFrame(schleife);
+    }
+    function starten() {
+      const soll = sichtbar && !document.hidden && !ruhig.matches;
+      if (soll && !laeuft) { laeuft = true; zuletzt = 0; requestAnimationFrame(schleife); }
+      if (!soll) { laeuft = false; bild(performance.now(), true); }
+    }
+
+    held.addEventListener('pointermove', (ev) => {
+      if (!fein.matches) return;
+      blickZiel.x = ((ev.clientX - held.getBoundingClientRect().left) / w - 0.6) * 0.5;
+      blickZiel.y = ((ev.clientY - held.getBoundingClientRect().top) / h - 0.5) * 0.24;
+    });
+    held.addEventListener('pointerleave', () => { blickZiel.x = 0; blickZiel.y = 0; });
+    new ResizeObserver(groesse).observe(held);
+    new IntersectionObserver(([en]) => { sichtbar = en.isIntersecting; starten(); }).observe(held);
+    document.addEventListener('visibilitychange', starten);
+    ruhig.addEventListener('change', starten);
+    groesse();
+    naechsteWelle = performance.now() + 1000;
+    starten();
+    return {
+      wecken(name) {
+        beruehrt = performance.now();
+        if (!laeuft) { markieren(name); bild(performance.now(), true); return; }
+        naechsteWelle = beruehrt + 4200;
+        welle(name);
+      },
+      neuZeichnen() { if (!laeuft) bild(performance.now(), true); },
+    };
+  })();
+
+  netz = geist;
+  for (const b of document.querySelectorAll('.anker')) {
+    b.addEventListener('click', () => {
+      geist?.wecken(b.dataset.anker);
+      waehlen(b.dataset.anker);                // die Körper weiter unten zeigen denselben
+    });
+  }
+})();
+</script>

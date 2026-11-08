@@ -1,0 +1,27 @@
+name: Report from a real robot
+description: You tried Knowlin with your Microduck or Reachy Mini – tell us how it went (the most valuable reports right now)
+labels: [echte-ente]
+body:
+  - type: textarea
+    id: was
+    attributes:
+      label: What did you try and how did it go?
+      description: Gaits, tricks, dancing, phone controller, falls … What worked, what did not?
+    validations:
+      required: true
+  - type: textarea
+    id: bericht
+    attributes:
+      label: Report file (optional)
+      description: “Das lief schief” / “Something went wrong” in Knowlin – attach the JSON file.
+  - type: dropdown
+    id: koerper
+    attributes:
+      label: Robot
+      options: [Microduck, Reachy Mini, Open Duck Mini v2]
+    validations:
+      required: true
+  - type: input
+    id: robot
+    attributes:
+      label: Robot software (robotd or Reachy daemon version), if known

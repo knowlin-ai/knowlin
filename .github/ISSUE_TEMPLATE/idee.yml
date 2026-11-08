@@ -1,0 +1,14 @@
+name: Idea
+description: A feature or improvement
+labels: [idee]
+body:
+  - type: textarea
+    id: idee
+    attributes:
+      label: What would you like Knowlin to do?
+    validations:
+      required: true
+  - type: textarea
+    id: warum
+    attributes:
+      label: Why – what would it make possible?

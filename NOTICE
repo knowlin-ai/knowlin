@@ -1,0 +1,77 @@
+Knowlin / duckpilot
+Copyright 2026 The Knowlin Authors
+
+Ein freies, nicht-kommerzielles Hobbyprojekt für kleine Roboter – die Microduck und Reachy Mini von Pollen Robotics
+und Hugging Face sowie die Open Duck Mini v2 von Antoine Pirrone und Community. Knowlin und duckpilot stehen in keiner
+Verbindung zu Pollen Robotics, Hugging Face oder dem Open-Duck-Projekt und werden von ihnen weder unterstützt noch
+geprüft. „Microduck“ und „Reachy Mini“ sind Namen von Pollen Robotics.
+
+Der Quelltext von duckpilot steht unter der Apache License 2.0 (siehe LICENSE).
+Entwickelt mit Claude (Anthropic).
+
+------------------------------------------------------------------------------------------------------
+Nicht enthalten, sondern zur Laufzeit von der Originalquelle geladen
+------------------------------------------------------------------------------------------------------
+
+Microduck-Robotermodell (3D-Teile und MuJoCo-Modell)
+  Quelle:  https://github.com/pollen-robotics/microduck_rl (fester Stand, siehe duckpilot/modell/quellen.json)
+  Meshes (*.stl): © Pollen Robotics, Creative Commons BY-NC-SA 4.0
+                  https://creativecommons.org/licenses/by-nc-sa/4.0/
+  MJCF-Beschreibung (*.xml): © Pollen Robotics, Apache License 2.0
+  duckpilot lädt die Dateien beim ersten Start auf den PC des Nutzers und bereitet sie dort auf
+  (3D-Ansicht: Normalen und Quantisierung; Physik: nur Kollisionskörper). Die aufbereiteten Dateien
+  bleiben auf diesem PC und stehen wie das Original unter CC BY-NC-SA 4.0 – nur nicht-kommerziell.
+
+Policies für den Physik-Simulator
+  Quelle:  https://huggingface.co/pollen-robotics/microduck-policies – geladen auf Knopfdruck.
+
+Reachy-Mini-Robotermodell (3D-Teile, Kinematik)
+  Quelle:  https://github.com/pollen-robotics/reachy_mini (fester Stand, siehe duckpilot/modell/reachy_quellen.json)
+  Hardware-Dateien: © Pollen Robotics, Creative Commons BY-NC-SA 4.0; Software: Apache License 2.0.
+  Auf Knopfdruck geladen und auf dem PC des Nutzers aufbereitet; die aufbereitete Datei bleibt auf diesem PC.
+
+Reachy-Mini-Emotionen und -Tänze
+  Quelle:  Pollens Datensätze reachy-mini-emotions-library und reachy-mini-dances-library auf Hugging Face –
+  auf Knopfdruck geladen (fester Stand).
+
+Handerkennung für die Kamera-Spiele: MediaPipe Hand Landmarker (seit 0.38.14)
+  Laufzeit: @mediapipe/tasks-vision 0.10.21 (https://www.npmjs.com/package/@mediapipe/tasks-vision),
+            Modell: hand_landmarker.task, Stand float16/1 (https://storage.googleapis.com/mediapipe-models/)
+  Copyright Google LLC – Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0).
+  Fester Stand und Prüfsummen in duckpilot/modell/hand_quellen.json. Erst auf Klick („Handerkennung laden“)
+  auf den PC des Nutzers geladen, unverändert im Datenordner abgelegt und vom eigenen Server an den Browser
+  ausgeliefert; ausgewertet wird nur im Browser.
+
+------------------------------------------------------------------------------------------------------
+Enthalten: Bearbeitungen von Werken Dritter
+------------------------------------------------------------------------------------------------------
+
+Microduck-Emotionen (duckpilot/motion/pollen_emotions.json, duckpilot/server/static/sounds/emotions/)
+  Nach https://github.com/pollen-robotics/microduck_emotions – Copyright Pollen Robotics, Apache License 2.0.
+  Geändert: Keyframes in duckpilots Choreografie-Format übersetzt, Töne nach Opus umgewandelt
+  (tools/import_emotions.py).
+
+Entenstimme und Gesten-Laute (duckpilot/server/static/sounds/voice/, sounds/gesten/)
+  Gerendert mit dem Stimm-Synthesizer aus https://github.com/pollen-robotics/microduck_emotions (quack.py)
+  und nach den Rezepten aus https://github.com/pollen-robotics/microduck (sounds/src/voices.rs) –
+  Copyright Pollen Robotics, Apache License 2.0. Geändert: Varianten, Längen und Stimmfärbungen
+  (tools/render_voice.py, tools/render_gestures.py).
+
+Robotersteuerung (duckpilot/backends/robotd.py, duckpilot/physics/*)
+  Schnittstellen, Beobachtungsvektor, Filter- und Glättungswerte nach https://github.com/pollen-robotics/microduck
+  und https://github.com/pollen-robotics/microduck_rl – Copyright Pollen Robotics, Apache License 2.0.
+
+Open Duck Mini v2 – 3D-Modell (duckpilot/server/static/model/open_duck_mini.dpm)
+  Nach https://github.com/apirrone/Open_Duck_Mini (Ordner mini_bdx/robots/open_duck_mini_v2, fester Stand, siehe
+  duckpilot/modell/open_duck.py) – Copyright Antoine Pirrone und Mitwirkende, Apache License 2.0.
+  Geändert: Meshes für die 3D-Ansicht aufbereitet (Normalen, Quantisierung), Elektronik ausgeblendet, dunkle Gläser in
+  die Kopföffnungen gesetzt, Gelenkwinkel auf duckpilots Simulator umgerechnet (tools/bake_open_duck.py).
+
+three.js (duckpilot/server/static/vendor/three*.js, BufferGeometryUtils.js)
+  Copyright 2010-2024 three.js authors – MIT License (vendor/THREE-LICENSE).
+
+IBM Plex Sans und IBM Plex Mono (duckpilot/server/static/vendor/plex/)
+  Copyright IBM Corp. – SIL Open Font License 1.1 (vendor/plex/LICENSE-OFL.txt).
+
+IBM Carbon Design System (Gestaltung, Theme Gray 90; nachgebaut in server/static/ds/)
+  Copyright IBM Corp. – Apache License 2.0.

@@ -1,0 +1,62 @@
+[project]
+name = "knowlin"                 # Name auf PyPI (pip install knowlin); das Python-Paket heißt weiter duckpilot
+version = "0.38.30"
+description = "Knowlin – ein Kopf, viele Körper: Microduck, Reachy Mini und Open Duck Mini am PC simulieren, mit Claude und Sprache steuern und auf den echten Roboter umschalten."
+readme = "README.en.md"           # PyPI ist international – die englische README
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+keywords = ["robotics", "microduck", "reachy-mini", "open-duck-mini", "claude", "simulator", "voice-assistant"]
+dependencies = [
+  "anthropic>=0.40",
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.29",
+  "keyring>=24",
+  "numpy>=1.24",   # baut beim ersten Start Pollens 3D-Modell auf dem PC (duckpilot/modell)
+  # vereinfacht dabei die CAD-Teile nach Fläche (für Linux x86_64 mit Python 3.14 gibt es noch kein Rad – dort volle Auflösung)
+  "fast-simplification>=0.1.12; platform_system != 'Linux' or platform_machine != 'x86_64' or python_version < '3.14'",
+  "zeroconf>=0.130",   # knowlin.local im Heimnetz, solange die Handy-Fernbedienung an ist (fehlt es, geht es ohne Namen)
+]
+
+[project.optional-dependencies]
+whisper = ["faster-whisper>=1.0"]
+dev = ["pytest>=8", "httpx>=0.27"]   # httpx: TestClient von FastAPI
+
+[project.urls]
+Homepage = "https://github.com/knowlin-ai/knowlin"
+Issues = "https://github.com/knowlin-ai/knowlin/issues"
+Changelog = "https://github.com/knowlin-ai/knowlin/blob/main/CHANGELOG.md"
+
+[project.scripts]
+knowlin = "duckpilot.__main__:main"
+duckpilot = "duckpilot.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["duckpilot*"]
+
+[tool.setuptools.package-data]
+duckpilot = ["modell/*.json", "i18n/*.json", "physics/*.xml", "server/static/*", "server/static/*/*", "server/static/*/*/*", "server/static/*/*/*/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# Stil- und Fehlerprüfung: `ruff check duckpilot tests` (läuft auch in den Tests, siehe tests/test_codebase.py)
+[tool.ruff]
+line-length = 125
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "ASYNC", "RUF006", "PERF", "I"]
+ignore = [
+  "E501",    # lange Zeilen: deutsche Texte und Docstrings, Formatierung regelt line-length grob
+  "E702",    # mehrere Anweisungen auf einer Zeile (selten, bewusst in kurzen Fällen)
+  "B905",    # zip ohne strict: Längen sind überall gleich gebaut
+  "ASYNC109",# timeout-Parameter: bewusst so in den Netzwerk-Helfern
+  "UP035", "UP037",
+  "PERF203", "PERF401",
+  "B008",
+  "E731", "E741",  # kurze Lambdas und O/I/l als Namen in Tests sind lesbar genug
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B", "E402", "PERF", "ASYNC"]
+"tools/*" = ["E402"]

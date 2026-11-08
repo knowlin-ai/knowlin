@@ -1,0 +1,24 @@
+name: DCO
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  dco:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Signed-off-by in every commit
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          fehlt=0
+          for c in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            if ! git log -1 --format=%B "$c" | grep -q "^Signed-off-by: "; then
+              echo "::error::Commit $c has no Signed-off-by line – please use git commit -s (see CONTRIBUTING.md)"
+              fehlt=1
+            fi
+          done
+          exit $fehlt

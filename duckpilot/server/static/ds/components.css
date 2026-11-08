@@ -1,0 +1,310 @@
+/* duckpilot Designsystem · Bausteine nach IBM Carbon v11 (Theme Gray 90)
+   Anatomie, Maße und Zustände folgen Carbon: Knopf, Tag, Kachel, Textfeld, Auswahl, Toggle,
+   Inhaltsumschalter, Schieberegler, Popover, Benachrichtigung. Die duckpilot-Ebene hält alles flach
+   mit feiner Kontur, gibt sanfte Radien und macht die Hauptaktion zum Schnabel-Orange.
+   Jeder Baustein hat alle Zustände: normal, darüber (:hover), gedrückt (:active), Fokus
+   (:focus-visible), aus ([disabled]). Für die Galerie lassen sich Zustände mit .is-hover,
+   .is-active, .is-focus erzwingen. */
+
+/* ── Grundlage ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg-glow), var(--surface-0); background-attachment: fixed;
+  color: var(--ink);
+  font: 400 var(--t-body) / 1.42857 var(--font);
+  letter-spacing: var(--ls-small);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-kerning: normal;
+}
+button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+:focus-visible, .is-focus { outline: 2px solid var(--focus); outline-offset: -2px; }
+[hidden] { display: none !important; }
+/* Links: hell und unterstrichen – Blau bleibt den Messwerten vorbehalten, Orange der Auswahl */
+a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--fill-active); }
+@media (hover: hover) and (pointer: fine) { a:hover { text-decoration-color: currentColor; } }
+small { color: var(--ink-3); font-weight: 400; }
+code {
+  font: 400 var(--t-caption) / 1.33 var(--font-mono); letter-spacing: var(--ls-micro);
+  background: var(--surface-2); padding: 0 var(--spacing-02); border-radius: var(--r-control); overflow-wrap: anywhere;
+}
+.num { font-variant-numeric: tabular-nums; }
+
+/* ── Schriftrollen (Carbon productive) ─────────────────────────────────── */
+.t-display { font: 400 var(--t-display-l) / 1.08 var(--font-display); letter-spacing: var(--ls-display); margin: 0; }
+.t-display-m { font: 400 var(--t-display-m) / 1.1 var(--font-display); letter-spacing: var(--ls-display); margin: 0; }
+.t-h1 { font: 600 var(--t-h1) / 1.2 var(--font-display); letter-spacing: var(--ls-display); margin: 0; }
+.t-h2 { font-size: var(--t-h2); line-height: 1.4; font-weight: 400; letter-spacing: 0; margin: 0; }
+.t-h3 { font-size: var(--t-lead); line-height: 1.375; font-weight: 600; letter-spacing: 0; margin: 0; }
+.t-lead { font-size: var(--t-lead); line-height: 1.5; color: var(--ink-2); letter-spacing: 0; margin: 0; }
+.t-small { font-size: var(--t-small); }
+.t-caption { font-size: var(--t-caption); line-height: 1.33; letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.t-muted { color: var(--ink-2); }
+.t-mono { font-family: var(--font-mono); }
+
+/* ── Knopf ─────────────────────────────────────────────────────────────── */
+/* Carbon-Maße (32/40/48 px) und -Varianten, flach: volle Fläche, feine Kontur, keine Schatten.
+   Darüber hellt die Fläche leicht auf, gedrückt dunkelt sie ab. Standard = „secondary“. */
+.btn {
+  --_bg: var(--button-secondary); --_bg-hover: var(--button-secondary-hover); --_bg-active: var(--button-secondary-active); --_ink: var(--ink); --_edge: var(--border-subtle);
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-03);
+  min-height: var(--control-h-md); padding: 0 var(--spacing-05);
+  background: var(--_bg); color: var(--_ink); border: 1px solid var(--_edge); border-radius: var(--r-control);
+  font-weight: 400; font-size: var(--t-small); line-height: 1.29; letter-spacing: var(--ls-small);
+  white-space: nowrap; cursor: pointer; text-decoration: none; user-select: none;
+  transition: background var(--duration-fast-02) var(--ease-out), border-color var(--duration-fast-02) var(--ease-out), color var(--duration-fast-02),
+    transform var(--duration-fast-02) var(--ease-out);
+}
+.btn:active:not(:disabled) { transform: scale(0.97); }   /* Knopf gibt beim Drücken nach (0.38.18) */
+.btn svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; margin-left: -2px; }
+.btn.is-hover { background: var(--_bg-hover); text-decoration: none; color: var(--_ink); }
+@media (hover: hover) and (pointer: fine) { .btn:hover { background: var(--_bg-hover); text-decoration: none; color: var(--_ink); } }
+.btn:active, .btn.is-active { background: var(--_bg-active); }
+.btn:focus-visible, .btn.is-focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+.btn:disabled, .btn[aria-disabled="true"] {
+  background: var(--fill-subtle); color: var(--ink-disabled); border-color: transparent; cursor: not-allowed;
+}
+/* Hauptaktion – duckpilot: der Schnabel */
+.btn--primary, .btn--accent {
+  --_bg: var(--accent); --_bg-hover: var(--accent-hover); --_bg-active: var(--accent-strong); --_ink: var(--ink-on-accent); --_edge: transparent;
+  font-weight: 600; box-shadow: var(--e-accent);
+}
+/* Zweitrangig: nur Kontur */
+.btn--tertiary { --_bg: transparent; --_bg-hover: var(--fill-subtle); --_bg-active: var(--fill-hover); --_edge: var(--border-hover); }
+.btn--tertiary.is-hover { border-color: var(--border-strong-overlay); }
+@media (hover: hover) and (pointer: fine) { .btn--tertiary:hover { border-color: var(--border-strong-overlay); } }
+/* Leise: ohne Fläche, erscheint beim Darüberfahren */
+.btn--ghost { --_bg: transparent; --_bg-hover: var(--fill-hover); --_bg-active: var(--fill-active); --_edge: transparent; --_ink: var(--ink-2); }
+.btn--ghost.is-hover { --_ink: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .btn--ghost:hover { --_ink: var(--ink); } }
+.btn--ghost:disabled { background: transparent; color: var(--ink-disabled); }
+/* Gefahr: rote Kontur, beim Darüberfahren gefüllt */
+.btn--danger { --_bg: transparent; --_bg-hover: var(--danger); --_bg-active: var(--danger-active); --_edge: var(--critical-line); --_ink: var(--critical-ink); }
+.btn--danger.is-hover, .btn--danger:active, .btn--danger.is-active { --_ink: var(--ink-on-color); border-color: var(--danger); }
+@media (hover: hover) and (pointer: fine) { .btn--danger:hover { --_ink: var(--ink-on-color); border-color: var(--danger); } }
+.btn--danger.armed { --_bg: var(--danger); --_bg-hover: var(--danger-hover); --_edge: var(--danger); --_ink: var(--ink-on-color); }
+.btn--sm { min-height: var(--control-h-sm); padding: 0 var(--spacing-04); }
+.btn--lg { min-height: var(--control-h-lg); padding: 0 var(--spacing-06); font-size: var(--t-lead); letter-spacing: 0; }
+.btn--pill { border-radius: var(--r-pill); }
+.btn--icon { padding: 0; width: var(--control-h-md); }
+.btn--icon svg { margin: 0; }
+.btn--icon.btn--sm { width: var(--control-h-sm); }
+.btn.is-busy { pointer-events: none; color: transparent; }
+.btn.is-busy svg { visibility: hidden; }
+.btn.is-busy::after {
+  content: ""; position: absolute; left: calc(50% - 8px); top: calc(50% - 8px); width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border-hover); border-top-color: var(--_ink); animation: ds-spin var(--duration-spin) linear infinite;
+}
+.btn--primary.is-busy::after, .btn--accent.is-busy::after { border-color: var(--ink-on-accent-muted); border-top-color: var(--ink-on-accent); }
+@keyframes ds-spin { to { transform: rotate(360deg); } }
+
+/* ── Tag und Status ────────────────────────────────────────────────────── */
+/* Carbon Tag: 24 px, flach mit feiner Kontur */
+.chip {
+  display: inline-flex; align-items: center; gap: var(--spacing-03);
+  min-height: 24px; padding: 0 var(--spacing-03); border-radius: var(--r-control);
+  background: var(--fill-subtle); border: 1px solid var(--border-subtle); color: var(--ink-2);
+  font-size: var(--t-caption); line-height: 1.33; letter-spacing: var(--ls-micro); font-weight: 400; white-space: nowrap;
+}
+.chip svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+/* Befehls-Chip: flache Taste mit Symbol, 32 px */
+button.chip {
+  min-height: var(--control-h-sm); padding: 0 var(--spacing-04) 0 var(--spacing-03); gap: var(--spacing-03); border-radius: var(--r-card);
+  font-size: var(--t-small); letter-spacing: var(--ls-small); color: var(--ink);
+  cursor: pointer; transition: background var(--duration-fast-02) var(--ease-out), border-color var(--duration-fast-02);
+}
+button.chip svg { color: var(--ink-3); transition: color var(--duration-fast-02); }
+button.chip.is-hover { background: var(--fill-hover); border-color: var(--border-hover); }
+@media (hover: hover) and (pointer: fine) { button.chip:hover { background: var(--fill-hover); border-color: var(--border-hover); } }
+@media (hover: hover) and (pointer: fine) { button.chip:hover svg { color: var(--accent); } }
+button.chip:active { background: var(--fill-active); }
+button.chip:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+/* ── Drei Zustände, auf einen Blick unterscheidbar (Hinweis aus dem Test 1.11.) ──────────────────────────────────────
+   1. Klickbar: neutrale Fläche, feine Kontur. Darüber nur heller – nie Akzent-Rand (sonst sieht es aus wie gewählt).
+   2. Gewählt/an (aria-pressed, aria-checked, :checked): getönte Akzentfläche, 2 px Akzent-Rand, Häkchen, fett.
+   3. Scharf (.is-armed – wartet auf den nächsten Klick woanders, z. B. „Ding hinlegen“): volle Akzentfläche wie die
+      Hauptaktion, dazu ein Hinweis, was als Nächstes zu tun ist.
+   Nie nur über die Farbe: Häkchen und Schriftstärke tragen den Zustand mit. */
+button.chip[aria-pressed="true"], .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink);
+  font-weight: 600; box-shadow: inset 0 0 0 1px var(--accent); }
+button.chip[aria-pressed="true"]::before, .btn[aria-pressed="true"]::before { content: "✓"; color: var(--accent); font-weight: 600; margin-right: var(--spacing-01); }
+button.chip[aria-pressed="true"] svg, .btn[aria-pressed="true"] svg { color: var(--accent); }
+button.chip.is-armed, .btn.is-armed { background: var(--accent); border-color: var(--accent); color: var(--ink-on-accent); font-weight: 600; box-shadow: none; }
+button.chip.is-armed::before, .btn.is-armed::before { content: "↓"; color: var(--ink-on-accent); font-weight: 600; margin-right: var(--spacing-01); }
+button.chip.is-armed svg, .btn.is-armed svg { color: var(--ink-on-accent); }
+.chip--accent { background: var(--accent-tint); border-color: var(--accent-line); color: var(--accent-text); }
+.chip--data { background: var(--data-1-tint); border-color: var(--data-1-line); color: var(--data-1-text); }
+.chip--solid-accent { background: var(--accent); border-color: var(--accent); color: var(--ink-on-accent); font-weight: 600; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--ink-3); }
+.dot--good { background: var(--good); }
+.dot--warning { background: var(--warning); }
+.dot--critical { background: var(--critical); }
+.dot--data { background: var(--data-1); }
+
+/* ── Kachel ────────────────────────────────────────────────────────────── */
+/* Carbon Tile auf $layer-01, flach mit feiner Kontur. Felder darin liegen eine Stufe tiefer. */
+.card {
+  background: var(--surface-raised); border: 0; border-radius: var(--r-card); box-shadow: var(--e-1);
+  padding: var(--spacing-06) var(--spacing-06) var(--spacing-06); min-width: 0; position: relative;
+}
+/* Kacheltitel: überall dieselbe Größe (heading-02, 16 px halbfett) – ob mit Kopfzeile oder ohne */
+.card > h2:first-child, .card > h3:first-child, .card > summary h3, .card-head h2, .card-head h3 {
+  margin: 0 0 var(--spacing-03); font-size: var(--t-lead); line-height: 1.375; font-weight: 600; letter-spacing: 0; }
+/* nur für Screenreader sichtbar (Überschriften-Gerüst, Beschriftungen) */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--spacing-03); margin: 0 0 var(--spacing-04); }
+.card-head h2, .card-head h3 { margin: 0; }
+.card-head small { font-size: var(--t-caption); letter-spacing: var(--ls-micro); }
+.card-head .card-act { margin-left: auto; }
+.card--quiet { background: transparent; box-shadow: inset 0 0 0 1px var(--line-soft); }
+.card--accent { box-shadow: var(--e-1), inset 3px 0 0 var(--accent); }
+.card--raised { background: var(--surface-2); }
+
+/* ── Felder ────────────────────────────────────────────────────────────── */
+.field { display: grid; gap: var(--spacing-03); }
+.field-label { font-size: var(--t-caption); line-height: 1.33; letter-spacing: var(--ls-micro); color: var(--ink-2); font-weight: 400; }
+.field-help { margin: 0; font-size: var(--t-caption); line-height: 1.33; letter-spacing: var(--ls-micro); color: var(--ink-3); max-width: 80ch; }
+
+/* ── Erklärung bei Bedarf ─────────────────────────────────────────────── */
+/* Längere Texte stehen zugeklappt – die Seite bleibt ruhig, wer mehr wissen will, klappt auf. */
+details.explain { margin: var(--spacing-04) 0 0; max-width: 76ch; }
+details.explain > summary {
+  display: inline-flex; align-items: center; gap: var(--spacing-03); cursor: pointer; list-style: none;
+  color: var(--ink-2); font-size: var(--t-small); letter-spacing: var(--ls-small); }
+@media (hover: hover) and (pointer: fine) { details.explain > summary:hover { color: var(--ink); } }
+details.explain > summary::-webkit-details-marker { display: none; }
+details.explain > summary::before {
+  content: ""; width: 6px; height: 6px; margin: 0 var(--spacing-01) var(--spacing-01) 0; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg); transition: transform var(--duration-fast-02) var(--ease-out); }
+details.explain[open] > summary::before { transform: rotate(45deg); margin-bottom: var(--spacing-02); }
+@media (hover: hover) and (pointer: fine) { details.explain > summary:hover { text-decoration: underline; } }
+details.explain > :not(summary) { margin: var(--spacing-03) 0 0; color: var(--ink-2); font-size: var(--t-small); line-height: 1.5; letter-spacing: var(--ls-small); }
+details.explain dl { display: grid; gap: var(--spacing-03); }
+details.explain dt { font-weight: 600; color: var(--ink); }
+details.explain dd { margin: 0; }
+details.explain ul, details.explain ol { padding-left: var(--spacing-05); display: grid; gap: var(--spacing-03); }
+.field-msg { margin: 0; font-size: var(--t-caption); letter-spacing: var(--ls-micro); min-height: 1.33em; }
+.field-msg.ok { color: var(--good-ink); }
+.field-msg.bad { color: var(--critical-ink); }
+/* Textfeld: flach, feine Kontur; Fokus = 2 px Blau ($border-interactive) */
+.input, .select {
+  width: 100%; min-width: 0; height: var(--control-h-md); padding: 0 var(--spacing-05);
+  background: var(--field); border: 1px solid var(--border-subtle); border-bottom-color: var(--border-strong); border-radius: var(--r-control);
+  font-size: var(--t-small); letter-spacing: var(--ls-small); color: var(--ink);
+  transition: background var(--duration-fast-02) var(--ease-out), border-color var(--duration-fast-02), box-shadow var(--duration-fast-02);
+}
+.input::placeholder { color: var(--ink-placeholder); }
+.input.is-hover { border-color: var(--border-hover); border-bottom-color: var(--border-strong); }
+@media (hover: hover) and (pointer: fine) { .input:hover,
+  .select:hover { border-color: var(--border-hover); border-bottom-color: var(--border-strong); } }
+/* Fokus wie Carbon: 2 px Rahmen innen – auch auf einem Feld mit Fehler deutlich (WCAG 2.4.7) */
+.input:focus, .select:focus, .input.is-focus { outline: 2px solid var(--field-focus); outline-offset: -2px; border-color: var(--field-focus); }
+.input:disabled, .select:disabled { color: var(--ink-disabled); border-color: var(--border-disabled); cursor: not-allowed; }
+.input[aria-invalid="true"] { border-color: var(--critical); box-shadow: inset 0 0 0 1px var(--critical); }
+.select {
+  appearance: none; padding-right: var(--spacing-08); cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23c6c6c6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 14px center; background-size: 16px; background-repeat: no-repeat;
+}
+.input-row { display: flex; gap: var(--spacing-03); }
+.input-row .btn { min-height: var(--control-h-md); }
+
+/* Toggle (Carbon 48 × 24): flach, an = Grün */
+.switch { display: flex; gap: var(--spacing-04); align-items: flex-start; cursor: pointer; font-size: var(--t-small); line-height: 1.29; }
+.switch input[type=checkbox] {
+  appearance: none; flex: none; width: 48px; height: 24px; margin: 0; border-radius: var(--r-pill); cursor: pointer;
+  background: var(--toggle-off); border: 0; position: relative;
+  transition: background var(--duration-fast-02) var(--ease-out);
+}
+.switch input[type=checkbox]::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--ink-on-color); transition: transform var(--duration-moderate-02) var(--ease-out);
+}
+.switch input[type=checkbox]:checked { background: var(--accent); }   /* gewählt ist überall Schnabel-Orange; Grün nur für Zustand */
+.switch input[type=checkbox]:checked::after { transform: translateX(20px); }
+.switch input[type=checkbox]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.switch input[type=checkbox]:disabled { background: var(--toggle-disabled); cursor: not-allowed; }
+.switch input[type=checkbox]:disabled::after { background: var(--toggle-thumb-disabled); }
+.switch > span { display: grid; gap: var(--spacing-01); padding-top: var(--spacing-01); }
+.switch small { font-size: var(--t-caption); letter-spacing: var(--ls-micro); }
+
+/* Inhaltsumschalter: flache Schiene mit Kontur, die Wahl als helle Fläche darin */
+.seg {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--spacing-01); padding: var(--spacing-01);
+  background: var(--field); border: 1px solid var(--border-subtle); border-radius: var(--r-card);
+}
+.seg label { position: relative; cursor: pointer; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span {
+  display: block; text-align: center; padding: 0 var(--spacing-04); line-height: calc(var(--control-h-md) - 8px); border-radius: var(--r-control);
+  font-size: var(--t-small); color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: background var(--duration-fast-02) var(--ease-out), color var(--duration-fast-02);
+}
+@media (hover: hover) and (pointer: fine) { .seg label:hover span { color: var(--ink); background: var(--fill-subtle); } }
+.seg input:checked + span { background: var(--accent-soft); color: var(--ink); font-weight: 600; box-shadow: inset 0 0 0 2px var(--accent); }
+.seg input:checked + span::before { content: "✓ "; color: var(--accent); font-weight: 600; }
+.seg input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 0; }
+.seg input:disabled + span { color: var(--ink-disabled); cursor: not-allowed; }
+
+/* Schieberegler: flache Spur, gefüllter Teil hell, runder Griff */
+.range { -webkit-appearance: none; appearance: none; width: 100%; height: 24px; background: none; cursor: pointer; }
+.range::-webkit-slider-runnable-track { height: 4px; border-radius: var(--r-bar); background: linear-gradient(90deg, var(--ink) var(--_fill, 50%), var(--border-strong) var(--_fill, 50%)); }
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%;
+  background: var(--ink-on-color); border: 2px solid var(--surface-1); transition: transform var(--duration-fast-02);
+}
+.range:active::-webkit-slider-thumb { transform: scale(1.25); }
+.range::-moz-range-track { height: 4px; border-radius: var(--r-bar); background: var(--border-strong); }
+.range::-moz-range-progress { height: 4px; border-radius: var(--r-bar); background: var(--ink); }
+.range::-moz-range-thumb { width: 14px; height: 14px; border: 2px solid var(--surface-1); border-radius: 50%; background: var(--ink-on-color); }
+
+/* Tastenkappe */
+kbd, .kbd {
+  font: 400 var(--t-micro) / 1.5 var(--font-mono); color: var(--ink-2); padding: 0 var(--spacing-02); margin-right: var(--spacing-01);
+  background: var(--fill-subtle); border: 1px solid var(--border-subtle); border-radius: var(--r-control);
+}
+
+/* ── Popover, Benachrichtigung, leerer Zustand ─────────────────────────── */
+.popover {
+  background: var(--surface-1); border: 0; border-radius: var(--r-sheet);
+  padding: var(--spacing-05); box-shadow: var(--e-3); z-index: var(--z-pop);
+  animation: ds-pop var(--duration-fast-02) var(--ease-enter);
+}
+@keyframes ds-pop { from { opacity: 0; transform: translateY(-4px); } }
+.toasts { position: fixed; left: 50%; bottom: var(--spacing-06); transform: translateX(-50%); display: grid; gap: var(--spacing-03); z-index: var(--z-toast); pointer-events: none; justify-items: center; }
+/* Meldung: Glas über allem, Punkt in Messwert-Blau bzw. Rot (seit 0.38.19 statt heller Carbon-Fläche) */
+.toast {
+  display: inline-flex; align-items: center; gap: var(--spacing-03); min-height: 44px;
+  background: var(--surface-glass); -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass); color: var(--ink);
+  padding: 0 var(--spacing-05) 0 var(--spacing-04); border-radius: var(--r-pill); font-size: var(--t-small);
+  border-left: 0;
+  box-shadow: var(--e-3); animation: ds-toast var(--duration-toast) var(--ease-out) forwards;
+}
+.toast::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--data-1); flex: none; }
+.toast--bad::before { background: var(--critical); }
+.toast--static { animation: none; }
+@keyframes ds-toast { 0% { opacity: 0; transform: translateY(8px); } 8%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.empty {
+  background: transparent; padding: var(--spacing-05); color: var(--ink-2); font-size: var(--t-small);
+  border-radius: var(--r-card); box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+.empty p { margin: 0 0 var(--spacing-03); }
+
+/* ── Listen mit Zeilen (Carbon Structured List) ────────────────────────── */
+.rows { list-style: none; margin: 0; padding: 0; }
+.rows > li { display: flex; align-items: center; gap: var(--spacing-04); padding: var(--spacing-04) 0; border-bottom: 1px solid var(--line-soft); }
+.rows > li:last-child { border-bottom: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+  .btn:active:not(:disabled) { transform: none; }
+}
+
+/* ── Aufklappen: ein Muster für alle <details> – Winkel links, Text in Sekundärfarbe ── */
+details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: var(--spacing-03); }
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before {
+  content: ""; flex: none; width: 6px; height: 6px; margin: 0 var(--spacing-02) var(--spacing-01) 0; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg); transition: transform var(--duration-fast-02) var(--ease-out); color: var(--ink-3); }
+details[open] > summary::before { transform: rotate(45deg); margin-bottom: var(--spacing-02); }

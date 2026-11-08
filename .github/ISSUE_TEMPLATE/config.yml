@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and show & tell
+    url: https://github.com/knowlin-ai/knowlin/discussions
+    about: Ask questions, share dances and tricks.
+  - name: Security problem
+    url: https://github.com/knowlin-ai/knowlin/security/advisories/new
+    about: Please report security problems privately.
