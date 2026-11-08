@@ -5,6 +5,8 @@ on:
   push:
     branches: [main]
     paths: ["website/**", "tools/website*.py"]
+  release:
+    types: [published]      # neu bauen: der Download-Knopf zeigt auf den Installer der neuen Version
   workflow_dispatch:
 permissions:
   contents: read

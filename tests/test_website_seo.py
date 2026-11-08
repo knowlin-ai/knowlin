@@ -34,3 +34,12 @@ def test_titel_beschreibung_daten_robots_sitemap(tmp_path):
 def test_sprachwechsel_behaelt_aussagekraeftigen_titel():
     quelle = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
     assert "document.title = 'Knowlin';" not in quelle and "learning companion for Microduck" in quelle
+
+
+def test_download_knopf_zeigt_auf_den_installer_der_version(tmp_path):
+    from website import download_url, version
+
+    seite = (bauen(tmp_path / "seite") / "index.html").read_text(encoding="utf-8")
+    v = version()
+    assert download_url() == f"https://github.com/knowlin-ai/knowlin/releases/download/v{v}/Knowlin-Setup-{v}.exe"
+    assert seite.count(f'href="{download_url()}"') >= 2 and "{{" not in seite

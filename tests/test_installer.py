@@ -6,7 +6,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ISS = (ROOT / "tools" / "installer" / "knowlin.iss").read_text(encoding="utf-8")
-WF = (ROOT / "tools" / "github" / "workflows" / "installer.yml").read_text(encoding="utf-8")
+# im Projekt unter tools/github, in der öffentlichen Fassung unter .github
+WF = next(p for p in (ROOT / "tools" / "github", ROOT / ".github") if (p / "workflows" / "installer.yml").exists()
+          ).joinpath("workflows", "installer.yml").read_text(encoding="utf-8")
 
 
 def test_installer_fuer_den_benutzer_ohne_adminrechte_und_ohne_personennamen():
