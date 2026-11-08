@@ -176,3 +176,25 @@ def test_erkunden_geht_gezielt_an_die_raender():
         return k, b
     k, b = asyncio.run(go())
     assert k.flaeche_m2() >= 8.5 and b.ziele >= 5, (k.flaeche_m2(), b.ziele, b.result)
+
+
+def test_karte_lernt_auch_beim_fahren_von_hand_und_nie_hinter_der_wand(tmp_path):
+    """Gemeldet nach 0.38.32: „Wieso erkennt er nicht weiter, wenn er manuell was sieht?“ und freie Zellen außerhalb
+    des Raums (Treffer am Fuß der Wand fielen in die Zelle dahinter)."""
+    from duckpilot.backends.sim import SimBackend
+    from duckpilot.server.raum import Raum
+
+    raum = Raum(tmp_path, "duckpilot")
+    sim = SimBackend(realtime=False, seed=1)
+    sim.x, sim.y, sim.yaw = 1.8, 0.0, 0.0                       # dicht vor der rechten Wand (x = 2,0), Blick hin
+    sim._update_tof()
+    st = sim.state()
+    st.connected = True
+    assert not raum.kartiert and st.perception.points
+    raum.tick(st)
+    assert raum.karte.messungen == 1 and raum.karte.flaeche_m2() > 0      # ohne „Raum erkunden“
+    w = sim.world_model.width / 2
+    assert not [c for c, v in raum.karte.zellen.items() if v < -0.4 and (c[0] + 0.5) * 0.05 > w]
+    st.picked_up = True
+    raum.tick(st)
+    assert raum.karte.messungen == 1                                       # hochgehoben: Standort unsicher

@@ -156,3 +156,45 @@ def test_vorschlaege_nur_repos_mit_onnx_meistgeladene_zuerst(monkeypatch):
     monkeypatch.setenv("DUCKPILOT_OFFLINE", "1")
     with pytest.raises(IL.ImportFehler, match="offline"):
         HF.suchen(api=Api(), neu=True)
+
+
+def test_ohne_huggingface_hub_direkt_ueber_huggingface_co(tmp_path, monkeypatch):
+    """Gemeldet nach 0.38.32 (Installer): „Hugging Face war nicht erreichbar“ – dort fehlt das Paket huggingface_hub."""
+    import builtins
+    import json as _json
+
+    monkeypatch.delenv("DUCKPILOT_OFFLINE", raising=False)
+    echt_import = builtins.__import__
+
+    def ohne_hub(name, *a, **k):
+        if name.startswith("huggingface_hub"):
+            raise ImportError("kein huggingface_hub")
+        return echt_import(name, *a, **k)
+
+    monkeypatch.setattr(builtins, "__import__", ohne_hub)
+    policy = linear_policy(tmp_path / "q.onnx").read_bytes()
+    aufrufe = []
+
+    def holen(url, token=None, limit=0):
+        aufrufe.append((url, token))
+        if url.startswith(f"{HF.HF}/api/models?"):
+            return _json.dumps([{"id": "a/microduck-walk", "downloads": 7, "likes": 1,
+                                 "siblings": [{"rfilename": "exported/policy.onnx"}], "cardData": {"license": "mit"}}]).encode()
+        if url.startswith(f"{HF.HF}/api/models/a/microduck-walk"):
+            return _json.dumps({"id": "a/microduck-walk", "sha": "e" * 40,
+                                "siblings": [{"rfilename": "exported/policy.onnx", "size": len(policy)}]}).encode()
+        if url == f"{HF.HF}/a/microduck-walk/resolve/{'e' * 40}/exported/policy.onnx":
+            return policy
+        raise HF.RepoNotFound(url)
+
+    monkeypatch.setattr(HF, "_holen", holen)
+    HF._cache.update(zeit=0.0, liste=None)
+    assert isinstance(HF._hub()[0], HF.EigeneApi)
+    liste = HF.suchen(neu=True)
+    assert liste[0]["repo"] == "a/microduck-walk" and liste[0]["lizenz"] == "mit"
+    assert all(u.startswith("https://huggingface.co/") for u, _ in aufrufe)
+    e = HF.laden(tmp_path / "root", "a/microduck-walk", token="hf_geheim", mit_pruefstand=False)
+    assert e["download"]["stand"] == "e" * 40 and e["download"]["lizenz"] is None
+    assert ("hf_geheim" in {t for _, t in aufrufe})
+    with pytest.raises(IL.ImportFehler, match="gibt es nicht"):
+        HF.laden(tmp_path / "root", "a/gibts-nicht", mit_pruefstand=False)

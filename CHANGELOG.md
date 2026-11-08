@@ -9,6 +9,65 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.33 – 2026-11-08 – Fehler aus dem ersten Abend mit dem Installer
+
+### Neu
+- **Tricks mit Live-Vorschau** (Frage: „Wo sind die Tricks mit der Vorschau?“): Rechts neben den Kacheln läuft die
+  Figur live mit wie beim Tanzen – antippen, sehen, weiter antippen, ohne Sprung ins Cockpit. Im schmalen Fenster
+  steht die Vorschau oben.
+- **Die Raumkarte lernt beim Fahren von Hand mit** (Frage: „Wieso erkennt er nicht weiter, wenn er manuell was
+  sieht?“): bisher nur im Modus „Raum erkunden“. Nie, wenn sie hochgehoben oder umgefallen ist.
+
+### Behoben
+- **Pollens Emotionen fehlten im Installer und bei pip/pipx:** Die Datei `motion/pollen_emotions.json` stand nicht in
+  der Paketliste. Ein Test prüft jetzt, dass jede Datei aus dem Quellordner im Paket landet.
+- **Lokales Modell (Ollama) und andere Anbieter gingen im Installer nicht:** `httpx` kam früher mit `anthropic` mit,
+  seit anthropic 2.x nicht mehr. Jetzt ist es eine eigene Pflichtabhängigkeit; ein Test prüft, dass jedes importierte
+  Fremdpaket entweder Pflicht ist oder per Knopf nachinstalliert wird. Gefunden von der neuen Abnahme gegen das
+  installierte Paket.
+- **Hugging-Face-Vorschläge und -Laden gingen im Installer nicht** („Hugging Face war nicht erreichbar“): Sie brauchten
+  das Paket `huggingface_hub`, das erst mit Training oder Qwen3-TTS kommt. Jetzt geht es auch direkt über
+  huggingface.co.
+- **Raumkarte: freie Zellen hinter der Wand.** Treffer genau am Fuß einer Wand fielen in die Zelle dahinter. Was schon
+  in einer gespeicherten Karte steht, verschwindet mit Umgebung → Karte leeren.
+- **Flimmernde Ecken im 3D-Raum:** Die Fußleisten zweier Wände überlappten mit gleich hoher Oberkante (Z-Fighting).
+- **Treppenkanten trotz Kantenglättung:** Die Umgebungsverdeckung entstand ungeglättet. Am Ende der Darstellung glättet
+  jetzt zusätzlich FXAA.
+- **Aussehen: Die Ente stand im Farbbild hinter dem Blumentopf.** Die Bilder zeigen sie jetzt frei auf ihrem Boden.
+- **Rauschen an Möbelkanten:** Die Umgebungsverdeckung rechnet wieder mit 16 Proben und glättet stärker (0.38.18 war
+  sie aus Tempogründen gesenkt worden). Langsame Rechner schalten unter „Auto“ ohnehin auf „schnell“.
+- **Umgebung im Leerzustand:** Die Karte steht direkt neben dem Text statt ganz rechts mit großer Lücke;
+  „Erkundetes löschen“ erscheint erst, wenn es etwas zu löschen gibt.
+- **Stimmung im Gedächtnis:** „freudig“ und „frustriert“ schwebten ohne Linie neben der Kurve – jetzt mit Hilfslinien.
+- **„Pollens App-Katalog ansehen“ führte auf eine 404-Seite** (Pollen hat den Space umgezogen) – jetzt die
+  Reachy-Mini-Apps auf Hugging Face (Spaces mit „reachy_mini“), auch auf der Website. Externe Links prüft GitHub ab jetzt jede Woche.
+- **Einstellungen → KI-Modell → „Anderes Modell“ bot keine Anbieter an** (Frage: „Geht auch LM Studio? Und bei andere
+  Anbieter wird nichts angeboten“): Der Abschnitt steht seit 0.38.0 unter Einstellungen, geladen wurde er aber nur auf
+  der Seite „Knowlins Stimme“. Jetzt lädt er auch dort – mit OpenAI, Gemini, Mistral, OpenRouter, LM Studio und eigener
+  Adresse. Aus demselben Grund blieb beim eigenen Modell „Prüfe Ollama …“ stehen.
+- **Qwen3-TTS und Lernen auf AMD-Grafikkarten ließen sich mit dem Windows-Installer nicht installieren** („pip endete
+  mit Code 1“, im Protokoll „No module named 'setuptools'“ beim Paket `rocm`): Das mitgelieferte Python übergeht
+  PYTHONPATH, über das pip Quellpakete in einer abgeschotteten Umgebung baut. Knowlin legt dort jetzt erst die
+  Bauwerkzeuge (setuptools, wheel, packaging) in die eigene Umgebung und baut ohne Abschottung. Betrifft alle
+  Nachinstallationen (Stimmen, Spracherkennung, Physik, Lernen), nur in der Installer-Fassung.
+- **LM Studio ohne laufenden Server:** statt einer technischen Fehlermeldung der Hinweis, in LM Studio unter
+  „Developer“ den lokalen Server zu starten (Port 1234) und ein Modell zu laden.
+
+### Geändert
+- **„Eigenes Modell“ heißt jetzt „Lokales Modell“** – das sagt besser, dass es mit Ollama auf diesem PC läuft. Dort
+  gibt es „Erneut prüfen“, wenn Ollama noch nicht lief, und den Hinweis, wo LM Studio zu finden ist.
+- Texte zum Lernen und zu Ollama nennen allgemein „die Grafikkarte“ statt einer bestimmten Karte.
+- **Prüfungen:** Die Abnahme läuft zusätzlich gegen das installierte Paket in einer frischen Umgebung ohne
+  Zusatzpakete (`tools/abnahme.py --installiert`); GitHub prüft bei jedem Push das gebaute Paket und im
+  Installer-Ablauf das eingebettete Python samt Bau eines Quellpakets.
+- Dependabot schlägt Paket-Updates nur noch vor, wenn eine neue Version aus dem erlaubten Bereich fällt – statt jede
+  Untergrenze auf die neueste Version zu ziehen (das hätte pip-Nutzer ohne Not zu den neuesten Paketen gezwungen).
+
+### Nicht geprüft
+- LM Studio mit einem echten Modell (nur gegen eine nachgebildete Schnittstelle getestet).
+- Die AMD-Installation von Qwen3-TTS auf Windows nach dem Fix (der Fehler ist nur dort nachstellbar).
+- Das stille Update auf einem echten Windows-PC (erstmals mit dem Schritt von 0.38.32 auf 0.38.33).
+
 ## 0.38.32 – 2026-11-08 – Updates aus dem Programm
 
 ### Neu

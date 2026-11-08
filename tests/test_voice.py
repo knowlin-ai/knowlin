@@ -678,3 +678,26 @@ def test_warm_up_renders_a_short_sentence_after_loading(tmp_path, monkeypatch):
         import time
         time.sleep(0.02)
     assert gerechnet == [("qwen", "bruno-2", 0.0)] and sp.messungen["qwen"] == 1
+
+
+def test_eingebettetes_python_baut_ohne_abschottung(tmp_path, monkeypatch):
+    """Gemeldet nach 0.38.32 (Installer, Qwen3-TTS mit AMD): „No module named 'setuptools'“ beim Paket `rocm` – das
+    eingebettete Python übergeht PYTHONPATH, über das pip seine abgeschottete Bauumgebung einbindet."""
+    (tmp_path / "python.exe").write_bytes(b"")
+    assert not I.eingebettet(tmp_path / "python.exe")
+    (tmp_path / "python313._pth").write_text("python313.zip\n.\nLib\\site-packages\nimport site\n")
+    assert I.eingebettet(tmp_path / "python.exe")
+    steps = I.commands("qwen", "amd", "gfx1201", eingebettet=True)
+    assert steps[0] == I.BAUWERKZEUGE and any(p.startswith("setuptools") for p in steps[0])
+    assert all(s[0] == "--no-build-isolation" for s in steps[1:])
+    assert steps[1][1:3] == ["--index-url", I.AMD_INDEX]
+    assert I.commands("qwen", "amd", "gfx1201") == [s[1:] for s in steps[1:]]      # sonst wie bisher
+    seen = []
+
+    async def runner(args, job):
+        seen.append(args)
+        return 0
+
+    monkeypatch.setattr(I, "eingebettet", lambda exe=None: True)
+    asyncio.run(I.Installer().install("piper", "cpu", runner=runner))
+    assert seen == [I.BAUWERKZEUGE, ["--no-build-isolation", "piper-tts>=1.3"]]

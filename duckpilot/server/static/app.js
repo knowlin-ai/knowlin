@@ -265,7 +265,7 @@ function onInit(msg) {
   const brain = $('badge-brain');
   const local = config.gehirn === 'lokal' && config.lokal_modell;
   const anderes = config.gehirn === 'anbieter' && config.anbieter_bereit;
-  brain.textContent = local ? `Eigenes Modell · ${config.lokal_modell}` : anderes ? `Modell · ${config.anbieter_modell}`
+  brain.textContent = local ? `Lokales Modell · ${config.lokal_modell}` : anderes ? `Modell · ${config.anbieter_modell}`
     : config.online ? `Claude ${modelShort(config.model)}` : 'Einfache Befehle';
   brain.title = local ? 'Ein offenes Sprachmodell läuft auf diesem PC (Ollama) – ohne Internet, mit demselben Gedächtnis'
     : anderes ? 'Ein anderes KI-Modell denkt mit – dieselben Werkzeuge und Sicherheitsregeln'
@@ -417,13 +417,15 @@ function showView(name, p) {
     if (on && !REDUCED) { v.classList.remove('entering'); void v.offsetWidth; v.classList.add('entering'); }
   }
   // Tanzen und Team: dieselbe 3D-Ansicht als Vorschau daneben (die Leinwand zieht um, ein Renderer für alle)
-  const vorschau = name === 'tricks' && p === 'tanz' ? $('tanz-vorschau') : name === 'tricks' && p === 'team' ? $('team-vorschau') : null;
+  const vorschau = name !== 'tricks' ? null : p === 'tanz' ? $('tanz-vorschau') : p === 'team' ? $('team-vorschau')
+    : !p || p === 'tricks' ? $('tricks-vorschau') : null;
   const heim = vorschau || stageEl;
   if (heim && scene.canvas.parentElement !== heim) { heim.prepend(scene.canvas); requestAnimationFrame(() => scene.resize()); }
   scene.paused = name !== 'cockpit' && !vorschau;
   if (['settings', 'persoenlichkeit', 'stimme', 'memory'].includes(name)) einst.laden();
   if (name === 'tricks') { tricksSeite.laden(p); if (document.body.classList.contains('koerper-reachy')) reachyApps.laden(); }
-  if (name === 'stimme') voicePage.load();
+  // „KI-Modell“ steht seit 0.38.0 unter Einstellungen – dort laden (Anbieterliste, Ollama), nicht nur auf „Stimme“
+  if (name === 'stimme' || name === 'settings') voicePage.load();
   if (name === 'training') { training.load(true); stossreihe.load(); feld.zeigen(); }
   if (name === 'alltag') augen.loadPersons();
   if (name === 'parcours') parcours.load(); else parcours.hide();
@@ -683,7 +685,7 @@ function onChat(m) {
     lastUserSpoke = m.via === 'stimme' || m.via === 'weckwort';
     return;
   }
-  const meta = m.source === 'claude' ? `Claude, ${m.seconds} s` : m.source === 'lokal' ? `eigenes Modell, ${m.seconds} s`
+  const meta = m.source === 'claude' ? `Claude, ${m.seconds} s` : m.source === 'lokal' ? `lokales Modell, ${m.seconds} s`
     : m.source === 'anbieter' ? `anderes Modell, ${m.seconds} s`
     : m.source === 'system' ? 'Knowlin'
     : m.source === 'reflex' ? 'sofort, ohne Claude' : m.source === 'alltag' ? 'Alltagsbuddy' : m.source === 'spiel' ? 'beim Spielen' : 'einfache Befehle';

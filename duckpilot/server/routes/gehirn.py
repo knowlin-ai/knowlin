@@ -93,6 +93,8 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             return JSONResponse({"ok": False, "fehler": "Erst eine Adresse eintragen"}, status_code=400)
         try:
             return JSONResponse({"ok": True, "modelle": await brain.modelle()})
+        except RuntimeError as exc:                 # eigene, verständliche Meldungen (z. B. LM Studio nicht gestartet)
+            return JSONResponse({"ok": False, "fehler": str(exc)[:200]}, status_code=502)
         except Exception as exc:
             return JSONResponse({"ok": False, "fehler": f"{type(exc).__name__}: {exc}"[:200]}, status_code=502)
 

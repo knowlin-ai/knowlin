@@ -37,12 +37,16 @@ class Raum:
     def tick(self, st: Any) -> None:
         self.sichtungen.beobachte(st)
         self._pose = (round(st.x, 3), round(st.y, 3), round(st.yaw, 3))   # für die 2D-Vorschau (seit 0.37.11)
-        if self._lauf is not None:
-            if self._lauf.done:
-                self.kartieren_stopp()
-            elif st.connected and not st.fallen and not getattr(st, "picked_up", False):
-                self.karte.eintragen(st.x, st.y, st.perception.points)
-                self.geaendert_karte = True
+        if self._lauf is not None and self._lauf.done:
+            self.kartieren_stopp()
+        # Die Karte lernt immer mit, was der Tiefensensor sieht – auch beim Fahren von Hand (seit 0.38.33, Frage: „wieso
+        # erkennt er nicht weiter, wenn er manuell was sieht?“). „Raum erkunden“ fährt nur gezielt die Lücken ab.
+        # Nie hochgehoben oder umgefallen: dann stimmt der Standort nicht.
+        punkte = getattr(getattr(st, "perception", None), "points", None)
+        if punkte and getattr(st, "connected", True) and not getattr(st, "fallen", False) \
+                and not getattr(st, "picked_up", False):
+            self.karte.eintragen(st.x, st.y, punkte)
+            self.geaendert_karte = True
         if time.monotonic() - self._gespeichert > SPEICHERN_S:
             self.speichern()
 

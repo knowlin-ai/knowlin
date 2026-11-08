@@ -130,3 +130,25 @@ def test_routes_key_status_and_model_list(rt, monkeypatch):
         assert str(seen[-1].url).startswith("https://generativelanguage.googleapis.com/v1beta/openai/models")
         assert c.request("DELETE", "/api/anbieter/schluessel", json={"anbieter": "gemini"}).json()["ok"]
         assert S.get_anbieter_key("gemini") is None
+
+
+def test_lmstudio_nicht_gestartet_gibt_einen_klaren_hinweis(rt):
+    """Gemeldet nach 0.38.32: „Geht auch LM Studio?“ – ohne laufenden Server kam nur ein technischer Fehler."""
+    import socket
+
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        frei = s.getsockname()[1]                                  # danach geschlossen: dort antwortet niemand
+    with TestClient(create_app(rt), base_url="http://127.0.0.1:8765") as c:
+        r = c.post("/api/anbieter/modelle", json={"anbieter": "lmstudio", "adresse": f"http://127.0.0.1:{frei}/v1"})
+        assert r.status_code == 502
+        assert "LM Studio antwortet nicht" in r.json()["fehler"] and "Developer" in r.json()["fehler"]
+
+
+def test_ki_modell_laedt_auch_unter_einstellungen():
+    """Gemeldet nach 0.38.32: „bei andere Anbieter wird nichts angeboten“ – die Karte steht seit 0.38.0 unter
+    Einstellungen, geladen wurde sie nur auf der Seite „Stimme“."""
+    from pathlib import Path
+
+    app = (Path(__file__).resolve().parent.parent / "duckpilot/server/static/app.js").read_text(encoding="utf-8")
+    assert "if (name === 'stimme' || name === 'settings') voicePage.load();" in app

@@ -16,6 +16,8 @@ import { EffectComposer } from './vendor/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
 import { GTAOPass } from './vendor/jsm/postprocessing/GTAOPass.js';
 import { OutputPass } from './vendor/jsm/postprocessing/OutputPass.js';
+import { ShaderPass } from './vendor/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from './vendor/jsm/shaders/FXAAShader.js';
 
 // Darstellungsqualität: „hoch“ = Umgebungsverdeckung (GTAO) und volle Pixeldichte, „schnell“ = ohne.
 // Ohne Vorgabe startet die Ansicht hoch und schaltet selbst herunter, wenn der Rechner nicht hinterherkommt.
@@ -251,6 +253,10 @@ export class Scene3D {
     const w = c.clientWidth || 800, h = c.clientHeight || 600;
     this.renderer.setSize(w, h, false);
     if (this.composer) this.composer.setSize(w, h);
+    if (this.fxaa) {
+      const pr = this.renderer.getPixelRatio();
+      this.fxaa.material.uniforms.resolution.value.set(1 / (w * pr), 1 / (h * pr));
+    }
     // Bühne zuerst (0.38.19): schwebt das Gespräch rechts über der Szene, rückt die Bildmitte um die halbe
     // Panelbreite nach links – die Figur steht in der Mitte des sichtbaren Teils
     const talk = c.closest('.view-cockpit')?.querySelector(':scope > .talk');
@@ -267,14 +273,19 @@ export class Scene3D {
     this.composer = new EffectComposer(this.renderer, target);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     this.gtao = new GTAOPass(this.scene, this.camera, size.x, size.y);
-    // 12 Proben und 8 beim Glätten (vorher 16/16): kaum sichtbar anders, spürbar weniger Rechenzeit (seit 0.38.18)
-    this.gtao.updateGtaoMaterial({ radius: 0.07, distanceExponent: 1.6, thickness: 1.2, scale: 1.0, samples: 12 });
-    this.gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 8 });
+    // 16 Proben und 16 beim Glätten (0.38.18 auf 12/8 gesenkt – das rauschte sichtbar an Möbelkanten, gemeldet nach
+    // 0.38.32: „Schattenqualität sehr verrauscht“). Zu langsame Rechner schalten unter „Auto“ ohnehin auf „schnell“.
+    this.gtao.updateGtaoMaterial({ radius: 0.07, distanceExponent: 1.6, thickness: 1.2, scale: 1.0, samples: 16 });
+    this.gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 8, rings: 3, samples: 16 });
     this.gtao.blendIntensity = 0.9;
     // Verdeckung nur im Raum rechnen: draußen (Kuppel, Hintergrund) bleibt alles hell statt schwarz
     this.gtao.setSceneClipBox(new THREE.Box3(new THREE.Vector3(-9, -1, -9), new THREE.Vector3(9, 4, 9)));
     this.composer.addPass(this.gtao);
     this.composer.addPass(new OutputPass());
+    // Kantenglättung am Ende (seit 0.38.33, „gibt es kein Antialiasing?“): Das 4-fache MSAA glättet nur das Bild selbst,
+    // die Verdeckung (GTAO) entsteht ungeglättet und ließ Kanten treppen und feine Linien flimmern
+    this.fxaa = new ShaderPass(FXAAShader);
+    this.composer.addPass(this.fxaa);
     this._perf = { frames: 0, ms: 0, checked: false };
     this.setQuality(savedQuality() || 'auto');
   }
@@ -306,7 +317,8 @@ export class Scene3D {
   }
 
   _buildFloor(w, d) {
-    this.worldGroup.add(boden(this.renderer, w, d));        // Dielen mit leisem 10-cm-Raster (raum3d.js)
+    this.bodenGruppe = boden(this.renderer, w, d);
+    this.worldGroup.add(this.bodenGruppe);        // Dielen mit leisem 10-cm-Raster (raum3d.js)
   }
 
   _edges(mesh, opacity = 0.45) {
@@ -329,6 +341,7 @@ export class Scene3D {
       // Wände wie im Puppenhaus: die zur Kamera zeigenden treten bis auf die Fußleiste zurück (seit 0.38.18)
       const w = waende(world.width, world.depth);
       this.worldGroup.add(w.gruppe);
+      this.waendeGruppe = w.gruppe;
       this._waendeAusrichten = w.ausrichten;
     }
     const tisch = world.boxes.find((b) => /couchtisch|coffee table/i.test(b.name || ''));

@@ -215,7 +215,7 @@
         <div class="quit-choices">
           <button type="button" class="quit-choice" data-wiz-brain="claude"><b>Claude</b><small>Versteht freie Sprache und plant Bewegungen am besten. Braucht einen Anthropic-API-Schlüssel.</small></button>
           <button type="button" class="quit-choice" data-wiz-brain="anbieter"><b>Anderes Modell</b><small>OpenAI, Gemini, Mistral, OpenRouter oder LM Studio – unter Einstellungen → KI-Modell einrichten.</small></button>
-          <button type="button" class="quit-choice" data-wiz-brain="lokal"><b>Eigenes Modell</b><small>Ollama auf deiner Grafikkarte, ohne Internet.</small></button>
+          <button type="button" class="quit-choice" data-wiz-brain="lokal"><b>Lokales Modell</b><small>Ollama auf deiner Grafikkarte, ohne Internet.</small></button>
           <button type="button" class="quit-choice" data-wiz-brain="ohne"><b>Erst mal ohne</b><small>Einfache Befehle wie „lauf vor“, „tanz“, „stopp“ gehen sofort.</small></button>
         </div>
         <form class="input-row" id="wizard-key-form" hidden>
@@ -636,6 +636,9 @@
               <h2>Tricks</h2>
               <p>Gefühle und Bewegungen zum Antippen – sofort zu sehen.</p>
             </header>
+            <!-- Live-Vorschau neben den Tricks (seit 0.38.33, „wo sind die Tricks mit der Vorschau?“) – wie beim Tanzen -->
+            <div class="tricks-layout">
+            <div class="tricks-links">
             <div id="pack-sections" class="nur-microduck"></div>
 
             <div class="nur-reachy">
@@ -697,6 +700,13 @@
               <p>Was sie von sich aus tut, wenn nichts zu tun ist – je nach Charakter.</p>
             </div>
             <div class="emo-grid grid grid--tiles-sm emo-own nur-ente" id="emo-idle"></div>
+            </div>
+            <section class="card set-card tanz-vorschau-karte tricks-vorschau-karte" aria-labelledby="tricks-vorschau-titel">
+              <h3 id="tricks-vorschau-titel">Vorschau</h3>
+              <div class="tanz-vorschau" id="tricks-vorschau" aria-label="Live-Ansicht"></div>
+              <p class="field-help">Antippen, und hier ist es gleich zu sehen. Ziehen dreht die Ansicht.</p>
+            </section>
+            </div>
           </div>
 
           <div data-part="tanz" hidden>
@@ -1271,10 +1281,10 @@
               <div class="field">
                 <div class="seg" role="radiogroup" aria-label="Sprachmodell">
                   <label><input type="radio" name="gehirn" value="claude" data-voice="gehirn"><span>Claude</span></label>
-                  <label><input type="radio" name="gehirn" value="lokal" data-voice="gehirn"><span>Eigenes Modell</span></label>
+                  <label><input type="radio" name="gehirn" value="lokal" data-voice="gehirn"><span>Lokales Modell</span></label>
                   <label class="pc-only"><input type="radio" name="gehirn" value="anbieter" data-voice="gehirn"><span>Anderes Modell</span></label>
                 </div>
-                <p class="field-help">Claude plant Bewegungen am besten. Das eigene Modell läuft auf deiner Grafikkarte, ohne Internet und Kosten – und springt ein, wenn Claude nicht erreichbar ist. Ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter, LM Studio) geht mit eigenem Schlüssel.</p>
+                <p class="field-help">Claude plant Bewegungen am besten. Das lokale Modell läuft mit Ollama auf deiner Grafikkarte, ohne Internet und Kosten – und springt ein, wenn Claude nicht erreichbar ist. Ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter) geht mit eigenem Schlüssel; LM Studio auf diesem PC steht ebenfalls dort.</p>
               </div>
             </div>
             <div class="ki-teil pc-only" id="anbieter-card" data-zeige-wenn="gehirn=anbieter">
@@ -1295,7 +1305,7 @@
               <p class="field-help">Die Sicherheitsregeln gelten bei jedem Modell gleich – sie stecken in Knowlin, nicht im Modell. Fällt der Anbieter aus, gehen die einfachen Befehle weiter.</p>
             </div>
             <div class="ki-teil" id="local-card" data-zeige-wenn="gehirn=lokal">
-              <h4>Eigenes Modell</h4>
+              <h4>Lokales Modell</h4>
               <p class="local-state" id="local-state">Prüfe Ollama …</p>
               <label class="field"><span class="field-label">Modell</span><select class="select" id="local-model"></select></label>
               <ul class="local-suggest" id="local-suggest"></ul>
@@ -1303,6 +1313,7 @@
                 <summary>Adresse von Ollama</summary>
                 <label class="field"><span class="field-label">Adresse</span><input class="input" type="text" id="local-url" spellcheck="false" placeholder="http://127.0.0.1:11434"></label>
               </details>
+              <p class="field-help">Nutzt du LM Studio statt Ollama? Oben „Anderes Modell“ wählen, dann „LM Studio (auf diesem PC)“.</p>
             </div>
             </section>
             <section class="card set-card pc-only nur-im-koerper" id="set-koerper">
@@ -1709,7 +1720,7 @@
             <details class="explain"><summary>Wie funktioniert das Lernen?</summary>
               <p>Reinforcement Learning: Die Ente probiert in vielen unsichtbaren Physik-Welten gleichzeitig und lernt aus Belohnungen.
                 Am schnellsten geht es, auf Pollens fertigem Geh-Programm aufzusetzen statt von vorn. Pollens Training rechnet Tausende Welten auf
-                einer NVIDIA-Grafikkarte; auf diesem PC rechnet der Prozessor die Physik und die Radeon das Lernen – langsamer, aber kostenlos und
+                einer NVIDIA-Grafikkarte; auf diesem PC rechnet der Prozessor die Physik und die Grafikkarte das Lernen – langsamer, aber kostenlos und
                 über Nacht. Kaggle stellt kostenlos eine NVIDIA-Karte für Pollens Original-Training.</p>
             </details>
           </header>
@@ -1739,7 +1750,7 @@
             <li class="tr-step" id="tr-step-how">
               <div class="tr-step-head"><span class="tr-step-no" aria-hidden="true">2</span><h3>Wo und wie lernt sie?</h3></div>
               <div class="tr-provider" role="radiogroup" aria-label="Wo trainieren">
-                <label class="tr-prov"><input type="radio" name="tr-prov" value="pc"><span><b>Dieser PC</b><small>kostenlos · Physik auf dem Prozessor, Lernen auf der Radeon · über Nacht</small></span></label>
+                <label class="tr-prov"><input type="radio" name="tr-prov" value="pc"><span><b>Dieser PC</b><small>kostenlos · Physik auf dem Prozessor, Lernen auf der Grafikkarte · über Nacht</small></span></label>
                 <label class="tr-prov"><input type="radio" name="tr-prov" value="kaggle"><span><b>Kaggle</b><small>kostenlos · ≈ 30 GPU-Stunden pro Woche · Pollens Original-Training</small></span></label>
                 <label class="tr-prov"><input type="radio" name="tr-prov" value="hf"><span><b>Hugging Face</b><small>bezahlt · schnellste Grafikkarten · zwei Klicks zum Start</small></span></label>
               </div>

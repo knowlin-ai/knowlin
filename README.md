@@ -55,7 +55,7 @@ passenden Roboter vor und fragt, ob er ihn nutzen soll.
       <img src="docs/bilder/cockpit.png" alt="Cockpit mit der Microduck im Simulator-Wohnzimmer und dem Gespräch daneben"><br>
       <strong>Steuern mit Sprache und Claude</strong><br>
       Freie Sätze, Weckwort oder Taste: Claude versteht, plant Abfolgen und übt neue Bewegungen erst unsichtbar in der
-      Physik. Einfache Befehle gehen auch ohne KI – oder mit einem eigenen Modell auf deiner Grafikkarte.
+      Physik. Einfache Befehle gehen auch ohne KI – oder mit einem lokalen Modell auf deiner Grafikkarte.
     </td>
     <td width="50%" valign="top">
       <img src="docs/bilder/synapsen.png" alt="Hirnaktivität: das Erfahrungsnetz als räumliches Netz mit leuchtenden Verbindungen"><br>
@@ -101,7 +101,7 @@ flowchart LR
   Mensch(["Du – Sprache, Text, Handy"]) --> Kopf
   subgraph Kopf["Knowlin – ein Kopf"]
     direction TB
-    Gehirn["Gehirn<br/>Claude · eigenes Modell · einfache Befehle"]
+    Gehirn["Gehirn<br/>Claude · lokales Modell · einfache Befehle"]
     Wissen["Gedächtnis und Erfahrungsnetz<br/>Umgebung · Alltag · Erlebnisse"]
     Charakter["Grundcharakter und Stimme"]
   end

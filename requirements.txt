@@ -1,5 +1,6 @@
 anthropic>=0.40
 fastapi>=0.110
+httpx>=0.27           # lokales Modell (Ollama) und andere Anbieter
 uvicorn[standard]>=0.29
 keyring>=24
 numpy>=1.24

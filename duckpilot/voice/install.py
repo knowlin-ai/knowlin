@@ -90,8 +90,28 @@ def suggest_gpu(names: list[str]) -> str:
     return "cpu"
 
 
-def commands(paket: str, gpu: str = "cpu", arch: str | None = None) -> list[list[str]]:
+# Im eingebetteten Python des Installers (python*._pth neben python.exe) übergeht Python PYTHONPATH – pip baut
+# Quellpakete aber in einer abgeschotteten Umgebung, die genau darüber eingebunden wird. Folge: „No module named
+# 'setuptools'“ beim Paket `rocm` aus AMDs Quelle (gemeldet nach 0.38.32). Dort deshalb erst die Bauwerkzeuge in die
+# eigene Umgebung legen und ohne Abschottung bauen.
+BAUWERKZEUGE = ["setuptools>=77", "wheel", "packaging"]
+
+
+def eingebettet(exe: str | Path | None = None) -> bool:
+    """Läuft Knowlin im eingebetteten Python (Windows-Installer)?"""
+    ordner = Path(exe or python_exe()).parent
+    return any(ordner.glob("python*._pth"))
+
+
+def commands(paket: str, gpu: str = "cpu", arch: str | None = None, eingebettet: bool = False) -> list[list[str]]:
     """Die pip-Aufrufe (ohne `python -m pip install`) – fest vorgegeben."""
+    schritte = _commands(paket, gpu, arch)
+    if not eingebettet:
+        return schritte
+    return [BAUWERKZEUGE] + [["--no-build-isolation", *s] for s in schritte]
+
+
+def _commands(paket: str, gpu: str = "cpu", arch: str | None = None) -> list[list[str]]:
     if paket == "piper":
         return [["piper-tts>=1.3"]]
     if paket == "whisper":
@@ -166,7 +186,7 @@ class Installer:
         arch = None
         if paket in ("qwen", "lernen") and gpu == "amd":
             arch = amd_arch(await asyncio.to_thread(detect_gpus))
-        steps = commands(paket, gpu, arch)
+        steps = commands(paket, gpu, arch, eingebettet())
         job = self.jobs[paket] = {"laeuft": True, "zeilen": [], "fehler": None, "start": time.time(), "gpu": gpu,
                                   "schritt": 0, "schritte": len(steps)}
         self._changed()

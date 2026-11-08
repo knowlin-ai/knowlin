@@ -26,12 +26,21 @@ export function initAussehen({ $, scene }) {
     const rt = new THREE.WebGLRenderTarget(GROSS, GROSS);
     rt.texture.colorSpace = THREE.SRGBColorSpace;
     const puffer = new Uint8Array(GROSS * GROSS * 4);
-    const weg = [scene.rays, scene.hits, scene.trail, scene.target, scene.karteGroup, scene.pins].filter(Boolean);
+    // Nur die Figur auf ihrem Boden: Möbel und Wände blendet das Bild aus – sonst stand sie je nach Platz hinter dem
+    // Blumentopf (gemeldet nach 0.38.32: „wieso steht sie hier verdeckt?“)
+    // Alles andere aus: Möbel, Wände, Dinge, weitere Enten, Strahlen, Karte – nur Licht, Himmel und Boden bleiben
+    const licht = (o) => { let ja = false; o.traverse((k) => { if (k.isLight) ja = true; }); return ja; };
+    const welt = scene.worldGroup ? scene.worldGroup.children.filter((o) => o !== scene.bodenGruppe) : [];
+    // auch die Himmelskuppel: hinter dem Bodenende schien ihre dunkle, kantige Unterseite durch – dafür einfarbig
+    const weg = [...scene.scene.children.filter((o) => o !== fig.root && o !== scene.worldGroup && !licht(o)), ...welt];
+    const vorherKlar = r.getClearColor(new THREE.Color()), vorherAlpha = r.getClearAlpha();
+    const flaeche = getComputedStyle(document.documentElement).getPropertyValue('--surface-2').trim() || '#2a2c31';
     const sichtbar = weg.map((o) => o.visible);
     weg.forEach((o) => { o.visible = false; });
     const merkFarbe = scene.farbe || 'cream', vorher = r.getRenderTarget();
     const zctx = zwischen.getContext('2d'), bild = zctx.createImageData(GROSS, GROSS);
     try {
+      r.setClearColor(new THREE.Color(flaeche).convertSRGBToLinear(), 1);
       for (const c of bilder) {
         scene.setFarbe(c.dataset.farbe);
         r.setRenderTarget(rt);
@@ -48,6 +57,7 @@ export function initAussehen({ $, scene }) {
       gezeichnetFuer = fig;
     } finally {
       r.setRenderTarget(vorher);
+      r.setClearColor(vorherKlar, vorherAlpha);
       scene.setFarbe(merkFarbe);
       weg.forEach((o, i) => { o.visible = sichtbar[i]; });
       rt.dispose();

@@ -59,7 +59,7 @@ something – it suggests the right robot and asks whether to use it.
       <img src="docs/bilder/cockpit-en.png" alt="Cockpit with the Microduck in the simulator living room and the conversation next to it"><br>
       <strong>Voice and Claude</strong><br>
       Free sentences, wake word or push-to-talk: Claude understands, plans sequences and rehearses new moves invisibly in
-      the physics first. Simple commands also work without AI – or with your own model on your graphics card.
+      the physics first. Simple commands also work without AI – or with a local model on your graphics card.
     </td>
     <td width="50%" valign="top">
       <img src="docs/bilder/synapsen-en.png" alt="Brain activity: the experience network as a spatial network with glowing connections"><br>
@@ -105,7 +105,7 @@ flowchart LR
   Human(["You – voice, text, phone"]) --> Mind
   subgraph Mind["Knowlin – one mind"]
     direction TB
-    Brain["Brain<br/>Claude · own model · simple commands"]
+    Brain["Brain<br/>Claude · local model · simple commands"]
     Memory["Memory and experience network<br/>surroundings · everyday life · experiences"]
     Character["Basic character and voice"]
   end

@@ -47,6 +47,21 @@ jobs:
           }
           Stop-Process -Id $p.Id -Force
           if (-not $ok) { throw "Knowlin hat nicht geantwortet" }
+      - name: Paket vollständig, Nachinstallieren im eingebetteten Python
+        # Seit 0.38.33: Im eingebetteten Python fehlten Pollens Emotionen, und Quellpakete (AMDs `rocm` für Qwen3-TTS
+        # und Lernen) ließen sich nicht bauen – beides fiel nur dort auf, nicht im Quellordner.
+        shell: pwsh
+        run: |
+          $py = (Resolve-Path "build\knowlin\python\python.exe").Path
+          Push-Location $env:RUNNER_TEMP
+          & $py "$env:GITHUB_WORKSPACE\tools\paket_rauchtest.py"
+          if ($LASTEXITCODE -ne 0) { throw "Paket unvollständig" }
+          & $py -c "from duckpilot.voice import install as I; import sys; sys.exit(0 if I.eingebettet() else 1)"
+          if ($LASTEXITCODE -ne 0) { throw "Eingebettetes Python nicht erkannt" }
+          & $py -m pip install --disable-pip-version-check setuptools wheel packaging
+          & $py -m pip wheel --no-deps --no-build-isolation --index-url https://stable.repo.amd.com/rocm/whl-next/ -w rocm-probe rocm
+          if ($LASTEXITCODE -ne 0) { throw "Quellpaket ließ sich im eingebetteten Python nicht bauen" }
+          Pop-Location
       - name: Installer bauen
         shell: pwsh
         run: |

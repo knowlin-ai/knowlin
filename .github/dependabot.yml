@@ -5,6 +5,9 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    # Nur melden, wenn eine neue Version aus dem erlaubten Bereich fällt – nicht jede Untergrenze hochziehen
+    # (sonst müssten Nutzer von pipx/pip ohne Not die neuesten Pakete haben; der Installer nimmt ohnehin die aktuellen)
+    versioning-strategy: increase-if-necessary
     open-pull-requests-limit: 5
     groups:
       python:

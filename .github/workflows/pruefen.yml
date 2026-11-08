@@ -18,6 +18,18 @@ jobs:
       - run: ruff check duckpilot tests tools
       - run: python -m duckpilot.modell     # Pollens Modell von GitHub laden (wie beim ersten Start)
       - run: python -m pytest -q
+  paket:
+    # Das gebaute Paket in einer frischen Umgebung ohne Zusatzpakete – wie nach dem Installer oder pipx (seit 0.38.33).
+    # Im Quellordner mit allen Paketen fielen fehlende Dateien und Abhängigkeiten nie auf.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: pip install build && python -m build --wheel
+      - run: python -m venv /tmp/frisch && /tmp/frisch/bin/pip install dist/*.whl
+      - run: cd /tmp && /tmp/frisch/bin/python "$GITHUB_WORKSPACE/tools/paket_rauchtest.py"
   pakete:
     # Bekannte Sicherheitslücken in den Abhängigkeiten (PyPI-Advisory-Datenbank)
     runs-on: ubuntu-latest

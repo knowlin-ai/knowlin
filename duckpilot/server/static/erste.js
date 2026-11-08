@@ -86,7 +86,7 @@ export function initErsteSchritte({ $, api, toast, isRemote, showView }) {
       if (art === 'claude') { $('wizard-key').focus(); return; }
       if (art === 'ohne') { await speichern({ gehirn: 'claude' }); zeige(4); return; }
       await speichern({ gehirn: art });
-      toast(art === 'lokal' ? 'Unter Einstellungen → KI-Modell das eigene Modell wählen.' : 'Unter Einstellungen → KI-Modell Anbieter, Schlüssel und Modell wählen.');
+      toast(art === 'lokal' ? 'Unter Einstellungen → KI-Modell das lokale Modell wählen.' : 'Unter Einstellungen → KI-Modell Anbieter, Schlüssel und Modell wählen.');
       zeige(4);
     });
   }

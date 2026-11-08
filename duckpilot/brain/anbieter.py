@@ -106,7 +106,13 @@ class AnbieterBrain:
         import httpx
 
         async with httpx.AsyncClient(timeout=httpx.Timeout(15.0, connect=5.0)) as client:
-            r = await client.get(f"{self.url}/models", headers=self._headers())
+            try:
+                r = await client.get(f"{self.url}/models", headers=self._headers())
+            except httpx.ConnectError as exc:
+                if self.anbieter == "lmstudio":
+                    raise RuntimeError("LM Studio antwortet nicht – in LM Studio unter „Developer“ den lokalen Server "
+                                       "starten (Port 1234) und ein Modell laden.") from exc
+                raise RuntimeError(f"Keine Verbindung zu {self.url}") from exc
             if r.status_code in (401, 403):
                 raise RuntimeError("Schlüssel abgelehnt – bitte prüfen")
             r.raise_for_status()

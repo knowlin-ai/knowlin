@@ -69,14 +69,19 @@ def freier_port() -> int:
         return s.getsockname()[1]
 
 
-def server_starten(ordner: Path, port: int) -> subprocess.Popen:
+def server_starten(ordner: Path, port: int, python: str | None = None) -> subprocess.Popen:
+    """`python`: ein anderes Python mit installiertem Paket (seit 0.38.33, „--installiert“) – dann läuft der Server
+    außerhalb des Quellordners, damit wirklich das installierte Paket startet wie nach dem Installer."""
     (ordner / "settings.json").write_text(json.dumps({"backend": "sim", "sim_physik": False, "gehirn": "claude"}),
                                           encoding="utf-8")
     env = dict(os.environ, DUCKPILOT_SETTINGS=str(ordner / "settings.json"), DUCKPILOT_OFFLINE="1")
     env.pop("ANTHROPIC_API_KEY", None)                     # ohne Claude: prüft die festen Regeln, nicht das Modell
+    if python:
+        env.pop("PYTHONPATH", None)                        # wirklich das installierte Paket, nicht den Quellordner
     log = open(ordner / "server.log", "w", encoding="utf-8")  # noqa: SIM115 – lebt so lange wie der Server
-    proc = subprocess.Popen([sys.executable, "-m", "duckpilot", "--no-browser", "--port", str(port),
-                             "--memory", str(ordner / "mem.json")], cwd=ROOT, env=env, stdout=log, stderr=log)
+    proc = subprocess.Popen([python or sys.executable, "-m", "duckpilot", "--no-browser", "--port", str(port),
+                             "--memory", str(ordner / "mem.json")], cwd=ordner if python else ROOT, env=env,
+                            stdout=log, stderr=log)
     for _ in range(120):
         try:
             with socket.create_connection(("127.0.0.1", port), timeout=1):
@@ -748,6 +753,33 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     stand = page.text_content("#update-stand") or ""
     b.pruefe("Updates: Schalter und Suche unter Über, offline ehrlich gemeldet", schalter and "offline" in stand, stand)
 
+    # 13k · Seit 0.38.33: Tricks mit Pollens Emotionen (fehlten im Paket) und Live-Vorschau daneben – Klick bleibt hier
+    einstellen(page, {"modul": "duckpilot"})
+    page.wait_for_timeout(2500)
+    ansicht(page, "tricks")
+    try:
+        page.wait_for_selector("#emo-pollen .emo", timeout=15000)
+    except Exception:  # noqa: BLE001
+        pass
+    pollen = page.evaluate("() => document.querySelectorAll('#emo-pollen .emo').length")
+    vorschau = page.evaluate("() => !!document.querySelector('#tricks-vorschau canvas')")
+    if pollen and page.is_visible("#emo-pollen .emo"):
+        page.click("#emo-pollen .emo")
+        page.wait_for_timeout(800)
+    bleibt = page.evaluate("() => location.hash.startsWith('#tricks')")
+    b.pruefe("Tricks: Pollens Emotionen da, Live-Vorschau daneben, Antippen bleibt auf der Seite",
+             pollen >= 10 and vorschau and bleibt, f"{pollen} Emotionen · Vorschau {vorschau} · bleibt {bleibt}")
+    b.foto(page, "13k-tricks-vorschau", "Tricks mit Live-Vorschau")
+    ansicht(page, "settings")
+
+    # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
+    anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")
+    lm = page.evaluate("() => fetch('/api/anbieter/modelle', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                       " body: JSON.stringify({anbieter: 'lmstudio', adresse: 'http://127.0.0.1:9/v1'})}).then(r => r.json())")
+    b.pruefe("Anderes Modell: Anbieter unter Einstellungen gelistet, LM Studio ohne Server mit klarem Hinweis",
+             {"openai", "lmstudio", "eigen"} <= set(anbieter) and "LM Studio antwortet nicht" in (lm.get("fehler") or ""),
+             f"{len(anbieter)} Anbieter · {lm.get('fehler')}")
+
     # 13f · Seit 0.38.27: Policies aus Isaac Lab – Karte, falsche Datei wird abgewiesen, nichts übernommen
     ansicht(page, "training")
     page.wait_for_timeout(1500)
@@ -862,6 +894,9 @@ def main() -> int:
     ap.add_argument("ordner", type=Path)
     ap.add_argument("--port", type=int, default=0)
     ap.add_argument("--axe", type=Path, default=None)
+    ap.add_argument("--installiert", default=None, metavar="PYTHON",
+                    help="Python einer frischen Umgebung mit installiertem Paket ohne Zusatzpakete (wie nach dem "
+                         "Installer) – prüft das Paket statt des Quellordners")
     a = ap.parse_args()
     from playwright.sync_api import sync_playwright
 
@@ -874,7 +909,7 @@ def main() -> int:
     axe_js = a.axe.read_text(encoding="utf-8") if a.axe and a.axe.exists() else None
     b = Bericht(ordner)
     t0 = time.time()
-    proc = server_starten(ordner, port)
+    proc = server_starten(ordner, port, a.installiert)
     try:
         with sync_playwright() as pw:
             # Fake-Webcam für die Kamera-Spiele (Bilder bleiben im Browser – so auch hier)

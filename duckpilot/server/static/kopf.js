@@ -107,7 +107,7 @@ export function initKopf({ $, el, toast, sendChat, vorlesen, figurWecken, isRemo
       zeile('mensch', m.text, m.via === 'stimme' || m.via === 'weckwort' ? tr('gesprochen') : null);
       return;
     }
-    const meta = m.source === 'claude' ? `Claude, ${m.seconds} s` : m.source === 'lokal' ? tr(`eigenes Modell, ${m.seconds} s`)
+    const meta = m.source === 'claude' ? `Claude, ${m.seconds} s` : m.source === 'lokal' ? tr(`lokales Modell, ${m.seconds} s`)
       : m.source === 'anbieter' ? tr(`anderes Modell, ${m.seconds} s`) : m.source === 'reflex' ? tr('sofort, ohne Claude')
         : tr('einfache Befehle');
     const p = zeile('kopf', m.text, meta);

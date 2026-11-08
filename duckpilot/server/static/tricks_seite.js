@@ -41,6 +41,9 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
           send({ type: 'tool', name: 'emote', args: { emotion: e.name } });
           b.classList.add('playing');
           setTimeout(() => b.classList.remove('playing'), Math.max(800, e.dauer * 1000));
+          // Mit Vorschau daneben bleibt die Seite stehen; nur ohne (schmales Fenster, Vorschau verdeckt) ins Cockpit
+          const vs = $('tricks-vorschau');
+          if (vs && vs.querySelector('canvas') && vs.getBoundingClientRect().bottom > 0) return;
           toast(`${EMO_DE[e.name] || e.name} – in der 3D-Ansicht`);
           showView('cockpit');
         });

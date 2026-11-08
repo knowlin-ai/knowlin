@@ -836,7 +836,7 @@ ohne Weckwort (mit der Online-Spracherkennung). Erzählst du ihr etwas über dic
 sie es behält, merkt sie es sich als **Wissen** – nie Passwörter, Bank-, Ausweis- oder
 Gesundheitsdaten (das lehnt duckpilot auch selbst ab).
 
-**Eigenes Sprachmodell:** Unter *Einstellungen → KI-Modell → Eigenes Modell* läuft ein offenes Modell in
+**Lokales Sprachmodell:** Unter *Einstellungen → KI-Modell → Lokales Modell* (bis 0.38.32 „Eigenes Modell“) läuft ein offenes Modell in
 [Ollama](https://ollama.com) auf deiner Grafikkarte, z. B. Qwen 3.5 (9 Mrd.) oder Gemma 4 (12 Mrd.) –
 laden per Knopf. Es bekommt dieselbe Persönlichkeit, denselben Lagebericht und **dasselbe
 Gedächtnis**: Was die Ente mit Claude gelernt hat (Tricks, Wissen, Vorlieben), weiß sie auch hier.
@@ -964,8 +964,10 @@ mit `--no-memory` schaltest du das Gedächtnis aus. Die Datei ist lesbares JSON.
 Seit 0.35 kann ein anderes Modell denken: **Einstellungen → KI-Modell → „Anderes Modell“** (nur am PC; bis 0.37 unter Charakter → Gespräch).
 
 - Anbieter: **OpenAI**, **Google Gemini**, **Mistral**, **OpenRouter** (viele Modelle über einen Schlüssel), **LM Studio**
-  auf diesem PC oder eine **eigene Adresse** mit OpenAI-kompatibler Schnittstelle. Ollama bleibt „Eigenes Modell“.
+  auf diesem PC oder eine **eigene Adresse** mit OpenAI-kompatibler Schnittstelle. Ollama bleibt „Lokales Modell“.
 - Schlüssel des Anbieters eintragen (liegt nur im Tresor, je Anbieter ein Eintrag), **Modelle laden**, Modell wählen.
+  **LM Studio:** dort ein Modell mit Werkzeug-Unterstützung laden (Hammer-Symbol), unter „Developer“ den lokalen
+  Server starten (Port 1234); in Knowlin ist `http://127.0.0.1:1234/v1` vorbelegt, kein Schlüssel nötig.
   Eigene Adressen: https überall, http nur auf diesem PC oder im Heimnetz – der Schlüssel geht nie unverschlüsselt ins
   Internet.
 - Gleiche Persönlichkeit, gleiches Gedächtnis, **dieselben Werkzeuge und Sicherheitsregeln** – die stecken in duckpilot,

@@ -50,7 +50,7 @@ export function initRaum({ $, api, el, scene, toast, zumCockpit, lagebild }) {
     const start = $('raum-start');
     start.textContent = d.kartiert ? tr('Erkunden beenden') : tr('Raum erkunden (2 Minuten)');
     start.setAttribute('aria-pressed', String(!!d.kartiert));
-    $('raum-leeren').disabled = !d.messungen;
+    $('raum-leeren').hidden = !d.messungen;          // nichts erkundet: nichts zu löschen (statt grauem Text-Knopf)
     const dinge = (d.sichtungen || []).filter((s) => s.art !== 'möbel').slice(0, 12);
     $('raum-liste').replaceChildren(...(dinge.length ? dinge.map((s) => {
       const li = el('li');

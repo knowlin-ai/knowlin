@@ -4,7 +4,8 @@
 import { uebersetzeText } from './i18n.js';
 
 const tr = (text) => uebersetzeText(text) || text;
-const KATALOG_SEITE = 'https://huggingface.co/spaces/pollen-robotics/Reachy_Mini_Apps';
+// Pollens Katalogseite (der frühere Space Reachy_Mini_Apps liefert 404, gemeldet nach 0.38.32)
+const KATALOG_SEITE = 'https://huggingface.co/spaces?filter=reachy_mini';   // Pollens App-Store: Spaces mit reachy_mini
 const KATALOG_MAX = 24;                    // die beliebtesten zuerst, mehr zeigt Pollens eigene Seite
 
 export function initReachyApps({ $, api, el, toast, isRemote }) {

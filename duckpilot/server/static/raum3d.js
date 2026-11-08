@@ -83,7 +83,9 @@ export function waende(breite, tiefe) {
     wand.castShadow = wand.receiveShadow = true;
     // ausgeblendete Wand nimmt keine Klicks an – sonst ließe sich durch sie nicht in den Raum tippen
     wand.raycast = function (strahl, treffer) { if (this.visible) THREE.Mesh.prototype.raycast.call(this, strahl, treffer); };
-    const fuss = new THREE.Mesh(new THREE.BoxGeometry(sx + (quer ? 0.012 : 0), leiste, sz + (quer ? 0 : 0.012)), leistenStoff);
+    // Seitliche Leisten enden vor der Ecke: Dort liegt die Leiste der Quer-Wand schon. Gleich hohe, überlappende
+    // Oberkanten flimmerten (Z-Fighting, gemeldet nach 0.38.32: „die Ecken flimmern“).
+    const fuss = new THREE.Mesh(new THREE.BoxGeometry(sx + (quer ? 0.012 : 0), leiste, quer ? sz - 0.026 : sz + 0.012), leistenStoff);
     fuss.position.set(x - nx * 0.006, leiste / 2, z - nz * 0.006);
     fuss.receiveShadow = true;
     gruppe.add(wand, fuss);

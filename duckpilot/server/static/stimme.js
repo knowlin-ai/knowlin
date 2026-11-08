@@ -482,7 +482,7 @@ export function initVoicePage(h) {
     return out;
   }
 
-  // ── Eigenes Modell (Ollama) ──────────────────────────────────────────
+  // ── Lokales Modell (Ollama) ──────────────────────────────────────────
   async function loadBrain() {
     brain = await api('/api/gehirn').catch(() => null);
     renderBrain();
@@ -499,7 +499,11 @@ export function initVoicePage(h) {
       st.append(el('i', 'dot dot--warning'), document.createTextNode(' Ollama nicht gefunden. Von '));
       const a = el('a', null, 'ollama.com');
       a.href = 'https://ollama.com/download'; a.target = '_blank'; a.rel = 'noopener';
-      st.append(a, document.createTextNode(' installieren und starten – es nutzt die Radeon-Karte. Danach diese Seite neu öffnen.'));
+      st.append(a, document.createTextNode(' installieren und starten – es rechnet auf deiner Grafikkarte.'));
+      const nochmal = el('button', 'btn btn--ghost btn--sm', 'Erneut prüfen');
+      nochmal.type = 'button';
+      nochmal.addEventListener('click', () => { st.textContent = 'Prüfe Ollama …'; loadBrain(); });
+      st.append(' ', nochmal);
     }
     const sel = $('local-model');
     const chosen = w.lokal_modell || brain.gewaehlt || '';
@@ -574,7 +578,7 @@ export function initVoicePage(h) {
   for (const r of document.querySelectorAll('[data-voice]')) {
     r.addEventListener('change', async () => {
       const key = r.dataset.voice;
-      const label = key === 'gehirn' ? ({ lokal: 'Denkt mit dem eigenen Modell', anbieter: 'Denkt mit dem anderen Modell' }[r.value] || 'Denkt mit Claude')
+      const label = key === 'gehirn' ? ({ lokal: 'Denkt mit dem lokalen Modell', anbieter: 'Denkt mit dem anderen Modell' }[r.value] || 'Denkt mit Claude')
         : t(istEnte() ? 'stimme.laute' : 'stimme.laute_ohne_ente', { wert: tr(r.parentElement.textContent.trim()) },
           istEnte() ? 'Entenlaute: {wert}' : 'Laute: {wert}');
       if (key === 'gehirn' && r.value === 'lokal' && !werte().lokal_modell) toast('Erst unten ein Modell wählen – bis dahin denkt Claude.');
@@ -583,7 +587,7 @@ export function initVoicePage(h) {
     });
   }
   $('chat-mode').addEventListener('change', (e) => save({ plaudern: e.target.checked }, e.target.checked ? 'Plaudern an' : 'Plaudern aus'));
-  $('local-model').addEventListener('change', (e) => save({ lokal_modell: e.target.value }, e.target.value ? `Eigenes Modell: ${e.target.value}` : null));
+  $('local-model').addEventListener('change', (e) => save({ lokal_modell: e.target.value }, e.target.value ? `Lokales Modell: ${e.target.value}` : null));
   $('local-url').addEventListener('change', async (e) => { if (await save({ lokal_adresse: e.target.value })) loadBrain(); });
 
   return { load, update, config };

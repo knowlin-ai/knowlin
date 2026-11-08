@@ -1,6 +1,6 @@
 [project]
 name = "knowlin"                 # Name auf PyPI (pip install knowlin); das Python-Paket heißt weiter duckpilot
-version = "0.38.32"
+version = "0.38.33"
 description = "Knowlin – ein Kopf, viele Körper. Ein selbstlernender Begleiter: Microduck, Reachy Mini und Open Duck Mini am PC simulieren, mit Claude und Sprache steuern und auf den echten Roboter umschalten."
 readme = "README.en.md"           # PyPI ist international – die englische README
 requires-python = ">=3.11"
@@ -9,6 +9,7 @@ keywords = ["robotics", "microduck", "reachy-mini", "open-duck-mini", "claude", 
 dependencies = [
   "anthropic>=0.40",
   "fastapi>=0.110",
+  "httpx>=0.27",   # lokales Modell (Ollama) und andere Anbieter – kommt seit anthropic 2.x nicht mehr von selbst mit
   "uvicorn[standard]>=0.29",
   "keyring>=24",
   "numpy>=1.24",   # baut beim ersten Start Pollens 3D-Modell auf dem PC (duckpilot/modell)
@@ -34,7 +35,7 @@ duckpilot = "duckpilot.__main__:main"
 include = ["duckpilot*"]
 
 [tool.setuptools.package-data]
-duckpilot = ["modell/*.json", "i18n/*.json", "physics/*.xml", "server/static/*", "server/static/*/*", "server/static/*/*/*", "server/static/*/*/*/*"]
+duckpilot = ["modell/*.json", "i18n/*.json", "motion/*.json", "physics/*.xml", "server/static/*", "server/static/*/*", "server/static/*/*/*", "server/static/*/*/*/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

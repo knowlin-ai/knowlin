@@ -74,6 +74,11 @@ class Karte:
             px, py, pz = float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.1
             if math.hypot(px - x, py - y) > MAX_STRAHL_M or pz > DECKE_Z:
                 continue
+            # 1 cm zur Ente hin: Ein Treffer genau auf einer Zellgrenze (Fuß der Wand bei x = 2,000) fiel sonst in die
+            # Zelle hinter der Wand – dort entstand „freier Boden“ außerhalb des Raums (gemeldet nach 0.38.32)
+            weit = math.hypot(px - x, py - y)
+            if weit > 0.02:
+                px, py = px - (px - x) / weit * 0.01, py - (py - y) / weit * 0.01
             ziel = zelle(px, py)
             for c in _strahl(start, ziel):
                 self._add(c, FREI)

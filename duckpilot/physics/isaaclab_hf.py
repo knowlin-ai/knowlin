@@ -10,9 +10,14 @@ Woher die Datei kam (Repo, Pfad, Stand, Lizenz laut Modellkarte), steht danach i
 
 from __future__ import annotations
 
+import json
 import os
 import re
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 from . import isaaclab as IL
@@ -80,6 +85,75 @@ def waehle(dateien: list[dict[str, Any]], pfad: str | None) -> dict[str, Any]:
     raise Auswahl(dateien[:40])
 
 
+# ── Ohne huggingface_hub (seit 0.38.33) ───────────────────────────────────────────────────────────────────────────
+# Im Windows-Installer fehlt das Paket (es kommt erst mit Training oder Qwen3-TTS) – Vorschläge und Laden meldeten dann
+# „Hugging Face war nicht erreichbar“. Dieselben zwei Abfragen und der Download gehen auch direkt über die öffentliche
+# Schnittstelle von huggingface.co; nur dorthin, der Schlüssel nie an eine Weiterleitung.
+HF = "https://huggingface.co"
+
+
+class RepoNotFound(Exception):
+    pass
+
+
+def _ns(d: dict[str, Any]) -> SimpleNamespace:
+    sib = [SimpleNamespace(rfilename=str(x.get("rfilename", "")), size=x.get("size"))
+           for x in d.get("siblings") or [] if isinstance(x, dict)]
+    return SimpleNamespace(id=d.get("id") or d.get("modelId") or "", sha=d.get("sha"), siblings=sib,
+                           downloads=d.get("downloads", 0), likes=d.get("likes", 0), card_data=d.get("cardData"),
+                           tags=d.get("tags") or [], last_modified=d.get("lastModified"))
+
+
+def _holen(url: str, token: str | None = None, limit: int = 8_000_000) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": "Knowlin"})
+    if token:
+        req.add_unredirected_header("Authorization", f"Bearer {token}")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:          # noqa: S310 – nur huggingface.co
+            return r.read(limit + 1)
+    except urllib.error.HTTPError as exc:
+        if exc.code in (401, 403, 404):
+            raise RepoNotFound(str(exc)) from exc
+        raise
+
+
+class EigeneApi:
+    """Das Nötigste aus huggingface_hub.HfApi – list_models und model_info."""
+
+    def list_models(self, search: str, sort: str = "downloads", limit: int = 60, token: str | None = None,
+                    expand: list[str] | None = None) -> list[SimpleNamespace]:
+        q = [("search", search), ("sort", sort), ("direction", "-1"), ("limit", str(limit))]
+        q += [("expand[]", e) for e in expand or []]
+        daten = json.loads(_holen(f"{HF}/api/models?{urllib.parse.urlencode(q)}", token))
+        return [_ns(d) for d in daten if isinstance(d, dict)]
+
+    def model_info(self, repo: str, revision: str | None = None, files_metadata: bool = True,
+                   token: str | None = None) -> SimpleNamespace:
+        url = f"{HF}/api/models/{repo}" + (f"/revision/{urllib.parse.quote(revision, safe='')}" if revision else "")
+        return _ns(json.loads(_holen(url + ("?blobs=true" if files_metadata else ""), token)))
+
+
+def eigener_download(repo: str, pfad: str, revision: str | None = None, token: str | None = None,
+                     cache_dir: str = ".") -> str:
+    stand = revision or "main"
+    url = f"{HF}/{repo}/resolve/{urllib.parse.quote(stand, safe='')}/{urllib.parse.quote(pfad)}"
+    roh = _holen(url, token, IL.MAX_BYTES)
+    if len(roh) > IL.MAX_BYTES:
+        raise IL.ImportFehler("Die Datei ist größer als 60 MB.")
+    ziel = Path(cache_dir) / repo.replace("/", "--") / stand[:40] / pfad
+    ziel.parent.mkdir(parents=True, exist_ok=True)
+    ziel.write_bytes(roh)
+    return str(ziel)
+
+
+def _hub() -> tuple[Any, Any]:
+    try:
+        from huggingface_hub import HfApi, hf_hub_download
+        return HfApi(), hf_hub_download
+    except ImportError:
+        return EigeneApi(), eigener_download
+
+
 def laden(root: Path, adresse: str, name: str = "", aufgabe: str = IL.STANDARD_AUFGABE, token: str | None = None,
           datei: str = "", api: Any = None, herunterladen: Any = None, **kw: Any) -> dict[str, Any]:
     """Adresse lesen → Repo ansehen → Datei laden → wie eine Datei vom PC übernehmen (Prüfung + Prüfstand).
@@ -93,10 +167,9 @@ def laden(root: Path, adresse: str, name: str = "", aufgabe: str = IL.STANDARD_A
             raise IL.ImportFehler("Diese Datei verstehe ich nicht.")
         pfad = datei
     if api is None or herunterladen is None:
-        from huggingface_hub import HfApi, hf_hub_download
-
-        api = api or HfApi()
-        herunterladen = herunterladen or hf_hub_download
+        hub_api, hub_laden = _hub()
+        api = api or hub_api
+        herunterladen = herunterladen or hub_laden
     try:
         info = api.model_info(repo, revision=stand, files_metadata=True, token=token or None)
     except Exception as exc:
@@ -148,9 +221,7 @@ def suchen(api: Any = None, token: str | None = None, neu: bool = False) -> list
     if not neu and _cache["liste"] is not None and time.time() - _cache["zeit"] < CACHE_S:
         return _cache["liste"]
     if api is None:
-        from huggingface_hub import HfApi
-
-        api = HfApi()
+        api = _hub()[0]
     gesehen: dict[str, dict[str, Any]] = {}
     for wort in SUCHWORTE:
         try:

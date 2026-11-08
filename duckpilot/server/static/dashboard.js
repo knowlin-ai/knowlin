@@ -67,9 +67,15 @@ export class LineChart {
     g.textBaseline = 'middle';
     const ticks = this.tickLabels ? Object.keys(this.tickLabels).map(Number) : niceTicks(lo, hi, 4);
     for (const v of ticks) {
-      g.strokeStyle = Math.abs(v) < 1e-9 ? css('--ink-3') : css('--line');
-      g.globalAlpha = Math.abs(v) < 1e-9 ? 0.8 : 0.5;
+      // Benannte Stufen (Stimmung) als sichtbare, gestrichelte Linien – sonst schwebten „freudig“ und „frustriert“
+      // ohne Bezug neben der Fläche (gemeldet nach 0.38.32)
+      const null_ = Math.abs(v) < 1e-9;
+      g.strokeStyle = null_ || this.tickLabels ? css('--ink-3') : css('--line');
+      g.globalAlpha = null_ ? 0.8 : this.tickLabels ? 0.35 : 0.5;
+      g.lineWidth = 1;
+      g.setLineDash(!null_ && this.tickLabels ? [3, 4] : []);
       g.beginPath(); g.moveTo(pad.l, Y(v)); g.lineTo(w - pad.r, Y(v)); g.stroke();
+      g.setLineDash([]);
       g.globalAlpha = 1;
       g.fillText(this.tickLabels ? this.tickLabels[v] : fmt(v, this.digits === 0 ? 0 : 2), pad.l - 6, Y(v));
     }
