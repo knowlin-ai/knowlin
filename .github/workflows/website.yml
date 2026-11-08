@@ -5,8 +5,11 @@ on:
   push:
     branches: [main]
     paths: ["website/**", "tools/website*.py"]
-  release:
-    types: [published]      # neu bauen: der Download-Knopf zeigt auf den Installer der neuen Version
+  # Nach jedem Release, sobald der Installer am Release hängt: neu bauen, damit „Download“ auf die neue Version zeigt.
+  # (Läuft über workflow_run auf main – GitHub Pages veröffentlicht nur von main, nicht von einem Release-Tag.)
+  workflow_run:
+    workflows: ["Installer (Windows)"]
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,6 +18,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   bauen:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
