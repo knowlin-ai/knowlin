@@ -32,7 +32,7 @@ jobs:
           if [ -f pruefung/seite/.impressum-offen ]; then
             echo "::error::Impressum – Name und Anschrift fehlen (Repo-Variable KNOWLIN_IMPRESSUM)"; exit 1
           fi
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: pruefung/seite
   veroeffentlichen:
@@ -47,4 +47,4 @@ jobs:
       url: ${{ steps.pages.outputs.page_url }}
     steps:
       - id: pages
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
