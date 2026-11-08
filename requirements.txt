@@ -1,10 +1,10 @@
-anthropic>=0.40
-fastapi>=0.110
-uvicorn[standard]>=0.29
-keyring>=24
-numpy>=1.24
+anthropic>=2.6.0
+fastapi>=0.162.0
+uvicorn[standard]>=0.54.0
+keyring>=25.7.0
+numpy>=2.4.6
 fast-simplification>=0.2.0; platform_system != 'Linux' or platform_machine != 'x86_64' or python_version < '3.14'
-zeroconf>=0.130         # knowlin.local im Heimnetz, solange die Handy-Fernbedienung an ist (LGPL-2.1)
+zeroconf>=0.153.0         # knowlin.local im Heimnetz, solange die Handy-Fernbedienung an ist (LGPL-2.1)
 # Optional – lassen sich auch in der Oberfläche per Knopf installieren (Seite Stimme):
 # faster-whisper>=1.0        lokale Spracherkennung (Audio bleibt auf dem PC)
 # piper-tts>=1.3             schnelle lokale Stimme
