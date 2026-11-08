@@ -23,7 +23,9 @@ class Config:
     media: str | None = None                   # mediad-Socket für die Kamera (optional, sonst robotd-Port + 3)
     configd: str | None = None                 # configd-Socket für WLAN, System, Protokolle (sonst robotd-Port + 4)
     tricks: list[str] = field(default_factory=list)   # vorgemerkte Hub-Repos (org/name)
-    pakete: list[str] = field(default_factory=lambda: ["alltag"])   # aktive Skill-Pakete (duckpilot/skills)
+    # aktive Skill-Pakete (duckpilot/skills). Seit 0.38.34 auch Pollens App-Bewegungen und Community-Tricks mit
+    # Vorschauvideos – auf einem neuen PC war die Tricks-Seite sonst leer („fehlt hier nicht noch was?“)
+    pakete: list[str] = field(default_factory=lambda: ["alltag", "app_moves", "community"])
     sim_physik: bool = False                   # Simulator mit echter Physik (MuJoCo + Pollens Policies)
     model_style: str = "original"              # 3D: "original" (Pollens CAD) oder "einfach"
     farbe: str = "cream"                       # Farbe der Microduck wie bei Pollen: cream, graphite, lavender, sky (0.38.19)

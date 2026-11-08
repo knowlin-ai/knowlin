@@ -13,6 +13,7 @@ aktualisieren?“).
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import logging
@@ -119,6 +120,7 @@ class Aktualisierer:
         s = self._stand()
         neu = s.get("neu") if isinstance(s.get("neu"), dict) and neuer(s["neu"].get("version", "")) else None
         return {"version": __version__, "art": self.art, "neu": neu, "geprueft": s.get("zeit"),
+                "letztes_update": self.letztes_update(),
                 "kann": bool(neu) and (self.art == "paket" or (self.art == "installer" and bool(neu.get("installer"))))}
 
     def pruefen(self, erzwingen: bool = False) -> dict[str, Any]:
@@ -163,16 +165,52 @@ class Aktualisierer:
         return ziel
 
     def installer_befehl(self, setup: Path, pid: int | None = None) -> list[str]:
-        """Wartet, bis dieses Knowlin beendet ist, und installiert dann still (der Installer startet Knowlin neu)."""
-        pid = pid or os.getpid()
-        skript = (f"Wait-Process -Id {int(pid)} -Timeout 120 -ErrorAction SilentlyContinue; "
-                  "Start-Process -FilePath $env:KN_SETUP -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-'")
-        return ["powershell", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", skript]
+        """Wartet, bis dieses Knowlin beendet ist, und installiert dann still (der Installer startet Knowlin neu).
 
-    def installer_starten(self, setup: Path) -> None:
-        flags = (0x00000008 | 0x00000200) if sys.platform == "win32" else 0   # DETACHED_PROCESS | NEW_PROCESS_GROUP
-        subprocess.Popen(self.installer_befehl(setup), env={**os.environ, "KN_SETUP": str(setup)}, creationflags=flags,
-                         close_fds=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        Seit 0.38.34 mit Protokoll (`updates/update.log`, Inno-Protokoll `updates/setup.log`) und
+        /CLOSEAPPLICATIONS /FORCECLOSEAPPLICATIONS: Das erste echte Update (0.38.32 → 0.38.33) brach still ab – vermutlich,
+        weil Knowlin von Hand wieder gestartet war, während der Installer noch lief, und Dateien belegt waren."""
+        skript = self.installer_skript(pid)
+        # kodiert übergeben: keine Anführungszeichen-Fallen bei Pfaden mit Leerzeichen (Benutzernamen)
+        kodiert = base64.b64encode(skript.encode("utf-16-le")).decode("ascii")
+        return ["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden",
+                "-EncodedCommand", kodiert]
+
+    def installer_skript(self, pid: int | None = None) -> str:
+        pid = pid or os.getpid()
+        return (
+            "$d = Split-Path -Parent $env:KN_SETUP; $log = Join-Path $d 'update.log'; "
+            "function L($t) { Add-Content -LiteralPath $log -Value ((Get-Date -Format s) + ' ' + $t) }; "
+            f"L 'warte auf Knowlin (PID {int(pid)})'; "
+            f"Wait-Process -Id {int(pid)} -Timeout 120 -ErrorAction SilentlyContinue; "
+            "L ('starte ' + (Split-Path -Leaf $env:KN_SETUP)); "
+            "try { $p = Start-Process -FilePath $env:KN_SETUP -PassThru -Wait -ArgumentList "
+            "'/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/CLOSEAPPLICATIONS','/FORCECLOSEAPPLICATIONS',"
+            "('/LOG=\"' + (Join-Path $d 'setup.log') + '\"'); L ('fertig, Code ' + $p.ExitCode) } "
+            "catch { L ('Fehler: ' + $_) }")
+
+    def installer_starten(self, setup: Path, pid: int | None = None) -> None:
+        env = {**os.environ, "KN_SETUP": str(setup)}
+        kw: dict[str, Any] = {"env": env, "close_fds": True, "stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL,
+                              "stderr": subprocess.DEVNULL}
+        if sys.platform != "win32":
+            subprocess.Popen(self.installer_befehl(setup, pid), **kw)
+            return
+        # Kein Konsolenfenster, eigene Prozessgruppe und – wo erlaubt – raus aus einem Job-Objekt, damit das Beenden von
+        # Knowlin den Installer-Start nicht mitreißt
+        ohne_fenster, gruppe, ausbrechen = 0x08000000, 0x00000200, 0x01000000
+        try:
+            subprocess.Popen(self.installer_befehl(setup, pid), creationflags=ohne_fenster | gruppe | ausbrechen, **kw)
+        except OSError:
+            subprocess.Popen(self.installer_befehl(setup, pid), creationflags=ohne_fenster | gruppe, **kw)
+
+    def letztes_update(self) -> str | None:
+        """Letzte Zeile aus updates/update.log – zeigt unter Einstellungen → Über, wie das letzte Update ausging."""
+        try:
+            zeilen = (self.ordner / "updates" / "update.log").read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            return None
+        return zeilen[-1][:200] if zeilen else None
 
     def paket_befehl(self, version: str) -> list[str]:
         if not version_tupel(version):

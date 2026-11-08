@@ -146,6 +146,19 @@ def eigener_download(repo: str, pfad: str, revision: str | None = None, token: s
     return str(ziel)
 
 
+def netzfehler(exc: BaseException) -> str:
+    """Verständlich statt „<urlopen error _ssl.c:1015: The handshake operation timed out>“ (gemeldet nach 0.38.33)."""
+    text = str(exc).lower()
+    if "timed out" in text or "timeout" in text:
+        return ("Keine Antwort von huggingface.co (Zeitüberschreitung). Manche Netze – Firma, Schule, Virenscanner mit "
+                "HTTPS-Prüfung – bremsen oder sperren die Seite. Im Browser nach „microduck“ suchen und die Adresse hier "
+                "eintragen geht trotzdem.")
+    if "certificate" in text or "ssl" in text:
+        return ("Die sichere Verbindung zu huggingface.co klappt nicht (Zertifikat). Oft prüft ein Virenscanner oder "
+                "Firmennetz HTTPS mit – im Browser suchen und die Adresse hier eintragen geht trotzdem.")
+    return f"Hugging Face antwortet nicht: {str(exc)[:160]}"
+
+
 def _hub() -> tuple[Any, Any]:
     try:
         from huggingface_hub import HfApi, hf_hub_download
@@ -233,7 +246,7 @@ def suchen(api: Any = None, token: str | None = None, neu: bool = False) -> list
                     gesehen[e["repo"]] = e
         except Exception as exc:
             if not gesehen:
-                raise IL.ImportFehler(f"Hugging Face antwortet nicht: {str(exc)[:160]}") from exc
+                raise IL.ImportFehler(netzfehler(exc)) from exc
     liste = sorted(gesehen.values(), key=lambda e: (-e["downloads"], -e["likes"], e["repo"].lower()))[:30]
     _cache.update(zeit=time.time(), liste=liste)
     return liste

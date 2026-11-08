@@ -9,6 +9,40 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.34 – 2026-11-09 – Update aus der App, das wirklich durchläuft
+
+### Behoben
+- **„Jetzt aktualisieren“ lief nicht durch** (erstes echtes Update 0.38.32 → 0.38.33: „Neustart dauert länger“, danach
+  wieder 0.38.32). Das Fenster gab nach 90 Sekunden auf und bat, Knowlin neu zu starten – während der stille Installer
+  noch arbeitete. Jetzt:
+  - wartet das Fenster nach einem Update bis zu 5 Minuten („Das Update wird noch installiert …“),
+  - beendet der Installer vor dem Kopieren selbst jedes Knowlin, das noch aus seinem Ordner läuft, und schließt belegte
+    Programme (`/CLOSEAPPLICATIONS /FORCECLOSEAPPLICATIONS`),
+  - schreibt der Ablauf ein Protokoll (`%LOCALAPPDATA%\duckpilot\updates\update.log` und `setup.log`); wie das letzte
+    Update ausging, steht unter Einstellungen → Über.
+- Der Installer-Start ist ohne Konsolenfenster, in eigener Prozessgruppe und kodiert übergeben (Pfade mit Leerzeichen).
+- **Nachinstallieren hinter einem Proxy** (Firma, Schule): pip bekommt jetzt den Proxy aus den Windows-Einstellungen
+  mit und wartet länger (60 s, 8 Versuche). Vorher liefen Downloads von AMDs Paketquelle in „Read timed out“.
+- **Hugging Face nicht erreichbar:** statt „<urlopen error _ssl.c:1015 …>“ eine verständliche Meldung und der Link
+  „Auf Hugging Face suchen“ – die Adresse lässt sich dann von Hand eintragen.
+- **Tricks auf einem neuen PC leer:** Pollens App-Bewegungen und die Community-Tricks (mit Vorschauvideos) sind jetzt von
+  Anfang an eingeschaltet, nicht erst unter Steuern → Erweiterungen.
+- **Gedächtnis → Was Knowlin über deine Welt weiß:** Spalten ziehen sich nicht mehr über die ganze Kachel (der
+  Gefühlston stand weit weg vom Namen), mehr Luft zum Einleitungstext.
+
+### Neu
+- **Installer im Design der App:** Seitenleiste und kleines Bild mit dem Knowlin-Zeichen auf dunklem Grund.
+
+### Geändert
+- **Update-Probe auf Windows bei GitHub:** Vor jedem Installer wird die vorige Fassung still installiert und gestartet,
+  dann „Jetzt aktualisieren“ über den Code der App ausgelöst – danach muss die neue Version installiert sein und von
+  selbst wieder laufen. Zur Diagnose läuft auch der Weg der vorigen Fassung mit.
+
+### Nicht geprüft
+- Das Update 0.38.33 → 0.38.34 auf einem echten PC: Es startet noch mit dem Code von 0.38.33. Der neue Installer
+  beendet zwar selbst ein laufendes Knowlin, aber das Fenster von 0.38.33 gibt nach 90 Sekunden auf – dann bitte
+  einfach etwas warten, bevor du Knowlin von Hand startest.
+
 ## 0.38.33 – 2026-11-08 – Fehler aus dem ersten Abend mit dem Installer
 
 ### Neu

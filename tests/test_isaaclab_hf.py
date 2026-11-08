@@ -198,3 +198,10 @@ def test_ohne_huggingface_hub_direkt_ueber_huggingface_co(tmp_path, monkeypatch)
     assert ("hf_geheim" in {t for _, t in aufrufe})
     with pytest.raises(IL.ImportFehler, match="gibt es nicht"):
         HF.laden(tmp_path / "root", "a/gibts-nicht", mit_pruefstand=False)
+
+
+def test_netzfehler_verstaendlich():
+    """Gemeldet nach 0.38.33: „<urlopen error _ssl.c:1015: The handshake operation timed out>“ stand roh in der Karte."""
+    assert "Zeitüberschreitung" in HF.netzfehler(OSError("_ssl.c:1015: The handshake operation timed out"))
+    assert "Zertifikat" in HF.netzfehler(OSError("CERTIFICATE_VERIFY_FAILED"))
+    assert "_ssl" not in HF.netzfehler(OSError("_ssl.c:1015: The handshake operation timed out"))

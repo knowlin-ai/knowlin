@@ -2405,7 +2405,9 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
 .welt-card { display: grid; gap: var(--spacing-04); }
 .welt-card[hidden] { display: none; }
 .welt-card h3 { margin: 0; }
-.welt-gruppen { display: grid; gap: var(--spacing-05) var(--spacing-07); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+/* Spalten nicht über die ganze Kachel ziehen (gemeldet nach 0.38.33: der Gefühlston stand weit weg vom Namen), Luft zum Text */
+.welt-gruppen { display: grid; gap: var(--spacing-05) var(--spacing-07); margin-top: var(--spacing-03);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 26rem)); }
 .welt-gruppe h4 { margin: 0 0 var(--spacing-03); font-size: var(--t-small); font-weight: 600; color: var(--ink-2); }
 .welt-gruppe h4 small { font-weight: 400; color: var(--ink-3); }
 .welt-liste { list-style: none; margin: 0; padding: 0; display: grid; }

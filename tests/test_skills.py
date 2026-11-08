@@ -85,7 +85,8 @@ def test_registry_lists_packs_and_planned_ones_cannot_be_enabled(client):
     r = client.get("/api/skills").json()
     ids = {p["id"]: p for p in r["pakete"]}
     assert {"app_moves", "talent", "gaits", "quack_nav", "duck_detector"} <= set(ids)
-    assert [p["id"] for p in r["pakete"] if p["an"]] == ["alltag"]      # der Alltagsbuddy ist von Anfang an an
+    # von Anfang an: Alltagsbuddy und – seit 0.38.34 – die Trick-Pakete mit Vorschauvideos
+    assert [p["id"] for p in r["pakete"] if p["an"]] == ["alltag", "app_moves", "community"]
     assert ids["alltag"]["werkzeug"] == "alltag" and ids["alltag"]["herkunft"] == "duckpilot"
     assert ids["quack_nav"]["verfuegbar"] is False and ids["duck_detector"]["braucht"] == "kamera"
     bad = client.post("/api/skills", json={"id": "quack_nav", "an": True}, headers=H)
@@ -97,10 +98,10 @@ def test_registry_lists_packs_and_planned_ones_cannot_be_enabled(client):
 def test_enable_pack_persists_and_gives_claude_a_tool(client):
     r = client.post("/api/skills", json={"id": "talent", "an": True}, headers=H).json()
     assert r["ok"] and next(p for p in r["pakete"] if p["id"] == "talent")["an"]
-    assert client.runtime.config.pakete == ["alltag", "talent"]
-    assert json.loads(S.settings_path().read_text(encoding="utf-8"))["pakete"] == ["alltag", "talent"]
+    assert client.runtime.config.pakete == ["alltag", "app_moves", "community", "talent"]
+    assert json.loads(S.settings_path().read_text(encoding="utf-8"))["pakete"] == ["alltag", "app_moves", "community", "talent"]
     names = [t["name"] for t in client.runtime.runner.tools()]
-    assert "vorfuehrung" in names and "app_bewegung" not in names
+    assert "vorfuehrung" in names and "app_bewegung" in names      # app_moves seit 0.38.34 von Anfang an
     client.post("/api/skills", json={"id": "talent", "an": False}, headers=H)
     assert "vorfuehrung" not in [t["name"] for t in client.runtime.runner.tools()]
 

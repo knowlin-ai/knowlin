@@ -47,14 +47,20 @@ export function initBeenden(h) {
     $('quit-done').hidden = false;
   }
 
-  async function waitForRestart(oldVersion) {
-    for (let i = 0; i < 90; i++) {
+  // Nach einem Update bis zu 5 Minuten warten (seit 0.38.33): Der stille Installer entpackt ~100 MB, der Virenscanner
+  // prüft jede Datei – das dauerte beim ersten echten Update länger als die 90 s für einen einfachen Neustart.
+  async function waitForRestart(oldVersion, update = false) {
+    const sekunden = update ? 300 : 90;
+    for (let i = 0; i < sekunden; i++) {
       await new Promise((r) => setTimeout(r, 1000));
       const p = await fetch('/api/ping', { cache: 'no-store' }).then((x) => x.json()).catch(() => null);
       if (p && p.version && p.version !== oldVersion) { location.reload(); return; }
-      if (p && p.version && i > 20) { location.reload(); return; }
+      if (p && p.version && i > 20 && !update) { location.reload(); return; }
+      if (update && i === 90) done('Das Update wird noch installiert …', 'Das kann ein paar Minuten dauern – das Fenster lädt sich dann von selbst neu.');
     }
-    done('Neustart dauert länger', 'Starte Knowlin über die Desktop-Verknüpfung.');
+    done(update ? 'Das Update dauert ungewöhnlich lange' : 'Neustart dauert länger',
+      update ? 'Starte Knowlin über die Desktop-Verknüpfung – unter Einstellungen → Über steht dann die Version.'
+        : 'Starte Knowlin über die Desktop-Verknüpfung.');
   }
 
   async function choose(art) {
@@ -92,7 +98,7 @@ export function initBeenden(h) {
       return;
     }
     done(`Knowlin ${r.version} wird installiert …`, 'Knowlin startet gleich von selbst neu – dieses Fenster lädt sich dann neu.');
-    waitForRestart(info && info.version);
+    waitForRestart(info && info.version, true);
   });
 
   // Einstellungen → Über: von Hand nach Updates suchen (seit 0.38.32)
@@ -103,6 +109,8 @@ export function initBeenden(h) {
     if (!r || !r.ok) { st.textContent = (r && r.fehler) || 'GitHub war nicht erreichbar.'; return; }
     later = false;
     st.textContent = r.neu ? `Knowlin ${r.neu.version} ist da – siehe Hinweis oben.` : `Knowlin ${r.version} ist aktuell.`;
+    // Wie das letzte Update ausging (seit 0.38.34, aus updates/update.log) – hilft, wenn eins nicht durchlief
+    if (r.letztes_update) st.textContent += ` Letztes Update: ${r.letztes_update}`;
   });
 
   return { update, open };

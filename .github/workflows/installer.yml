@@ -67,10 +67,70 @@ jobs:
         run: |
           $v = python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])"
           Copy-Item tools\installer\knowlin.iss .
+          python -m pip install --disable-pip-version-check pillow
+          python tools\installer\bilder.py .
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+          (Get-Item $iscc).VersionInfo.ProductVersion | ForEach-Object { Write-Host "Inno Setup $_" }
           & $iscc "/DVersion=$v" knowlin.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup ist fehlgeschlagen" }
+      - name: Update-Probe (ältere Fassung installiert und laufend → „Jetzt aktualisieren“)
+        # Seit 0.38.34: Das erste echte Update (0.38.32 → 0.38.33) lief bei Nutzern nicht durch. Hier läuft es wie zu
+        # Hause: ältere Fassung still installieren und starten, dann (A) den Start-Weg der ALTEN Fassung und (B) den der
+        # neuen auslösen; danach muss die neue Version installiert sein und von selbst wieder laufen.
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DUCKPILOT_OFFLINE: "1"
+        run: |
+          $v = python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])"
+          $neu = (Resolve-Path "dist\Knowlin-Setup-$v.exe").Path
+          $app = "$env:LOCALAPPDATA\Programs\Knowlin"
+          $daten = "$env:LOCALAPPDATA\duckpilot"
+          $rels = Invoke-RestMethod "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases?per_page=20" -Headers @{ Authorization = "Bearer $env:GH_TOKEN" }
+          $alt = $rels | Where-Object { -not $_.draft -and -not $_.prerelease -and $_.tag_name -ne "v$v" -and ($_.assets | Where-Object { $_.name -like 'Knowlin-Setup-*.exe' }) } | Select-Object -First 1
+          if (-not $alt) { Write-Host "Keine ältere Fassung mit Installer – Probe übersprungen"; exit 0 }
+          $altUrl = ($alt.assets | Where-Object { $_.name -like 'Knowlin-Setup-*.exe' } | Select-Object -First 1).browser_download_url
+          Invoke-WebRequest $altUrl -OutFile "$env:RUNNER_TEMP\alt-setup.exe"
+          function Version { & "$app\python\python.exe" -c "import duckpilot; print(duckpilot.__version__)" }
+          function AltInstallieren {
+            Start-Process "$env:RUNNER_TEMP\alt-setup.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-' -Wait
+            Get-Process | Where-Object { $_.Path -like "$app\*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep 2
+          }
+          function Ping($port) { try { (Invoke-RestMethod "http://127.0.0.1:$port/api/ping" -TimeoutSec 2).version } catch { $null } }
+          function Warte($bedingung, $sek) { foreach ($i in 1..$sek) { if (& $bedingung) { return $true }; Start-Sleep 1 }; return $false }
+
+          # ── A: Start-Weg der älteren Fassung (so lief es bei Nutzern) – nur zur Diagnose
+          AltInstallieren
+          $va = Version
+          Write-Host "A: installiert $va, starte Update mit dem Code von $va"
+          New-Item -ItemType Directory -Force "$daten\updates" | Out-Null
+          Copy-Item $neu "$daten\updates\" -Force
+          & "$app\python\python.exe" -c "from pathlib import Path; from duckpilot.aktualisieren import Aktualisierer as A; A(Path(r'$daten')).installer_starten(Path(r'$daten\updates\Knowlin-Setup-$v.exe'))"
+          $okA = Warte { (Version) -eq $v } 300
+          Write-Host "A: nach bis zu 5 Minuten installiert: $(Version) – $(if ($okA) {'durchgelaufen'} else {'NICHT durchgelaufen'})"
+          Get-Process | Where-Object { $_.Path -like "$app\*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+
+          # ── B: Start-Weg der neuen Fassung, ältere Fassung läuft und hält ihre Dateien
+          AltInstallieren
+          Write-Host "B: installiert $(Version)"
+          $srv = Start-Process "$app\python\pythonw.exe" -ArgumentList '-m','duckpilot','--no-browser','--port','8765','--no-memory' -WorkingDirectory $app -PassThru
+          if (-not (Warte { Ping 8765 } 120)) { throw "B: ältere Fassung startet nicht" }
+          Remove-Item "$daten\updates\update.log","$daten\updates\setup.log" -ErrorAction SilentlyContinue
+          & build\knowlin\python\python.exe -c "from pathlib import Path; from duckpilot.aktualisieren import Aktualisierer as A; A(Path(r'$daten')).installer_starten(Path(r'$daten\updates\Knowlin-Setup-$v.exe'), pid=$($srv.Id))"
+          Start-Sleep 2
+          Stop-Process -Id $srv.Id -Force          # Knowlin beendet sich nach „Jetzt aktualisieren“
+          $fertig = Warte { (Test-Path "$daten\updates\update.log") -and (Select-String -Path "$daten\updates\update.log" -Pattern 'fertig|Fehler' -Quiet) } 300
+          Write-Host "── update.log"; Get-Content "$daten\updates\update.log" -ErrorAction SilentlyContinue
+          Write-Host "── setup.log (Ende)"; Get-Content "$daten\updates\setup.log" -Tail 25 -ErrorAction SilentlyContinue
+          if (-not $fertig) { throw "B: Installer hat nicht zu Ende gemeldet" }
+          if (-not (Select-String -Path "$daten\updates\update.log" -Pattern 'fertig, Code 0' -Quiet)) { throw "B: Installer meldet einen Fehler" }
+          if ((Version) -ne $v) { throw "B: nach dem Update ist $(Version) installiert statt $v" }
+          if (-not (Warte { (Ping 8765) -eq $v } 120)) { throw "B: Knowlin $v ist nach dem Update nicht von selbst wieder gestartet" }
+          Write-Host "B: Update auf $v durchgelaufen, Knowlin läuft wieder"
+          Get-Process | Where-Object { $_.Path -like "$app\*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+          Get-Process msedge -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
       - uses: actions/upload-artifact@v7
         with:
           name: Knowlin-Setup

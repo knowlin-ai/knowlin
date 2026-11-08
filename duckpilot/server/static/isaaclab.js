@@ -131,6 +131,12 @@ export function initIsaacLab({ $, api, el, toast }) {
     hinweis.textContent = !r || !r.ok ? ((r && r.fehler) || 'Hugging Face war nicht erreichbar – die Adresse kannst du trotzdem eingeben.')
       : liste.length ? 'Gefunden über die Suche nach „microduck“, meistgeladene zuerst. Ob eine Policy passt, zeigt erst der Prüfstand.'
         : 'Gerade keine öffentlichen Microduck-Policies gefunden – die Adresse kannst du trotzdem eingeben.';
+    // Ohne Liste: dieselbe Suche im Browser (seit 0.38.34) – die Adresse dann einfach hier eintragen
+    if (!liste.length) {
+      const a = el('a', 'link', 'Auf Hugging Face suchen');
+      a.href = 'https://huggingface.co/models?search=microduck'; a.target = '_blank'; a.rel = 'noopener';
+      hinweis.append(' ', a);
+    }
   }
   $('il-suche-neu').addEventListener('click', () => suchen(true));
 

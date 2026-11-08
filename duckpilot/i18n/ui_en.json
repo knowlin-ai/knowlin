@@ -3243,5 +3243,10 @@
  "Erneut prüfen": "Check again",
  "Nutzt du LM Studio statt Ollama? Oben „Anderes Modell“ wählen, dann „LM Studio (auf diesem PC)“.": "Using LM Studio instead of Ollama? Choose “Other model” above, then “LM Studio (on this PC)”.",
  "installieren und starten – es rechnet auf deiner Grafikkarte.": "and start it – it runs on your graphics card.",
- "Antippen, und hier ist es gleich zu sehen. Ziehen dreht die Ansicht.": "Tap one and see it right here. Drag to rotate the view."
+ "Antippen, und hier ist es gleich zu sehen. Ziehen dreht die Ansicht.": "Tap one and see it right here. Drag to rotate the view.",
+ "Das Update wird noch installiert …": "The update is still installing …",
+ "Das kann ein paar Minuten dauern – das Fenster lädt sich dann von selbst neu.": "This can take a few minutes – the window reloads by itself afterwards.",
+ "Das Update dauert ungewöhnlich lange": "The update is taking unusually long",
+ "Starte Knowlin über die Desktop-Verknüpfung – unter Einstellungen → Über steht dann die Version.": "Start Knowlin from the desktop shortcut – Settings → About shows the version.",
+ "Auf Hugging Face suchen": "Search on Hugging Face"
 }

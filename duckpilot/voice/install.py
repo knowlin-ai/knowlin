@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import re
 import subprocess
 import sys
@@ -140,6 +141,22 @@ def _commands(paket: str, gpu: str = "cpu", arch: str | None = None) -> list[lis
     raise ValueError(f"Unbekanntes Paket '{paket}'")
 
 
+def pip_umgebung(env: dict[str, str] | None = None) -> dict[str, str]:
+    """Umgebung für pip: unter Windows den Proxy aus den Systemeinstellungen mitgeben (seit 0.38.34).
+
+    pip liest nur HTTP(S)_PROXY, nicht die Internetoptionen von Windows. Hinter einem Firmen- oder Schulproxy liefen
+    Downloads von AMDs Paketquelle deshalb in „Read timed out“, während Knowlins eigene Anfragen durchkamen."""
+    import urllib.request
+
+    env = dict(os.environ if env is None else env)
+    if not any(env.get(k) for k in ("HTTPS_PROXY", "https_proxy")):
+        proxy = urllib.request.getproxies().get("https")
+        if proxy:
+            env["HTTPS_PROXY"] = proxy
+            env.setdefault("HTTP_PROXY", urllib.request.getproxies().get("http", proxy))
+    return env
+
+
 def python_exe() -> str:
     exe = Path(sys.executable)
     if exe.name.lower() == "pythonw.exe" and exe.with_name("python.exe").exists():
@@ -211,9 +228,11 @@ class Installer:
         return job
 
     async def _pip(self, args: list[str], job: dict[str, Any]) -> int:
-        cmd = [python_exe(), "-m", "pip", "install", "--disable-pip-version-check", "--progress-bar", "off", *args]
+        # Länger warten und öfter neu versuchen (große Pakete, langsame Quellen wie AMDs Paketquelle)
+        cmd = [python_exe(), "-m", "pip", "install", "--disable-pip-version-check", "--progress-bar", "off",
+               "--timeout", "60", "--retries", "8", *args]
         self._line(job, "$ pip install " + " ".join(args))
-        kw: dict[str, Any] = {}
+        kw: dict[str, Any] = {"env": pip_umgebung()}
         if sys.platform == "win32":
             kw["creationflags"] = 0x08000000      # kein Konsolenfenster
         proc = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE,

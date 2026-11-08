@@ -78,7 +78,13 @@ def test_installer_nur_mit_passender_pruefsumme_und_von_github(tmp_path):
 def test_befehle(tmp_path):
     akt = A.Aktualisierer(tmp_path)
     cmd = akt.installer_befehl(tmp_path / "Knowlin-Setup-99.0.0.exe", pid=4242)
-    assert "Wait-Process -Id 4242" in cmd[-1] and "/VERYSILENT" in cmd[-1] and "$env:KN_SETUP" in cmd[-1]
+    import base64
+
+    skript = base64.b64decode(cmd[-1]).decode("utf-16-le")
+    assert cmd[-2] == "-EncodedCommand" and skript == akt.installer_skript(4242)
+    assert "Wait-Process -Id 4242" in skript and "/VERYSILENT" in skript and "$env:KN_SETUP" in skript
+    # seit 0.38.34: Protokoll und belegte Dateien nicht mehr still scheitern lassen
+    assert "update.log" in skript and "/LOG=" in skript and "/FORCECLOSEAPPLICATIONS" in skript and "ExitCode" in skript
     assert akt.paket_befehl("1.2.3")[-1] == "knowlin==1.2.3"
     with pytest.raises(A.UpdateFehler):
         akt.paket_befehl("1.2.3; rm -rf /")
@@ -125,3 +131,12 @@ def test_route_nur_am_pc_nie_mit_echtem_roboter(tmp_path, monkeypatch):
         rt.config.backend = "robotd"
         r = c.post("/api/update/installieren", headers=h)
         assert r.status_code == 409 and "echten Roboter" in r.json()["fehler"]
+
+
+def test_letztes_update_aus_dem_protokoll(tmp_path):
+    akt = A.Aktualisierer(tmp_path)
+    assert akt.status()["letztes_update"] is None
+    (tmp_path / "updates").mkdir()
+    (tmp_path / "updates" / "update.log").write_text("2026-11-09T00:01:00 starte Knowlin-Setup-0.38.34.exe\n"
+                                                     "2026-11-09T00:02:10 fertig, Code 0\n", encoding="utf-8")
+    assert akt.status()["letztes_update"].endswith("fertig, Code 0")

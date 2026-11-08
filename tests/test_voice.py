@@ -701,3 +701,16 @@ def test_eingebettetes_python_baut_ohne_abschottung(tmp_path, monkeypatch):
     monkeypatch.setattr(I, "eingebettet", lambda exe=None: True)
     asyncio.run(I.Installer().install("piper", "cpu", runner=runner))
     assert seen == [I.BAUWERKZEUGE, ["--no-build-isolation", "piper-tts>=1.3"]]
+
+
+def test_pip_bekommt_den_proxy_des_systems(monkeypatch):
+    """Gemeldet nach 0.38.33: Downloads von AMDs Paketquelle liefen in „Read timed out“ – pip liest den Proxy aus den
+    Windows-Internetoptionen nicht selbst."""
+    import urllib.request
+
+    monkeypatch.setattr(urllib.request, "getproxies", lambda: {"https": "http://proxy.firma:8080", "http": "http://proxy.firma:8080"})
+    env = I.pip_umgebung({"PATH": "x"})
+    assert env["HTTPS_PROXY"] == "http://proxy.firma:8080" and env["PATH"] == "x"
+    assert I.pip_umgebung({"HTTPS_PROXY": "http://eigener:1"})["HTTPS_PROXY"] == "http://eigener:1"   # nichts überschreiben
+    monkeypatch.setattr(urllib.request, "getproxies", lambda: {})
+    assert "HTTPS_PROXY" not in I.pip_umgebung({})

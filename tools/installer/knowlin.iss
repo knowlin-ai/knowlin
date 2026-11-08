@@ -33,6 +33,12 @@ LicenseFile=LICENSE
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
+; Im Design der App (seit 0.38.34): Seitenleiste und kleines Bild aus dem Knowlin-Zeichen auf dunklem Grund
+; (tools/installer/bilder.py erzeugt sie beim Bau, je drei Größen für 100/150/200 % Skalierung)
+WizardImageFile=wizard-100.bmp,wizard-150.bmp,wizard-200.bmp
+WizardSmallImageFile=wizard-klein-100.bmp,wizard-klein-150.bmp,wizard-klein-200.bmp
+WizardImageStretch=no
+WizardImageBackColor=$1C1918
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 CloseApplications=yes
@@ -76,3 +82,18 @@ Filename: "{app}\python\pythonw.exe"; Parameters: "-m duckpilot --app --neustart
 [UninstallDelete]
 ; Was Knowlin selbst nachinstalliert (Physik, Stimme) liegt im Programmordner – mit weg. Gedächtnis bleibt.
 Type: filesandordirs; Name: "{app}\python"
+
+[Code]
+// Seit 0.38.34: Vor dem Kopieren jedes Knowlin beenden, das noch aus diesem Ordner läuft – auch eins, das nach dem
+// Restart-Manager-Check gestartet wurde (beim ersten echten Update 0.38.32 → 0.38.33 brach die stille Installation ab,
+// vermutlich weil Knowlin von Hand wieder lief und Dateien belegt waren). Gedächtnis und Einstellungen sind gespeichert.
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  Code: Integer;
+begin
+  if CurStep = ssInstall then
+    Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
+      '-NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Get-Process | Where-Object { $_.Path -like ''' +
+      ExpandConstant('{app}') + '\python\*'' } | Stop-Process -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 800"',
+      '', SW_HIDE, ewWaitUntilTerminated, Code);
+end;
