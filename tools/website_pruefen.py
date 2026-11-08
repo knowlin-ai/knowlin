@@ -25,7 +25,7 @@ import threading
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from website import bauen  # noqa: E402
+from website import MIT_AUSPROBIEREN, bauen  # noqa: E402
 
 BREITEN = (320, 390, 768, 1280, 1920)
 TEXTABSTAENDE = """* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }
@@ -150,40 +150,44 @@ def main() -> int:
                      not funde and breit <= 0 and not fremd and not obs["fehler"] and not obs["fehlend"],
                      "; ".join((funde + fremd + obs["fehler"] + obs["fehlend"])[:4]) + (f" · {breit} px zu breit" if breit > 0 else ""))
 
-        # 2c · Odi ausprobieren (seit 0.38.29): verlinkt, barrierefrei, Odi lädt erst auf Klick, läuft, nichts Fremdes
+        # 2c · Odi ausprobieren (seit 0.38.29): verlinkt, barrierefrei, Odi lädt erst auf Klick, läuft, nichts Fremdes – vorerst aus (website.MIT_AUSPROBIEREN)
         ctx, p = seite(br, url)
         verlinkt = p.evaluate("() => [...document.querySelectorAll('a[href=\"ausprobieren.html\"]')].length")
         ctx.close()
-        b.pruefe("Startseite verlinkt „Odi ausprobieren“ (Navigation und Startbereich)", verlinkt >= 2, str(verlinkt))
-        obs = {"fehler": [], "anfragen": [], "fehlend": []}
-        funde, breit = [], 0
-        for sprache, thema, breite in (("de", "light", 1280), ("en", "dark", 390), ("de", "dark", 320)):
-            ctx, p = seite(br, url + "ausprobieren.html", breite=breite, thema=thema, sprache=sprache, beobachten=obs)
-            funde += [f"{sprache}/{thema}/{breite}: {v}" for v in axe(p, axe_js)]
-            breit = max(breit, ueberlauf(p))
+        if not MIT_AUSPROBIEREN:
+            b.pruefe("Keine Links auf die (vorerst abgeschaltete) Seite „Odi ausprobieren“",
+                     verlinkt == 0 and not (site / "ausprobieren.html").exists() and not (site / "demo").exists(), str(verlinkt))
+        else:
+            b.pruefe("Startseite verlinkt „Odi ausprobieren“ (Navigation und Startbereich)", verlinkt >= 2, str(verlinkt))
+            obs = {"fehler": [], "anfragen": [], "fehlend": []}
+            funde, breit = [], 0
+            for sprache, thema, breite in (("de", "light", 1280), ("en", "dark", 390), ("de", "dark", 320)):
+                ctx, p = seite(br, url + "ausprobieren.html", breite=breite, thema=thema, sprache=sprache, beobachten=obs)
+                funde += [f"{sprache}/{thema}/{breite}: {v}" for v in axe(p, axe_js)]
+                breit = max(breit, ueberlauf(p))
+                ctx.close()
+            vorab = [u for u in obs["anfragen"] if "odi-modell" in u]
+            b.pruefe("Ausprobieren: axe ohne Verstöße, keine Scrollleiste, Modell erst auf Klick",
+                     not funde and breit <= 0 and not vorab, "; ".join(funde[:4]) + (f" · {breit} px zu breit" if breit > 0 else "")
+                     + (" · Modell vorab geladen" if vorab else ""))
+            ctx, p = seite(br, url + "ausprobieren.html", beobachten=obs)
+            p.set_default_timeout(180000)
+            p.click("#odi-start")
+            p.wait_for_selector("#vorhang", state="hidden")
+            p.wait_for_timeout(1000)
+            p.click("[data-trick=tanzen]")
+            p.fill("#sagen-text", "geh zum Ball")
+            p.press("#sagen-text", "Enter")
+            p.wait_for_timeout(1500)
+            antwort = p.text_content("#antwort") or ""
+            laeuft = p.evaluate("() => !document.getElementById('odi-bild').hidden")
+            v = axe(p, axe_js)
+            p.screenshot(path=str(out / "ausprobieren.png"))
             ctx.close()
-        vorab = [u for u in obs["anfragen"] if "odi-modell" in u]
-        b.pruefe("Ausprobieren: axe ohne Verstöße, keine Scrollleiste, Modell erst auf Klick",
-                 not funde and breit <= 0 and not vorab, "; ".join(funde[:4]) + (f" · {breit} px zu breit" if breit > 0 else "")
-                 + (" · Modell vorab geladen" if vorab else ""))
-        ctx, p = seite(br, url + "ausprobieren.html", beobachten=obs)
-        p.set_default_timeout(180000)
-        p.click("#odi-start")
-        p.wait_for_selector("#vorhang", state="hidden")
-        p.wait_for_timeout(1000)
-        p.click("[data-trick=tanzen]")
-        p.fill("#sagen-text", "geh zum Ball")
-        p.press("#sagen-text", "Enter")
-        p.wait_for_timeout(1500)
-        antwort = p.text_content("#antwort") or ""
-        laeuft = p.evaluate("() => !document.getElementById('odi-bild').hidden")
-        v = axe(p, axe_js)
-        p.screenshot(path=str(out / "ausprobieren.png"))
-        ctx.close()
-        fremd = sorted({u for u in obs["anfragen"] if not u.startswith(url) and not u.startswith(("data:", "blob:"))})
-        b.pruefe("Ausprobieren: Odi startet, versteht „geh zum Ball“, axe auch im Betrieb, nichts Fremdes, keine Fehler",
-                 laeuft and "Ball" in antwort and not v and not fremd and not obs["fehler"] and not obs["fehlend"],
-                 "; ".join([antwort[:40], *v[:2], *fremd[:2], *obs["fehler"][:2], *obs["fehlend"][:2]]))
+            fremd = sorted({u for u in obs["anfragen"] if not u.startswith(url) and not u.startswith(("data:", "blob:"))})
+            b.pruefe("Ausprobieren: Odi startet, versteht „geh zum Ball“, axe auch im Betrieb, nichts Fremdes, keine Fehler",
+                     laeuft and "Ball" in antwort and not v and not fremd and not obs["fehler"] and not obs["fehlend"],
+                     "; ".join([antwort[:40], *v[:2], *fremd[:2], *obs["fehler"][:2], *obs["fehlend"][:2]]))
 
         # 3 · Breiten und Textabstände (WCAG 1.4.10, 1.4.12)
         for breite in BREITEN:

@@ -22,6 +22,8 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   Lizenz, Anzahl der Policies und Stand. „Auswählen“ übernimmt Adresse und Datei; geladen wird erst beim Prüfen.
 
 ### Geändert
+- **Website: „Odi ausprobieren“ vorerst abgeschaltet** (Hinweis: „enttäuscht ggf. die Erwartungen – die App kann ja viel
+  mehr“). Startseite wieder mit „So startest du“; Seite und Demo bleiben im Repo und kommen zurück, wenn sie mehr zeigen.
 - Karte „Policies aus Isaac Lab“: Abstand zur Karte „Robustheit gegen Stöße“, kein leerer Platz mehr unter dem Knopf,
   Überschrift und Text so eng wie in den anderen Karten, „Noch keine Policy übernommen.“
 

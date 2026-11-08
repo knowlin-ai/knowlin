@@ -31,8 +31,7 @@
 > project and is neither endorsed nor reviewed by them. Pollen's robot models are not included: Knowlin downloads them
 > from the original source and prepares them on your PC – see [Legal and sources](#legal-and-sources).
 
-> **Just want a look?** [Try Odi in your browser](https://knowlin.de/ausprobieren.html) – no install, no account.
-> More at [knowlin.de](https://knowlin.de).
+> **Just want a look?** Pictures and an overview at [knowlin.de](https://knowlin.de).
 
 ## The idea
 

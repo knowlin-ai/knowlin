@@ -31,8 +31,7 @@
 > dem Open-Duck-Projekt und wird von ihnen weder unterstützt noch geprüft. Pollens Robotermodelle sind nicht enthalten:
 > Knowlin lädt sie von der Originalquelle und bereitet sie auf deinem PC auf – siehe [Rechtliches und Quellen](#rechtliches-und-quellen).
 
-> **Erst mal schauen?** [Odi im Browser ausprobieren](https://knowlin.de/ausprobieren.html) – ohne Installation, ohne
-> Konto. Mehr auf [knowlin.de](https://knowlin.de).
+> **Erst mal schauen?** Bilder und Überblick auf [knowlin.de](https://knowlin.de).
 
 ## Die Idee
 

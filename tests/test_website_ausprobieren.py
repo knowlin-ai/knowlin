@@ -13,6 +13,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
+import website  # noqa: E402
 from duckpilot.api import Head, Twist  # noqa: E402
 from duckpilot.backends.sim import display_joints  # noqa: E402
 from website import DEMO_DATEIEN, MODELL_QUELLE, MODELL_ZIEL, bauen  # noqa: E402
@@ -20,12 +21,20 @@ from website import DEMO_DATEIEN, MODELL_QUELLE, MODELL_ZIEL, bauen  # noqa: E40
 NODE = shutil.which("node")
 
 
-def test_seite_gebaut_mit_offenem_modell(tmp_path):
+def test_vorerst_aus_keine_seite_keine_demo_keine_links(tmp_path):
+    # 8.11.: „Im Browser ausprobieren enttäuscht ggf. die Erwartungen – die App kann ja viel mehr“
+    assert website.MIT_AUSPROBIEREN is False
+    ziel = bauen(tmp_path / "seite")
+    assert not (ziel / "ausprobieren.html").exists() and not (ziel / "demo").exists()
+    assert "ausprobieren.html" not in (ziel / "index.html").read_text(encoding="utf-8")
+
+
+def test_seite_gebaut_mit_offenem_modell(tmp_path, monkeypatch):
+    monkeypatch.setattr(website, "MIT_AUSPROBIEREN", True)                    # bleibt baubar für später
     ziel = bauen(tmp_path / "seite")
     seite = (ziel / "ausprobieren.html").read_text(encoding="utf-8")
     assert '<script type="module" src="demo/odi.js"></script>' in seite and 'id="odi-start"' in seite
     assert '<meta name="robots" content="noindex">' not in seite                  # soll gefunden werden
-    assert 'href="ausprobieren.html"' in (ziel / "index.html").read_text(encoding="utf-8")
     for rel in DEMO_DATEIEN + ("odi.js", "gang.js", MODELL_ZIEL):
         assert (ziel / "demo" / rel).exists(), rel
     daten = json.loads((ziel / "demo" / MODELL_ZIEL).read_text(encoding="utf-8"))

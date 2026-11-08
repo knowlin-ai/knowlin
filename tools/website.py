@@ -115,6 +115,9 @@ MODELL_QUELLE = "model/open_duck_mini.dpm"
 MODELL_ZIEL = "model/odi-modell.json"
 VERBOTEN = ("microduck", "reachy")
 AUSPROBIEREN = ("Odi ausprobieren – Knowlin", "Try Odi – Knowlin")
+# Vorerst aus (8.11., Maintainer: „Im Browser ausprobieren enttäuscht ggf. die Erwartungen – die App kann ja viel mehr“).
+# Seite, Demo-Dateien und Prüfung bleiben im Repo; wieder an, sobald die Demo mehr zeigt.
+MIT_AUSPROBIEREN = False
 
 
 def demo_dazulegen(ziel: Path) -> None:
@@ -134,7 +137,8 @@ def bauen(ziel: Path) -> Path:
     ziel = Path(ziel)
     if ziel.exists():
         shutil.rmtree(ziel)
-    shutil.copytree(QUELLE, ziel, ignore=shutil.ignore_patterns("_*", "*.md"))
+    muster = ("_*", "*.md") if MIT_AUSPROBIEREN else ("_*", "*.md", "demo")
+    shutil.copytree(QUELLE, ziel, ignore=shutil.ignore_patterns(*muster))
     text = (QUELLE / "index.html").read_text(encoding="utf-8")
     kopf, koerper = teilen(text)
     beschreibung = re.search(r'<meta name="description" content="([^"]+)"', kopf).group(1)
@@ -144,11 +148,12 @@ def bauen(ziel: Path) -> Path:
     adresse = anschrift()
     for name in RECHT:
         (ziel / f"{name}.html").write_text(rechtsseite(name, kopf, beschreibung, fuss, adresse or PLATZHALTER), encoding="utf-8")
-    (ziel / "ausprobieren.html").write_text(unterseite("ausprobieren", AUSPROBIEREN,
-                                                       (QUELLE / "_ausprobieren.html").read_text(encoding="utf-8"),
-                                                       kopf, beschreibung, fuss, index=True, haupt_klasse="probe-seite"),
-                                            encoding="utf-8")
-    demo_dazulegen(ziel)
+    if MIT_AUSPROBIEREN:
+        (ziel / "ausprobieren.html").write_text(unterseite("ausprobieren", AUSPROBIEREN,
+                                                           (QUELLE / "_ausprobieren.html").read_text(encoding="utf-8"),
+                                                           kopf, beschreibung, fuss, index=True, haupt_klasse="probe-seite"),
+                                                encoding="utf-8")
+        demo_dazulegen(ziel)
     if adresse is None:
         (ziel / ".impressum-offen").write_text("Name und Anschrift fehlen (KNOWLIN_IMPRESSUM)\n", encoding="utf-8")
     (ziel / ".nojekyll").write_text("", encoding="utf-8")        # GitHub Pages: Dateien unverändert ausliefern
