@@ -18,6 +18,11 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   gehängt. Gedächtnis und Einstellungen bleiben bei Updates und beim Deinstallieren erhalten.
 - **`pipx install knowlin`** für Windows, macOS und Linux; `knowlin --verknuepfung` legt unter Windows die Einträge im
   Startmenü und auf dem Desktop an.
+- **Website: „Für Windows herunterladen“** oben auf der Startseite lädt direkt den Installer der aktuellen Version (die
+  Website baut bei jedem Release neu, der Link stimmt immer).
+- **Einheitliche Bildschirmfotos** (Hinweis: „die Screenshots sind immer unterschiedlich groß“): alle Fotos in README und
+  auf der Website im selben Format 1600 × 965; Ausschnitte stehen mittig auf ihrer nahtlos verlängerten Fläche
+  (`tools/bilder_rahmen.py`). Download-Knopf kurz „Download“, darunter klein Windows-Version und der Weg für macOS/Linux.
 - README und Website: Schnellstart mit dem Installer zuerst, `pipx` für alle mit eigenem Python, `start.bat` für den
   Quellcode.
 

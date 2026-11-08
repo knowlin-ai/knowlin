@@ -33,7 +33,7 @@ def test_titel_beschreibung_daten_robots_sitemap(tmp_path):
 
 def test_sprachwechsel_behaelt_aussagekraeftigen_titel():
     quelle = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
-    assert "document.title = 'Knowlin';" not in quelle and "learning companion for Microduck" in quelle
+    assert "document.title = 'Knowlin';" not in quelle and "self-learning companion for Microduck" in quelle
 
 
 def test_download_knopf_zeigt_auf_den_installer_der_version(tmp_path):
@@ -43,3 +43,17 @@ def test_download_knopf_zeigt_auf_den_installer_der_version(tmp_path):
     v = version()
     assert download_url() == f"https://github.com/knowlin-ai/knowlin/releases/download/v{v}/Knowlin-Setup-{v}.exe"
     assert seite.count(f'href="{download_url()}"') >= 2 and "{{" not in seite
+
+
+def test_bildschirmfotos_einheitlich_gross():
+    # „die Screenshots sind immer unterschiedlich groß auf Website und GitHub“ – alle im selben Format
+    import pytest
+
+    Image = pytest.importorskip("PIL.Image")                                # Pillow fehlt in der schlanken Prüfung
+
+    fotos = [p for p in (ROOT / "docs" / "bilder").glob("*.png") if p.stem not in ("banner", "knowlin-avatar")]
+    fotos += [p for p in (ROOT / "website" / "bilder").glob("*-1600.webp")]
+    groessen = {p.name: Image.open(p).size for p in fotos}
+    assert fotos and set(groessen.values()) == {(1600, 965)}, groessen
+    seite = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+    assert 'height="673"' not in seite and 'width="1065"' not in seite

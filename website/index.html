@@ -1,6 +1,6 @@
-<title>Knowlin – lernender Begleiter für Microduck, Open Duck Mini und Reachy Mini</title>
+<title>Knowlin – selbstlernender Begleiter für Microduck, Open Duck Mini und Reachy Mini</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Lernender Begleiter für kleine Roboter: Microduck, Open Duck Mini und Reachy Mini am PC simulieren, per Sprache und Claude steuern. Kostenlos und Open Source.">
+<meta name="description" content="Selbstlernender Begleiter für kleine Roboter: Microduck, Open Duck Mini und Reachy Mini am PC simulieren, per Sprache und Claude steuern – kostenlos.">
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>
@@ -195,6 +195,8 @@ section { padding-block: clamp(72px, 10vw, 136px); }
 .produkt { margin-top: clamp(-220px, -16vw, -110px); position: relative; z-index: 2; }
 .unterschrift { margin: 16px auto 0; max-width: 60ch; text-align: center; color: var(--tinte-3); font-size: 0.9375rem; }
 /* Fensterrahmen für Bildschirmfotos – die einzige Tiefe auf der Seite */
+.download-info { margin: 12px 0 0; color: var(--tinte-3); font-size: 0.875rem; }
+.download-info a { color: inherit; text-underline-offset: 3px; }
 .fenster {
   border-radius: var(--r-rahmen); overflow: hidden; background: #1b1d21; box-shadow: var(--schatten);
   border: 1px solid color-mix(in srgb, var(--linie) 60%, transparent);
@@ -379,19 +381,20 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
           <span class="t" lang="en">One mind.<span class="zweite">Many bodies.</span></span>
         </h1>
         <p class="leit">
-          <span class="t" lang="de">Knowlin ist ein lernender Begleiter. Er spricht mit dir, merkt sich, was er erlebt, und zieht in kleine Roboter ein – mit demselben Gedächtnis in jedem Körper. Heute virtuell im Simulator, bald bei dir zu Hause in deiner echten Umgebung.</span>
-          <span class="t" lang="en">Knowlin is a learning companion. It talks with you, remembers what it experiences and moves into small robots – with the same memory in every body. Virtual in the simulator today, soon out in your real surroundings at home.</span>
+          <span class="t" lang="de">Knowlin ist ein selbstlernender Begleiter. Er spricht mit dir, merkt sich, was er erlebt, und zieht in kleine Roboter ein – mit demselben Gedächtnis in jedem Körper. Heute virtuell im Simulator, bald bei dir zu Hause in deiner echten Umgebung.</span>
+          <span class="t" lang="en">Knowlin is a self-learning companion. It talks with you, remembers what it experiences and moves into small robots – with the same memory in every body. Virtual in the simulator today, soon out in your real surroundings at home.</span>
         </p>
         <div class="handeln">
-          <a class="knopf knopf--voll" href="{{DOWNLOAD}}">
+          <a class="knopf knopf--voll" href="{{DOWNLOAD}}" aria-describedby="download-info">
             <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M2.5 13.5h11"/></svg>
-            <span class="t" lang="de">Für Windows herunterladen</span><span class="t" lang="en">Download for Windows</span>
+            <span class="t" lang="de">Download</span><span class="t" lang="en">Download</span>
           </a>
           <a class="knopf knopf--rand" href="https://github.com/knowlin-ai/knowlin" rel="noopener">
             <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.83-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.22 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.66 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0Z"/></svg>
             <span class="t" lang="de">Auf GitHub ansehen</span><span class="t" lang="en">View on GitHub</span>
           </a>
         </div>
+        <p class="download-info" id="download-info"><span class="t" lang="de">Für Windows 10 und 11 · Version {{VERSION}} · <a href="#loslegen">macOS und Linux</a></span><span class="t" lang="en">For Windows 10 and 11 · version {{VERSION}} · <a href="#loslegen">macOS and Linux</a></span></p>
         <ul class="fakten">
           <li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5"/></svg><span class="t" lang="de">Kostenlos und Open Source (Apache-2.0)</span><span class="t" lang="en">Free and open source (Apache-2.0)</span></li>
           <li><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="8.5" rx="1.5"/><path d="M5.5 13.75h5M8 11.25v2.5"/></svg><span class="t" lang="de">Windows, macOS und Linux</span><span class="t" lang="en">Windows, macOS and Linux</span></li>
@@ -456,7 +459,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
             <li><span class="t" lang="de">Jede Erinnerung weiß, welcher Körper sie gelernt hat</span><span class="t" lang="en">Every memory knows which body learned it</span></li>
           </ul>
         </div>
-        <div class="bild"><img data-bild="synapsen" src="bilder/synapsen-de-1600.webp" srcset="bilder/synapsen-de-900.webp 900w, bilder/synapsen-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 600px" width="1600" height="673" loading="lazy"
+        <div class="bild"><img data-bild="synapsen" src="bilder/synapsen-de-1600.webp" srcset="bilder/synapsen-de-900.webp 900w, bilder/synapsen-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 600px" width="1600" height="965" loading="lazy"
           alt="Hirnaktivität: das Erfahrungsnetz verknüpft Orte, Tätigkeiten, Gefühle und Tageszeiten, etwa Wohnzimmer, tanzen und Freude" data-alt-en="Brain activity: the experience network links places, activities, feelings and times of day, such as living room, dancing and joy"></div>
       </div>
       <div class="paar links">
@@ -473,7 +476,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
             <li><span class="t" lang="de">Charakter, Tricks und Tänze als Knowlet teilen – auch über Hugging Face</span><span class="t" lang="en">Share character, tricks and dances as a Knowlet – also via Hugging Face</span></li>
           </ul>
         </div>
-        <div class="bild"><img data-bild="charakter" src="bilder/charakter-de-1600.webp" srcset="bilder/charakter-de-900.webp 900w, bilder/charakter-de-1600.webp 1065w" sizes="(max-width: 860px) 100vw, 640px" width="1065" height="1042" loading="lazy"
+        <div class="bild"><img data-bild="charakter" src="bilder/charakter-de-1600.webp" srcset="bilder/charakter-de-900.webp 900w, bilder/charakter-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 640px" width="1600" height="965" loading="lazy"
           alt="Charakterfeld: Knowlins Grundcharakter zwischen ruhig und lebhaft, seriös und verspielt, die Verkörperungen als Punkte" data-alt-en="Character field: Knowlin's basic character between calm and lively, serious and playful, with the embodiments as points"></div>
       </div>
     </div>
@@ -623,7 +626,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
   const quelle = (name, w) => `bilder/${name}-${sprache()}-${w}.webp`;
   function bildSetzen(img, name) {
     img.src = quelle(name, 1600);
-    img.srcset = `${quelle(name, 900)} 900w, ${quelle(name, 1600)} ${name === 'charakter' ? 1065 : 1600}w`;
+    img.srcset = `${quelle(name, 900)} 900w, ${quelle(name, 1600)} 1600w`;
   }
 
   // Weiterlesen bei den Herstellern und Projekten (offizielle Seiten, Code, Spaces)
@@ -710,8 +713,8 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
     bildSetzen(buehne.querySelector('img'), KOERPER[aktiv].bild);
     steckbrief();
     netz?.neuZeichnen();
-    document.title = l === 'en' ? 'Knowlin – learning companion for Microduck, Open Duck Mini and Reachy Mini'
-      : 'Knowlin – lernender Begleiter für Microduck, Open Duck Mini und Reachy Mini';
+    document.title = l === 'en' ? 'Knowlin – self-learning companion for Microduck, Open Duck Mini and Reachy Mini'
+      : 'Knowlin – selbstlernender Begleiter für Microduck, Open Duck Mini und Reachy Mini';
   }
   for (const b of document.querySelectorAll('[data-sprache]')) b.addEventListener('click', () => spracheSetzen(b.dataset.sprache));
   spracheSetzen(sprache());
