@@ -706,7 +706,8 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
     bildSetzen(buehne.querySelector('img'), KOERPER[aktiv].bild);
     steckbrief();
     netz?.neuZeichnen();
-    document.title = 'Knowlin';
+    document.title = l === 'en' ? 'Knowlin – learning companion for Microduck, Open Duck Mini and Reachy Mini'
+      : 'Knowlin – lernender Begleiter für Microduck, Open Duck Mini und Reachy Mini';
   }
   for (const b of document.querySelectorAll('[data-sprache]')) b.addEventListener('click', () => spracheSetzen(b.dataset.sprache));
   spracheSetzen(sprache());

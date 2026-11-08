@@ -29,3 +29,8 @@ def test_titel_beschreibung_daten_robots_sitemap(tmp_path):
     recht = (ziel / "impressum.html").read_text(encoding="utf-8")
     assert '<meta name="robots" content="noindex">' in recht
     assert f'content="{ADRESSE}bilder/vorschau.png"' in recht and "impressum.htmlbilder" not in recht
+
+
+def test_sprachwechsel_behaelt_aussagekraeftigen_titel():
+    quelle = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+    assert "document.title = 'Knowlin';" not in quelle and "learning companion for Microduck" in quelle
