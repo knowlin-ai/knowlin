@@ -51,6 +51,8 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--neustart", action="store_true", help=argparse.SUPPRESS)   # nach „Neu starten“: kein neues Fenster
     ap.add_argument("--fake-robotd", metavar="ADRESSE",
                     help="Statt der Oberfläche: den Simulator als robotd-kompatiblen Server anbieten (zum Testen)")
+    ap.add_argument("--verknuepfung", action="store_true",
+                    help="Windows: Verknüpfungen „Knowlin“ und „Knowlin - Microduck“ auf Desktop und im Startmenü anlegen")
     ap.add_argument("-v", "--verbose", action="store_true")
     ap.add_argument("--version", action="version", version=f"Knowlin {__version__} (Paket duckpilot)")
     args = ap.parse_args(argv)
@@ -62,6 +64,17 @@ def main(argv: list[str] | None = None) -> None:
     else:
         logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
                             format="%(asctime)s %(levelname)-7s %(name)s: %(message)s", datefmt="%H:%M:%S")
+
+    if args.verknuepfung:                 # seit 0.38.31: nach „pipx install knowlin“ – ohne start.bat
+        from .desktop import verknuepfung_anlegen
+
+        try:
+            for modul in ("", "duckpilot"):
+                for pfad in verknuepfung_anlegen(modul):
+                    print(f"  Verknüpfung: {pfad}")
+        except RuntimeError as exc:
+            print(f"  {exc}")
+        return
 
     if args.fake_robotd:
         from .backends.fake_robotd import serve

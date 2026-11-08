@@ -116,17 +116,30 @@ flowchart LR
 
 ## Schnellstart
 
-**Windows**
+**Windows – mit dem Installer (empfohlen)**
 
-1. Python 3.11 oder neuer installieren (python.org, Haken bei „Add to PATH“).
-2. `start.bat` doppelklicken. Beim ersten Mal (ein paar Minuten) legt es eine Python-Umgebung unter
-   `%LOCALAPPDATA%\duckpilot` an – also **nicht** im OneDrive-Ordner –, installiert die Pakete und legt die Verknüpfungen
-   **Knowlin** (Startseite) und **duckpilot** (direkt zur Microduck) auf dem Desktop und im Startmenü an. Danach öffnet sich Knowlin als eigenes Fenster.
-3. Der Assistent **Erste Schritte** führt durch Sprache, Körper, Gehirn und die Sicherheitsregeln. Für Claude den
-   Anthropic-API-Schlüssel einfügen (platform.claude.com → Settings → API keys). Er landet im Tresor des
-   Betriebssystems, nie in einer Datei. Ohne Schlüssel funktionieren einfache Befehle („lauf vor“, „tanz“, „stopp“).
+1. [**Knowlin-Setup herunterladen**](https://github.com/knowlin-ai/knowlin/releases/latest) – unter „Assets“ die Datei
+   `Knowlin-Setup-….exe`.
+2. Doppelklicken. Python ist dabei, Administratorrechte braucht es nicht. Zeigt Windows „Der Computer wurde durch
+   Windows geschützt“, auf **Weitere Informationen → Trotzdem ausführen** klicken – der Installer ist noch nicht
+   signiert.
+3. Knowlin startet über **Knowlin** im Startmenü oder auf dem Desktop. Der Assistent **Erste Schritte** führt durch
+   Sprache, Körper, Gehirn und die Sicherheitsregeln. Für Claude den Anthropic-API-Schlüssel einfügen
+   (platform.claude.com → Settings → API keys). Er landet im Tresor des Betriebssystems, nie in einer Datei. Ohne
+   Schlüssel funktionieren einfache Befehle („lauf vor“, „tanz“, „stopp“).
 
-**macOS und Linux:** `./start.sh` (Konsole und Browser) oder `./start.sh --app` (eigenes Fenster mit Chrome/Edge).
+Updates: den neuen Installer einfach drüber installieren – Gedächtnis und Einstellungen bleiben. Deinstallieren über
+Windows-Einstellungen → Apps.
+
+**Mit Python (Windows, macOS, Linux):** `pipx install knowlin`, dann `knowlin --app` (eigenes Fenster) oder `knowlin`
+(Konsole und Browser). Unter Windows legt `knowlin --verknuepfung` die Einträge im Startmenü und auf dem Desktop an.
+Updates mit `pipx upgrade knowlin`.
+
+**Aus dem Quellcode:** Repository klonen, dann unter Windows `start.bat` doppelklicken. Beim ersten Mal legt es eine
+Python-Umgebung unter `%LOCALAPPDATA%\duckpilot` an (nicht im OneDrive-Ordner), installiert die Pakete und die
+Verknüpfungen.
+
+Unter macOS und Linux aus dem Quellcode: `./start.sh` (Konsole und Browser) oder `./start.sh --app` (eigenes Fenster mit Chrome/Edge).
 Braucht Python 3.11 oder neuer; unter Debian/Ubuntu zusätzlich `python3-venv`. Die Spracherkennung des Browsers gibt
 es nur in Chrome und Edge – unter Linux hilft die lokale Erkennung (Einstellungen → Gespräch →
 Spracherkennung „Lokal“, dazu einmal `.venv/bin/pip install faster-whisper`).
@@ -139,8 +152,8 @@ Spracherkennung „Lokal“, dazu einmal `.venv/bin/pip install faster-whisper`)
   Standardbrowser.
 - **Konsole statt Fenster:** `start.bat` mit Argumenten, z. B. `start.bat --backend robotd --robot tcp:127.0.0.1:7900`.
   Meldungen im Fenster-Modus stehen in `%LOCALAPPDATA%\duckpilot\duckpilot.log`.
-- **Updates:** `start.bat` erneut ausführen – es installiert nur, was sich geändert hat. Schließt du das Fenster, beendet
-  sich Knowlin nach ein paar Sekunden von selbst.
+- **Updates aus dem Quellcode:** `start.bat` erneut ausführen – es installiert nur, was sich geändert hat. Schließt du
+  das Fenster, beendet sich Knowlin nach ein paar Sekunden von selbst.
 - **Für Entwickler:** `pip install -e ".[dev]"`, dann `python -m duckpilot` (das Python-Paket heißt aus historischen
   Gründen `duckpilot`).
 

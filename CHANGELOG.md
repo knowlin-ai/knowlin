@@ -9,6 +9,25 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.31 – 2026-11-08 – Windows-Installer und pip
+
+### Neu
+- **Knowlin-Setup.exe** (Hinweis: „das mit der start.bat ist das Einzige, was ich komisch finde“): ein Installer für
+  Windows mit eigenem Python, ohne Administratorrechte, mit Einträgen im Startmenü und auf dem Desktop und sauberem
+  Deinstallieren über „Apps“. Er wird bei jedem Release auf GitHub gebaut, kurz probeweise gestartet und ans Release
+  gehängt. Gedächtnis und Einstellungen bleiben bei Updates und beim Deinstallieren erhalten.
+- **`pipx install knowlin`** für Windows, macOS und Linux; `knowlin --verknuepfung` legt unter Windows die Einträge im
+  Startmenü und auf dem Desktop an.
+- README und Website: Schnellstart mit dem Installer zuerst, `pipx` für alle mit eigenem Python, `start.bat` für den
+  Quellcode.
+
+### Sicherheit
+- Herausgeber im Installer ist „Knowlin“. Der Installer ist noch nicht signiert – Windows warnt beim ersten Start vor
+  einem unbekannten Herausgeber; die Anleitung erklärt das.
+
+### Nicht geprüft
+- Der Installer auf einem echten Windows-PC (geprüft wird er beim Bauen auf GitHubs Windows-Rechnern).
+
 ## 0.38.30 – 2026-11-08 – Policies direkt von Hugging Face, Feinschliff vor dem Launch
 
 ### Neu

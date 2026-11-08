@@ -120,17 +120,27 @@ flowchart LR
 
 ## Quick start
 
-**Windows**
+**Windows – with the installer (recommended)**
 
-1. Install Python 3.11 or newer (python.org, tick “Add to PATH”).
-2. Double-click `start.bat`. The first time (a few minutes) it creates a Python environment under
-   `%LOCALAPPDATA%\duckpilot` – **not** in your OneDrive folder –, installs the packages and adds two shortcuts to the desktop
-   and start menu: **Knowlin** (home page) and **duckpilot** (straight to the Microduck). Knowlin then opens in its own window.
-3. The **First steps** assistant walks you through language, body, brain and the safety rules. For Claude, paste your
-   Anthropic API key (platform.claude.com → Settings → API keys). It is stored in the operating system's vault, never in
-   a file. Without a key, simple commands work (“walk forward”, “dance”, “stop”).
+1. [**Download Knowlin-Setup**](https://github.com/knowlin-ai/knowlin/releases/latest) – under “Assets”, the file
+   `Knowlin-Setup-….exe`.
+2. Double-click it. Python is included, no administrator rights needed. If Windows says “Windows protected your PC”,
+   click **More info → Run anyway** – the installer isn't signed yet.
+3. Start Knowlin from **Knowlin** in the start menu or on the desktop. The **First steps** assistant walks you through
+   language, body, brain and the safety rules. For Claude, paste your Anthropic API key (platform.claude.com → Settings
+   → API keys). It is stored in the operating system's vault, never in a file. Without a key, simple commands work
+   (“walk forward”, “dance”, “stop”).
 
-**macOS and Linux:** `./start.sh` (console and browser) or `./start.sh --app` (own window with Chrome/Edge).
+Updates: just install the new installer on top – memory and settings stay. Uninstall via Windows Settings → Apps.
+
+**With Python (Windows, macOS, Linux):** `pipx install knowlin`, then `knowlin --app` (own window) or `knowlin`
+(console and browser). On Windows, `knowlin --verknuepfung` adds the start menu and desktop entries. Update with
+`pipx upgrade knowlin`.
+
+**From source:** clone the repository, then on Windows double-click `start.bat`. The first time it creates a Python
+environment under `%LOCALAPPDATA%\duckpilot` (not in your OneDrive folder) and installs the packages and shortcuts.
+
+On macOS and Linux from source: `./start.sh` (console and browser) or `./start.sh --app` (own window with Chrome/Edge).
 Needs Python 3.11 or newer; on Debian/Ubuntu also `python3-venv`. The browser's speech recognition only exists in
 Chrome and Edge – on Linux, use local recognition instead (Settings → Conversation →
 Speech recognition “Local”, after a one-time `.venv/bin/pip install faster-whisper`).
@@ -143,7 +153,7 @@ Speech recognition “Local”, after a one-time `.venv/bin/pip install faster-w
   default browser.
 - **Console instead of window:** `start.bat` with arguments, e.g. `start.bat --backend robotd --robot tcp:127.0.0.1:7900`.
   Logs in window mode are in `%LOCALAPPDATA%\duckpilot\duckpilot.log`.
-- **Updates:** run `start.bat` again – it only installs what changed. Closing the window ends Knowlin after a few seconds.
+- **Updates from source:** run `start.bat` again – it only installs what changed. Closing the window ends Knowlin after a few seconds.
 - **For developers:** `pip install -e ".[dev]"`, then `python -m duckpilot` (the Python package is called `duckpilot` for
   historical reasons).
 

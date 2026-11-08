@@ -525,21 +525,22 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
       </div>
       <ol class="schritte">
         <li>
-          <h3><span class="t" lang="de">Python installieren</span><span class="t" lang="en">Install Python</span></h3>
-          <p><span class="t" lang="de">Version 3.11 oder neuer von python.org – unter Windows mit Haken bei „Add to PATH“.</span><span class="t" lang="en">Version 3.11 or newer from python.org – on Windows, tick “Add to PATH”.</span></p>
+          <h3><span class="t" lang="de">Herunterladen</span><span class="t" lang="en">Download</span></h3>
+          <p><span class="t" lang="de">Unter Windows den Installer <a href="https://github.com/knowlin-ai/knowlin/releases/latest">Knowlin-Setup</a> laden (unter „Assets“). Python ist dabei.</span><span class="t" lang="en">On Windows, get the <a href="https://github.com/knowlin-ai/knowlin/releases/latest">Knowlin-Setup</a> installer (under “Assets”). Python is included.</span></p>
         </li>
         <li>
-          <h3><span class="t" lang="de">Knowlin starten</span><span class="t" lang="en">Start Knowlin</span></h3>
-          <p><span class="t" lang="de">Herunterladen, dann <code>start.bat</code> (Windows) oder <code>./start.sh</code> (macOS, Linux). Beim ersten Mal dauert es ein paar Minuten.</span><span class="t" lang="en">Download it, then run <code>start.bat</code> (Windows) or <code>./start.sh</code> (macOS, Linux). The first start takes a few minutes.</span></p>
+          <h3><span class="t" lang="de">Installieren</span><span class="t" lang="en">Install</span></h3>
+          <p><span class="t" lang="de">Doppelklicken – ohne Administratorrechte. Warnt Windows vor einem unbekannten Herausgeber: „Weitere Informationen“, dann „Trotzdem ausführen“.</span><span class="t" lang="en">Double-click – no administrator rights needed. If Windows warns about an unknown publisher: “More info”, then “Run anyway”.</span></p>
         </li>
         <li>
           <h3><span class="t" lang="de">Erste Schritte</span><span class="t" lang="en">First steps</span></h3>
           <p><span class="t" lang="de">Der Assistent fragt nach Sprache, Körper und Gehirn. Für einen echten Roboter prüft er vorher die Verbindung.</span><span class="t" lang="en">The assistant asks for language, body and brain. For a real robot it checks the connection first.</span></p>
         </li>
       </ol>
+      <p class="code-hinweis"><span class="t" lang="de">macOS, Linux oder mit eigenem Python:</span><span class="t" lang="en">macOS, Linux or with your own Python:</span></p>
       <div class="code">
-        <pre id="befehle" tabindex="0" aria-label="Befehle zum Starten"><span class="k">$</span> git clone https://github.com/knowlin-ai/knowlin.git
-<span class="k">$</span> cd knowlin &amp;&amp; ./start.sh</pre>
+        <pre id="befehle" tabindex="0" aria-label="macOS und Linux: mit Python installieren und starten"><span class="k">$</span> pipx install knowlin
+<span class="k">$</span> knowlin --app</pre>
         <button type="button" id="kopieren"><svg class="haken" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg><span class="t" lang="de">Kopieren</span><span class="t" lang="en">Copy</span></button>
       </div>
     </div>
@@ -713,7 +714,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
   spracheSetzen(sprache());
 
   $('kopieren').addEventListener('click', async () => {
-    const text = 'git clone https://github.com/knowlin-ai/knowlin.git\ncd knowlin && ./start.sh';
+    const text = 'pipx install knowlin\nknowlin --app';
     const b = $('kopieren');
     const fertig = (de, en) => { b.querySelector('[lang="de"]').textContent = de; b.querySelector('[lang="en"]').textContent = en;
       b.classList.add('fertig');

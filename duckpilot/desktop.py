@@ -137,7 +137,9 @@ def symbol(datei: str) -> Path | None:
         p = code_dir() / name
         if p.exists():
             return p
-    return None
+    # Installiert als Paket (pipx, Installer): kein Projektordner – das Knowlin-Zeichen liegt bei der Oberfläche
+    p = Path(__file__).resolve().parent / "server" / "static" / "knowlin.ico"
+    return p if p.exists() else None
 
 
 # ── Mit Windows starten (für die Handy-Fernbedienung) ──────────────────────
