@@ -21,6 +21,22 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   - schreibt der Ablauf ein Protokoll (`%LOCALAPPDATA%\duckpilot\updates\update.log` und `setup.log`); wie das letzte
     Update ausging, steht unter Einstellungen → Über.
 - Der Installer-Start ist ohne Konsolenfenster, in eigener Prozessgruppe und kodiert übergeben (Pfade mit Leerzeichen).
+- **„Stopp“ unter Tanzen löste den Not-Aus aus** – samt Sperre, danach wurde „Probe tanzen“ abgelehnt. Jetzt hält
+  „Stopp“ (und „Musik und Tanz stoppen“) nur Tanz und Musik an; mittanzende Enten hören mit auf. Neu dafür:
+  `choreo aktion=stopp`, `POST /api/choreo/stopp`. Der Not-Aus bleibt links, wie er ist.
+- **„Weitere Enten tanzen mit“** schaltete beim Wechsel zwischen einfachem Simulator und Physik nicht zwischen frei und
+  gesperrt um – jetzt sofort.
+- **Tanzen:** Die Vorschau klebte beim Scrollen fest, „Nach Gehör“ schob sich darüber.
+- **Tricks:** Die Vorschau sitzt auf Höhe der ersten Überschrift; Hinweis, dass es weitere Tricks als Erweiterung gibt.
+- **Vom Handy den Körper wechseln** geht jetzt, solange nur der Simulator läuft (vorher nur „wecken“ der zuletzt
+  aktiven Verkörperung). Mit echtem Roboter bleibt der Wechsel beim PC.
+- **Punkt am System-Knopf:** nur noch, wenn gar kein KI-Modell eingerichtet ist (auch nicht lokal oder ein anderes), und
+  mit Erklärung beim Darüberfahren.
+- **Linke Leiste:** „Einstellungen“ ragte über den hervorgehobenen Knopf hinaus.
+- **Tailscale nicht installiert:** jetzt mit Link „Tailscale für Windows laden“ – es ist ein eigenes Programm, das
+  Knowlin nicht selbst installieren kann.
+- **Update-Ablauf:** wartet nur noch auf den Installer selbst – „-Wait“ wartete auch auf das danach gestartete Knowlin
+  und hätte nie „fertig“ gemeldet (gefunden von der neuen Update-Probe).
 - **Nachinstallieren hinter einem Proxy** (Firma, Schule): pip bekommt jetzt den Proxy aus den Windows-Einstellungen
   mit und wartet länger (60 s, 8 Versuche). Vorher liefen Downloads von AMDs Paketquelle in „Read timed out“.
 - **Hugging Face nicht erreichbar:** statt „<urlopen error _ssl.c:1015 …>“ eine verständliche Meldung und der Link
@@ -29,6 +45,11 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   Anfang an eingeschaltet, nicht erst unter Steuern → Erweiterungen.
 - **Gedächtnis → Was Knowlin über deine Welt weiß:** Spalten ziehen sich nicht mehr über die ganze Kachel (der
   Gefühlston stand weit weg vom Namen), mehr Luft zum Einleitungstext.
+
+### Sicherheit
+- **Sperre nach dem Not-Aus wählbar von 15 Sekunden bis 10 Minuten** (Entscheidung des Maintainers: „überall kürzer
+  wählbar … ist ja kein Elefant“). Standard bleiben 2 Minuten. Die Sperre betrifft nur, was sie von selbst tut –
+  „Steh auf“ geht jederzeit, nie während sie hochgehoben ist. Vorher nur 2, 5 oder 10 Minuten.
 
 ### Neu
 - **Installer im Design der App:** Seitenleiste und kleines Bild mit dem Knowlin-Zeichen auf dunklem Grund.

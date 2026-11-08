@@ -94,7 +94,9 @@ jobs:
           Invoke-WebRequest $altUrl -OutFile "$env:RUNNER_TEMP\alt-setup.exe"
           function Version { & "$app\python\python.exe" -c "import duckpilot; print(duckpilot.__version__)" }
           function AltInstallieren {
-            Start-Process "$env:RUNNER_TEMP\alt-setup.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-' -Wait
+            # nicht -Wait: das wartet auch auf das vom Installer gestartete Knowlin
+            $p = Start-Process "$env:RUNNER_TEMP\alt-setup.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-' -PassThru
+            $p.WaitForExit()
             Get-Process | Where-Object { $_.Path -like "$app\*" } | Stop-Process -Force -ErrorAction SilentlyContinue
             Start-Sleep 2
           }

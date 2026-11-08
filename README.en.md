@@ -163,7 +163,7 @@ Speech recognition “Local”, after a one-time `.venv/bin/pip install faster-w
 
 | | |
 |---|---|
-| **Emergency stop wins** | <kbd>Esc</kbd>, the red button or “Stop” halt everything at once – with or without AI. Afterwards nothing stands up or sits down by itself for at least two minutes (can only be made longer). |
+| **Emergency stop wins** | <kbd>Esc</kbd>, the red button or “Stop” halt everything at once – with or without AI. Afterwards nothing stands up or sits down by itself for a while – two minutes by default, adjustable from 15 seconds to 10 minutes. |
 | **Keys** | only in the operating system's vault, never in files, logs or reports. |
 | **People and camera** | faces and names only on the PC, only when enrolled and with consent. Camera games analyse the image only in the browser – no image leaves the PC. |
 | **Data** | map, sightings and memory stay on this PC and never go into a Knowlet. |

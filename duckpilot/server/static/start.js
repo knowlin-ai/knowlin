@@ -97,10 +97,13 @@ export function initStart({ $, api, el, toast, showView, save, isRemote, getConf
 
   // Zu einer anderen Verkörperung wechseln: Übergang zeigen, Körper wechseln, warten, bis er antwortet
   async function wechseln(m) {
-    if (isRemote && isRemote()) { toast(tr('Die Verkörperung wechseln geht nur am PC'), true); return; }
     const f = m.figur || {};
+    const handy = Boolean(isRemote && isRemote());
     await mindToBody($, { id: m.id, modell: tr(m.koerper_name), figur: f.name || tr(m.koerper_name) }, async () => {
-      await save(m.modul === 'duckpilot' ? { modul: 'duckpilot' } : { modul: m.modul, backend: 'sim', sim_physik: false });
+      if (handy) {          // vom Handy: eigener Weg, nur im Simulator erlaubt (seit 0.38.34)
+        const r = await api('/api/koerper/wechseln', 'POST', { modul: m.modul }).catch(() => null);
+        if (!r || !r.ok) { toast(tr((r && r.fehler) || 'Knowlin antwortet nicht'), true); return; }
+      } else await save(m.modul === 'duckpilot' ? { modul: 'duckpilot' } : { modul: m.modul, backend: 'sim', sim_physik: false });
       for (let i = 0; i < 60 && getConfig().modul !== m.modul; i++) await warte(100);   // neue Startnachricht abwarten
     });
     geladen = false;

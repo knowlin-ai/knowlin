@@ -3117,7 +3117,6 @@
  "nur deine Ente": "just your duck",
  "Das Zimmer live – wie im Cockpit. Ziehen dreht die Ansicht.": "The room live – as in the cockpit. Drag to turn the view.",
  "Live-Ansicht des Zimmers": "Live view of the room",
- "Der Not-Aus bricht alles ab und schaltet die Motoren sofort aus – Knopf, Esc oder „Stopp“, bei jeder Verkörperung: wer läuft, sackt zusammen, Reachys Kopf sinkt ab. Danach steht oder setzt sich mindestens zwei Minuten lang nichts von selbst; das bleibt immer so. Aufstehen danach nur auf deinen Befehl.": "The emergency stop cancels everything and switches the motors off at once – button, Esc or “stop”, in every body: walking bodies slump down, Reachy's head sinks. After that nothing stands up or sits down by itself for at least two minutes; that never changes. Getting up again only on your command.",
  "Spielen: Dinge hinlegen, schubsen und werfen – braucht die echte Physik. Klick schaltet sie ein.": "Play: place, push and throw things – needs real physics. Click to switch it on.",
  "Echte Physik startet – gleich danach noch einmal auf „Spielen“": "Real physics is starting – then click “Play” once more",
  "Policies aus Isaac Lab übernehmen": "Import policies from Isaac Lab",
@@ -3248,5 +3247,18 @@
  "Das kann ein paar Minuten dauern – das Fenster lädt sich dann von selbst neu.": "This can take a few minutes – the window reloads by itself afterwards.",
  "Das Update dauert ungewöhnlich lange": "The update is taking unusually long",
  "Starte Knowlin über die Desktop-Verknüpfung – unter Einstellungen → Über steht dann die Version.": "Start Knowlin from the desktop shortcut – Settings → About shows the version.",
- "Auf Hugging Face suchen": "Search on Hugging Face"
+ "Auf Hugging Face suchen": "Search on Hugging Face",
+ "unter System → Erweiterungen einschalten": "turn them on under System → Extensions",
+ "Mehr Tricks – etwa „Got a Talent“ aus Pollens Microduck-Arena oder Gangarten – gibt es als Erweiterung:": "More tricks – such as “Got a Talent” from Pollen's Microduck Arena, or gaits – come as extensions:",
+ "Der Not-Aus bricht alles ab und schaltet die Motoren sofort aus – Knopf, Esc oder „Stopp“, bei jeder Verkörperung: wer läuft, sackt zusammen, Reachys Kopf sinkt ab. Danach steht oder setzt sich eine Weile nichts von selbst – wie lange, stellst du hier ein. Aufstehen geht jederzeit auf deinen Befehl („Steh auf“), nie während sie hochgehoben ist.": "The emergency stop cancels everything and cuts the motors at once – button, Esc or “Stop”, for every body: a walking body slumps, Reachy's head sinks. Afterwards nothing stands up or sits down by itself for a while – you set how long here. Standing up works any time on your command (“Stand up”), never while it is picked up.",
+ "15 Sekunden": "15 seconds",
+ "30 Sekunden": "30 seconds",
+ "1 Minute": "1 minute",
+ "Tailscale für Windows laden": "Get Tailscale for Windows",
+ "– installieren, anmelden, dann den Schalter einschalten.": "– install it, sign in, then turn the switch on.",
+ "Tailscale auf dem PC und auf dem Handy installieren (": "Install Tailscale on the PC and on the phone (",
+ "tailscale.com/download": "tailscale.com/download",
+ ", kostenlos für private Nutzung) und auf beiden mit demselben Konto anmelden. Es ist ein eigenes Programm – Knowlin kann es nicht selbst installieren.": ", free for personal use) and sign in with the same account on both. It is a separate app – Knowlin can't install it for you.",
+ "Noch kein KI-Modell eingerichtet – nur einfache Befehle. Unter Einstellungen → KI-Modell: Claude-Schlüssel, lokales oder anderes Modell.": "No AI model set up yet – simple commands only. Under Settings → AI model: Claude key, local or other model.",
+ "Optionen": "Options"
 }

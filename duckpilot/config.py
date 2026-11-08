@@ -72,7 +72,7 @@ class Config:
     ausweichen: bool = True                    # Hindernissen ausweichen und sie umlaufen (aus = nur bremsen)
     auto_recover: bool = True                  # nach einem Sturz selbst aufstehen (nach dem Stopp-Fenster)
     stopp_fenster_s: float = 3.0               # so lange hört sie nach einem Sturz zu („Stopp“ hält sie liegen), 2–10 s
-    notaus_sperre_s: float = 120.0             # nach dem Not-Aus nichts von selbst – nie kürzer als 120 s (0.38.13)
+    notaus_sperre_s: float = 120.0             # nach dem Not-Aus nichts von selbst – Standard 120 s, wählbar 15 s … 10 min
     notaus_danach: str = "weiter"              # danach: „weiter“ wie vorher oder „still“, bis du sie ansprichst
     kollision_protest: bool = True             # Kollisionsmodus: beschwert sich ab und zu (Quak, Geste, Satz)
     reachy_begruessung: bool = True            # Reachy Mini grüßt beim Aufwecken (Geste und kurzer Satz, seit 0.38.13)

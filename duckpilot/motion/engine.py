@@ -31,7 +31,8 @@ log = logging.getLogger(__name__)
 
 ENGINE_HZ = 20
 CHANNELS = ("base", "head", "mouth", "pose")
-ESTOP_HOLD_S = 120.0     # nach einem Not-Aus steht oder setzt sich so lange nichts von selbst
+ESTOP_HOLD_S = 120.0     # nach einem Not-Aus steht oder setzt sich so lange nichts von selbst (Standard)
+ESTOP_MIN_S = 15.0       # kürzeste wählbare Sperre (seit 0.38.34, Entscheidung des Maintainers: „überall kürzer wählbar“)
 RECOVER_RETRY_S = 10.0   # kommt sie nach einem Aufsteh-Versuch nicht hoch: neuer Versuch (mit Stopp-Fenster)
 RECOVER_TRIES = 3
 
@@ -566,8 +567,8 @@ class MotionEngine:
 
     @property
     def sperre_s(self) -> float:
-        """Sperre nach dem Not-Aus: nie kürzer als ESTOP_HOLD_S (Sicherheitsregel), auf Wunsch länger."""
-        return max(ESTOP_HOLD_S, float(getattr(self.config, "notaus_sperre_s", ESTOP_HOLD_S) or ESTOP_HOLD_S))
+        """Sperre nach dem Not-Aus: Standard ESTOP_HOLD_S, wählbar ab ESTOP_MIN_S (seit 0.38.34; vorher nie unter 120 s)."""
+        return max(ESTOP_MIN_S, float(getattr(self.config, "notaus_sperre_s", ESTOP_HOLD_S) or ESTOP_HOLD_S))
 
     def notaus_gesperrt(self) -> bool:
         """Gilt die Sperre nach dem letzten Not-Aus noch? Dann steht oder setzt sich nichts von selbst."""

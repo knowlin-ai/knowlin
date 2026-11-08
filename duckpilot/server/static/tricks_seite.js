@@ -25,6 +25,7 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
     return emotionCatalog;
   }
   catalog().then(setIdleRepertoire);   // Leerlauf-Gesten kennen den Katalog
+  $('tricks-zu-erweiterungen')?.addEventListener('click', () => showView('tricks', 'pakete'));
   let emotionsLoaded = false;
   async function loadTricks(p = 'tricks') {
     if (!emotionsLoaded) {

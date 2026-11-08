@@ -66,9 +66,10 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 
 - **Sicherheit vor allem:** Not-Aus gewinnt immer und macht seit 0.38.24 **sofort stromlos** (`MotionEngine.not_aus` →
   `backend.relax()`: robotd `robot.relax`, Reachy `motors/set_mode/disabled`, Simulatoren und Gäste-Enten ebenso;
-  Claudes `stop`-Werkzeug und interne Stopps halten nur an). Nach einem Not-Aus steht oder setzt sich 120 s lang nichts
-  von selbst (seit 0.38.13 einstellbar, aber nur **länger** – 5 oder 10 min – über `MotionEngine.sperre_s`/
-  `notaus_gesperrt()`, nie kürzer; danach wahlweise „still“, bis der Mensch die Verkörperung anspricht). **Nach einem Sturz steht sie selbst wieder auf** (Entscheidung des Maintainers, 0.28 – bei der Größe der
+  Claudes `stop`-Werkzeug und interne Stopps halten nur an). Nach einem Not-Aus steht oder setzt sich eine Weile nichts
+  von selbst – Standard 120 s, einstellbar über `MotionEngine.sperre_s`/`notaus_gesperrt()` von 15 s bis 10 min (bis
+  0.38.33 nur länger; seit 0.38.34 auf Entscheidung des Maintainers auch kürzer, `ESTOP_MIN_S`). Aufstehen auf Befehl geht
+  jederzeit, nie hochgehoben; danach wahlweise „still“, bis der Mensch die Verkörperung anspricht). **Nach einem Sturz steht sie selbst wieder auf** (Entscheidung des Maintainers, 0.28 – bei der Größe der
   Microduck keine Verletzungsgefahr), aber erst nach dem **Stopp-Fenster** (`EngineConfig.recover_delay`, 3 s):
   Ereignis `stopp_fenster`, die Oberfläche öffnet kurz das Mikrofon, „Stopp“ wirkt wie der Not-Aus und sie bleibt
   liegen. Bis dahin liegt sie in der Physik weich (Stärke 0,25, `PhysicsBackend._recover_ok`); dann wie robotd

@@ -87,6 +87,13 @@ export function initFern(h) {
     else if (st.name) msg = `Bereit: dieser PC heißt im Tailnet ${st.name}.`;
     else msg = 'Aus.';
     $('fern-ts-state').textContent = msg;
+    // Tailscale ist ein eigenes Programm mit Netzwerktreiber – Knowlin kann es nicht wie Python-Pakete nachinstallieren.
+    // Deshalb der Weg dorthin (seit 0.38.34, „Tailscale kann man doch verlinken?“)
+    if (st.installiert === false && !(data && !data.an)) {
+      const a = el('a', 'link', 'Tailscale für Windows laden');
+      a.href = 'https://tailscale.com/download/windows'; a.target = '_blank'; a.rel = 'noopener';
+      $('fern-ts-state').append(' ', a, document.createTextNode(' – installieren, anmelden, dann den Schalter einschalten.'));
+    }
   }
   function showTsLink(link) {
     const ok = typeof link === 'string' && link.startsWith('https://login.tailscale.com/');

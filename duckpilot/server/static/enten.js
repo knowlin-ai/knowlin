@@ -67,4 +67,5 @@ export function initEnten({ $, api, el }) {
     clearInterval(timer);
     if (sichtbar) { laden(); timer = setInterval(laden, 2000); }
   }).observe(karte);
+  return { laden };
 }

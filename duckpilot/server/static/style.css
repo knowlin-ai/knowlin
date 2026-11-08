@@ -23,7 +23,8 @@ body { overflow: hidden; }
 }
 .rail-logo { width: 32px; height: 32px; margin: var(--spacing-03) auto var(--spacing-04); border-radius: var(--r-control); }
 .rail-btn {
-  position: relative; width: calc(100% - 16px); margin: 0 var(--spacing-03) var(--spacing-01); padding: var(--spacing-03) 0;
+  /* schmalerer Rand: „Einstellungen“ ragte über den hervorgehobenen Knopf hinaus (gemeldet nach 0.38.33) */
+  position: relative; width: calc(100% - 8px); margin: 0 var(--spacing-02) var(--spacing-01); padding: var(--spacing-03) 0;
   display: grid; justify-items: center; gap: var(--spacing-02);
   background: none; border: 0; border-radius: var(--r-card); cursor: pointer;
   color: var(--ink-2); font-size: var(--t-micro); line-height: 1.33; letter-spacing: 0;
@@ -1932,14 +1933,19 @@ body.ctl-open .view-cockpit .stage > :not(canvas) { display: none; }
 .tanz-datei-name { color: var(--ink-2); font-size: var(--t-small); overflow-wrap: anywhere; }
 .tanz-rechts { display: grid; gap: var(--spacing-05); align-content: start; }
 .tanz-vorschau-karte { position: sticky; top: var(--spacing-05); }
+/* Unter Tanzen stehen weitere Kacheln in derselben Spalte – dort nicht kleben, sonst schieben sie sich darüber
+   (gemeldet nach 0.38.33: „die Kachel Nach Gehör scrollt über die Vorschau“) */
+.tanz-rechts .tanz-vorschau-karte { position: static; }
 .tanz-vorschau { position: relative; aspect-ratio: 4 / 3; border-radius: var(--r-control); overflow: hidden; background: var(--surface-0); }
 .tanz-vorschau canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Tricks mit Live-Vorschau (0.38.33): Kacheln links, die Figur rechts mitlaufend; schmal oben, nicht klebend */
 .tricks-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 32%); gap: var(--spacing-05); align-items: start; }
 .tricks-links { min-width: 0; }
+/* Oberkante der Vorschau auf Höhe der ersten Überschrift links (gemeldet: „das Vorschaufenster hängt etwas hoch“) */
+.tricks-vorschau-karte { margin-top: var(--spacing-09); }
 @media (max-width: 1055.98px) {
   .tricks-layout { grid-template-columns: minmax(0, 1fr); }
-  .tricks-vorschau-karte { order: -1; position: static; }
+  .tricks-vorschau-karte { order: -1; position: static; margin-top: var(--spacing-05); }
 }
 /* Reachy: Mitwippen zu Musik oder Webradio (0.38.13, static/mitwippen.js) */
 .mitwippen-radio { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--spacing-03); margin-top: var(--spacing-04); }
@@ -2027,6 +2033,15 @@ body.im-kopf .geist-pfeil, body.im-kopf #duck-name, body.im-kopf .geist-koerper 
 /* Knowlin (Startseite seit 0.38.3): oben, was alle Figuren teilen, darunter die Figuren */
 .knowlin-zeichen { width: 32px; height: 32px; display: block; object-fit: contain; }
 .rail-logo-btn .knowlin-zeichen { margin: var(--spacing-03) auto var(--spacing-02); }
+/* Handy (unten): Knowlin wie die anderen Knöpfe – gleiche Symbolhöhe, Beschriftung auf einer Linie; Beschriftungen eine
+   Stufe kleiner, damit „Einstellungen“ ganz passt (gemeldet nach 0.38.33) */
+@media (max-width: 671.98px) {
+  .rail-logo-btn { flex: 1; min-width: 0; padding: var(--spacing-03) 0; gap: var(--spacing-01); align-content: center; }
+  .rail-logo-btn .knowlin-zeichen { width: 20px; height: 20px; margin: 0 auto; }
+  .rail-logo-label, .rail-btn span { font-size: var(--t-micro); }
+  .rail-btn .nur-breit { display: none; }
+}
+@media (min-width: 672px) { .rail-btn .nur-schmal { display: none; } }
 /* Quickstart (seit 0.38.8): links der Kopf als wabernde Form, rechts „Hallo Mensch“ und das Gespräch mit ihm */
 .kopf-start { display: grid; grid-template-columns: minmax(180px, 280px) minmax(0, 1fr); gap: var(--spacing-08);
   align-items: center; min-height: 38vh; padding: var(--spacing-08) 0 var(--spacing-09); }

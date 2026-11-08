@@ -120,6 +120,11 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             return JSONResponse({"ok": True})
         return JSONResponse({"ok": False, "fehler": "unbekannte Aktion"}, status_code=400)
 
+    @app.post("/api/choreo/stopp")
+    async def choreo_stopp() -> JSONResponse:
+        """Tanz und Musik anhalten (seit 0.38.34) – ausdrücklich kein Not-Aus: keine Sperre, sie bleibt stehen."""
+        return JSONResponse(await runtime.runner.run("choreo", {"aktion": "stopp"}))
+
     @app.post("/api/choreo/tanzen")
     async def choreo_tanzen(request: Request) -> JSONResponse:
         """Einen gespeicherten Tanz tanzen – oder einen ungespeicherten (Probe aus dem Editor). Läuft über dasselbe

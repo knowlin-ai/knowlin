@@ -43,8 +43,7 @@ export function initKopf({ $, el, toast, sendChat, vorlesen, figurWecken, isRemo
 
   // In einen Körper gehen und der Verkörperung den Wunsch weitergeben („tanz“) – nach dem Übergang, dann im Körper
   async function wecken(modul, auftrag) {
-    if (isRemote && isRemote()) { toast(tr('Die Verkörperung wechseln geht nur am PC'), true); return; }
-    const ok = await figurWecken(modul);
+    const ok = await figurWecken(modul);      // vom Handy: Wechsel im Simulator erlaubt, sonst sagt der Server warum
     if (ok && auftrag) setTimeout(() => sendChat(auftrag, 'text'), 500);
   }
 

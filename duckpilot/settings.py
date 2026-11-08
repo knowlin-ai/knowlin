@@ -82,7 +82,7 @@ EDITABLE: dict[str, Any] = {
     "ausweichen": bool,
     "auto_recover": bool,
     "stopp_fenster_s": "stopp_fenster",
-    "notaus_sperre_s": (120, 300, 600),        # seit 0.38.13: nur länger als die Sicherheitsregel, nie kürzer
+    "notaus_sperre_s": (15, 30, 60, 120, 300, 600),   # seit 0.38.34 auch kürzer (Maintainer: „ist ja kein Elefant“)
     "notaus_danach": ("weiter", "still"),
     "kollision_protest": bool,
     "reachy_begruessung": bool,                # seit 0.38.13: Reachy grüßt beim Aufwecken

@@ -85,6 +85,8 @@ def test_befehle(tmp_path):
     assert "Wait-Process -Id 4242" in skript and "/VERYSILENT" in skript and "$env:KN_SETUP" in skript
     # seit 0.38.34: Protokoll und belegte Dateien nicht mehr still scheitern lassen
     assert "update.log" in skript and "/LOG=" in skript and "/FORCECLOSEAPPLICATIONS" in skript and "ExitCode" in skript
+    # nur auf den Installer warten, nicht auf das danach gestartete Knowlin (Update-Probe hing sonst endlos)
+    assert "WaitForExit()" in skript and "-Wait " not in skript
     assert akt.paket_befehl("1.2.3")[-1] == "knowlin==1.2.3"
     with pytest.raises(A.UpdateFehler):
         akt.paket_befehl("1.2.3; rm -rf /")
@@ -140,3 +142,27 @@ def test_letztes_update_aus_dem_protokoll(tmp_path):
     (tmp_path / "updates" / "update.log").write_text("2026-11-09T00:01:00 starte Knowlin-Setup-0.38.34.exe\n"
                                                      "2026-11-09T00:02:10 fertig, Code 0\n", encoding="utf-8")
     assert akt.status()["letztes_update"].endswith("fertig, Code 0")
+
+
+def test_koerper_wechseln_vom_handy_nur_im_simulator(tmp_path, monkeypatch):
+    """Gemeldet nach 0.38.33: Vom Handy ließ sich nur die zuletzt aktive Verkörperung wecken, kein anderer Körper."""
+    from fastapi.testclient import TestClient
+
+    from duckpilot import settings as S
+    from duckpilot.config import load
+    from duckpilot.remote import pc_only
+    from duckpilot.server.app import Runtime, create_app
+
+    assert not pc_only("POST", "/api/koerper/wechseln")
+    monkeypatch.setenv("DUCKPILOT_SETTINGS", str(tmp_path / "settings.json"))
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setattr(S, "_keyring", lambda: None)
+    rt = Runtime(load(memory_path=str(tmp_path / "mem.json")))
+    with TestClient(create_app(rt), base_url="http://127.0.0.1:8765") as c:
+        h = {"origin": "http://127.0.0.1:8765"}
+        assert c.post("/api/koerper/wechseln", json={"modul": "gibtsnicht"}, headers=h).status_code == 400
+        r = c.post("/api/koerper/wechseln", json={"modul": "open_duck_mini"}, headers=h).json()
+        assert r["ok"] and rt.config.modul == "open_duck_mini" and rt.config.backend == "sim"
+        rt.config.backend = "robotd"
+        r = c.post("/api/koerper/wechseln", json={"modul": "duckpilot"}, headers=h)
+        assert r.status_code == 409 and "echten Roboter" in r.json()["fehler"]

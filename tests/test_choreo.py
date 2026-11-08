@@ -429,3 +429,20 @@ def test_body_can_be_switched_from_the_top_and_extra_ducks_have_contact_shadows(
     assert "modul: modul === 'open_duck_mini' ? modul : 'duckpilot', backend: 'sim', sim_physik: k === 'physik' }" in wahl and "btn.disabled = fern" in wahl
     assert "koerperwahl.update(config);" in app
     assert "_kontaktSchatten()" in d3 and "e._schatten.position.set" in d3
+
+
+def test_stopp_beim_tanzen_ist_kein_not_aus(tmp_path):
+    """Gemeldet nach 0.38.33: „Stopp“ unter Tanzen löste den Not-Aus aus – danach 2 Minuten Sperre, „Probe tanzen“
+    wurde abgelehnt. Jetzt endet nur der Tanz."""
+    async def go():
+        sim, eng = await make(zufall=3)
+        r = ToolRunner(eng)
+        r.choreos = C.ChoreoBuch(tmp_path)
+        r.choreos.speichere("Kurz", {"bpm": 120, "schritte": [{"t": 0, "takte": 4, "art": "wippen"}]}, "")
+        assert (await r.run("choreo", {"aktion": "tanzen", "name": "Kurz"}))["ok"]
+        await run_for(sim, eng, 1.0)
+        aus = await r.run("choreo", {"aktion": "stopp"})
+        assert aus["ok"] and aus["gestoppt"] and eng.current is None
+        assert not eng.notaus_gesperrt()                       # keine Sperre wie nach dem Not-Aus
+        assert (await r.run("choreo", {"aktion": "tanzen", "name": "Kurz"}))["ok"]   # gleich wieder tanzen
+    asyncio.run(go())

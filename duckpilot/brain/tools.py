@@ -289,7 +289,7 @@ TOOLS: list[dict[str, Any]] = [
         "input_schema": {
             "type": "object",
             "properties": {
-                "aktion": {"type": "string", "enum": ["liste", "tanzen", "speichern"]},   # „gehoer“ nur aus der Oberfläche
+                "aktion": {"type": "string", "enum": ["liste", "tanzen", "speichern", "stopp"]},   # „gehoer“ nur aus der Oberfläche
                 "name": {"type": "string"},
                 "musik": {"type": "string"},
                 "bpm": {"type": "number"},
@@ -894,7 +894,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge):
             if st.fallen or st.picked_up:
                 return f"!Ente {st.summary()} – nicht ausgeführt; erst wenn sie wieder steht (nach einem Sturz: power stand_up)"
             if eng.notaus_gesperrt():
-                return (f"!Nicht ausgeführt: Nach dem Not-Aus steht sie {round(eng.sperre_s / 60)} Minuten lang nicht von selbst auf. Nicht "
+                dauer = f"{round(eng.sperre_s)} Sekunden" if eng.sperre_s < 90 else f"{round(eng.sperre_s / 60)} Minuten"
+                return (f"!Nicht ausgeführt: Nach dem Not-Aus steht sie {dauer} lang nicht von selbst auf. Nicht "
                         "selbst aufstehen lassen – erst wenn der Mensch ausdrücklich „Steh auf“ sagt (power stand_up).")
             await eng.stand_up()
             return "stand dafür selbst auf – der Befehl startet danach von selbst, power stand_up ist nicht nötig"
@@ -1123,6 +1124,15 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge):
                 return {"ok": False, "fehler": "Choreomodus nicht verfügbar"}
             if a.get("aktion") == "liste":
                 return {"ok": True, "taenze": buch.liste()}
+            if a.get("aktion") == "stopp":
+                # Nur den Tanz beenden – kein Not-Aus (seit 0.38.34; vorher schickte „Stopp“ beim Tanzen den Not-Aus mit
+                # 2 Minuten Sperre). Sie bleibt stehen; mittanzende Enten hören mit auf, weil ihr Takt fehlt.
+                cur = eng.current
+                tanzt = isinstance(cur, (T.MusikTanz, T.GehoerTanz, RT.ReachyMusikTanz, RT.ReachyGehoerTanz))
+                if tanzt:
+                    eng.cancel_current("Tanz gestoppt")
+                    await eng.backend.move(Twist())
+                return {"ok": True, "gestoppt": tanzt}
             reachy = getattr(eng.backend, "koerper_art", "") == "reachy_mini"
             if a.get("aktion") == "gehoer":           # nach Gehör: die Oberfläche hört mit und schickt Tempo/Lautstärke
                 # Reachy (seit 0.38.13): eigene Bewegungen; „ruhig“ = Mitwippen zu Musik oder Radio aus der Oberfläche

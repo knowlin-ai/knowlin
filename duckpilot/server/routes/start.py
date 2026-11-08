@@ -36,6 +36,24 @@ def _figur(runtime: Runtime, modul: str, f: dict) -> dict:
 
 
 def register(app: FastAPI, runtime: Runtime) -> None:
+    @app.post("/api/koerper/wechseln")
+    async def koerper_wechseln(request: Request) -> JSONResponse:
+        """Zu einer anderen Verkörperung im Simulator wechseln – auch vom Handy (seit 0.38.34, Frage: „Open Duck geht, die
+        anderen nicht?“). Mit dem echten Roboter verbunden bleibt der Wechsel beim PC: er trennt die Verbindung."""
+        body = await request.json()
+        modul = str(body.get("modul", ""))
+        if modul not in ("duckpilot", "reachy_mini", "open_duck_mini"):
+            return JSONResponse({"ok": False, "fehler": "Diese Verkörperung gibt es nicht."}, status_code=400)
+        if runtime.config.backend != "sim":
+            return JSONResponse({"ok": False, "fehler": "Mit dem echten Roboter verbunden – den Körper wechselst du am PC."},
+                                status_code=409)
+        patch = {"modul": modul} if modul == "duckpilot" else {"modul": modul, "backend": "sim", "sim_physik": False}
+        try:
+            await runtime.apply_settings(patch)
+        except ValueError as exc:
+            return JSONResponse({"ok": False, "fehler": str(exc)}, status_code=400)
+        return JSONResponse({"ok": True, "modul": modul})
+
     @app.get("/api/module")
     async def module() -> JSONResponse:
         koerper = "physik" if type(runtime.backend).__name__ == "PhysicsBackend" else runtime.backend.state().backend

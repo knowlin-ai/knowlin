@@ -135,6 +135,7 @@ async function api(path, method = 'GET', body) {
 }
 
 let wsOpen = false;
+let letzteWelt = '';      // Körper/Simulator/Physik zuletzt – „Weitere Enten“ neu laden, wenn sich das ändert
 let bodyOnline = null;
 function setLink(on) {
   wsOpen = on;
@@ -271,12 +272,16 @@ function onInit(msg) {
     : anderes ? 'Ein anderes KI-Modell denkt mit – dieselben Werkzeuge und Sicherheitsregeln'
     : config.online ? 'Claude versteht freie Sprache und plant Bewegungen'
       : 'Kein API-Schlüssel – nur kurze Befehle wie „tanz“ oder „stopp“. Schlüssel unter Einstellungen.';
-  $('settings-dot').hidden = config.online;
+  // Punkt am System-Knopf nur, wenn gar kein KI-Modell denkt (seit 0.38.34; vorher auch mit lokalem/anderem Modell)
+  $('settings-dot').hidden = Boolean(config.online || local || anderes);
   $('opt-chat').checked = !!config.plaudern;
   if (typeof updatePov === 'function') updatePov();
   if (typeof setStageMode === 'function') setStageMode(scene.mode);
   $('card-care').hidden = config.backend !== 'robotd';
   voicePage.config(config);
+  // „Weitere Enten“ gibt es nur im einfachen Simulator – beim Umschalten (Physik, Roboter) sofort frei/gesperrt (0.38.34)
+  const welt = `${config.backend}|${config.sim_physik}|${config.modul}`;
+  if (welt !== letzteWelt) { letzteWelt = welt; enten?.laden(); setTimeout(() => enten?.laden(), 2500); }
   document.body.classList.toggle('goofy', !!config.goofy);
   $('persona-name').textContent = personaName(config.energie, config.humor);
   kopfleiste.padQuick.set(config.energie, config.humor);
@@ -1211,7 +1216,7 @@ const beenden = initBeenden({ $, api, el, toast, isRemote: () => fern.remote });
 const tanz = initTanz({ $, api, el, toast, send, gestenName: tricksSeite.gefuehlName });
 initSprachwahl({ $ });
 initFehlerbericht({ $, api });
-initEnten({ $, api, el });
+const enten = initEnten({ $, api, el });
 initAussehen({ $, scene });
 raum = initRaum({ $, api, el, scene, toast, zumCockpit: () => showView('cockpit'), lagebild: (k) => map.setKarte(k) });
 const auswahl = initAuswahl({ $, api, el, scene, send, toast, stageEl });

@@ -64,12 +64,12 @@
       </button>
       <button class="rail-btn nur-im-kopf" data-group="einstellungen" title="Einstellungen für Knowlin: KI-Modell, Sprache, Datenschutz">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
-        <span>Einstellungen</span>
+        <span><span class="nur-breit">Einstellungen</span><span class="nur-schmal">Optionen</span></span>
       </button>
       <button class="rail-btn nur-im-koerper" data-group="system" title="System: Körper und Pflege, Einstellungen, KI-Modell, Erweiterungen">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
         <span>System</span>
-        <b class="rail-dot" id="settings-dot" hidden></b>
+        <b class="rail-dot" id="settings-dot" title="Noch kein KI-Modell eingerichtet – nur einfache Befehle. Unter Einstellungen → KI-Modell: Claude-Schlüssel, lokales oder anderes Modell." hidden></b>
       </button>
       <div class="rail-stopzone"><button class="rail-stop" id="stop" type="button" title="Not-Aus: Motoren sofort aus (Esc)" aria-label="Not-Aus Esc – Motoren sofort aus"><svg class="estop" viewBox="0 0 64 64" aria-hidden="true">
           <defs><linearGradient id="estop-rot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5c63"/><stop offset="1" stop-color="#c3121c"/></linearGradient></defs>
@@ -635,6 +635,9 @@
             <header class="page-head">
               <h2>Tricks</h2>
               <p>Gefühle und Bewegungen zum Antippen – sofort zu sehen.</p>
+              <!-- Hinweis auf weitere Pakete (seit 0.38.34, „ich hatte manche Erweiterungen nicht aktiviert“) -->
+              <p class="field-help">Mehr Tricks – etwa „Got a Talent“ aus Pollens Microduck-Arena oder Gangarten – gibt es als Erweiterung:
+                <button type="button" class="link-btn" id="tricks-zu-erweiterungen">unter System → Erweiterungen einschalten</button>.</p>
             </header>
             <!-- Live-Vorschau neben den Tricks (seit 0.38.33, „wo sind die Tricks mit der Vorschau?“) – wie beim Tanzen -->
             <div class="tricks-layout">
@@ -1386,10 +1389,14 @@
             <section class="card set-card pc-only" id="set-notaus">
               <h3>Not-Aus</h3>
               <p class="field-help">Der Not-Aus bricht alles ab und schaltet die Motoren sofort aus – Knopf, Esc oder „Stopp“, bei jeder
-                Verkörperung: wer läuft, sackt zusammen, Reachys Kopf sinkt ab. Danach steht oder setzt sich mindestens zwei Minuten
-                lang nichts von selbst; das bleibt immer so. Aufstehen danach nur auf deinen Befehl.</p>
+                Verkörperung: wer läuft, sackt zusammen, Reachys Kopf sinkt ab. Danach steht oder setzt sich eine Weile nichts von
+                selbst – wie lange, stellst du hier ein. Aufstehen geht jederzeit auf deinen Befehl („Steh auf“), nie während sie
+                hochgehoben ist.</p>
               <label class="field"><span class="field-label">Sperre nach dem Not-Aus</span>
                 <select class="select" data-set="notaus_sperre_s" data-num>
+                  <option value="15">15 Sekunden</option>
+                  <option value="30">30 Sekunden</option>
+                  <option value="60">1 Minute</option>
                   <option value="120">2 Minuten (Standard)</option>
                   <option value="300">5 Minuten</option>
                   <option value="600">10 Minuten</option>
@@ -1474,7 +1481,7 @@
                   <details class="fern-more">
                     <summary>So richtest du Tailscale ein</summary>
                     <ol class="fern-notes">
-                      <li>Tailscale auf dem PC und auf dem Handy installieren (tailscale.com, kostenlos für private Nutzung) und auf beiden mit demselben Konto anmelden.</li>
+                      <li>Tailscale auf dem PC und auf dem Handy installieren (<a class="link" href="https://tailscale.com/download" target="_blank" rel="noopener">tailscale.com/download</a>, kostenlos für private Nutzung) und auf beiden mit demselben Konto anmelden. Es ist ein eigenes Programm – Knowlin kann es nicht selbst installieren.</li>
                       <li>Hier den Schalter einschalten. Fragt Tailscale, ob HTTPS-Zertifikate erlaubt werden dürfen, den angezeigten Link öffnen und bestätigen.</li>
                       <li>„Handy koppeln“ zeigt dann die https-Adresse im QR-Code. Am Handy muss Tailscale verbunden sein.</li>
                     </ol>

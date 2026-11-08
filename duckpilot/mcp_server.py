@@ -35,7 +35,7 @@ ALLOWED = ("get_status", "walk", "turn", "drive", "go_to", "approach", "head", "
            "kopf_ruhig", "do_trick", "go_to_place", "recall")
 INSTRUCTIONS = ("Steuert eine Microduck (kleiner zweibeiniger Entenroboter von Pollen Robotics) über duckpilot – im "
                 "Simulator oder am echten Roboter. Erst get_status, dann bewegen. `stop` hält sofort an. Nach einem "
-                "Not-Aus steht sie mindestens 2 Minuten lang nicht von selbst auf. Am echten Roboter: kurze Strecken, mäßiges Tempo.")
+                "Not-Aus steht sie eine Weile nicht von selbst auf (Standard 2 Minuten, einstellbar). Am echten Roboter: kurze Strecken, mäßiges Tempo.")
 
 
 # ── Zugangsschlüssel im Tresor ───────────────────────────────────────────────

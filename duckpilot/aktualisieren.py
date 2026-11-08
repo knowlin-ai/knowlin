@@ -184,9 +184,10 @@ class Aktualisierer:
             f"L 'warte auf Knowlin (PID {int(pid)})'; "
             f"Wait-Process -Id {int(pid)} -Timeout 120 -ErrorAction SilentlyContinue; "
             "L ('starte ' + (Split-Path -Leaf $env:KN_SETUP)); "
-            "try { $p = Start-Process -FilePath $env:KN_SETUP -PassThru -Wait -ArgumentList "
+            # nur auf den Installer warten – -Wait wartete auch auf das danach neu gestartete Knowlin (endlos)
+            "try { $p = Start-Process -FilePath $env:KN_SETUP -PassThru -ArgumentList "
             "'/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/CLOSEAPPLICATIONS','/FORCECLOSEAPPLICATIONS',"
-            "('/LOG=\"' + (Join-Path $d 'setup.log') + '\"'); L ('fertig, Code ' + $p.ExitCode) } "
+            "('/LOG=\"' + (Join-Path $d 'setup.log') + '\"'); $p.WaitForExit(); L ('fertig, Code ' + $p.ExitCode) } "
             "catch { L ('Fehler: ' + $_) }")
 
     def installer_starten(self, setup: Path, pid: int | None = None) -> None:

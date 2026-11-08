@@ -657,8 +657,9 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
     if (audio.readyState >= 1) los(); else audio.addEventListener('loadedmetadata', los, { once: true });
   }
 
+  // Nur Tanz und Musik anhalten – kein Not-Aus (seit 0.38.34; vorher folgte die 2-Minuten-Sperre). Der Not-Aus bleibt links.
   function stopp() {
-    send({ type: 'stop' });
+    api('/api/choreo/stopp', 'POST').catch(() => null);
     audio.pause();
     for (const li of box.querySelectorAll('.is-jetzt')) li.classList.remove('is-jetzt');
     zeitleiste();

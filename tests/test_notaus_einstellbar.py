@@ -1,5 +1,5 @@
 """Verhalten nach dem Not-Aus einstellbar (seit 0.38.13, Wunsch des Maintainers „sollte anpassbar sein. per default passt dein
-Vorschlag“): Sperre nur länger als die Sicherheitsregel (120 s), nie kürzer; danach „weiter“ oder „still“, bis der Mensch
+Vorschlag“): Sperre Standard 120 s – seit 0.38.34 von 15 s bis 10 min wählbar; danach „weiter“ oder „still“, bis der Mensch
 die Verkörperung anspricht."""
 
 import asyncio
@@ -11,7 +11,7 @@ from test_gui import tmp_settings, vault  # noqa: F401 – Fixtures
 from duckpilot import settings as S
 from duckpilot.backends.sim import SimBackend
 from duckpilot.config import Config, load
-from duckpilot.motion.engine import ESTOP_HOLD_S, EngineConfig, MotionEngine
+from duckpilot.motion.engine import ESTOP_HOLD_S, ESTOP_MIN_S, EngineConfig, MotionEngine
 from duckpilot.server.app import Runtime
 
 
@@ -30,15 +30,23 @@ def test_standard_ist_der_bisherige_vorschlag():
     assert eng.notaus_gesperrt() and not eng.still
 
 
-def test_nie_kuerzer_als_die_sicherheitsregel():
-    for zu_kurz in (0, 30, 60, 119):
+def test_kuerzer_waehlbar_aber_nie_unter_15_s():
+    """Seit 0.38.34 (Entscheidung des Maintainers: „überall kürzer wählbar … ist ja kein Elefant“): 15 s bis 10 min,
+    Standard bleibt 120 s. Darunter geht es auch dann nicht, wenn jemand die Einstellung von Hand setzt."""
+    for zu_kurz in (0, 5, 10, 45):
         with pytest.raises(ValueError):
             S.validate({"notaus_sperre_s": zu_kurz})
-    S.validate({"notaus_sperre_s": 300})
-    eng = MotionEngine(SimBackend(realtime=False), EngineConfig(notaus_sperre_s=10))   # selbst wenn es jemand setzt
-    assert eng.sperre_s == ESTOP_HOLD_S
-    eng.estop_at = time.monotonic() - 100
+    for ok in (15, 30, 60, 120, 300, 600):
+        S.validate({"notaus_sperre_s": ok})
+    eng = MotionEngine(SimBackend(realtime=False), EngineConfig(notaus_sperre_s=1))   # selbst wenn es jemand setzt
+    assert eng.sperre_s == ESTOP_MIN_S == 15
+    eng.notaus()
     assert eng.notaus_gesperrt()
+    eng.estop_at = time.monotonic() - 16
+    assert not eng.notaus_gesperrt()
+    kurz = MotionEngine(SimBackend(realtime=False), EngineConfig(notaus_sperre_s=30))
+    kurz.estop_at = time.monotonic() - 20
+    assert kurz.notaus_gesperrt() and kurz.sperre_s == 30
 
 
 def test_laenger_sperren_gilt_ueberall(rt):
