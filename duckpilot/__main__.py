@@ -43,7 +43,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--no-browser", action="store_true", help="Browser nicht automatisch öffnen")
     ap.add_argument("--app", action="store_true",
                     help="Als eigenes Programmfenster starten (ohne Konsole, beendet sich beim Schließen)")
-    ap.add_argument("--modul", choices=["duckpilot", "reachy_mini", "open_duck_mini"],
+    from . import koerper
+
+    ap.add_argument("--modul", choices=list(koerper.ids()),
                     help="gleich in einer Verkörperung starten statt auf der Knowlin-Startseite (Verknüpfungen "
                          "„Knowlin - Microduck“ & Co.)")
     ap.add_argument("--hintergrund", action="store_true",

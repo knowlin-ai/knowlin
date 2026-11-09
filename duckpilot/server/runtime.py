@@ -12,7 +12,7 @@ from typing import Any, Callable
 
 from fastapi import WebSocket
 
-from .. import __version__, i18n
+from .. import __version__, i18n, koerper
 from .. import remote as R
 from .. import settings as S
 from ..aio import spawn
@@ -38,7 +38,7 @@ AGENT_KEYS = {"model", "duck_name", "gehirn", "lokal_modell", "lokal_adresse", "
 LIVE_AGENT_KEYS = {"plaudern", "entenlaute", "schnellbefehle"}          # gelten ab der nächsten Antwort, Verlauf bleibt
 ENGINE_KEYS = {"idle_life", "obstacle_guard", "ausweichen", "auto_recover", "stopp_fenster_s", "humor", "energie", "emotions",
                "notaus_sperre_s", "notaus_danach"}
-BODY_KEYS = {"backend", "robot", "tof", "head_signs", "updater", "sim_physik", "modul", "reachy_adresse"}
+BODY_KEYS = {"backend", "robot", "tof", "head_signs", "updater", "sim_physik", "modul", "reachy_adresse", "koerper_optionen"}
 
 
 class _KaggleSource:
@@ -448,7 +448,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                 await self.broadcast(self.init_message())
                 return {"ok": True, "geaendert": ["figur_profil"]}
         neu_modul = patch.get("modul")
-        if neu_modul and neu_modul != self.config.modul and neu_modul in S.EDITABLE["modul"]:
+        if neu_modul and neu_modul != self.config.modul and neu_modul in koerper.ids():
             # Körperwechsel = Figurwechsel (seit 0.38.3): eigene Werte der bisherigen Verkörperung sichern, die der neuen laden
             jetzt = {k: getattr(self.config, k) for k in FIGUR_KEYS if hasattr(self.config, k)}
             patch = {**self.figuren.wechsel(self.config.modul, neu_modul, jetzt), **patch}

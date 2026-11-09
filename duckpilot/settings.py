@@ -34,7 +34,8 @@ WHISPER_MODELS = ("tiny", "base", "small", "medium")
 # Was die Oberfläche ändern darf – mit Prüfung. Alles andere wird ignoriert.
 EDITABLE: dict[str, Any] = {
     "backend": ("sim", "robotd"),
-    "modul": ("duckpilot", "reachy_mini", "open_duck_mini"),     # Körper der Suite (seit 0.38.1, Open Duck seit 0.38.4)
+    "modul": "koerper",                  # id eines Körper-Profils (duckpilot.koerper; eingebaute und Erweiterungen, seit 0.38.35)
+    "koerper_optionen": "koerper_optionen",   # Verbindungsangaben des Körpers (LeRobot: typ, port, id)
     "reachy_adresse": "http_url",
     "robot": str,
     "tof": str,
@@ -290,6 +291,24 @@ def validate(patch: dict[str, Any]) -> dict[str, Any]:
                         ok = False
                     if not ok:
                         raise ValueError("anbieter_adresse: http nur auf diesem PC oder im Heimnetz, sonst https")
+        elif rule == "koerper":
+            from . import koerper as K
+
+            if value not in K.ids():
+                raise ValueError(f"modul: unbekannter Körper – bekannt sind {', '.join(K.ids())}")
+        elif rule == "koerper_optionen":
+            if not isinstance(value, dict) or len(value) > 8:
+                raise ValueError("koerper_optionen: höchstens 8 Angaben")
+            erlaubt = ("typ", "port", "id", "remote_ip")
+            sauber = {}
+            for k, v in value.items():
+                if k not in erlaubt:
+                    raise ValueError(f"koerper_optionen: erlaubt sind {', '.join(erlaubt)}")
+                v = str(v or "").strip()
+                if len(v) > 120 or any(c in v for c in "\r\n\x00"):
+                    raise ValueError(f"koerper_optionen.{k}: höchstens 120 Zeichen, eine Zeile")
+                sauber[k] = v
+            value = sauber
         elif rule == "signs":
             if not (isinstance(value, list) and len(value) == 4 and all(v in (1, -1, 1.0, -1.0) for v in value)):
                 raise ValueError("head_signs: vier Werte, jeweils 1 oder -1")

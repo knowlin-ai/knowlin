@@ -9,6 +9,51 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.35 – 2026-11-09 – Körperschnittstelle 1.0, LeRobot-Roboter, verständliche Policy-Auswahl
+
+### Neu
+- **Körperschnittstelle 1.0** – ein Geist, viele Körper. Jeder Körper beschreibt sich mit einem Profil (`duckpilot/koerper.py`):
+  wer er ist, was er kann (fester Wortschatz: Beine, Räder, Kopf, Arm, Greifer, Antennen, Tiefensensor, Kamera …, eigene
+  Wörter mit `x-`) und wie er gebaut wird. Spezifikation: `docs/koerper-schnittstelle.md` (englisch `docs/body-interface.md`).
+  Sie baut auf vorhandenen Standards auf (ROS REP-103, MJCF, LeRobot, MCP) und regelt, was dort fehlt: Wortschatz für das
+  Gehirn, Sicherheitspflichten, gemeinsames Wahrnehmungsformat.
+- **Konformitätsprüfung** `python -m duckpilot.koerper_pruefung [id]`: Not-Aus macht stromlos, stromlos bewegt sich nichts,
+  Stopp hält an, Grenzen, Verbinden und Schließen, Profil passt (P1–P9). Microduck, Reachy Mini und Open Duck Mini bestehen.
+- **Eigene Körper als Paket** über den Entry Point `knowlin.koerper`; kaputte Pakete werden abgelehnt statt Knowlin zu
+  stören, eingebaute Körper lassen sich nicht überschreiben. Erweiterungen erscheinen als Modul auf der Startseite.
+  Vorlage mit simuliertem „Rollbot“: `examples/knowlin-koerper-vorlage`.
+- **LeRobot-Roboter** (SO-101, LeKiwi, Koch …) als eingebauter Körper `lerobot`: Fähigkeiten aus den Merkmalen des Roboters,
+  Fahren in m/s und rad/s, Haltungen werden schrittweise angefahren. Einstellungen `modul`, `backend = "robotd"`,
+  `koerper_optionen` (typ, port, id) – vorerst über Einstellungsdatei oder API, nur am PC.
+- `GET /api/koerper` (alle Profile, aktiver Körper, abgelehnte Erweiterungen) und `GET /api/koerper/wortschatz`.
+
+### Geändert
+- Körper werden über ihr Profil gebaut statt über eine feste Liste; die Einstellung `modul`, `--modul` und der Körperwechsel
+  vom Handy kennen damit auch Erweiterungen. Das Gehirn liest die Fähigkeiten aus dem Profil (vorher eine eigene Liste, in
+  der z. B. die Stimmbank der Microduck fehlte).
+- **Lernen → Training → Policies aus Isaac Lab** (Fragen „Was ist das beste aktuell?“, „Warum laden wir nicht die
+  Standard-Policy von Pollen?“, „wie man wieder die Standard-Policy aktiviert“): Oben steht jetzt, was im Physik-Simulator
+  läuft – Pollens Standard-Gangart oder eine übernommene Policy –, mit „Zurück auf Pollens Standard“ direkt daneben.
+  Pollens Paket ist in der Liste als „Standard · läuft schon in der Physik“ markiert, seine Dateien haben Klarnamen
+  (velstand = Gehen & Stehen, roulade = Purzelbaum, roller = Rollen …). Übernehmen ändert nichts am Körper; nach jedem
+  Neustart läuft wieder Pollens Standard. Ein Satz erklärt, dass es die Rampen-Policy aus NVIDIAs Vorführung nicht als
+  Datei gibt.
+
+### Behoben
+- Website: Der Text im Knopf „Kopieren“ stand um 20 px nach rechts versetzt (der unsichtbare Haken nahm Platz ein).
+- Sichtbare Texte der Erweiterungen „Community-Tricks“ und „Got a Talent“ nannten noch „duckpilot“ statt Knowlin –
+  sichtbar, seit die Pakete von Anfang an eingeschaltet sind.
+
+### Sicherheit
+- Not-Aus für LeRobot-Roboter ergänzt (LeRobots eigener Vertrag kennt keinen): Geschwindigkeit null, dann Drehmoment aus;
+  ohne Bus-Zugriff wird die Verbindung getrennt. `koerper_optionen` nur am PC, ohne Geheimnisse, eine Zeile je Angabe.
+
+### Nicht geprüft
+- LeRobot an echter Hardware (geprüft mit einem nachgebauten LeKiwi: Arm, Greifer, Räder, Kamera). Das Paket `lerobot`
+  ist keine Abhängigkeit von Knowlin.
+- Gehirn-Werkzeuge für Räder („lauf“, „folg mir“ verlangen noch Beine) und Einstellungen für LeRobot in der Oberfläche
+  folgen.
+
 ## 0.38.34 – 2026-11-09 – Update aus der App, das wirklich durchläuft
 
 ### Behoben

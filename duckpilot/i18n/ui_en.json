@@ -3260,5 +3260,18 @@
  "tailscale.com/download": "tailscale.com/download",
  ", kostenlos für private Nutzung) und auf beiden mit demselben Konto anmelden. Es ist ein eigenes Programm – Knowlin kann es nicht selbst installieren.": ", free for personal use) and sign in with the same account on both. It is a separate app – Knowlin can't install it for you.",
  "Noch kein KI-Modell eingerichtet – nur einfache Befehle. Unter Einstellungen → KI-Modell: Claude-Schlüssel, lokales oder anderes Modell.": "No AI model set up yet – simple commands only. Under Settings → AI model: Claude key, local or other model.",
- "Optionen": "Options"
+ "Optionen": "Options",
+ "Pollens Standard-Gangart läuft, sobald die echte Physik an ist.": "Pollen's standard gait runs as soon as real physics is on.",
+ "Zurück auf Pollens Standard": "Back to Pollen's standard",
+ "Übernehmen ändert nichts am Körper. Erst „Im Physik-Simulator nutzen“ wechselt die Gangart – und nach jedem Neustart läuft wieder Pollens Standard.": "Importing changes nothing on the body. Only “Use in the physics simulator” switches the gait – and after every restart Pollen's standard runs again.",
+ "Pollens Standard-Gangart läuft, sobald die echte Physik an ist (System → Einstellungen → Körper).": "Pollen's standard gait runs as soon as real physics is on (System → Settings → Body).",
+ "Im Physik-Simulator läuft gerade deine übernommene Policy „*“.": "The physics simulator is currently running your imported policy “*”.",
+ "Im Physik-Simulator läuft Pollens Standard-Gangart (velstand.onnx).": "The physics simulator is running Pollen's standard gait (velstand.onnx).",
+ "Standard · läuft schon in der Physik": "Standard · already running in physics",
+ "Wieder Pollens Standard": "Back to Pollen's standard",
+ "Gehen & Stehen – Pollens Standard (aktiv)": "Walk & stand – Pollen's standard (active)",
+ "Die Rampen-Policy aus NVIDIAs Vorführung gibt es nicht als Datei: Veröffentlicht ist nur die Übungsumgebung (Isaac Lab,": "The ramp policy from NVIDIA's demo is not available as a file: only the training environment was published (Isaac Lab,",
+ "contrib/microduck": "contrib/microduck",
+ ", nur mit NVIDIA-Grafikkarte). Ähnliches geht unter Lernen → Parcours: Rampe bauen und „Lernen, bis sie es kann“.": ", NVIDIA GPU only). Something similar works under Learn → Course: build a ramp and “Learn until she can do it”.",
+ "Körperschnittstelle 1.0: Vorlage und Prüfung – ein weiterer Roboter bekommt Knowlin als eigenes Paket.": "Body interface 1.0: template and checks – another robot gets Knowlin as its own package."
 }

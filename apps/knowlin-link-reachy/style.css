@@ -1,0 +1,10 @@
+:root { --bg: #1c1918; --ink: #f4f1ee; --ink-2: #c9c2bd; --accent: #f5a524; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 system-ui, sans-serif; }
+main { max-width: 40rem; margin: 0 auto; padding: 48px 16px; }
+h1 { font-size: 40px; margin: 0 0 12px; letter-spacing: -0.01em; }
+.lead { font-size: 20px; color: var(--ink); }
+.hinweis { color: var(--ink-2); font-size: 15px; }
+li { margin-bottom: 12px; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: ui-monospace, monospace; }

@@ -73,6 +73,20 @@ export function initIsaacLab({ $, api, el, toast }) {
     return li;
   }
 
+  // Pollens Standardsatz und was in seinen Dateien steckt (seit 0.38.35, Frage: „Was ist das beste? So versteht man das
+  // nicht“) – die Liste zeigt sonst nur Dateinamen
+  const POLLEN = 'pollen-robotics/microduck-policies';
+  const DATEI = {
+    velstand: 'Gehen & Stehen – Pollens Standard (aktiv)', alpha_walking: 'Gehen – ältere Fassung',
+    alpha_stand: 'Stehen – ältere Fassung', alpha_sitstand: 'Hinsetzen & Aufstehen', alpha_ground_pick: 'Aufheben',
+    ball_kick_left: 'Schuss links', ball_kick_right: 'Schuss rechts', roulade: 'Purzelbaum',
+    roller: 'Fahren auf Rollen (Rollen noch nicht unterstützt)', roller_crouch: 'Fahren auf Rollen, geduckt',
+  };
+  const dateiText = (pfad) => {
+    const stamm = String(pfad).split('/').pop().replace(/\.onnx$/i, '');
+    return DATEI[stamm] ? `${pfad} – ${DATEI[stamm]}` : pfad;
+  };
+
   function zeigen(d) {
     daten = d;
     const sel = $('il-aufgabe');
@@ -83,8 +97,12 @@ export function initIsaacLab({ $, api, el, toast }) {
     const liste = $('il-liste');
     liste.replaceChildren(...(d.liste || []).map(eintrag));
     $('il-leer').hidden = !!(d.liste && d.liste.length);
-    const zurueck = $('il-standard');
-    zurueck.hidden = !(d.physik && d.aktiv && (d.liste || []).some((x) => x.name === d.aktiv));
+    const eigene = !!(d.aktiv && (d.liste || []).some((x) => x.name === d.aktiv));
+    $('il-standard').hidden = !(d.physik && eigene);
+    $('il-aktiv').classList.toggle('is-eigene', d.physik && eigene);
+    $('il-aktiv-text').textContent = !d.physik ? 'Pollens Standard-Gangart läuft, sobald die echte Physik an ist (System → Einstellungen → Körper).'
+      : eigene ? `Im Physik-Simulator läuft gerade deine übernommene Policy „${d.aktiv}“.`
+        : 'Im Physik-Simulator läuft Pollens Standard-Gangart (velstand.onnx).';
   }
 
   async function load() {
@@ -103,13 +121,17 @@ export function initIsaacLab({ $, api, el, toast }) {
       v.dateien.length === 1 ? '1 Policy' : `${v.dateien.length} Policies`];
     if (v.geaendert) meta.push(`Stand ${v.geaendert}`);
     text.append(el('strong', null, v.repo), el('span', null, meta.join(' · ')));
+    if (v.repo === POLLEN) {
+      li.classList.add('is-standard');
+      text.append(el('span', 'chip chip--good', 'Standard · läuft schon in der Physik'));
+    }
     const nehmen = el('button', 'btn btn--sm btn--tertiary', 'Auswählen');
     nehmen.type = 'button';
     nehmen.setAttribute('aria-label', `${v.repo} auswählen`);
     nehmen.addEventListener('click', () => {
       $('il-hf').value = v.repo;
       const sel = $('il-hf-datei');
-      sel.replaceChildren(...(v.dateien.length > 1 ? v.dateien.map((d) => new Option(d, d)) : []));
+      sel.replaceChildren(...(v.dateien.length > 1 ? v.dateien.map((d) => new Option(dateiText(d), d)) : []));
       $('il-hf-wahl').hidden = v.dateien.length < 2;
       if (!$('il-name').value) $('il-name').value = v.repo.split('/')[1].slice(0, 24);
       $('il-vorschlag-liste').querySelectorAll('li').forEach((x) => x.removeAttribute('aria-current'));
@@ -171,7 +193,7 @@ export function initIsaacLab({ $, api, el, toast }) {
       body: JSON.stringify({ adresse, datei: $('il-hf-datei').value || '', name: $('il-name').value, aufgabe: $('il-aufgabe').value }) });
     const r = await res.json();
     if (r.auswahl) {
-      $('il-hf-datei').replaceChildren(...r.auswahl.map((d) => new Option(`${d.pfad} · ${String(d.mb).replace('.', ',')} MB`, d.pfad)));
+      $('il-hf-datei').replaceChildren(...r.auswahl.map((d) => new Option(`${dateiText(d.pfad)} · ${String(d.mb).replace('.', ',')} MB`, d.pfad)));
       $('il-hf-wahl').hidden = false;
       st.textContent = `${r.fehler} Dann noch einmal „Prüfen und übernehmen“.`;
       $('il-hf-datei').focus();
@@ -216,7 +238,7 @@ export function initIsaacLab({ $, api, el, toast }) {
   });
   $('il-standard').addEventListener('click', async () => {
     const r = await api('/api/isaaclab/standard', 'POST').catch(() => null);
-    if (r && r.ok) { toast(r.meldung || 'Wieder Pollens Gangart'); zeigen(r); }
+    if (r && r.ok) { toast(r.meldung || 'Wieder Pollens Standard'); zeigen(r); } else toast((r && r.fehler) || 'Ging nicht', true);
   });
 
   return { load };

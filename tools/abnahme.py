@@ -807,6 +807,14 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Isaac Lab: Karte mit beiden Aufgaben, falsche Datei abgewiesen, nichts übernommen",
              any("Rough" in a for a in aufgaben) and any("Flat" in a for a in aufgaben) and meldung
              and "bestanden" not in meldung and liste == 0, f"{aufgaben} · {meldung[:100]} · {liste}")
+    # Seit 0.38.35 („Warum laden wir nicht die Standard-Policy von Pollen …“ – „und wie man wieder die Standard-Policy
+    # aktiviert“): oben steht, was läuft; der Weg zurück steht dort, wo man ihn sucht
+    aktiv = page.evaluate("() => { const a = document.getElementById('il-aktiv'), f = document.getElementById('il-form');"
+                          " return {text: document.getElementById('il-aktiv-text').textContent, vorne:"
+                          " !!(a.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING),"
+                          " knopf: !!a.querySelector('#il-standard')}; }")
+    b.pruefe("Isaac Lab: oben steht, dass Pollens Standard läuft; „Zurück auf Pollens Standard“ sitzt dort",
+             "Pollens Standard" in aktiv["text"] and aktiv["vorne"] and aktiv["knopf"], str(aktiv))
     axe(page, b, axe_js, "Training: Policies aus Isaac Lab", "#isaaclab")
     b.foto(page, "13f-isaaclab", "Lernen → Training: Policies aus Isaac Lab übernehmen")
 

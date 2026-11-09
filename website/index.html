@@ -295,10 +295,12 @@ code { font-family: var(--schrift-mono); font-size: 0.88em; padding: 1px 6px; bo
   color: #e9ecf1; font: 600 0.8125rem/1 var(--schrift-text); cursor: pointer; transition: transform 140ms var(--raus);
 }
 .code button:active { transform: scale(0.97); }
-.code button { display: inline-flex; align-items: center; gap: 6px; }
-.haken { width: 14px; height: 0; fill: none; stroke: #7fd6a4; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+/* Haken nimmt erst nach dem Kopieren Platz ein – sonst stand „Kopieren“ um 20 px nach rechts versetzt (Foto 9.11.) */
+.code button { display: inline-flex; align-items: center; justify-content: center; gap: 0; }
+.code button.fertig { gap: 6px; }
+.haken { width: 0; height: 0; fill: none; stroke: #7fd6a4; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
   stroke-dasharray: 16; stroke-dashoffset: 16; transition: height 0ms 200ms, stroke-dashoffset 260ms var(--raus); }
-.code button.fertig .haken { height: 14px; stroke-dashoffset: 0; transition: stroke-dashoffset 260ms var(--raus); }
+.code button.fertig .haken { width: 14px; height: 14px; stroke-dashoffset: 0; transition: stroke-dashoffset 260ms var(--raus); }
 
 /* ── Gemeinschaft ── */
 .gemeinsam { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: end; }

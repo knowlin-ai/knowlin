@@ -2391,6 +2391,14 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
 .il-vorschlag-text strong { overflow-wrap: anywhere; font-weight: 600; }
 .il-vorschlag-text span { color: var(--ink-3); font-size: var(--t-caption); letter-spacing: var(--ls-micro); }
 .il-acts { display: flex; flex-wrap: wrap; gap: var(--spacing-03); align-items: center; }
+/* Was gerade läuft und der Weg zurück (seit 0.38.35, „man will sich ja nichts verstellen“) */
+.il-aktiv { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-03) var(--spacing-05);
+  padding: var(--spacing-04) var(--spacing-05); border: 1px solid var(--line-soft); border-radius: var(--r-control);
+  margin-bottom: var(--spacing-05); max-width: 760px; }
+.il-aktiv.is-eigene { border-color: var(--warning-line); }
+.il-aktiv-text { margin: 0; font-weight: 600; flex: 1 1 18rem; }
+.il-aktiv > .il-voll { flex-basis: 100%; margin: 0; }
+.il-vorschlag-text .chip { justify-self: start; color: var(--good-ink); }
 .il-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--spacing-05); }
 .il-eintrag { display: grid; gap: var(--spacing-04); padding-top: var(--spacing-05); border-top: 1px solid var(--line-soft); }
 .il-kopf { display: flex; flex-wrap: wrap; gap: var(--spacing-03) var(--spacing-04); align-items: center; }

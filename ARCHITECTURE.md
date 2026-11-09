@@ -25,8 +25,10 @@ Bewegung motion/engine.py (20 Hz, Sicherheit, Warteschlange)  motion/behaviors.p
    │
 Körper   backends/sim.py (einfach)  backends/physics.py (MuJoCo + Pollens Policies)  backends/robotd.py (echt)
          backends/reachy*.py (Reachy Mini: Simulator, Pollens Daemon)  backends/open_duck.py (Open Duck Mini v2)
-         backends/begleiter.py (weitere Enten im Simulator)
+         backends/begleiter.py (weitere Enten im Simulator)  backends/lerobot.py (LeRobot-Roboter, seit 0.38.35)
          gemeinsames Interface: api.py (DuckBackend, DuckState, Perception)
+         Körperschnittstelle 1.0: koerper.py (Profile, Wortschatz, Erweiterungen per Entry Point „knowlin.koerper“),
+         koerper_pruefung.py (Pflichten P1–P9) – Spezifikation docs/koerper-schnittstelle.md
 ```
 
 ### Schnitt der Suite Knowlin (seit 0.33, intern)
@@ -108,6 +110,7 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 
 | Neues … | Datei | Muster |
 |---|---|---|
+| Neuer Körper (Roboter) | eingebaut: Profil in `koerper.py` + Fabrik `backends/__init__.py:baue_<name>`; fremd: eigenes Paket mit Entry Point `knowlin.koerper` (Vorlage `examples/knowlin-koerper-vorlage`) | Fähigkeiten nur aus dem Wortschatz; `python -m duckpilot.koerper_pruefung <id>` muss bestehen; nie `config.modul == "…"` im Kern abfragen, sondern `eigenschaften()` |
 | Verhalten (über Sekunden) | `motion/behaviors.py` | Klasse mit `tick(st, dt) → Command`, `describe()`; Kanäle angeben |
 | Werkzeug für Claude | `brain/tools.py` | Eintrag in `TOOLS` + Zweig in `_dispatch`; ggf. `brain/local.py` LOCAL_TOOLS, `fallback.py` |
 | HTTP-Endpunkt | `server/routes/<bereich>.py` | in `register(app, runtime)`; neues Modul in `routes.MODULES` eintragen |

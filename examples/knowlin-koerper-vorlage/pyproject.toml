@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knowlin-koerper-vorlage"
+version = "1.0.0"
+description = "Vorlage: ein eigener Körper für Knowlin (Körperschnittstelle 1.0) – ein simulierter Rollbot"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = ["knowlin>=0.38.35"]
+
+# So findet Knowlin den Körper: Gruppe „knowlin.koerper“, Wert zeigt auf eine Funktion, die ein Profil liefert.
+[project.entry-points."knowlin.koerper"]
+rollbot = "knowlin_koerper_vorlage:profil"
+
+[tool.setuptools]
+packages = ["knowlin_koerper_vorlage"]

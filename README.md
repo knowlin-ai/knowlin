@@ -95,6 +95,11 @@ dem Tisch. Jeder Körper zeigt nur, was er kann – was fehlt (Beine, Tiefensens
 | **Quacki** | Microduck | duckpilot | Pollen Robotics und Hugging Face | einfach und mit echter Physik | über `robotd` (Pollens Daemon) |
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone und Community | offenes Modell: laufen, Kopf, Antennen, mit Kamera ausweichen | geplant |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics und Hugging Face | Pollens Modell, Emotionen, Tänze, Spiele | über Pollens Daemon (ungetestet) |
+| – | LeRobot-Roboter (SO-101, LeKiwi …) | lerobot | Hugging Face LeRobot | – | über LeRobot (Arm, Greifer, Räder; ungetestet) |
+
+**Dein eigener Roboter:** Über die [Körperschnittstelle](docs/koerper-schnittstelle.md) bekommt jeder Roboter Knowlin –
+als eigenes Python-Paket, ohne Knowlin zu ändern. Er beschreibt in einem Profil, was er kann, und besteht die
+Sicherheitsprüfung (`python -m duckpilot.koerper_pruefung`). Vorlage: [`examples/knowlin-koerper-vorlage`](examples/knowlin-koerper-vorlage).
 
 ```mermaid
 flowchart LR
@@ -182,6 +187,8 @@ steht noch aus – Rückmeldungen sind sehr willkommen. Details: [`docs/barriere
 
 - [Handbuch](docs/handbuch.md) – alle Bereiche und Funktionen im Detail
 - [ARCHITECTURE.md](ARCHITECTURE.md) – Aufbau, Schichten und wo was hingehört
+- [Körperschnittstelle](docs/koerper-schnittstelle.md) – wie ein weiterer Roboter Knowlin bekommt
+- [Code signing policy](docs/code-signing-policy.md) – wie der Windows-Installer gebaut und (bald) signiert wird
 - [CHANGELOG.md](CHANGELOG.md) – Änderungen je Version · [Release-Notes](docs/releases/) · [Roadmap](docs/ROADMAP.md)
 
 ## Mitmachen

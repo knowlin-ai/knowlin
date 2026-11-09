@@ -99,6 +99,11 @@ robots. Every body shows only what it can do – what it lacks (legs, depth sens
 | **Quacki** | Microduck | duckpilot | Pollen Robotics and Hugging Face | simple and with real physics | via `robotd` (Pollen's daemon) |
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone and community | open model: walking, head, antennas, avoids obstacles with its camera | planned |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics and Hugging Face | Pollen's model, emotions, dances, games | via Pollen's daemon (untested) |
+| – | LeRobot robots (SO-101, LeKiwi …) | lerobot | Hugging Face LeRobot | – | via LeRobot (arm, gripper, wheels; untested) |
+
+**Your own robot:** With the [body interface](docs/body-interface.md) any robot can get Knowlin – as its own Python
+package, without changing Knowlin. It describes what it can do in a profile and passes the safety checks
+(`python -m duckpilot.koerper_pruefung`). Template: [`examples/knowlin-koerper-vorlage`](examples/knowlin-koerper-vorlage).
 
 ```mermaid
 flowchart LR
@@ -181,6 +186,8 @@ very welcome. Details (German): [`docs/barrierefreiheit.md`](docs/barrierefreihe
 ## Documentation
 
 - [User manual](docs/handbuch.md) (German) – every area and feature in detail
+- [Body interface](docs/body-interface.md) – how another robot gets Knowlin
+- [Code signing policy](docs/code-signing-policy.md) – how the Windows installer is built and (soon) signed
 - [ARCHITECTURE.md](ARCHITECTURE.md) (German) – structure, layers and where things belong
 - [CHANGELOG.md](CHANGELOG.md) (German) · [Release notes](docs/releases/) (English and German) · [Roadmap](docs/ROADMAP.md)
 

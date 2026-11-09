@@ -130,7 +130,7 @@ class Talent(Pack):
             kurz="20-Sekunden-Vorführungen aus Pollens Arena: Kopf, Hinsetzen, Aufstehen – im Takt.",
             text="Pollens Arena hat eine Bühne, auf der Beiträge 20 Sekunden lang vorführen und das Publikum "
                  "abstimmt. Jeder Beitrag ist eine Zeitleiste aus Kopfbewegungen und Hinsetzen/Aufstehen. "
-                 "duckpilot spielt sie mit den normalen Bausteinen ab.",
+                 "Knowlin spielt sie mit den normalen Bausteinen ab.",
             quelle="https://github.com/pollen-robotics/microduck-challenges", lizenz="je Beitrag",
             herkunft="gemischt", stand="bereit",
             im_simulator="Läuft im Simulator genauso wie am Roboter.")

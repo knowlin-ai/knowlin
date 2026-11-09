@@ -219,6 +219,12 @@ def main() -> int:
         b.pruefe("Fokus überall sichtbar", not ohne_rahmen, ", ".join(ohne_rahmen[:5]))
         b.pruefe("Umschalter und Kopierknopf per Tab erreichbar", "tab-microduck" in reihe and "kopieren" in reihe,
                  " / ".join(reihe[:12]))
+        # Seit 0.38.35 (Foto: „die Schrift beim Button ist nicht mittig“): Text im Kopierknopf links und rechts gleich weit
+        rand = p.evaluate("""() => { const b = document.getElementById('kopieren');
+            const t = [...b.querySelectorAll('.t')].find((s) => s.offsetWidth > 0);
+            const bb = b.getBoundingClientRect(), tb = t.getBoundingClientRect();
+            return [tb.left - bb.left, bb.right - tb.right]; }""")
+        b.pruefe("Kopierknopf: Text mittig", abs(rand[0] - rand[1]) <= 2, f"links {rand[0]:.1f} px, rechts {rand[1]:.1f} px")
         p.focus("#tab-microduck")
         p.keyboard.press("ArrowRight"); p.wait_for_timeout(400)
         gewaehlt = p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id")

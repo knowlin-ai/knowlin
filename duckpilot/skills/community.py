@@ -79,7 +79,7 @@ class CommunityTricks(Pack):
             quelle="https://github.com/joeynyc/awesome-microduck", lizenz="je Repo", herkunft="community",
             stand="experimentell",
             im_simulator="Prüfen und Ausprobieren gehen mit echter Physik (Einstellungen → Körper).",
-            hinweis="Niemand hat diese Tricks geprüft außer duckpilot in der Physik. Das erste Mal am Roboter mit Platz und "
+            hinweis="Niemand hat diese Tricks geprüft außer Knowlin in der Physik. Das erste Mal am Roboter mit Platz und "
                     "weichem Boden.")
         self.checks: Checks | None = None
 

@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 # per Knopf nachinstalliert (voice/install.py) oder bewusst optional mit Hinweis
-ZUSATZ = {"PIL", "bam", "faster_whisper", "huggingface_hub", "mujoco", "onnx", "onnxruntime", "piper", "qwen_tts",
+ZUSATZ = {"PIL", "bam", "faster_whisper", "huggingface_hub", "lerobot", "mujoco", "onnx", "onnxruntime", "piper", "qwen_tts",
           "torch"}
 MITGEBRACHT = {"starlette": "fastapi"}                   # kommt sicher mit einem Pflichtpaket
 NAME = {"fast_simplification": "fast-simplification"}

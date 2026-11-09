@@ -31,8 +31,8 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
      "Training, Parcours und Policies als eigener Bereich – heute bei der Microduck unter Lernen."),
     ("ohne-koerper", "Ohne Körper", "Begleiter am PC und Handy", "geplant", "0.44",
      "Dasselbe Gehirn ganz ohne Roboter."),
-    ("eigenes-modul", "Eigenes Modul", "für die Community", "anleitung", "Januar",
-     "Anleitung, wie ein weiterer Roboter Knowlin bekommt."),
+    ("eigenes-modul", "Eigenes Modul", "für die Community", "anleitung", "",
+     "Körperschnittstelle 1.0: Vorlage und Prüfung – ein weiterer Roboter bekommt Knowlin als eigenes Paket."),
 )
 
 # Was alle Verkörperungen teilen (seit 0.38.3): (Name, Ansicht, Abschnitt). Charakter gehört der Verkörperung, nicht hierher.
@@ -70,6 +70,18 @@ def module(koerper: str = "", aktiv: str = "duckpilot") -> list[dict[str, Any]]:
         if m.get("aktiv") and koerper:
             m["verbunden"] = {"sim": "Simulator", "physik": "Physik-Simulator", "robotd": "echter Roboter"}.get(koerper, koerper)
         out.append(m)
+    # Körper aus Erweiterungen (Körperschnittstelle, seit 0.38.35): je ein Modul vor den Werkzeugen
+    from . import koerper as K
+
+    for k in K.alle():
+        if k.eingebaut:
+            continue
+        m = {"id": k.id, "name": k.name, "koerper": k.hersteller, "stand": "fertig" if k.simulator else "anleitung",
+             "version": "", "kurz": f"Erweiterung (Paket) · {', '.join(sorted(k.faehigkeiten))}", "art": "koerper",
+             "koerper_name": k.name, "modul": k.id, "aktiv": k.id == aktiv, "erweiterung": True}
+        if m["aktiv"] and koerper:
+            m["verbunden"] = {"sim": "Simulator", "physik": "Physik-Simulator", "robotd": "echter Roboter"}.get(koerper, koerper)
+        out.insert(len(KOERPER_MODUL), m)
     return out
 
 

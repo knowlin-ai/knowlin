@@ -29,6 +29,7 @@ import time
 from types import SimpleNamespace
 from typing import Any, Awaitable, Callable
 
+from .. import koerper
 from .fallback import WER_BIST_DU, parse, quick_command
 from .tools import ToolRunner, fehlt_dem_koerper
 
@@ -110,13 +111,15 @@ GRUSS = re.compile(r"^(hallo|hi|hey|moin|servus|guten (morgen|tag|abend)|hello|g
 WAS_KANNST = re.compile(r"\b(was kannst du|was bist du|was ist knowlin|hilfe|what can you do|what are you|"
                         r"what is knowlin|help)\b", re.I)
 
-# Was jeder Körper kann – ohne ihn zu starten (wie `eigenschaften()` und `skills()` der Backends)
-KOERPER = {
-    "duckpilot": SimpleNamespace(art="microduck", eig={"beine", "kopf", "schnabel", "tiefensensor"},
-                                 skills=["sit_toggle", "ground_pick", "kick_left", "kick_right", "roulade"]),
-    "open_duck_mini": SimpleNamespace(art="open_duck", eig={"beine", "kopf", "antennen"}, skills=["sit_toggle", "kick_left", "kick_right"]),
-    "reachy_mini": SimpleNamespace(art="reachy_mini", eig={"kopf", "antennen"}, skills=[]),
-}
+# Was jeder Körper kann – ohne ihn zu starten: aus seinem Profil (Körperschnittstelle, seit 0.38.35; vorher eine
+# eigene Liste hier, die von den Backends abweichen konnte)
+def _koerper(modul: str) -> SimpleNamespace | None:
+    try:
+        p = koerper.holen(modul)
+    except KeyError:
+        return None
+    return SimpleNamespace(art=p.koerper_zustand, eig=set(p.faehigkeiten), skills=list(p.skills))
+
 
 Verkörperungen = Callable[[], list[dict[str, Any]]]
 Einstellen = Callable[[dict[str, Any]], Awaitable[Any]]
@@ -145,7 +148,7 @@ def _en(sprache: str) -> bool:
 def kann(modul: str, werkzeug: str, args: dict[str, Any] | None = None) -> bool:
     """Kann der Körper dieser Verkörperung das Werkzeug – nach derselben Regel wie das Gehirn (`fehlt_dem_koerper`)?
     Gelernte Bewegungen (`skill`, z. B. Purzelbaum) muss der Körper selbst haben."""
-    k = KOERPER.get(modul)
+    k = _koerper(modul)
     if k is None:
         return False
     if werkzeug == "skill":

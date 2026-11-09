@@ -1904,6 +1904,11 @@
             <h3 id="il-titel">Policies aus Isaac Lab übernehmen</h3>
             <p class="field-help">NVIDIA trainiert die Microduck in Isaac Lab (Aufgaben „IsaacContrib-Velocity-…-MicroDuck“, mit NVIDIA-Grafikkarte). Die dort exportierte Gang-Policy (<code>exported/policy.onnx</code>) übernimmst du hier – direkt von Hugging Face oder als Datei von diesem PC. Knowlin prüft, ob sie zur Microduck passt, und schickt sie durch den Prüfstand: stehen, vorwärts, seitwärts, drehen und ein Schubs, jeweils wie trainiert und mit der Glättung des echten Roboters. Ist Pollens Gangart geladen, misst sie sich auch daran. Für die echte Ente frei ist sie nur, wenn sie besteht.</p>
             </div>
+            <div class="il-aktiv" id="il-aktiv">
+              <p class="il-aktiv-text" id="il-aktiv-text" aria-live="polite">Pollens Standard-Gangart läuft, sobald die echte Physik an ist.</p>
+              <button class="btn btn--sm btn--tertiary" type="button" id="il-standard" hidden>Zurück auf Pollens Standard</button>
+              <p class="field-help il-voll">Übernehmen ändert nichts am Körper. Erst „Im Physik-Simulator nutzen“ wechselt die Gangart – und nach jedem Neustart läuft wieder Pollens Standard.</p>
+            </div>
             <form class="il-form" id="il-form">
               <div class="field il-voll"><span class="field-label" id="il-quelle-label">Woher kommt die Policy?</span>
                 <div class="seg" role="radiogroup" aria-labelledby="il-quelle-label">
@@ -1917,7 +1922,8 @@
                 <div class="il-vorschlaege-kopf"><span class="field-label" id="il-vorschlaege-label">Microduck-Policies auf Hugging Face</span>
                   <button type="button" class="btn btn--sm btn--ghost" id="il-suche-neu">Neu suchen</button></div>
                 <ul class="il-vorschlag-liste" id="il-vorschlag-liste" aria-labelledby="il-vorschlaege-label"></ul>
-                <p class="field-help" id="il-vorschlaege-hinweis">Suche läuft …</p></div>
+                <p class="field-help" id="il-vorschlaege-hinweis">Suche läuft …</p>
+                <p class="field-help">Die Rampen-Policy aus NVIDIAs Vorführung gibt es nicht als Datei: Veröffentlicht ist nur die Übungsumgebung (Isaac Lab, <code>contrib/microduck</code>, nur mit NVIDIA-Grafikkarte). Ähnliches geht unter Lernen → Parcours: Rampe bauen und „Lernen, bis sie es kann“.</p></div>
               <label class="field il-voll" id="il-hf-wahl" hidden><span class="field-label">Welche Datei aus dem Repo?</span><select class="select" id="il-hf-datei"></select></label>
               <div class="field il-voll" id="il-datei-feld" hidden><span class="field-label" id="il-datei-label">ONNX-Datei</span>
                 <div class="il-datei"><button type="button" class="btn btn--tertiary" id="il-waehlen" aria-describedby="il-datei-name">Datei wählen</button>
@@ -1925,8 +1931,7 @@
                   <span class="il-datei-name" id="il-datei-name">policy.onnx aus Isaac Lab, bis 60 MB</span></div></div>
               <label class="field"><span class="field-label">Name</span><input class="input" type="text" id="il-name" maxlength="24" placeholder="z. B. rough_v1"></label>
               <label class="field"><span class="field-label">Trainiert mit</span><select class="select" id="il-aufgabe"></select></label>
-              <div class="il-acts"><button class="btn btn--primary" type="submit" id="il-go">Prüfen und übernehmen</button>
-                <button class="btn btn--ghost" type="button" id="il-standard" hidden>Wieder Pollens Gangart</button></div>
+              <div class="il-acts"><button class="btn btn--primary" type="submit" id="il-go">Prüfen und übernehmen</button></div>
             </form>
             <p class="field-msg" id="il-state" aria-live="polite"></p>
             <p class="field-help" id="il-leer">Noch keine Policy übernommen.</p>

@@ -15,7 +15,10 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 class Config:
     # [backend]
     backend: str = "sim"                       # "sim" | "robotd" (bei Reachy Mini: echtes Gerät über Pollens Daemon)
-    modul: str = "duckpilot"                   # welcher Körper der Suite: "duckpilot" (Microduck) | "reachy_mini" (seit 0.38.1)
+    modul: str = "duckpilot"                   # welcher Körper: id eines Profils aus duckpilot.koerper (seit 0.38.35)
+    # Angaben, die ein Körper zum Verbinden braucht (seit 0.38.35, Körperschnittstelle) – z. B. LeRobot:
+    # {"typ": "so101_follower", "port": "COM5", "id": "mein_arm"}. Nie Geheimnisse.
+    koerper_optionen: dict[str, str] = field(default_factory=dict)
     reachy_adresse: str = "http://localhost:8000"   # Pollens Reachy-Mini-Daemon (Lite: localhost, Wireless: reachy-mini.local)
     robot: str = "tcp:127.0.0.1:7900"          # robotd-Adresse: tcp:host:port oder unix:/pfad
     tof: str | None = None                     # tofd-Socket für den Tiefensensor (optional)
@@ -107,6 +110,7 @@ class Config:
         return {
             "backend": self.backend,
             "modul": self.modul,
+            "koerper_optionen": dict(self.koerper_optionen),
             "reachy_adresse": self.reachy_adresse,
             "model": self.model,
             "duck_name": self.duck_name,

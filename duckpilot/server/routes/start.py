@@ -7,7 +7,7 @@ import asyncio
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from ... import suite
+from ... import koerper, suite
 from ..runtime import Runtime
 
 
@@ -42,8 +42,12 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         anderen nicht?“). Mit dem echten Roboter verbunden bleibt der Wechsel beim PC: er trennt die Verbindung."""
         body = await request.json()
         modul = str(body.get("modul", ""))
-        if modul not in ("duckpilot", "reachy_mini", "open_duck_mini"):
+        profil = next((k for k in koerper.alle() if k.id == modul), None)   # Körperschnittstelle (seit 0.38.35)
+        if profil is None:
             return JSONResponse({"ok": False, "fehler": "Diese Verkörperung gibt es nicht."}, status_code=400)
+        if not profil.simulator:
+            return JSONResponse({"ok": False, "fehler": f"{profil.name} hat keinen Simulator – einrichten am PC."},
+                                status_code=409)
         if runtime.config.backend != "sim":
             return JSONResponse({"ok": False, "fehler": "Mit dem echten Roboter verbunden – den Körper wechselst du am PC."},
                                 status_code=409)

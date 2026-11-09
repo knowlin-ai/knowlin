@@ -23,12 +23,12 @@ Testlauf. Neues Modul → hier eintragen.
 from __future__ import annotations
 
 SCHICHTEN: dict[str, tuple[str, ...]] = {
-    "basis": ("aio", "config", "settings", "desktop", "aktualisieren", "qr", "hub", "schichten", "geplant", "i18n", "suite", "figuren"),
+    "basis": ("aio", "config", "settings", "desktop", "aktualisieren", "qr", "hub", "schichten", "geplant", "i18n", "suite", "figuren", "koerper"),
     "kern": (
         "brain", "buddy", "erfahrung_service", "voice", "faces", "augen", "nfc", "remote", "tailscale", "mdns",
         "mcp_server", "mcp_bridge", "skills.alltag", "choreo", "musik_struktur", "sichtungen", "knowlets", "knowlet_hub", "sicherungspunkte",
     ),
-    "motorik": ("motion", "api", "joints", "protest", "laser"),
+    "motorik": ("motion", "api", "joints", "protest", "laser", "koerper_pruefung"),
     "lab": (
         "physics", "training", "kaggle_training", "lernschleife", "mission", "acrobatics_service",
         "stossreihe_service", "kollision_service",
