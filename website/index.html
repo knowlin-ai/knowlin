@@ -221,6 +221,7 @@ section { padding-block: clamp(72px, 10vw, 136px); }
   font: 600 0.9375rem/1.2 var(--schrift-text); color: var(--tinte-2); border-radius: 10px; white-space: nowrap;
 }
 .wahl button[aria-selected="true"] { color: var(--tinte); }
+.buehne-bild { min-width: 0; }
 .buehne { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 56px); align-items: start; margin-top: 28px; }
 .buehne .fenster img { transition: opacity 200ms var(--raus), transform 260ms var(--raus); }
 .buehne.wechselt .fenster img { opacity: 0; transform: scale(0.985); }
@@ -262,23 +263,25 @@ footer a { color: inherit; text-decoration: underline; text-decoration-color: va
 }
 .vitrine .kopfzeile h2 { color: var(--v-tinte); }
 .vitrine .kopfzeile .leit { color: var(--v-tinte-2); }
+.vitrine .bildnachweis { color: var(--v-tinte-2); margin-top: 18px; }
 .kacheln { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-flow: dense; gap: 16px; margin-top: 8px; }
 .kachel {
   margin: 0; display: grid; grid-template-rows: auto 1fr; border-radius: var(--r-rahmen); overflow: hidden;
   background: var(--v-karte); border: 1px solid var(--v-linie);
 }
 .kachel.breit { grid-column: span 2; }
-.kachel.hoch { grid-row: span 2; }
+/* Code-Kachel über die ganze Breite: Profil links, Erklärung rechts */
+.kachel.ganz { grid-column: 1 / -1; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-rows: auto; align-items: center; }
+.kachel.ganz .profil { padding: 24px 24px 24px 28px; }
+.kachel.ganz figcaption { padding: 24px 28px; }
 .kachel .ausschnitt { position: relative; overflow: hidden; aspect-ratio: 16 / 10; background: #1b1d21; }
 .kachel.breit .ausschnitt { aspect-ratio: 16 / 8; }
+/* einzelne Kacheln quadratisch – so sind sie so hoch wie die breite Nachbarin, ohne Leerraum unter dem Text */
+.kachel:not(.breit):not(.ganz) .ausschnitt { aspect-ratio: 1 / 1; }
 .kachel .ausschnitt img {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
   object-position: var(--fx, 50%) var(--fy, 50%); transform: scale(var(--zoom, 1)); transform-origin: var(--fx, 50%) var(--fy, 50%);
 }
-.kachel.hoch { grid-template-rows: 1fr auto; }
-/* Handy-Bild füllt die Kachel ganz – kein Rand drumherum; oben bleibt die Kopfzeile der App im Bild */
-.kachel.hoch .ausschnitt { aspect-ratio: auto; height: 100%; min-height: 420px; }
-.kachel.hoch .ausschnitt img { object-position: 50% 0; transform: none; }
 .kachel figcaption { display: grid; gap: 6px; padding: 18px 20px 22px; align-content: start; }
 .kachel h3 { color: var(--v-tinte); font-size: 1.2rem; }
 .kachel p { color: var(--v-tinte-2); font-size: 0.9375rem; }
@@ -293,10 +296,10 @@ footer a { color: inherit; text-decoration: underline; text-decoration-color: va
 .zahlen span { color: var(--v-tinte-2); font-size: 0.875rem; }
 @media (max-width: 860px) {
   .kacheln { grid-template-columns: 1fr; }
-  .kachel.breit, .kachel.hoch { grid-column: auto; grid-row: auto; }
+  .kachel.breit, .kachel.ganz { grid-column: auto; }
   .kachel.breit .ausschnitt { aspect-ratio: 16 / 10; }
-  .kachel.hoch .ausschnitt { min-height: 0; aspect-ratio: 9 / 16; }
-  .kachel.hoch .ausschnitt img { object-position: 50% 45%; }
+  .kachel.ganz { grid-template-columns: 1fr; }
+  .kachel.ganz .profil { padding-bottom: 0; }
 }
 /* ── Was alle teilen ── */
 .geteilt { display: grid; gap: clamp(56px, 8vw, 96px); }
@@ -306,7 +309,12 @@ footer a { color: inherit; text-decoration: underline; text-decoration-color: va
 .paar .text { display: grid; gap: 16px; min-width: 0; }
 .bild { border-radius: var(--r-rahmen); overflow: hidden; box-shadow: var(--schatten); background: #1b1d21; }
 .bild img { width: 100%; }
-@media (max-width: 860px) { .paar, .paar.links { grid-template-columns: 1fr; } .paar.links .bild { order: 0; } }
+/* Bildnachweis (seit 0.38.40): Bilder mit Pollens 3D-Modellen nennen Urheber und Lizenz (CC BY-NC-SA 4.0) */
+.bildnachweis { margin: 12px 0 0; font-size: 0.8125rem; line-height: 1.5; color: var(--tinte-3); max-width: 70ch; }
+.bildnachweis a { color: inherit; }
+.bildspalte { min-width: 0; }
+.paar.links .bildspalte { order: -1; }
+@media (max-width: 860px) { .paar, .paar.links { grid-template-columns: 1fr; } .paar.links .bild, .paar.links .bildspalte { order: 0; } }
 .liste { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; color: var(--tinte-2); }
 .liste li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; }
 .liste li::before { content: ""; width: 6px; height: 6px; margin-top: 0.62em; border-radius: 50%; background: var(--akzent); justify-self: center; }
@@ -487,9 +495,12 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <button type="button" role="tab" id="tab-odi" aria-selected="false" aria-controls="koerper-buehne" data-koerper="odi" tabindex="-1">Open Duck Mini</button>
       </div>
       <div class="buehne" id="koerper-buehne" role="tabpanel" aria-labelledby="tab-microduck">
-        <div class="fenster">
-          <div class="titel" aria-hidden="true"><i></i><i></i><i></i></div>
-          <img data-bild="cockpit" src="bilder/cockpit-de-1600.webp" srcset="bilder/cockpit-de-900.webp 900w, bilder/cockpit-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 640px" width="1600" height="965" alt="">
+        <div class="buehne-bild">
+          <div class="fenster">
+            <div class="titel" aria-hidden="true"><i></i><i></i><i></i></div>
+            <img data-bild="cockpit" src="bilder/cockpit-de-1600.webp" srcset="bilder/cockpit-de-900.webp 900w, bilder/cockpit-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 640px" width="1600" height="965" alt="">
+          </div>
+          <p class="bildnachweis" id="buehne-nachweis" data-nachweis="pollen"><span class="t" lang="de">Bild: Knowlin mit dem 3D-Modell der Microduck – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" rel="noopener license">CC BY-NC-SA 4.0</a>. Das Bild steht unter derselben Lizenz.</span><span class="t" lang="en">Image: Knowlin with the Microduck 3D model – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener license">CC BY-NC-SA 4.0</a>. The image is under the same licence.</span></p>
         </div>
         <div class="steckbrief" aria-live="polite"></div>
       </div>
@@ -520,23 +531,16 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
           </div>
           <figcaption><span class="marke-klein"><span class="t" lang="de">Tanzen</span><span class="t" lang="en">Dance</span></span><h3><span class="t" lang="de">Tanzt zu deiner Musik.</span><span class="t" lang="en">Dances to your music.</span></h3><p><span class="t" lang="de">Sie hört Takt und Teile eines Stücks heraus und studiert einen Tanz ein – bis zu acht Enten tanzen mit. Die Musik bleibt auf deinem PC.</span><span class="t" lang="en">She picks out the beat and the parts of a song and rehearses a dance – up to eight ducks join in. The music stays on your PC.</span></p></figcaption>
         </figure>
-        <figure class="kachel hoch">
-          <div class="ausschnitt">
-            <img data-bild="handy" data-format="hoch" src="bilder/handy-de-780.webp" srcset="bilder/handy-de-390.webp 390w, bilder/handy-de-780.webp 780w" sizes="(max-width: 860px) 70vw, 300px" width="780" height="1688" loading="lazy" decoding="async"
-              alt="Knowlin am Handy: das Cockpit mit 3D-Ansicht, Steuerkreuz, Gespräch und Not-Aus" data-alt-en="Knowlin on a phone: the cockpit with 3D view, joystick, chat and emergency stop">
-          </div>
-          <figcaption><span class="marke-klein"><span class="t" lang="de">Handy</span><span class="t" lang="en">Phone</span></span><h3><span class="t" lang="de">Das Handy wird zur Fernbedienung.</span><span class="t" lang="en">Your phone becomes the remote.</span></h3><p><span class="t" lang="de">QR-Code scannen, fertig – im Heimnetz, ohne App: steuern, sprechen, Not-Aus.</span><span class="t" lang="en">Scan the QR code and go – on your home network, no app: drive, talk, emergency stop.</span></p></figcaption>
-        </figure>
         <figure class="kachel">
-          <div class="ausschnitt" style="--fx:33%;--fy:57%;--zoom:1.85">
-            <img data-bild="akrobatik" src="bilder/akrobatik-de-1600.webp" srcset="bilder/akrobatik-de-900.webp 900w, bilder/akrobatik-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 360px" width="1600" height="965" loading="lazy" decoding="async"
+          <div class="ausschnitt" style="--fx:32%;--fy:58%;--zoom:2">
+            <img data-bild="akrobatik" src="bilder/akrobatik-de-1600.webp" srcset="bilder/akrobatik-de-900.webp 900w, bilder/akrobatik-de-1600.webp 1600w" sizes="(max-width: 860px) 200vw, 1200px" width="1600" height="965" loading="lazy" decoding="async"
             alt="Akrobatik: die Ente steht in der Physik auf dem linken Bein, Fähigkeit 74 Prozent" data-alt-en="Acrobatics: in the physics the duck stands on its left leg, skill 74 percent">
           </div>
           <figcaption><span class="marke-klein"><span class="t" lang="de">Akrobatik</span><span class="t" lang="en">Acrobatics</span></span><h3><span class="t" lang="de">Balanciert in echter Physik.</span><span class="t" lang="en">Balances in real physics.</span></h3><p><span class="t" lang="de">Bieg sie wie eine Gliederpuppe, MuJoCo sagt, ob sie steht. Auf einem Bein? Sie übt, bis es klappt.</span><span class="t" lang="en">Pose her like a jointed doll, MuJoCo tells you if she stands. On one leg? She practises until it works.</span></p></figcaption>
         </figure>
         <figure class="kachel">
-          <div class="ausschnitt" style="--fx:93.3%;--fy:57.8%;--zoom:2.36">
-            <img data-bild="team" src="bilder/team-de-1600.webp" srcset="bilder/team-de-900.webp 900w, bilder/team-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 360px" width="1600" height="965" loading="lazy" decoding="async"
+          <div class="ausschnitt" style="--fx:86.7%;--fy:59%;--zoom:2">
+            <img data-bild="team" src="bilder/team-de-1600.webp" srcset="bilder/team-de-900.webp 900w, bilder/team-de-1600.webp 1600w" sizes="(max-width: 860px) 200vw, 1200px" width="1600" height="965" loading="lazy" decoding="async"
             alt="Team: fünf Enten im Zimmer, alle tanzen" data-alt-en="Team: five ducks in the room, all dancing">
           </div>
           <figcaption><span class="marke-klein"><span class="t" lang="de">Team</span><span class="t" lang="en">Team</span></span><h3><span class="t" lang="de">Ein ganzes Entenrudel.</span><span class="t" lang="en">A whole flock.</span></h3><p><span class="t" lang="de">Weitere Enten mit eigener Stimme: folgen dir, tanzen mit, räumen gemeinsam Socken zum Sofa.</span><span class="t" lang="en">More ducks with their own voices: they follow you, dance along and tidy socks to the sofa together.</span></p></figcaption>
@@ -548,7 +552,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
           </div>
           <figcaption><span class="marke-klein"><span class="t" lang="de">Lernen</span><span class="t" lang="en">Learn</span></span><h3><span class="t" lang="de">Lernt, wie echte Roboter lernen.</span><span class="t" lang="en">Learns the way real robots learn.</span></h3><p><span class="t" lang="de">Tausende Versuche parallel in der Physik – am eigenen PC oder kostenlos auf Kaggle. Fertige Gangarten kommen vom Hugging Face Hub und aus Isaac Lab, zurück auf Pollens Standard geht mit einem Klick.</span><span class="t" lang="en">Thousands of tries in parallel in the physics – on your own PC or free on Kaggle. Ready-made gaits come from the Hugging Face Hub and Isaac Lab; back to Pollen's standard is one click.</span></p></figcaption>
         </figure>
-        <figure class="kachel">
+        <figure class="kachel ganz">
           <pre class="profil" tabindex="0" aria-label="Beispiel: Profil eines eigenen Roboters" data-label-en="Example: profile of your own robot"><span class="k"># pyproject.toml</span>
 [project.entry-points.<span class="s">"knowlin.koerper"</span>]
 rollbot = <span class="s">"mein_roboter:profil"</span>
@@ -561,6 +565,7 @@ profil = Koerper(
           <figcaption><span class="marke-klein"><span class="t" lang="de">Körperschnittstelle</span><span class="t" lang="en">Body interface</span></span><h3><span class="t" lang="de">Dein Roboter, derselbe Geist.</span><span class="t" lang="en">Your robot, the same mind.</span></h3><p><span class="t" lang="de">Ein kleines Paket mit Profil – mit Sicherheitsprüfung, ohne Knowlin zu ändern. LeRobot-Roboter wie SO-101 und LeKiwi sind schon eingebaut.</span><span class="t" lang="en">A small package with a profile – with safety checks, without changing Knowlin. LeRobot robots like SO-101 and LeKiwi are already built in.</span></p></figcaption>
         </figure>
       </div>
+      <p class="bildnachweis" data-nachweis="pollen"><span class="t" lang="de">Bilder: Knowlin mit dem 3D-Modell der Microduck – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" rel="noopener license">CC BY-NC-SA 4.0</a>. Die Bilder stehen unter derselben Lizenz.</span><span class="t" lang="en">Images: Knowlin with the Microduck 3D model – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener license">CC BY-NC-SA 4.0</a>. The images are under the same licence.</span></p>
     </div>
   </section>
 
@@ -595,8 +600,11 @@ profil = Koerper(
             <li><span class="t" lang="de">Charakter, Tricks und Tänze als Knowlet teilen – auch über Hugging Face</span><span class="t" lang="en">Share character, tricks and dances as a Knowlet – also via Hugging Face</span></li>
           </ul>
         </div>
-        <div class="bild"><img data-bild="charakter" src="bilder/charakter-de-1600.webp" srcset="bilder/charakter-de-900.webp 900w, bilder/charakter-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 640px" width="1600" height="965" loading="lazy"
-          alt="Persönlichkeit: das Charakterfeld zwischen ruhig und lebhaft, ernst und albern, daneben die Farben der Microduck" data-alt-en="Personality: the character field between calm and lively, serious and silly, next to it the Microduck's colours"></div>
+        <div class="bildspalte">
+          <div class="bild"><img data-bild="charakter" src="bilder/charakter-de-1600.webp" srcset="bilder/charakter-de-900.webp 900w, bilder/charakter-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 640px" width="1600" height="965" loading="lazy"
+            alt="Persönlichkeit: das Charakterfeld zwischen ruhig und lebhaft, ernst und albern, daneben die Farben der Microduck" data-alt-en="Personality: the character field between calm and lively, serious and silly, next to it the Microduck's colours"></div>
+          <p class="bildnachweis" data-nachweis="pollen"><span class="t" lang="de">Bild: Knowlin mit dem 3D-Modell der Microduck – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" rel="noopener license">CC BY-NC-SA 4.0</a>. Das Bild steht unter derselben Lizenz.</span><span class="t" lang="en">Image: Knowlin with the Microduck 3D model – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener license">CC BY-NC-SA 4.0</a>. The image is under the same licence.</span></p>
+        </div>
       </div>
     </div>
   </section>
@@ -696,8 +704,8 @@ profil = Koerper(
       <span class="t" lang="en">Knowlin is a free, non-commercial hobby project and not affiliated with <a href="https://pollen-robotics.com/" rel="noopener">Pollen Robotics</a> or <a href="https://huggingface.co/" rel="noopener">Hugging Face</a>. <a href="https://pollen-robotics.com/microduck/" rel="noopener">Microduck</a> and <a href="https://pollen-robotics.com/reachy-mini/" rel="noopener">Reachy Mini</a> are products of Pollen Robotics; <a href="https://github.com/apirrone/Open_Duck_Mini" rel="noopener">Open Duck Mini</a> is an open project by Antoine Pirrone and community.</span>
     </p>
     <p>
-      <span class="t" lang="de">© 2026 Knowlin, Quelltext unter Apache-2.0. Diese Seite setzt keine Cookies und lädt nichts von fremden Servern.</span>
-      <span class="t" lang="en">© 2026 Knowlin, source code under Apache-2.0. This page sets no cookies and loads nothing from other servers.</span>
+      <span class="t" lang="de">© 2026 Knowlin, Quelltext unter Apache-2.0. Bilder mit Microduck und Reachy Mini zeigen die 3D-Modelle von Pollen Robotics und stehen wie diese unter <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" rel="noopener license">CC BY-NC-SA 4.0</a>; die Modelldateien selbst liefert Knowlin nicht mit. Diese Seite setzt keine Cookies und lädt nichts von fremden Servern.</span>
+      <span class="t" lang="en">© 2026 Knowlin, source code under Apache-2.0. Images showing Microduck and Reachy Mini show Pollen Robotics' 3D models and, like them, are under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener license">CC BY-NC-SA 4.0</a>; Knowlin does not ship the model files themselves. This page sets no cookies and loads nothing from other servers.</span>
     </p>
     <nav class="rechtliches" aria-label="Rechtliches · Legal">
       <a href="impressum.html"><span class="t" lang="de">Impressum</span><span class="t" lang="en">Legal notice</span></a>
@@ -745,7 +753,7 @@ profil = Koerper(
 
   const quelle = (name, w) => `bilder/${name}-${sprache()}-${w}.webp`;
   function bildSetzen(img, name) {
-    const [klein, gross] = img.dataset.format === 'hoch' ? [390, 780] : [900, 1600];   // Handy hochkant (seit 0.38.39)
+    const klein = 900, gross = 1600;
     img.src = quelle(name, gross);
     img.srcset = `${quelle(name, klein)} ${klein}w, ${quelle(name, gross)} ${gross}w`;
   }
@@ -763,7 +771,29 @@ profil = Koerper(
   const RAUS = '<svg class="raus" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9"/></svg>';
 
   let aktiv = 'microduck';
+  // Bildnachweis unter der Bühne (seit 0.38.40): Pollens Modelle mit Lizenz, Odi mit seinem offenen Modell
+  const NACHWEIS = {
+    microduck: ['Microduck', true], reachy: ['Reachy Mini', true], odi: ['Open Duck Mini v2', false],
+  };
+  function nachweisSetzen() {
+    const [modell, pollen] = NACHWEIS[aktiv];
+    const en = sprache() === 'en';
+    const el = document.getElementById('buehne-nachweis');
+    el.replaceChildren();
+    el.dataset.nachweis = pollen ? 'pollen' : 'offen';
+    if (!pollen) {
+      el.textContent = en ? `Image: Knowlin with the open 3D model of the ${modell} (Apache-2.0).`
+        : `Bild: Knowlin mit dem offenen 3D-Modell der ${modell} (Apache-2.0).`;
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = en ? 'https://creativecommons.org/licenses/by-nc-sa/4.0/' : 'https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de';
+    a.rel = 'noopener license'; a.textContent = 'CC BY-NC-SA 4.0';
+    el.append(en ? `Image: Knowlin with the ${modell} 3D model – © Pollen Robotics, ` : `Bild: Knowlin mit dem 3D-Modell der ${modell} – © Pollen Robotics, `,
+      a, en ? '. The image is under the same licence.' : '. Das Bild steht unter derselben Lizenz.');
+  }
   function steckbrief() {
+    nachweisSetzen();
     const k = KOERPER[aktiv][sprache()];
     const box = document.querySelector('.steckbrief');
     box.replaceChildren();

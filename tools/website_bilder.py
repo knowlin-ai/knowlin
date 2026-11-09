@@ -10,11 +10,13 @@ Programmfenster auf – gleich groß, in voller Breite (1600 px), auf Deutsch un
 Ergebnis: `website/bilder/<name>-<de|en>-1600.webp` und `-900.webp`. Mit `--probe` landen die Bilder nur im
 Arbeitsordner (zum Ansehen), die Website bleibt unberührt.
 
-Läuft wie die Abnahme im Simulator ohne Netz und ohne Claude – aber aus der **öffentlichen Fassung** (wird in den
-Arbeitsordner exportiert): Dort fehlen Pollens Ansichtsmodelle für Microduck und Reachy (CC BY-NC-SA), sie erscheinen nie
-auf der Website. Für die Akrobatik bekommt die Physik nur Pollens Physikmodell (`--physik-modell`, ohne `ansicht.dpm`):
-gerechnet wird mit Pollens Maßen, gezeigt wird das eigene, einfache Modell. Das Gedächtnis bekommt vorher eine erfundene Woche mit Erlebnissen, damit das Netz zu
-sehen ist; Personen kommen darin nicht vor.
+Läuft wie die Abnahme im Simulator ohne Netz und ohne Claude, mit leerem Datenordner. Seit 0.38.40 mit Pollens
+Originalmodellen für Microduck und Reachy Mini (Entscheidung vom 9.11.: „dürfen wir nicht Bilder mit den echten
+Modellen verwenden mit entsprechendem Hinweis?“ – „ja“). Die Modelle stehen unter CC BY-NC-SA 4.0: Jedes Bild, auf
+dem eines zu sehen ist, trägt auf der Website und in der README den Hinweis „© Pollen Robotics, CC BY-NC-SA 4.0“ und
+steht selbst unter dieser Lizenz (`website.POLLEN_BILDER`, geprüft von `tools/website_pruefen.py`). Die Modelldateien selbst
+kommen nie auf die Website und nie in die öffentliche Fassung. Das Gedächtnis bekommt vorher eine erfundene Woche mit
+Erlebnissen, damit das Netz zu sehen ist; Personen kommen darin nicht vor.
 """
 
 from __future__ import annotations
@@ -24,7 +26,6 @@ import io
 import json
 import math
 import os
-import shutil
 import struct
 import subprocess
 import sys
@@ -115,6 +116,29 @@ def verbunden(page) -> None:
                            " return b && b.classList.contains('dot--good'); }", timeout=120000)
 
 
+def bild_da(page, wo: str, timeout_ms: int = 90000) -> None:
+    """Warten, bis die 3D-Ansicht in `wo` wirklich etwas zeigt – mit Pollens vollem Modell und Software-Grafik dauert ein
+    Bild nach dem Umziehen der Leinwand manchmal Sekunden; vorher ist die Fläche einfarbig grau."""
+    page.wait_for_function("""(wo) => { const c = document.querySelector(wo + ' canvas'); if (!c || !c.width) return false;
+        const k = document.createElement('canvas'); k.width = 32; k.height = 32; const g = k.getContext('2d');
+        g.drawImage(c, 0, 0, 32, 32); const d = g.getImageData(0, 0, 32, 32).data; let min = 255, max = 0;
+        for (let i = 0; i < d.length; i += 4) { const v = d[i] + d[i + 1] + d[i + 2]; min = Math.min(min, v); max = Math.max(max, v); }
+        return max - min > 60; }""", arg=wo, timeout=timeout_ms, polling=1000)
+
+
+def punkt_gruen(png: bytes, page) -> bool:
+    """Zeigt das aufgenommene Bild selbst den grünen Punkt „verbunden“? Unter Last hinkt das gemalte Bild dem DOM
+    hinterher – dann kann im Bild noch „Knowlin getrennt“ stehen, obwohl die Seite schon wieder verbunden ist."""
+    from PIL import Image
+
+    box = page.locator("#badge-link .dot").bounding_box()
+    if not box:
+        return False
+    r, g, b = Image.open(io.BytesIO(png)).convert("RGB").getpixel((int(box["x"] + box["width"] / 2),
+                                                                  int(box["y"] + box["height"] / 2)))
+    return g > r + 30
+
+
 def sagen(page, feld: str, text: str, warten_s: float = 5.0) -> None:
     verbunden(page)
     page.fill(feld, text, timeout=120000)
@@ -185,6 +209,7 @@ def szene_tanz(page, base, sprache, ordner):
     page.wait_for_timeout(2500)
     klick(page, "#tanz-probe")
     page.wait_for_timeout(5000)
+    bild_da(page, "#tanz-vorschau")
     verbunden(page)
 
 
@@ -197,6 +222,10 @@ def szene_team(page, base, sprache):
     page.wait_for_function("() => !document.querySelector('[data-enten-modus=tanzen]').disabled", timeout=120000)
     klick(page, "[data-enten-modus=tanzen]")
     page.wait_for_timeout(5000)
+    # erst die Anfahrt beim Öffnen abwarten – sie setzt die Kamera Bild für Bild und überschriebe sonst die Einstellung
+    # (mit Pollens vollem Modell und Software-Grafik dauert sie lange; ihr Startpunkt liegt hinter der Wand: graues Bild)
+    page.wait_for_function("() => { const s = window.duckpilot.scene; return !s.intro || s.intro.done; }",
+                           timeout=180000, polling=1000)
     # Kamera schräg von oben auf die Mitte des Rudels – die Website zeigt nur die Vorschau, da soll das ganze Rudel
     # drin sein. _wunsch ist der Abstand, den die Kamera beim Ausweichen hält (duck3d.js)
     page.evaluate("""() => { const s = window.duckpilot.scene; s.follow = false;
@@ -205,6 +234,7 @@ def szene_team(page, base, sprache):
       s.controls.target.set(m.x, 0.08, m.z); s.camera.position.set(m.x - 1.9, 1.2, m.z - 1.0);
       s._wunsch = s.camera.position.distanceTo(s.controls.target); s.controls.update(); }""")
     page.wait_for_timeout(6000)
+    bild_da(page, "#team-vorschau")
     verbunden(page)
 
 
@@ -228,45 +258,22 @@ def szene_training(page, base, sprache):
     page.wait_for_timeout(8000)
 
 
-HOCHKANT = {"handy"}
-
-
-def szene_handy(page, base, sprache):
-    """Am Handy: Cockpit mit Steuerkreuz und Gespräch – so sieht die Fernbedienung im Heimnetz aus."""
-    _koerper(page, base, "duckpilot", sprache, "Tanz für mich" if sprache == "de" else "Dance for me")
-
-
-SZENEN = {"start": szene_start, "handy": szene_handy, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi,
+SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi,
           "synapsen": szene_synapsen, "charakter": szene_charakter, "tanz": szene_tanz, "team": szene_team,
           "akrobatik": szene_akrobatik, "training": szene_training}
 
 
-def oeffentlich_starten(ordner: Path, port: int, physik_modell: Path | None) -> subprocess.Popen:
-    """Server aus der öffentlichen Fassung, mit leerem Datenordner (kein nachgeladenes Pollen-Modell)."""
-    quelle = ordner / "oeffentlich"
-    if not (quelle / "duckpilot").is_dir():
-        subprocess.run([sys.executable, str(ROOT / "tools" / "export_public.py"), str(quelle)], check=True,
-                       stdout=subprocess.DEVNULL)
-    for verboten in ("microduck.dpm", "reachy_mini.dpm"):
-        if (quelle / "duckpilot" / "server" / "static" / "model" / verboten).exists():
-            raise SystemExit(f"Pollens Modell {verboten} in der öffentlichen Fassung – Abbruch")
+def server_starten(ordner: Path, port: int) -> subprocess.Popen:
+    """Server aus diesem Stand (mit Pollens Ansichtsmodellen), mit leerem Datenordner und eigenen Einstellungen."""
     env = dict(os.environ, DUCKPILOT_SETTINGS=str(ordner / "settings.json"), DUCKPILOT_OFFLINE="1",
-               XDG_DATA_HOME=str(ordner / "daten"), LOCALAPPDATA=str(ordner / "daten"), PYTHONPATH=str(quelle))
+               XDG_DATA_HOME=str(ordner / "daten"), LOCALAPPDATA=str(ordner / "daten"), PYTHONPATH=str(ROOT))
     env.pop("ANTHROPIC_API_KEY", None)
     env.pop("DUCKPILOT_MODELL", None)
-    if physik_modell and (physik_modell / "physik.xml").exists():
-        nur = ordner / "nur-physik"
-        if not nur.exists():
-            nur.mkdir()
-            shutil.copy2(physik_modell / "physik.xml", nur / "physik.xml")
-            if (physik_modell / "quelle").is_dir():
-                shutil.copytree(physik_modell / "quelle", nur / "quelle")
-        env["DUCKPILOT_MODELL"] = str(nur)          # ohne ansicht.dpm: gezeigt wird das eigene Modell
     (ordner / "settings.json").write_text(json.dumps({"backend": "sim", "sim_physik": False, "gehirn": "claude"}),
                                           encoding="utf-8")
     log = open(ordner / "server.log", "w", encoding="utf-8")  # noqa: SIM115 – lebt so lange wie der Server
     proc = subprocess.Popen([sys.executable, "-m", "duckpilot", "--no-browser", "--port", str(port), "--memory",
-                             str(ordner / "mem.json")], cwd=quelle, env=env, stdout=log, stderr=log)
+                             str(ordner / "mem.json")], cwd=ROOT, env=env, stdout=log, stderr=log)
     for _ in range(120):
         try:
             import socket
@@ -281,22 +288,12 @@ def oeffentlich_starten(ordner: Path, port: int, physik_modell: Path | None) -> 
     raise SystemExit("Server antwortet nicht")
 
 
-# Handy: hochkant, doppelte Pixeldichte (ohne 3D-Last, das Cockpit am Handy zeigt die Bühne klein)
-HANDY = (390, 844)
-
-
 def speichern(png: bytes, name: str, sprache: str, ziel: Path) -> None:
     from PIL import Image
 
     roh = Image.open(io.BytesIO(png)).convert("RGB")
     ziel.mkdir(parents=True, exist_ok=True)
-    if name in HOCHKANT:
-        roh.save(ziel / f"{name}-{sprache}-780.webp", quality=88, method=6)
-        roh.resize((390, round(390 * roh.height / roh.width)), Image.LANCZOS).save(
-            ziel / f"{name}-{sprache}-390.webp", quality=86, method=6)
-        return
     bild = roh.resize((BREITE, HOEHE), Image.LANCZOS)
-    ziel.mkdir(parents=True, exist_ok=True)
     bild.save(ziel / f"{name}-{sprache}-1600.webp", quality=88, method=6)
     bild.resize((900, round(900 * HOEHE / BREITE)), Image.LANCZOS).save(ziel / f"{name}-{sprache}-900.webp",
                                                                         quality=86, method=6)
@@ -324,8 +321,6 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--nur", default="", help="nur diese Szenen, durch Komma getrennt")
     ap.add_argument("--probe", action="store_true", help="Bilder nur in den Arbeitsordner, Website unverändert")
     ap.add_argument("--sprachen", default="de,en")
-    ap.add_argument("--physik-modell", type=Path, default=None,
-                    help="Ordner mit Pollens physik.xml (und quelle/) – für die Akrobatik; ansicht.dpm wird nie benutzt")
     a = ap.parse_args(argv)
     ordner = Path(a.ordner).resolve()
     ordner.mkdir(parents=True, exist_ok=True)
@@ -333,7 +328,7 @@ def main(argv: list[str] | None = None) -> int:
     ziel = ordner / "bilder" if a.probe else ZIEL
     namen = [n for n in a.nur.split(",") if n] or list(SZENEN)
     port = A.freier_port()
-    proc = oeffentlich_starten(ordner, port, a.physik_modell)
+    proc = server_starten(ordner, port)
     base = f"http://127.0.0.1:{port}"
     t0 = time.monotonic()
     try:
@@ -341,16 +336,25 @@ def main(argv: list[str] | None = None) -> int:
             b = p.chromium.launch()
             for sprache in a.sprachen.split(","):
                 for name in namen:
-                    groesse = {"width": HANDY[0], "height": HANDY[1]} if name in HOCHKANT else {"width": BREITE, "height": HOEHE}
-                    page = b.new_page(viewport=groesse, device_scale_factor=2 if name in HOCHKANT else 1,
-                                      is_mobile=name in HOCHKANT, has_touch=name in HOCHKANT)
+                    page = b.new_page(viewport={"width": BREITE, "height": HOEHE})
                     A.oeffnen(page, base)
                     # weitere Enten bleiben sonst aus der Team-Szene stehen und laufen durch die nächsten Bilder
                     A.einstellen(page, {"sprache": sprache, "weitere_enten": 0})
                     fn = SZENEN[name]
                     fn(page, base, sprache, ordner) if name == "tanz" else fn(page, base, sprache)
-                    verbunden(page)
-                    speichern(page.screenshot(timeout=180000), name, sprache, ziel)
+                    # unter Last (Pollens volles Modell, Software-Grafik) reißt die Verbindung beim Aufnehmen manchmal
+                    # kurz ab – dann stünde „Knowlin getrennt“ im Bild: nachsehen und notfalls neu aufnehmen
+                    gut = "() => !!document.querySelector('#badge-link .dot.dot--good')"
+                    for _ in range(6):
+                        verbunden(page)
+                        # zwei gezeichnete Bilder abwarten: bei langsamer Software-Grafik hinkt das Bild dem DOM hinterher
+                        page.evaluate("() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))")
+                        page.wait_for_timeout(1500)
+                        vorher = page.evaluate(gut)
+                        png = page.screenshot(timeout=180000)
+                        if vorher and page.evaluate(gut) and punkt_gruen(png, page):
+                            break
+                    speichern(png, name, sprache, ziel)
                     print(f"{name} ({sprache}) → {ziel}", flush=True)
                     page.close()
             b.close()

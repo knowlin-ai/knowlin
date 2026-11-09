@@ -155,7 +155,9 @@ def rechtsseite(name: str, kopf: str, beschreibung: str, fuss: str, adresse: str
 
 # Odi ausprobieren (T4, seit 0.38.29): Odi läuft ganz im Browser – Teile der App-Ansicht (Modell-Lader, Licht, Boden)
 # und das offene Modell der Open Duck Mini (Apache-2.0) werden beim Bauen dazugelegt, nichts doppelt im Repo.
-# Pollens Modelle (Microduck, Reachy Mini; CC BY-NC-SA) kommen hier nie hin.
+# Pollens Modelldateien (Microduck, Reachy Mini; CC BY-NC-SA) kommen hier nie hin. Bilder, auf denen sie zu sehen sind,
+# dürfen seit 0.38.40 auf die Seite (9.11.) – mit Bildnachweis; welche das sind, steht in POLLEN_BILDER.
+POLLEN_BILDER = ("cockpit", "reachy", "charakter", "tanz", "team", "akrobatik")   # Training: eigene, einfache Enten
 STATIC = ROOT / "duckpilot" / "server" / "static"
 DEMO_DATEIEN = ("duckmodel.js", "formen3d.js", "licht3d.js", "raum3d.js", "vendor/three.module.min.js",
                 "vendor/BufferGeometryUtils.js", "vendor/OrbitControls.js", "vendor/THREE-LICENSE",

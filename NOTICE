@@ -9,6 +9,11 @@ geprüft. „Microduck“ und „Reachy Mini“ sind Namen von Pollen Robotics.
 Der Quelltext von duckpilot steht unter der Apache License 2.0 (siehe LICENSE).
 Entwickelt mit Claude (Anthropic).
 
+Bilder mit Microduck oder Reachy Mini (website/bilder/{cockpit,reachy,charakter,tanz,team,akrobatik}-*,
+docs/bilder/{cockpit,reachy,charakter}*.png) zeigen Knowlin mit den 3D-Modellen von Pollen Robotics. Sie stehen
+abweichend vom Quelltext unter Creative Commons BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/),
+© Pollen Robotics für die dargestellten Modelle.
+
 ------------------------------------------------------------------------------------------------------
 Nicht enthalten, sondern zur Laufzeit von der Originalquelle geladen
 ------------------------------------------------------------------------------------------------------

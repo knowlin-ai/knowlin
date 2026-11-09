@@ -80,6 +80,10 @@ passenden Roboter vor und fragt, ob er ihn nutzen soll.
   </tr>
 </table>
 
+<sub>Bilder mit Microduck und Reachy Mini: Knowlin mit den 3D-Modellen von Pollen Robotics – © Pollen Robotics,
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de). Diese Bilder stehen unter derselben
+Lizenz; die Modelldateien selbst liefert Knowlin nicht mit.</sub>
+
 **Außerdem:** eigene Stimme lokal auf dem PC (Piper oder ein mit Qwen3-TTS entworfener Klang) · Spracherkennung und
 Plaudern · Simulator mit Wohnzimmer, Dingen zum Spielen und auf Wunsch echter Physik · Tricks vom Hugging Face Hub,
 Parcours und Training (kostenlos am PC oder auf Kaggle) · **Knowlets**: Charakter, Tricks und Tänze als Paket teilen –

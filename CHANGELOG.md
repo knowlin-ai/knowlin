@@ -9,6 +9,20 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.40 – 2026-11-09 – Website mit Pollens Originalmodellen (in Arbeit)
+
+### Geändert
+- **Website und README zeigen Microduck und Reachy Mini mit Pollens Originalmodellen** statt der eigenen, einfachen
+  Gestalten. Unter jedem solchen Bild steht der Bildnachweis „© Pollen Robotics, CC BY-NC-SA 4.0“ mit Link zur Lizenz;
+  diese Bilder stehen selbst unter CC BY-NC-SA 4.0 (siehe NOTICE). Die Modelldateien liefert Knowlin weiterhin nicht
+  mit – sie werden wie bisher auf dem PC geladen.
+- **Vitrine:** ohne Handy-Kachel; die Einzelkacheln sind quadratisch und so hoch wie ihre breite Nachbarin, die
+  Körperschnittstelle geht über die ganze Breite.
+- `tools/website_bilder.py` nimmt aus dem vollen Stand auf und wartet, bis die 3D-Vorschau gezeichnet ist und die
+  Kopfleiste „verbunden“ zeigt; die Handy-Szene entfällt.
+- Die Website-Prüfung prüft den Bildnachweis: jedes Bild mit Pollens Modell nennt Urheber, Lizenz und Link, auch unter
+  der Bühne je nach Körper.
+
 ## 0.38.39 – 2026-11-09 – Website mit Vitrine, neue Bilder, Oberfläche in Teilen
 
 ### Neu

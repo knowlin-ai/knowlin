@@ -66,3 +66,21 @@ def test_download_knopf_folgt_dem_neuesten_release(monkeypatch):
     assert website.version() == "0.38.31" and website.download_url().endswith("/v0.38.31/Knowlin-Setup-0.38.31.exe")
     monkeypatch.setenv("KNOWLIN_RELEASE", "")
     assert website.version() != ""
+
+
+def test_bilder_mit_pollens_modellen_tragen_den_nachweis():
+    # Seit 0.38.40 („Bilder mit den echten Modellen … mit entsprechendem Hinweis“): jedes Bild mit Pollens
+    # Modell steht in einem Abschnitt mit Bildnachweis – Urheber, Lizenz und Link –, auch ohne JavaScript
+    from website import POLLEN_BILDER
+
+    quelle = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+    abschnitte = re.split(r"<section\b", quelle)
+    for name in POLLEN_BILDER:
+        drin = [a for a in abschnitte if f'data-bild="{name}"' in a]
+        if not drin:
+            continue                                     # Bild nur über die Bühne (z. B. reachy) – dort per Körperwahl
+        for a in drin:
+            nachweis = re.search(r'<p class="bildnachweis"[^>]*data-nachweis="pollen"[^>]*>(.*?)</p>', a, re.S)
+            assert nachweis, name
+            assert "© Pollen Robotics" in nachweis.group(1) and "creativecommons.org/licenses/by-nc-sa/4.0" in nachweis.group(1)
+    assert "id=\"buehne-nachweis\"" in quelle and "NACHWEIS = {" in quelle

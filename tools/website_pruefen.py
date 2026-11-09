@@ -10,6 +10,7 @@ Baut die Seite (tools/website.py), liefert sie lokal aus und prüft:
 * keine Skriptfehler, keine fehlenden Dateien, keine Anfragen an fremde Server
 * ohne JavaScript: deutscher Text, Bilder da, nichts doppelt
 * „Bewegung reduzieren“: keine Bewegung über 1 px
+* Bildnachweis: jedes Bild mit Pollens 3D-Modellen nennt Urheber und Lizenz (CC BY-NC-SA 4.0), auch unter der Bühne
 
 Ergebnis: `<ordner>/bericht.md` mit Bildern. Rückgabewert 0, wenn alles bestanden ist.
 """
@@ -25,7 +26,7 @@ import threading
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from website import MIT_AUSPROBIEREN, bauen  # noqa: E402
+from website import MIT_AUSPROBIEREN, POLLEN_BILDER, bauen  # noqa: E402
 
 BREITEN = (320, 390, 768, 1280, 1920)
 TEXTABSTAENDE = """* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }
@@ -236,6 +237,19 @@ def main() -> int:
                  p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id") == "tab-odi")
         steck = p.text_content(".steckbrief") or ""
         b.pruefe("Steckbrief passt zum gewählten Körper", "Open Duck Mini v2" in steck, steck[:60])
+        odi_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
+        p.keyboard.press("Home"); p.wait_for_timeout(400)
+        # Bildnachweis (seit 0.38.40): jedes sichtbare Bild mit Pollens Modell hat im selben Abschnitt einen Nachweis
+        # mit Urheber, Lizenz und Link – die Bühne zeigt ihn je nach Körper (Odi: offenes Modell, ohne Pollen-Hinweis)
+        ohne = p.evaluate("""(namen) => [...document.querySelectorAll('img[data-bild]')].filter((img) => {
+            if (!namen.includes(img.dataset.bild)) return false;
+            const bereich = img.closest('.bildspalte, section');
+            const n = bereich && bereich.querySelector('.bildnachweis[data-nachweis=pollen]');
+            const ok = n && n.offsetParent && /Pollen Robotics/.test(n.textContent) && /CC BY-NC-SA 4\\.0/.test(n.textContent)
+              && n.querySelector('a[href*="creativecommons.org/licenses/by-nc-sa/4.0"]');
+            return !ok; }).map((img) => img.dataset.bild)""", list(POLLEN_BILDER))
+        b.pruefe("Bildnachweis: jedes Bild mit Pollens Modell nennt Urheber und Lizenz (Odi ohne)",
+                 not ohne and odi_nachweis == "offen", f"ohne Nachweis: {ohne} · Odi: {odi_nachweis}")
         ctx.close()
 
         # 5 · Ohne JavaScript
