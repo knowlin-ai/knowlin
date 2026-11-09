@@ -53,6 +53,14 @@ FAEHIGKEITEN: dict[str, str] = {
     "lautsprecher": "Lautsprecher am Körper.",
     "pollen_bewegungen": "Pollens Bewegungsbibliothek (Emotionen und Tänze des Reachy Mini).",
 }
+# Kurz in Worten, für Sätze an die KI („Dein Körper kann: laufen, sehen …“)
+KURZ: dict[str, str] = {
+    "beine": "laufen", "raeder": "fahren", "kopf": "Kopf und Blick bewegen", "koerperdrehung": "sich auf der Stelle drehen",
+    "schnabel": "mit dem Schnabel greifen", "arm": "einen Arm bewegen", "greifer": "greifen", "antennen": "Antennen bewegen",
+    "augen_leds": "die Augen leuchten lassen", "stimmbank": "eigene Laute", "tiefensensor": "Abstände messen",
+    "kamera": "sehen", "mikrofon": "hören", "lautsprecher": "Töne ausgeben", "pollen_bewegungen": "Pollens Bewegungen abspielen",
+}
+assert KURZ.keys() == FAEHIGKEITEN.keys()
 # Wie der Körper gerade betrieben wird – kommt zur Laufzeit dazu, steht nicht im Profil.
 BETRIEB: dict[str, str] = {
     "simulator": "Simulierter Körper – nichts kann kaputtgehen.",
@@ -88,6 +96,7 @@ class Koerper:
     lizenz: str = ""                        # Lizenz des Körper-Moduls
     schnittstelle: str = SCHNITTSTELLE
     eingebaut: bool = False                 # gehört zu Knowlin selbst (sonst Erweiterung aus einem Paket)
+    lab: bool = False                       # hat eine Trainingshalle (Policies vom Hub, Parcours, Training, Akrobatik)
 
     @property
     def koerper_zustand(self) -> str:
@@ -125,7 +134,8 @@ class Koerper:
         return {"id": self.id, "name": self.name, "hersteller": self.hersteller, "familie": self.familie,
                 "faehigkeiten": sorted(self.faehigkeiten), "skills": list(self.skills), "echt": self.echt,
                 "simulator": self.simulator, "quelle": self.quelle, "lizenz": self.lizenz,
-                "schnittstelle": self.schnittstelle, "eingebaut": self.eingebaut, "zustand": self.koerper_zustand}
+                "schnittstelle": self.schnittstelle, "eingebaut": self.eingebaut, "zustand": self.koerper_zustand,
+                "lab": self.lab}
 
 
 # ── Die Körper, die Knowlin mitbringt ────────────────────────────────────────
@@ -135,7 +145,7 @@ EINGEBAUT: tuple[Koerper, ...] = (
             "duckpilot.backends:baue_microduck", zustand="microduck",
             skills=("sit_toggle", "ground_pick", "kick_left", "kick_right", "roulade"),
             echt="Pollens robotd (JSON-RPC)", quelle="https://github.com/pollen-robotics/microduck",
-            lizenz="Apache-2.0", eingebaut=True),
+            lizenz="Apache-2.0", eingebaut=True, lab=True),
     Koerper("reachy_mini", "Reachy Mini", "Pollen Robotics / Hugging Face", "stationaer",
             frozenset({"kopf", "antennen", "koerperdrehung", "kamera", "mikrofon", "lautsprecher", "pollen_bewegungen"}),
             "duckpilot.backends:baue_reachy_mini", echt="Pollens Daemon (HTTP)",
@@ -211,6 +221,11 @@ def holen(kid: str) -> Koerper:
     if k is None:
         raise KeyError(f"Unbekannter Körper „{kid}“ – bekannt: {', '.join(sorted(_REGISTER))}")
     return k
+
+
+def zu_zustand(zustand: str) -> Koerper | None:
+    """Das Profil zu dem, was ein Körper als `state().koerper` bzw. `koerper_art` meldet."""
+    return next((k for k in alle() if k.koerper_zustand == zustand), None)
 
 
 def abgelehnt() -> dict[str, str]:

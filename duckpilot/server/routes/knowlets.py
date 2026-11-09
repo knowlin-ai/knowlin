@@ -19,7 +19,7 @@ from ... import __version__
 from ... import knowlet_hub as H
 from ... import knowlets as K
 from ... import settings as S
-from ...figuren import FIGUR_KEYS, FIGUREN
+from ...figuren import FIGUR_KEYS, FIGUREN, figur
 from ..runtime import Runtime
 
 OFFEN_S = 1800          # geprüfte, noch nicht übernommene Pakete verfallen nach 30 Minuten
@@ -48,7 +48,7 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         return dict(mem.data.get("tricks_je_figur", {}).get(modul, {}))
 
     def packe(b: dict[str, Any]) -> tuple[bytes, dict[str, Any]]:
-        modul = b.get("modul") if b.get("modul") in FIGUREN else runtime.config.modul
+        modul = b.get("modul") if b.get("modul") in K.koerper_ids() else runtime.config.modul
         tricks = tricks_von(modul)
         wahl_t = {n: tricks[n] for n in b.get("tricks") or [] if n in tricks}
         wahl_c = {n: c for n in b.get("taenze") or [] if (c := runtime.choreos.hole(n))}
@@ -68,7 +68,7 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         offen[pid] = (jetzt, paket)
         modul = paket["steckbrief"]["fuer"]
         return {"ok": True, "id": pid, "ziel": {"modul": modul, "figur": figur_werte(modul).get("duck_name")
-                                                 or FIGUREN[modul]["name"]},
+                                                 or figur(modul)["name"]},
                 **K.vorschau(paket, set(tricks_von(modul)), {c["name"] for c in runtime.choreos.liste()})}
 
     def fehler(exc: Exception, code: int = 400) -> JSONResponse:
@@ -79,7 +79,9 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         from ... import training
 
         figuren = []
-        for modul, f in FIGUREN.items():
+        module = [*FIGUREN, *([runtime.config.modul] if runtime.config.modul not in FIGUREN else [])]   # + Erweiterung
+        for modul in module:
+            f = figur(modul)
             w = figur_werte(modul)
             figuren.append({"modul": modul, "name": w.get("duck_name") or f["name"], "koerper": f["art"],
                             "aktiv": modul == runtime.config.modul, "tricks": sorted(tricks_von(modul))})
@@ -132,7 +134,7 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         if b.get("figur") and paket["figur"]:
             # vorher sichern: die bisherige Verkörperung als Knowlet im Datenordner
             alt = figur_werte(modul)
-            name = alt.get("duck_name") or FIGUREN[modul]["name"]
+            name = alt.get("duck_name") or figur(modul)["name"]
             sicher = K.packe(titel=f"{name} vor {quelle}"[:40], beschreibung="Automatische Sicherung vor dem Übernehmen",
                              modul=modul, figur=alt, version=__version__)
             (ordner() / f"sicherung-{K._dateiname(name)}-{time.strftime('%Y%m%d-%H%M%S')}{K.ENDUNG}").write_bytes(sicher)

@@ -34,8 +34,24 @@ MAX_DATEI = 512 * 1024
 MAX_TRICKS = 40
 MAX_TAENZE = 20
 LIZENZEN = ("CC-BY-4.0", "CC-BY-SA-4.0", "CC0-1.0", "CC-BY-NC-4.0")
-MODULE = ("duckpilot", "reachy_mini", "open_duck_mini")
+MODULE = ("duckpilot", "reachy_mini", "open_duck_mini")       # eingebaute Körper mit Verkörperung (Hub-Tags)
 KOERPER = {"duckpilot": "Microduck", "reachy_mini": "Reachy Mini", "open_duck_mini": "Open Duck Mini v2"}
+
+
+def koerper_ids() -> tuple[str, ...]:
+    """Für welche Körper Knowlets gehen: alle mit Profil (Körperschnittstelle, seit 0.38.35 auch Erweiterungen)."""
+    from . import koerper
+
+    return koerper.ids()
+
+
+def koerper_name(modul: str) -> str:
+    from . import koerper
+
+    try:
+        return koerper.holen(modul).name
+    except KeyError:
+        return KOERPER.get(modul, modul)
 
 # Was von einer Verkörperung geteilt wird – Teilmenge von figuren.FIGUR_KEYS. Nicht: tts (Gerät), stimme_motor/stimme_qwen/
 # qwen_qualitaet (entworfene Stimme bleibt am PC), weitere_enten (wer im eigenen Zimmer ist), model_style (Ansicht)
@@ -76,7 +92,7 @@ def packe(*, titel: str, beschreibung: str = "", urheber: str = "", lizenz: str 
     titel = name(titel)
     if not titel:
         raise KnowletFehler("Bitte einen Namen für das Knowlet angeben.")
-    if modul not in MODULE:
+    if modul not in koerper_ids():
         raise KnowletFehler(f"Unbekannter Körper: {modul}")
     if lizenz not in LIZENZEN:
         raise KnowletFehler("Bitte eine der angebotenen Lizenzen wählen.")
@@ -157,12 +173,12 @@ def pruefe(daten: bytes) -> dict[str, Any]:
     s = roh.get("knowlet.json")
     if not isinstance(s, dict) or s.get("format") != FORMAT:
         raise KnowletFehler("Steckbrief fehlt oder hat ein unbekanntes Format.")
-    fuer = s.get("fuer") if s.get("fuer") in MODULE else None
+    fuer = s.get("fuer") if s.get("fuer") in koerper_ids() else None
     if fuer is None:
         raise KnowletFehler("Für welchen Körper das Knowlet ist, fehlt.")
     steckbrief = {"name": name(s.get("name")) or "Knowlet", "beschreibung": text(s.get("beschreibung"), 400),
                   "urheber": text(s.get("urheber"), 80), "lizenz": text(s.get("lizenz"), 20),
-                  "fuer": fuer, "koerper": KOERPER[fuer], "erstellt": text(s.get("erstellt"), 10),
+                  "fuer": fuer, "koerper": koerper_name(fuer), "erstellt": text(s.get("erstellt"), 10),
                   "knowlin": text(s.get("knowlin"), 12)}
     figur = None
     if isinstance(roh.get("figur.json"), dict):

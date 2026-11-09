@@ -107,6 +107,20 @@ mit eigener Stimme und eigenem Charakter. Öffnen über die Kachel auf der Start
   nur während eines Spiels, ausgewertet wird nur im Browser (64 × 48 graue Punkte – wie viel und wo sich etwas bewegt);
   kein Bild verlässt den PC, keine Gesichts- oder Personenerkennung. Not-Aus beendet Spiel und Webcam sofort.
 
+### Weitere Körper: LeRobot und dein eigener Roboter (seit 0.38.35)
+
+Jeder Körper beschreibt sich mit einem **Profil** – was er kann, aus einem festen Wortschatz – und muss die
+**Sicherheitspflichten** bestehen (Not-Aus macht stromlos, ohne Strom bewegt sich nichts, Stopp hält an, Grenzen).
+Prüfen: `python -m duckpilot.koerper_pruefung [id]`. Spezifikation: [Körperschnittstelle](koerper-schnittstelle.md).
+
+- **LeRobot-Roboter** (SO-101, LeKiwi, Koch …): eingebaut als Körper `lerobot`. Was er kann (Arm, Greifer, Räder,
+  Kamera), liest Knowlin aus dem Roboter selbst; der Not-Aus schaltet das Drehmoment ab. Einrichten vorerst in der
+  Einstellungsdatei: `modul = "lerobot"`, `backend = "robotd"`, `koerper_optionen = {typ = "so101_follower",
+  port = "COM5"}`; das Paket `lerobot` installierst du selbst. An echter Hardware noch ungeprüft.
+- **Dein eigener Roboter:** als eigenes Python-Paket mit dem Entry Point `knowlin.koerper` – Vorlage
+  `examples/knowlin-koerper-vorlage`. Er erscheint dann als Modul auf der Startseite, mit eigenem Namen und Weckwort
+  aus seinem Profil (seit 0.38.36). Knowlin installiert solche Pakete nie selbst.
+
 ## Bedienung
 
 Beim Start lädt Knowlins Bewusstsein (seit 0.38.24): Funken laufen ins Knowlin-Zeichen, bis die Ente verbunden ist,
@@ -633,7 +647,17 @@ Policies aus Isaac Lab übernehmen**:
    Roboter** (mit der Glättung von `robotd`). Ist Pollens Gangart geladen, läuft sie dieselben Prüfungen; eine Bewegung
    gilt dann auch als bestanden, wenn die neue Policy mindestens 80 % davon schafft.
 4. Nur wer **besteht**, ist „für die echte Ente frei“. Ausprobieren im Physik-Simulator geht immer
-   (**Im Physik-Simulator nutzen**, zurück mit **Wieder Pollens Gangart**).
+   (**Im Physik-Simulator nutzen**, zurück mit **Zurück auf Pollens Standard**).
+
+**Was gerade läuft (seit 0.38.35):** Oben auf der Karte steht, ob im Physik-Simulator Pollens Standard-Gangart
+(`velstand.onnx` aus `pollen-robotics/microduck-policies`) oder eine übernommene Policy läuft; „Zurück auf Pollens
+Standard“ steht direkt daneben. Übernehmen ändert nichts am Körper – erst „Im Physik-Simulator nutzen“ wechselt, und nach
+jedem Neustart läuft wieder Pollens Standard. Pollens Paket ist in der Liste als „Standard · läuft schon in der Physik“
+markiert; seine Dateien: `velstand` Gehen & Stehen (Standard), `alpha_walking`/`alpha_stand` ältere Fassungen,
+`alpha_sitstand` Hinsetzen & Aufstehen, `alpha_ground_pick` Aufheben, `ball_kick_left/right` Schuss, `roulade`
+Purzelbaum, `roller`/`roller_crouch` Fahren auf Rollen (Rollen noch nicht unterstützt). Die Rampen-Policy aus NVIDIAs
+Vorführung gibt es nicht als Datei – veröffentlicht ist nur die Übungsumgebung in Isaac Lab (nur NVIDIA-Grafikkarten);
+Ähnliches geht unter Lernen → Parcours mit einer Rampe und „Lernen, bis sie es kann“.
 
 Befehle werden auf die im Training geübten Bereiche begrenzt (vorwärts ±0,4 m/s, seitwärts ±0,3 m/s, drehen ±1 rad/s) –
 das steht in `manifest.json` neben der Policy unter `policies/import/<name>/`, bei Hugging Face auch Repo, Pfad,

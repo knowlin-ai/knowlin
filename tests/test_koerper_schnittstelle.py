@@ -281,3 +281,32 @@ def test_vorlage_fuer_eigene_koerper_besteht_die_pflichten(monkeypatch):
     assert p.fehler() == []
     erg = asyncio.run(KP.pruefen(p.bauen(None), p))
     assert KP.bestanden(erg), [e.zeile() for e in erg if not e.ok]
+
+
+# ── A1: fremde Körper werden nirgends zur Microduck (seit 0.38.35) ───────────
+def test_fremder_koerper_heisst_nicht_quacki_und_ist_keine_ente():
+    from duckpilot.brain.agent import wer_aus_profil
+    from duckpilot.figuren import figur, start_ergaenzen
+    from duckpilot.knowlets import koerper_ids, koerper_name
+
+    K.erweiterungen_laden([_EP("rollbot", _rollbot)])
+    f = figur("rollbot")
+    assert f["name"] == "Rollbot" and f["gruss"] == "gruss.allgemein" and not f["ente"]
+    start = start_ergaenzen("rollbot", {})
+    assert start["duck_name"] == "Rollbot" and start["wake_word"] == "rollbot" and start["entenlaute"] == "aus"
+    S.validate({k: v for k, v in start.items()})                  # Startwerte sind gültige Einstellungen
+    wer = wer_aus_profil("Rolli", "rollbot")
+    assert "Rolli" in wer and "Rollbot" in wer and "laufen" in wer and "KEINE Ente" in wer
+    assert "rollbot" in koerper_ids() and koerper_name("rollbot") == "Rollbot"
+    from duckpilot import i18n
+    assert "Rolli" in i18n.t("gruss.allgemein", name="Rolli")
+
+
+def test_trainingshalle_kommt_aus_dem_profil():
+    from duckpilot.brain.tools import fehlt_dem_koerper
+
+    def koerper_mit(art, eig):
+        return SimpleNamespace(eigenschaften=lambda: frozenset(eig), skills=lambda: [], koerper_art=art)
+    assert fehlt_dem_koerper("parcours_bauen", koerper_mit("microduck", {"beine"})) is None
+    assert "nur für die Microduck" in fehlt_dem_koerper("parcours_bauen", koerper_mit("open_duck_mini", {"beine"}))
+    assert K.holen("duckpilot").lab and not K.holen("lerobot").lab

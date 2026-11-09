@@ -99,13 +99,32 @@ def start_ergaenzen(modul: str, gesetzt: dict[str, Any]) -> dict[str, Any]:
     """Startwerte der Verkörperung, die in den Einstellungen fehlen (Prüfbefund 5.11.): Eine frische `settings.json` mit
     nur `modul = reachy_mini` hieß sonst „Quacki“ mit Weckwort „ente“ – die Grundwerte von `Config` gehören der
     Microduck. Nur, was der Mensch nicht selbst gesetzt hat; die Microduck braucht nichts (ihre Werte sind die Grundwerte)."""
-    if modul == "duckpilot" or modul not in FIGUREN:
+    if modul == "duckpilot":
         return {}
-    return {k: v for k, v in FIGUREN[modul]["start"].items() if k not in gesetzt}
+    return {k: v for k, v in figur(modul)["start"].items() if k not in gesetzt}
+
+
+def _aus_profil(modul: str) -> dict[str, Any] | None:
+    """Verkörperung für einen Körper ohne eigenen Eintrag hier (Erweiterung, LeRobot – seit 0.38.35): Name aus seinem
+    Profil, keine Ente, wenn er keine ist – vorher hieß jeder fremde Körper „Quacki“ mit Weckwort „ente“."""
+    from . import koerper
+
+    try:
+        p = koerper.holen(modul)
+    except KeyError:
+        return None
+    name = (p.name.split()[0] if p.name.split() else p.id)[:24]
+    ente = p.familie == "ente"
+    start: dict[str, Any] = {"duck_name": name, "wake_word": name.lower(), "energie": 0.5, "humor": 0.4, "weitere_enten": 0}
+    if not ente:
+        start.update({"entenhaft": 0.0, "entenlaute": "aus"})
+    return {"name": name, "art": p.name, "ente": ente, "gruss": "gruss.allgemein", "start": start}
 
 
 def figur(modul: str) -> dict[str, Any]:
-    return FIGUREN.get(modul, FIGUREN["duckpilot"])
+    if modul in FIGUREN:
+        return FIGUREN[modul]
+    return _aus_profil(modul) or FIGUREN["duckpilot"]
 
 
 def ist_ente(modul: str) -> bool:

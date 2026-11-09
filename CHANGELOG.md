@@ -9,6 +9,23 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.36 – 2026-11-09 – Fremde Körper bleiben sie selbst, eine Prüfkette vor jedem Push
+
+### Geändert
+- **Körper ohne eigenen Eintrag** (Erweiterungen, LeRobot) bekommen Namen, Weckwort und Gruß aus ihrem Profil und sind
+  keine Ente, wenn ihr Profil das nicht sagt. Vorher hieß jeder fremde Körper „Quacki“, hörte auf „ente“ und beschrieb
+  sich der KI gegenüber als Microduck. Die KI bekommt jetzt „Dein Körper kann: …“ aus dem Wortschatz.
+- **Knowlets** gehen für jeden Körper mit Profil, auch für Erweiterungen.
+- **Trainingshalle** (Policies vom Hub, Parcours, Training, Posen aus der Akrobatik) richtet sich nach dem Profil
+  (`lab`) statt nach dem Namen „microduck“.
+- **Leitplanke:** Körper werden nicht mehr neu über ihren Namen abgefragt; ein Test hält fest, wo das heute noch steht
+  (70 Stellen, meist Inhalte je Körper wie Stimmen und Figuren), und lässt die Liste nur kleiner werden.
+- **Prüfkette** `python tools/pruefen_alles.py`: ruff, eslint, Sprachkatalog, pytest, öffentliche Fassung samt Tests,
+  Paket-Rauchtest, Abnahme gegen das installierte Paket und Website in einem Lauf, mit Bericht. Vor jedem Push Pflicht.
+
+### Nicht geprüft
+- Erweiterungs-Körper mit echter Hardware (geprüft mit der Vorlage „Rollbot“ und einem nachgebauten LeRobot).
+
 ## 0.38.35 – 2026-11-09 – Körperschnittstelle 1.0, LeRobot-Roboter, verständliche Policy-Auswahl
 
 ### Neu

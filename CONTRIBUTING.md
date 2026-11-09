@@ -39,6 +39,10 @@ ruff check duckpilot tests tools
 python -m pytest -q
 ```
 
+The full chain the maintainers run before every push (lint, tests, the public export, the installed package, the
+browser acceptance test and the website) is one command: `python tools/pruefen_alles.py <folder> --schnell` skips the
+browser parts if you don't have Playwright.
+
 New features get tests; reported bugs get a regression test. Read `ARCHITECTURE.md` first – it shows where things
 live (layers: core/brain, motor, lab, body) and which layer may import which (`tests/test_schichten.py` checks it).
 
@@ -47,8 +51,13 @@ live (layers: core/brain, motor, lab, body) and which layer may import which (`t
 A body says what it has (`eigenschaften()`: legs, head, beak, depth sensor, antennas …) and which learned moves it knows
 (`skills()`). The brain (`brain/tools.py` → `fehlt_dem_koerper`), skills (`motion/faehigkeit.py` → `braucht`) and the
 interface (CSS classes `braucht-*`, `nur-*`, `keine-ente` set by `static/modul.js`) all follow that – please don't add a
-button or tool that a body would only reject. A new robot is a new backend plus an entry in `figuren.py` (embodiment and `GESTALT` traits) and
-`suite.py`; see the section “Körper, Verkörperungen und Kontext” in `ARCHITECTURE.md`.
+button or tool that a body would only reject. Never ask a body for its name (`== "reachy_mini"`) – ask for its
+capabilities or its profile (`tests/test_koerper_leitplanke.py` guards this).
+
+**A new robot** doesn't need changes in Knowlin: write it as its own package with a profile and the entry point
+`knowlin.koerper` – see [`docs/body-interface.md`](docs/body-interface.md) and the template
+[`examples/knowlin-koerper-vorlage`](examples/knowlin-koerper-vorlage). Built-in bodies additionally get an embodiment in
+`figuren.py`.
 
 ## Good places to start
 

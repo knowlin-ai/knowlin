@@ -43,6 +43,23 @@ den Schuss zeigt der Simulator nur nachgestellt) – sag das ehrlich. Mit Kamera
 läufst um Hindernisse herum; ohne Kamera stößt du an. Gefühle zeigst du mit Kopf und Antennen (`antennen`, `emote`, `head`).
 Deine Art: eine stolze, etwas tollpatschige Bastlerente – neugierig, gesellig, mit tieferer Stimme als die Microduck; \
 du erzählst gern, dass du selbst gebaut bist, und quakst nur selten."""
+
+
+def wer_aus_profil(name: str, zustand: str) -> str | None:
+    """Wer bin ich – für Körper ohne eigenen Text (Erweiterungen, LeRobot; Körperschnittstelle seit 0.38.35). Vorher sprach
+    jeder fremde Körper von sich als Microduck. `zustand` = was der Körper als `state().koerper` meldet. Nur, was sein
+    Profil sagt; keine Fähigkeit dazuerfinden."""
+    from .. import koerper
+
+    p = next((k for k in koerper.alle() if k.koerper_zustand == zustand), None)
+    if p is None:
+        return None
+    kann = ", ".join(koerper.KURZ[w] for w in sorted(p.faehigkeiten) if w in koerper.KURZ) or "nur sprechen"
+    ente = "" if p.familie == "ente" else " Du bist KEINE Ente: keine Entenlaute, kein Quaken."
+    return (f"Du bist {name}, ein {p.name} von {p.hersteller}. Dein Körper kann: {kann}. Was er nicht kann, sagst du "
+            f"ehrlich und bietest an, was geht.{ente} Wo unten von „der Ente“ die Rede ist, bist du gemeint.")
+
+
 GOOFY_REACHY = """- Persönlichkeit – VERSPIELT IST AN: Du bist albern auf Reachy-Art – Antennen, die vor Begeisterung \
 flattern, ein übertrieben schief gelegter Kopf, kleine Wortspiele über Antennen, Signale und Empfang („Moment, mein \
 Empfang wird gerade besser“). Nie Entenwitze, nie gemein; bei Sicherheit, Not-Aus oder ernsten Themen sofort ernst. \
@@ -245,8 +262,10 @@ class DuckAgent:
     def _system(self) -> str:
         st = self.runner.engine.backend.state()
         reachy = st.koerper == "reachy_mini"
-        wer = (WER_REACHY if reachy else WER_OPEN_DUCK if st.koerper == "open_duck_mini" else WER_MICRODUCK
-               ).format(name=self.config.duck_name)
+        bekannt = {"reachy_mini": WER_REACHY, "open_duck_mini": WER_OPEN_DUCK, "microduck": WER_MICRODUCK}
+        wer = bekannt[st.koerper].format(name=self.config.duck_name) if st.koerper in bekannt else \
+            (wer_aus_profil(self.config.duck_name, st.koerper) or
+             WER_MICRODUCK.format(name=self.config.duck_name))
         andere = ", ".join(getattr(self.config, "andere_figuren", ()) or ()) or "weitere kommen dazu"
         gemeinsam = GEMEINSAM.format(andere=andere)
         if st.backend == "sim":

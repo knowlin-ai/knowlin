@@ -13,6 +13,7 @@ import math
 import time
 from typing import TYPE_CHECKING, Any, Awaitable, Callable
 
+from .. import koerper
 from ..api import SOUND_TAGS, Head, Twist
 from ..motion import behaviors as B
 from ..motion import reachy_tanz as RT
@@ -543,8 +544,8 @@ def fehlt_dem_koerper(name: str, backend: Any) -> str | None:
         from ..api import NICHT_OHNE_BEINE
 
         return NICHT_OHNE_BEINE
-    art = getattr(backend, "koerper_art", "microduck")
-    if name in NUR_MICRODUCK and art != "microduck":
+    profil = koerper.zu_zustand(getattr(backend, "koerper_art", "") or koerper.holen("duckpilot").koerper_zustand)
+    if name in NUR_MICRODUCK and not (profil and profil.lab):            # Trainingshalle laut Profil (seit 0.38.35)
         return "Das gibt es nur für die Microduck (Pollens Policies und Trainingshalle)."
     ohne = sorted(BRAUCHT_EIGENSCHAFT.get(name, set()) - eig)
     if ohne:
@@ -1151,8 +1152,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge):
             if not c:
                 return {"ok": False, "fehler": f"Keinen Tanz namens '{a.get('name')}'", "taenze": [t["name"] for t in buch.liste()]}
             # Posen aus der Akrobatik hat nur die Microduck (Open Duck und Reachy: keine Akrobatik)
-            microduck = getattr(eng.backend, "koerper_art", "microduck") == "microduck"
-            posen = self.posen() if microduck and callable(getattr(self, "posen", None)) else {}
+            profil = koerper.zu_zustand(getattr(eng.backend, "koerper_art", "") or koerper.holen("duckpilot").koerper_zustand)
+            posen = self.posen() if profil and profil.lab and callable(getattr(self, "posen", None)) else {}
             ab = max(0.0, min(float(c.get("dauer") or 0.0), _num(a, "ab", 0.0)))
             tanz = RT.ReachyMusikTanz(c, str(a.get("name")), ab=ab) if reachy else T.MusikTanz(c, posen, str(a.get("name")), ab=ab)
             out = started(tanz)
