@@ -57,11 +57,21 @@ def test_joint_limits_are_respected(acro):
     assert q[i] == pytest.approx(acro.hi[i])
 
 
-def test_practice_one_leg_improves(acro):
-    res = Acrobat().practice(acro.pose_from({}), EXERCISES["links"], generations=10, samples=14)
-    assert res["verlauf"][0]["faehigkeit"] < res["faehigkeit"]
-    assert res["faehigkeit"] >= 60, res["verlauf"]
-    assert res["probe"]["steht"] and res["probe"]["fuss_hoch_mm"]["right"] >= 25
+@pytest.mark.parametrize("uebung,frei,seed", [("links", "right", 1), ("rechts", "left", 2), ("links", "right", 3)])
+def test_practice_one_leg_succeeds(acro, uebung, frei, seed):
+    # Regression 9.11.: mit Pollens nachgeladenem Modell blieb „Auf einem Bein“ bei 0 % – die Suche hing an einer
+    # Vorlage, die nur mit Glück (Startwert 1, linkes Bein) taugte. Jetzt beide Beine und mehrere Startwerte.
+    res = acro.practice(acro.pose_from({}), EXERCISES[uebung], generations=10, samples=14, seed=seed)
+    assert res["faehigkeit"] >= 50, res["verlauf"]
+    assert res["probe"]["steht"] and res["probe"]["fuss_hoch_mm"][frei] >= 25
+
+
+def test_one_leg_template_stands_a_while(acro):
+    from duckpilot.physics.acrobatics import template
+    q = template(acro.pose_from({}), EXERCISES["rechts"], acro)
+    r = acro.hold(q, frames=False)
+    assert acro.place(q)["fuesse_mm"]["right"] < 3 and acro.place(q)["fuesse_mm"]["left"] >= 25
+    assert r["faellt_nach_s"] is None or r["faellt_nach_s"] >= 0.8
 
 
 def test_service_book_and_background_job(tmp_path):

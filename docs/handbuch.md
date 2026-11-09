@@ -432,7 +432,8 @@ Robotik-Simulatoren (Onshape, SketchUp, MuJoCo, Gazebo):
   Balancier-Arm) und behält die besten. Die **Fähigkeit** (0–100 %) zählt, wie viele von fünf Stößen
   steigender Stärke sie übersteht und die Übung trotzdem schafft; der Strich zeigt den Stand vor dem
   ersten Üben. Beste Haltung und Verlauf landen in `akrobatik.json`. Beispiel aus dem Test: auf
-  einem Bein von 0 auf 74–96 % in rund sieben Sekunden.
+  dem linken wie dem rechten Bein von 0 auf 50–75 % in rund zehn Sekunden. Für „Auf einem Bein“ probiert sie zuerst
+  jede Art, das freie Bein zu heben, und nimmt die, auf der sie in der Probe am längsten steht (seit 0.38.37).
 - **Ehrlich:** Am echten Microduck nimmt robotd für die Beine nur Policies an. Eine Beinhaltung wird
   dort erst durch Training möglich; Kopf und Hals gehen auch am Roboter direkt. Die Regler sind
   entsprechend markiert („nur Simulation“ / „auch am Roboter“).

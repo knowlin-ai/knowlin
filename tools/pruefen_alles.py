@@ -11,7 +11,7 @@ alle nacheinander laufen und schreibt einen Bericht:
 2. eslint                    – Oberfläche (wenn --eslint angegeben)
 3. Sprachkatalog             – keine fehlenden englischen Texte
 4. pytest                    – alle Tests
-5. öffentliche Fassung       – Export mit Geheimnis-Scan, dort alle Tests
+5. öffentliche Fassung       – Export mit Geheimnis-Scan, dort alle Tests (ohne und mit MuJoCo)
 6. Paket                     – Rad bauen, in eigene Umgebung installieren, Rauchtest außerhalb des Quellordners
 7. Abnahme (installiert)     – Browser-Abnahme gegen das installierte Paket (nicht mit --schnell)
 8. Website                   – Bau und Prüfung von knowlin.de (nicht mit --schnell)
@@ -116,6 +116,13 @@ def main(argv: list[str] | None = None) -> int:
         k.schritt("öffentliche Fassung: Modell laden", [py_ci, "-m", "duckpilot.modell"], cwd=oeffentlich, env=daten,
                   timeout=900)
         k.schritt("öffentliche Fassung: Tests", [py_ci, "-m", "pytest", "-q", "-p", "no:cacheprovider"], cwd=oeffentlich,
+                  env=daten)
+        # und einmal mit echter Physik (MuJoCo aus dieser Umgebung) gegen Pollens nachgeladenes Modell – wie der Lauf
+        # „physik“ bei GitHub. Mit dem eingebauten privaten Modell gelang „Auf einem Bein“, mit Pollens nie (9.11.).
+        # das Physik-Modell baut `duckpilot.modell` nur, wenn MuJoCo da ist – in der Umgebung oben fehlt es
+        k.schritt("öffentliche Fassung: Physik-Modell", [py, "-m", "duckpilot.modell"], cwd=oeffentlich, env=daten,
+                  ok_wenn="physik", timeout=900)
+        k.schritt("öffentliche Fassung: Physik", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider"], cwd=oeffentlich,
                   env=daten)
 
     venv_py = None

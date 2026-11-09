@@ -37,6 +37,10 @@ LIFT_MM = 25.0                    # so hoch muss der freie Fuß sein, damit „a
 PUSHES_N = (0.0, 0.4, 0.8, 1.2, 1.6)   # Stoßstärken für die Fähigkeit (Rumpf, 0,1 s, Ente wiegt ≈ 0,74 kg)
 LEG_JOINTS = [n for n in ACTUATORS if "hip" in n or "knee" in n or "ankle" in n]
 HEAD_JOINTS = ["neck_pitch", "head_pitch", "head_yaw", "head_roll"]
+# Solange jede Haltung schon ohne Stoß umfällt, ist die Fähigkeit überall 0 – die Suche tappte dann blind und fand
+# „Auf einem Bein“ nur mit Glück (mit Pollens nachgeladenem Modell gar nicht, 9.11.). Wie lange sie steht, bevor sie
+# fällt, gibt ihr die Richtung. Klein gegen die Fähigkeit (bis 100), damit die Rangfolge stehender Haltungen bleibt.
+HALTEN_PUNKTE = 10.0
 HOLD_KP, HOLD_KD = 4.0, 0.06      # Nm/rad, Nm·s/rad – Haltung wie eine Policy sie hält; Kraftgrenze bleibt echt
 
 
@@ -269,10 +273,12 @@ class Acrobat:
     def skill(self, q: np.ndarray, ex: Exercise, rng: np.random.Generator | None = None) -> dict[str, Any]:
         """Fähigkeit 0–100 %: Wie viele Stöße steigender Stärke übersteht sie und erfüllt dabei die Übung?"""
         rng = rng or np.random.default_rng(0)
-        ok, tilt, detail = 0.0, 0.0, []
+        ok, tilt, detail, haelt = 0.0, 0.0, [], HOLD_S
         for f in PUSHES_N:
             ang = rng.uniform(0, 2 * math.pi)
             r = self.hold(q, push=(f * math.cos(ang), f * math.sin(ang)) if f else None, frames=False)
+            if f == 0.0 and r["faellt_nach_s"] is not None:
+                haelt = float(r["faellt_nach_s"])
             goal = goal_met(r, ex, self.stand_z)
             if r["steht"] and goal:
                 ok += 1.0
@@ -283,7 +289,7 @@ class Acrobat:
             if not r["steht"] and f == 0.0:
                 break                            # fällt schon ohne Stoß: der Rest lohnt nicht
         score = 100.0 * ok / len(PUSHES_N) - 0.15 * tilt / len(PUSHES_N)
-        return {"faehigkeit": round(max(0.0, min(100.0, score)), 1), "versuche": detail}
+        return {"faehigkeit": round(max(0.0, min(100.0, score)), 1), "versuche": detail, "haelt_s": haelt}
 
     def practice(self, start: np.ndarray, ex: Exercise, generations: int = 10, samples: int = 14,
                  on_step: Callable[[dict[str, Any]], None] | None = None, seed: int = 1,
@@ -327,7 +333,8 @@ class Acrobat:
         weight = 6.0 if ex.id == "frei" else 1.0             # „Deine Haltung“: so nah wie möglich an deiner
         st = self.place(q)
         return {"faehigkeit": s["faehigkeit"],
-                "wert": s["faehigkeit"] - weight * change + 0.5 * max(-10.0, min(10.0, st["reserve_mm"]))}
+                "wert": s["faehigkeit"] - weight * change + 0.5 * max(-10.0, min(10.0, st["reserve_mm"]))
+                + HALTEN_PUNKTE * s["haelt_s"] / HOLD_S}
 
 
 def goal_met(r: dict[str, Any], ex: Exercise, stand_z: float) -> bool:
@@ -343,36 +350,46 @@ def template(start: np.ndarray, ex: Exercise, acro: Acrobat) -> np.ndarray:
     """Erfüllt die Starthaltung die Übung nicht, mit einer groben Vorlage beginnen (z. B. Bein anheben)."""
     q = start.copy()
     if ex.standbein:
-        st = acro.place(q)
         other = "right" if ex.standbein == "left" else "left"
-        if st["fuesse_mm"][other] >= LIFT_MM:
+        if acro.place(q)["fuesse_mm"][other] >= LIFT_MM:
             return q
-        best = None
-        for hip in np.linspace(-1.2, 1.2, 13):            # Knie beugen und Hüfte vor – welches Vorzeichen hebt?
+        # Jede Art, das freie Bein zu heben (Hüfte vor/zurück, Knie gebeugt), wird statisch unter den Schwerpunkt
+        # gerückt: Standbein seitlich (Hüfte rollen), beide Hüften gedreht. Welche Vorlage gewinnt, entscheidet die
+        # Probe – wie lange sie wirklich steht. Früher nur die statische Reserve: Unterschiede von 1 mm entschieden,
+        # mit Pollens nachgeladenem Modell gewann ein nach vorn gestrecktes Bein, und das Üben blieb bei 0 % (9.11.).
+        best: tuple[float, np.ndarray] | None = None
+        for hip in np.linspace(-1.2, 1.2, 13):
             for knee in np.linspace(-1.6, 1.6, 9):
                 t = q.copy()
                 t[ACTUATORS.index(f"{other}_hip_pitch")] += hip
                 t[ACTUATORS.index(f"{other}_knee")] += knee
                 t = np.clip(t, acro.lo, acro.hi)
-                s = acro.place(t)
-                if s["fuesse_mm"][other] >= LIFT_MM + 5:
-                    key = (s["reserve_mm"], -abs(hip) - abs(knee))
-                    if best is None or key > best[0]:
-                        best = (key, t)
-        if best is not None:
-            q = best[1]
-            # Standbein seitlich unter den Schwerpunkt schieben (Hüfte seitlich)
-            roll = ACTUATORS.index(f"{ex.standbein}_hip_roll")
-            cand = [(acro.place(np.clip(_with(q, roll, d), acro.lo, acro.hi))["reserve_mm"], d)
-                    for d in np.linspace(-0.6, 0.6, 25)]
-            q = np.clip(_with(q, roll, max(cand)[1]), acro.lo, acro.hi)
-        return q
+                if acro.place(t)["fuesse_mm"][other] < LIFT_MM + 5:
+                    continue
+                t = _best_static(acro, t, f"{ex.standbein}_hip_roll", np.linspace(-0.6, 0.6, 13))
+                t = _best_static(acro, t, f"{ex.standbein}_hip_yaw", np.linspace(-0.5, 0.5, 11))
+                t = _best_static(acro, t, f"{other}_hip_yaw", np.linspace(-0.5, 0.5, 11))
+                if acro.place(t)["fuesse_mm"][other] < LIFT_MM + 5:
+                    continue
+                r = acro.hold(t, frames=False)
+                score = (HOLD_S if r["faellt_nach_s"] is None else r["faellt_nach_s"]) \
+                    + (1.0 if r["steht"] and goal_met(r, ex, acro.stand_z) else 0.0)
+                if best is None or score > best[0]:
+                    best = (score, t)
+        return q if best is None else best[1]
     if ex.hocke and acro.place(q)["z"] > acro.stand_z - 0.02:
         for i, n in enumerate(ACTUATORS):
             if n.endswith("knee") or n.endswith("hip_pitch") or n.endswith("ankle"):
                 q[i] = DEFAULT_POSE[i] * 1.8
         return np.clip(q, acro.lo, acro.hi)
     return q
+
+
+def _best_static(acro: Acrobat, q: np.ndarray, joint: str, deltas: np.ndarray) -> np.ndarray:
+    """Dieses Gelenk so verstellen, dass die statische Reserve am größten ist."""
+    i = ACTUATORS.index(joint)
+    cand = [(acro.place(np.clip(_with(q, i, d), acro.lo, acro.hi))["reserve_mm"], d) for d in deltas]
+    return np.clip(_with(q, i, max(cand)[1]), acro.lo, acro.hi)
 
 
 def _with(q: np.ndarray, i: int, delta: float) -> np.ndarray:

@@ -1943,9 +1943,16 @@ body.ctl-open .view-cockpit .stage > :not(canvas) { display: none; }
 .tricks-links { min-width: 0; }
 /* Oberkante der Vorschau auf Höhe der ersten Überschrift links (gemeldet: „das Vorschaufenster hängt etwas hoch“) */
 .tricks-vorschau-karte { margin-top: var(--spacing-09); }
+/* Mitlaufen trotz `.set-card { height: 100% }`: so hoch wie die ganze Spalte konnte die Karte nicht kleben und rollte mit
+   der langen Liste weg (gemeldet 9.11.: „das Fenster hängt ja oben fest“). Gilt auch für Tanzen und Team. */
+.set-card.tanz-vorschau-karte { height: auto; }
 @media (max-width: 1055.98px) {
   .tricks-layout { grid-template-columns: minmax(0, 1fr); }
-  .tricks-vorschau-karte { order: -1; position: static; margin-top: var(--spacing-05); }
+  /* schmal: kleiner Streifen oben, der beim Blättern stehen bleibt – die Kacheln laufen darunter durch */
+  .tricks-vorschau-karte { order: -1; position: sticky; top: 0; z-index: 2; margin-top: var(--spacing-05);
+    gap: var(--spacing-02); padding-block: var(--spacing-03); box-shadow: var(--e-2); }
+  .tricks-vorschau-karte h3, .tricks-vorschau-karte .field-help { display: none; }
+  .tricks-vorschau-karte .tanz-vorschau { aspect-ratio: auto; height: clamp(9rem, 26vh, 14rem); }
 }
 /* Reachy: Mitwippen zu Musik oder Webradio (0.38.13, static/mitwippen.js) */
 .mitwippen-radio { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--spacing-03); margin-top: var(--spacing-04); }

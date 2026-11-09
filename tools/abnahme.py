@@ -770,6 +770,13 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Tricks: Pollens Emotionen da, Live-Vorschau daneben, Antippen bleibt auf der Seite",
              pollen >= 10 and vorschau and bleibt, f"{pollen} Emotionen · Vorschau {vorschau} · bleibt {bleibt}")
     b.foto(page, "13k-tricks-vorschau", "Tricks mit Live-Vorschau")
+    # 13k2 · Seit 0.38.37: Die Vorschau läuft beim Blättern mit (gemeldet 9.11.: „das Fenster hängt ja oben fest“)
+    mit = page.evaluate("""() => { const pg = document.querySelector('#view-tricks .page');
+      const s = pg.scrollHeight > pg.clientHeight + 2 ? pg : document.scrollingElement;
+      const k = document.querySelector('.tricks-vorschau-karte'); s.scrollTop = s.scrollHeight;
+      const r = k.getBoundingClientRect(); const ok = r.bottom > 0 && r.top < innerHeight;
+      s.scrollTop = 0; return [ok, Math.round(r.top)]; }""")
+    b.pruefe("Tricks: Vorschau bleibt beim Blättern im Bild", bool(mit[0]), f"Oberkante ganz unten gescrollt: {mit[1]} px")
     ansicht(page, "settings")
 
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis

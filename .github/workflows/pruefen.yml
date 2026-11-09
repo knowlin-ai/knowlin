@@ -18,6 +18,19 @@ jobs:
       - run: ruff check duckpilot tests tools
       - run: python -m duckpilot.modell     # Pollens Modell von GitHub laden (wie beim ersten Start)
       - run: python -m pytest -q
+  physik:
+    # Mit echter Physik wie bei Nutzern, die „Physik“ nachgerüstet haben: MuJoCo + ONNX und Pollens Modell, so wie die
+    # App es beim ersten Start selbst baut (seit 0.38.37). Ohne diesen Lauf überspringen sich die Physik-Tests bei GitHub –
+    # so blieb unbemerkt, dass „Auf einem Bein“ mit dem nachgeladenen Modell nie gelang.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: pip install -e ".[dev]" "mujoco>=3.2" "onnxruntime>=1.18"
+      - run: python -m duckpilot.modell
+      - run: python -m pytest -q
   paket:
     # Das gebaute Paket in einer frischen Umgebung ohne Zusatzpakete – wie nach dem Installer oder pipx (seit 0.38.33).
     # Im Quellordner mit allen Paketen fielen fehlende Dateien und Abhängigkeiten nie auf.

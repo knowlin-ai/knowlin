@@ -9,6 +9,26 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.37 – 2026-11-09 – Auf einem Bein klappt wieder, Tricks-Vorschau läuft mit
+
+### Behoben
+- **Akrobatik „Auf einem Bein“** blieb mit Pollens Modell, wie Knowlin es beim ersten Start lädt, bei 0 %. Die Suche
+  begann mit einer Vorlage, die nur nach der statischen Reserve gewählt wurde – Unterschiede von einem Millimeter
+  entschieden, und mit dem geladenen Modell gewann ein nach vorn gestrecktes Bein, aus dem sie nicht herausfand. Auch
+  mit dem eingebauten Modell klappte es nur mit Glück (linkes Bein, ein bestimmter Startwert). Jetzt wird jede Art, das
+  Bein zu heben, unter den Schwerpunkt gerückt (Hüfte rollen und drehen) und in der Probe geprüft; die Suche bekommt
+  außerdem Punkte dafür, wie lange eine Haltung steht, bevor sie fällt. Ergebnis: beide Beine, beide Modelle, 16 von 16
+  Läufen ab 52 %.
+- **Tricks:** Die Vorschau läuft beim Blättern mit, statt oben stehen zu bleiben. Auf schmalen Bildschirmen ist sie ein
+  kleiner Streifen oben, unter dem die Kacheln durchlaufen.
+
+### Geändert
+- **Prüfung bei GitHub** hat einen Lauf mit echter Physik (MuJoCo, ONNX Runtime und Pollens geladenes Modell); bisher
+  übersprangen sich dort alle Physik-Tests. Die Prüfkette `tools/pruefen_alles.py` macht das lokal genauso.
+
+### Nicht geprüft
+- Haltungen auf einem Bein am echten Roboter (dort nimmt robotd für die Beine nur Policies an).
+
 ## 0.38.36 – 2026-11-09 – Fremde Körper bleiben sie selbst, eine Prüfkette vor jedem Push
 
 ### Geändert
