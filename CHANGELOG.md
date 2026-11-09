@@ -57,12 +57,11 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 ### Geändert
 - **Update-Probe auf Windows bei GitHub:** Vor jedem Installer wird die vorige Fassung still installiert und gestartet,
   dann „Jetzt aktualisieren“ über den Code der App ausgelöst – danach muss die neue Version installiert sein und von
-  selbst wieder laufen. Zur Diagnose läuft auch der Weg der vorigen Fassung mit.
+  selbst wieder laufen.
 
 ### Nicht geprüft
-- Das Update 0.38.33 → 0.38.34 auf einem echten PC: Es startet noch mit dem Code von 0.38.33. Der neue Installer
-  beendet zwar selbst ein laufendes Knowlin, aber das Fenster von 0.38.33 gibt nach 90 Sekunden auf – dann bitte
-  einfach etwas warten, bevor du Knowlin von Hand startest.
+- Das Update 0.38.33 → 0.38.34 aus der App: Der Start-Weg von 0.38.33 läuft nachweislich nicht durch (Testlauf bei
+  GitHub) – einmal den Installer von Hand laden und drüber installieren, die Daten bleiben.
 
 ## 0.38.33 – 2026-11-08 – Fehler aus dem ersten Abend mit dem Installer
 
