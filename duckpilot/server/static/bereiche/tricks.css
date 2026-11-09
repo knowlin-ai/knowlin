@@ -1,0 +1,138 @@
+/* Stile des Bereichs Tricks (Steuern → Tricks, Tanzen, Team, Vom Hub, Kamera-Spiele) – seit 0.38.39 aus style.css
+   herausgelöst (Architektur-Etappe A2). Nur Regeln, deren Klassen ausschließlich in diesem Bereich vorkommen und die
+   keine spätere Regel in style.css überschreibt – sonst änderte sich die Reihenfolge der Stile. Geteilte Bausteine
+   (Karten, Kacheln, Chips) bleiben in style.css. Geladen nach style.css, Grenze 40 KB. Neue Tricks-Stile gehören hierher. */
+
+.trick-top { display: flex; align-items: center; gap: var(--spacing-03); flex-wrap: wrap; }
+.trick-name { margin: 0; font-size: var(--t-h2); line-height: 1.4; font-weight: 400; letter-spacing: 0; overflow-wrap: anywhere; }
+.trick-repo { margin: 0; font: 400 var(--t-caption) / 1.33 var(--font-mono); color: var(--ink-3); overflow-wrap: anywhere; }
+.trick-desc { margin: 0; font-size: var(--t-small); color: var(--ink-2); }
+.trick-desc q { quotes: "„" "“"; }
+.trick-stats { display: flex; gap: var(--spacing-05); font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.trick-acts { display: flex; gap: var(--spacing-03); flex-wrap: wrap; align-items: center; margin-top: var(--spacing-03); }
+.trick-warn { margin: 0; font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--warning); }
+.pack-name { margin: 0; flex: 1; font-size: var(--t-lead); line-height: 1.375; font-weight: 600; letter-spacing: 0; }
+.pack-switch { flex: none; }
+.pack-kurz { margin: 0; font-size: var(--t-small); }
+.pack-more { margin: 0; font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.pack-foot { margin: auto 0 0; padding-top: var(--spacing-03); font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.pack-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-03); margin-bottom: var(--spacing-05); }
+.pack-count { margin-left: auto; font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.move-title { margin: var(--spacing-03) var(--spacing-02) 0; font-size: var(--t-small); font-weight: 600; letter-spacing: var(--ls-small); }
+.move-meta { margin: 0 var(--spacing-02); font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.move-desc { margin: 0 var(--spacing-02); font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-2);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.move-desc q { quotes: "„" "“"; }
+.move-acts { display: flex; gap: var(--spacing-03); margin: var(--spacing-03) var(--spacing-02) 0; flex-wrap: wrap; }
+
+/* Got a Talent: Zeitleiste */
+.talent { display: grid; gap: var(--spacing-03); }
+.tl-wrap { background: var(--surface-sunken); border-radius: var(--r-control); padding: var(--spacing-03) 0; }
+.tl { display: block; width: 100%; height: 56px; }
+.tl-sit { fill: var(--accent-soft); }
+.tl-mid { stroke: var(--line-soft); stroke-width: 1; }
+.tl-yaw { fill: none; stroke: var(--data-1); stroke-width: 2; }
+.tl-pitch { fill: none; stroke: var(--data-2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.tl-legend { margin: 0; display: flex; gap: var(--spacing-05); align-items: center; font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.tl-legend i { display: inline-block; width: 14px; height: 8px; margin-right: var(--spacing-03); border-radius: var(--r-bar); vertical-align: middle; }
+.tl-legend .k-sit { background: var(--accent-line); }
+.tl-legend .k-yaw { height: 2px; background: var(--data-1); }
+.tl-legend .k-pitch { height: 0; border-top: 2px dashed var(--data-2); border-radius: 0; }
+
+/* Gangarten */
+.gait-status { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-04); margin-bottom: var(--spacing-04); }
+.gait-now { font-size: var(--t-small); }
+.gait-note { font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.gait-list { background: var(--surface-1); border-radius: var(--r-card); box-shadow: var(--e-1); padding: 0 var(--spacing-05); }
+.gait-list li.gait { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: var(--spacing-04); align-items: center; }
+.gait-text { display: grid; gap: var(--spacing-01); min-width: 0; }
+.gait-text b { font-weight: 600; overflow-wrap: anywhere; }
+.gait-sub { font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.gait-tags { display: flex; gap: var(--spacing-03); }@media (max-width: 1055.98px) {
+  .gait-list li.gait { grid-template-columns: minmax(0, 1fr) auto; }
+  .gait-tags { grid-column: 1; }}
+
+.tanz-zeitleiste { margin-top: var(--spacing-04); }
+.tanz-zeitleiste canvas { display: block; width: 100%; height: 150px; border-radius: var(--r-control); background: var(--surface-sunken); cursor: crosshair; }
+/* Überschrift je Teil (seit 0.38.23): Farbe des Teils als Kante, Name wählbar */
+.tanz-schritte li.tanz-teil { grid-template-columns: auto 1fr auto auto; margin-top: var(--spacing-03); padding: var(--spacing-02) var(--spacing-03);
+  border-radius: var(--r-control); background: var(--surface-sunken); box-shadow: inset 3px 0 0 var(--teil-farbe, var(--ink-3)); }
+.tanz-schritte li.tanz-teil:first-child { margin-top: 0; }
+.tanz-teil strong { font-weight: 600; }@media (max-width: 671.98px) { .tanz-schritte li.tanz-teil { grid-template-columns: 1fr auto; }}
+
+.tanz-liste { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--spacing-03); }
+.tanz-liste li { display: flex; gap: var(--spacing-03); align-items: center; justify-content: space-between; }
+.tanz-spielt { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-04); padding: var(--spacing-04) var(--spacing-05); margin-bottom: var(--spacing-05); background: var(--accent-soft); border-left: 3px solid var(--accent); }
+.tanz-spielt-text { font-weight: 600; }
+.tanz-datei-name { color: var(--ink-2); font-size: var(--t-small); overflow-wrap: anywhere; }
+/* Tricks mit Live-Vorschau (0.38.33): Kacheln links, die Figur rechts mitlaufend; schmal oben, nicht klebend */
+.tricks-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 32%); gap: var(--spacing-05); align-items: start; }
+.tricks-links { min-width: 0; }@media (max-width: 1055.98px) {
+  .tricks-layout { grid-template-columns: minmax(0, 1fr); }}
+
+.mitwippen-laeuft { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-03);
+  margin-top: var(--spacing-04); padding: var(--spacing-03) var(--spacing-04); background: var(--accent-soft); border-left: 3px solid var(--accent); }
+.mitwippen-titel { margin: 0; font-weight: 600; overflow-wrap: anywhere; }@media (max-width: 671.98px) { .mitwippen-radio { grid-template-columns: minmax(0, 1fr); }}
+
+
+/* Mehrere Enten (0.36.3) */
+.enten-karte { margin-bottom: var(--spacing-06); }
+/* Wie viele weitere Enten: eine Zahlenreihe statt Auswahlliste (seit 0.38.24); das Wort für „0“ darf breiter sein */
+.enten-zahl { grid-auto-flow: row; grid-template-columns: auto repeat(8, minmax(0, 1fr)); }
+.enten-zahl span { padding: 0 var(--spacing-03); font-variant-numeric: tabular-nums; }
+.enten-zahl-feld { flex: 1 1 100%; }
+.team-grid { align-items: start; }
+.enten-zeile { display: flex; flex-wrap: wrap; gap: var(--spacing-05); align-items: flex-end; }
+.enten-modi { display: flex; flex-wrap: wrap; gap: var(--spacing-03); }
+.enten-auftrag { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-03); margin-top: var(--spacing-04); padding: var(--spacing-03) var(--spacing-04); background: var(--accent-soft); border-left: 3px solid var(--accent); }
+.enten-auftrag-text { margin: 0; font-size: var(--t-small); }
+.enten-liste { margin: var(--spacing-04) 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--spacing-02) var(--spacing-05); }
+
+/* ═══ Kamera-Spiele mit Reachy Mini (seit 0.38.13, kamera_spiele.js) – Anfang ═══ */
+.ks-hinweis { margin: 0 0 var(--spacing-05); padding: var(--spacing-04) var(--spacing-05); border-left: 3px solid var(--data-1);
+  background: var(--data-1-tint); font-size: var(--t-body); }
+.ks-balken-grenze { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--ink); }
+.ks-runden { margin: var(--spacing-05) 0; font-size: var(--t-lead); font-weight: 600; font-variant-numeric: tabular-nums; }
+/* seit 0.38.14: Handerkennung, Werte, „Mach mir nach“, „Schere, Stein, Papier“, Bühne mit Reachy im Simulator */
+.ks-hand { margin-bottom: var(--spacing-05); }
+.ks-hand-status { margin: var(--spacing-03) 0 var(--spacing-05); font-size: var(--t-body); }
+.ks-hand[data-bereit="true"] .ks-hand-status { padding-left: var(--spacing-04); border-left: 3px solid var(--good); }
+.ks-erkennung { margin: var(--spacing-03) 0 0; font-size: var(--t-small); color: var(--ink-2); }
+.ks-erkennung[data-hand="true"] { color: var(--ink); font-weight: 600; }
+.ks-werte { display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); gap: var(--spacing-03) var(--spacing-05);
+  margin: var(--spacing-05) 0; }
+.ks-werte div { display: grid; gap: var(--spacing-01); }
+.ks-werte dt { font-size: var(--t-caption); color: var(--ink-3); }
+.ks-werte dd { margin: 0; font-size: var(--t-lead); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ks-pfeil { flex: none; width: var(--spacing-10); font-size: var(--t-display-s); font-weight: 600; line-height: 1; text-align: center; color: var(--accent-text); }
+.ks-ssp-mitte { font-size: var(--t-lead); font-weight: 600; color: var(--accent-text); }
+.ks-braucht[hidden] { display: none; }
+.ks-echt { border-left-color: var(--accent); background: var(--accent-soft); font-weight: 600; }@media (forced-colors: active) {
+  .ks-balken-wert { background: Highlight; }
+  .ks-balken-grenze { background: CanvasText; }}
+
+
+/* Pollens Apps für Reachy Mini (seit 0.38.19): Zeilen mit Name, Beschreibung, Seite und einer Aktion */
+.reachy-apps { margin-top: var(--spacing-07); }
+.app-liste > li { align-items: flex-start; }
+.app-text { flex: 1; min-width: 0; display: grid; gap: var(--spacing-01); }
+.app-text span { color: var(--ink-2); font-size: var(--t-small); }
+.app-seite { align-self: center; font-size: var(--t-small); }
+.app-katalog-titel { margin: var(--spacing-06) 0 var(--spacing-02); }
+.app-laeuft { display: flex; align-items: center; gap: var(--spacing-04); padding: var(--spacing-04) var(--spacing-05); margin-bottom: var(--spacing-04);
+  border-radius: var(--r-card); background: var(--surface-raised); box-shadow: var(--e-1); }
+.app-laeuft > span:nth-child(2) { flex: 1; }
+.app-puls { width: 8px; height: 8px; border-radius: 50%; background: var(--good); animation: app-puls var(--duration-loop) ease-in-out infinite alternate; }
+
+/* ═══ Spiele mit Reachy veredelt (seit 0.38.21, Hinweis „optisch optimieren“) ═══
+   Auswahl: Karten mit Bildmarke, Titel in Display-Schrift. Im Spiel (Simulator): die Bühne zuerst – Reachy groß über die
+   ganze Breite, die laufende Karte schwebt als Glas rechts darüber (wie das Gespräch im Cockpit), Zustand groß. */
+.ks-marke { display: inline-grid; place-items: center; width: var(--spacing-10); height: var(--spacing-10); margin-bottom: var(--spacing-04);
+  border-radius: var(--r-control); background: var(--surface-raised); box-shadow: var(--e-1); color: var(--accent-text); }
+.ks-marke svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.ks-mk-rot { fill: var(--critical); stroke: none; }
+.ks-mk-gruen { fill: var(--good); stroke: none; }
+.ks-mk-punkt { fill: currentColor; stroke: none; }
+.ks-hand { display: grid; gap: var(--spacing-02); }
+.ks-raster[data-spielt] > .ks-sim { margin: 0; }
+.move-ohne { position: relative; z-index: 1; font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }

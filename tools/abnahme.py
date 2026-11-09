@@ -301,6 +301,39 @@ def abstaende(page, b: "Bericht", wo: str, seiten: tuple = ()) -> None:
     b.pruefe(f"{wo}: Schalter, Knöpfe und Felder haben Luft untereinander (1440, 390 px)", not funde, "; ".join(funde[:6]))
 
 
+# Kopfzeile am Handy (seit 0.38.39): „Knowlin getrennt“ lag über „Aktiv“ – geprüft mit der längsten Meldung (englisch)
+KOPF_JS = """(text) => {
+  const link = document.querySelector('#badge-link > span'); const alt = link.textContent; if (text) link.textContent = text;
+  const els = [...document.querySelectorAll('.top .geist-pfad, .top #badge-link, .top #mode-chip, .top .persona')]
+    .filter((e) => e.offsetParent && e.getBoundingClientRect().width > 0);
+  const r = els.map((e) => e.getBoundingClientRect()); const ueber = [];
+  for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) {
+    const w = Math.min(r[i].right, r[j].right) - Math.max(r[i].left, r[j].left);
+    const h = Math.min(r[i].bottom, r[j].bottom) - Math.max(r[i].top, r[j].top);
+    if (w > 1 && h > 1) ueber.push((els[i].id || els[i].className) + ' × ' + (els[j].id || els[j].className) + ' (' + Math.round(w) + ' px)');
+  }
+  const aus = r.filter((x) => x.right > innerWidth + 1).length;
+  link.textContent = alt; return { ueber, aus };
+}"""
+
+
+def kopfzeile(page, b: "Bericht") -> None:
+    alt = page.viewport_size
+    funde = []
+    for breite in (390, 360):
+        page.set_viewport_size({"width": breite, "height": 844})
+        page.wait_for_timeout(900)
+        for text in ("", "Knowlin disconnected", "Roboter nicht erreichbar"):
+            r = page.evaluate(KOPF_JS, text)
+            funde += [f"{breite} px „{text or 'jetzt'}“: {u}" for u in r["ueber"]]
+            if r["aus"]:
+                funde.append(f"{breite} px „{text or 'jetzt'}“: ragt rechts hinaus")
+    page.set_viewport_size(alt)
+    page.wait_for_timeout(500)
+    b.pruefe("Handy: Kopfzeile ohne Überlappung, auch mit langer Verbindungsmeldung (390, 360 px)", not funde,
+             "; ".join(funde[:6]))
+
+
 def ueberdeckungen(page, b: "Bericht", wer: str) -> None:
     alt = page.viewport_size
     funde = []
@@ -382,6 +415,7 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Gespräch im Körper zeigt, wer spricht", any(w.strip() for w in wer), str(wer[-3:]))
     b.foto(page, "03-cockpit", "Quacki im Cockpit mit dem Wunsch")
     ueberdeckungen(page, b, "Quacki")
+    kopfzeile(page, b)
     abstaende(page, b, "Tanzen und Team", (("tricks", "tanz"), ("tricks", "team")))
     page.evaluate("() => window.duckpilot.showView('cockpit')")
     page.wait_for_timeout(1500)

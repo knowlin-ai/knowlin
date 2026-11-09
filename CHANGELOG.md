@@ -9,6 +9,34 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.39 – 2026-11-09 – Website mit Vitrine, neue Bilder, Oberfläche in Teilen
+
+### Neu
+- **Website knowlin.de:** neuer Abschnitt „Was in ihr steckt“ – eine dunkle Vitrine mit Kacheln für Tanzen zu deiner
+  Musik, Handy als Fernbedienung, Akrobatik in echter Physik, ein ganzes Entenrudel, Lernen wie echte Roboter und die
+  Körperschnittstelle für deinen eigenen Roboter. „Funktionen“ in der Leiste führt dorthin.
+- **Neue Bilder** für Website und README, alle als ganzes Programmfenster aufgenommen (Gedächtnis, Persönlichkeit,
+  Cockpit, Reachy, Odi, Startseite) – keine Ausschnitte mehr, die mit Rand aufs Format gebracht wurden.
+- **`tools/website_bilder.py`** nimmt alle Bilder reproduzierbar aus dem laufenden Programm auf, auf Deutsch und Englisch.
+  Es startet die öffentliche Fassung ohne Pollens Ansichtsmodelle, sodass diese nie auf der Website erscheinen; für
+  die Akrobatik rechnet die Physik mit Pollens Physikmodell, gezeigt wird das eigene Modell.
+
+### Geändert
+- **Oberfläche in Teilen (Architektur-Etappe A2, erster Bereich):** Tricks, Tanzen, Team, Vom Hub und Kamera-Spiele
+  stehen in `static/teile/tricks.html`, ihre eigenen Stile in `static/bereiche/tricks.css`. Der Server setzt die Seite
+  zusammen. Sichtbar ändert sich nichts – geprüft mit `tools/oberflaeche_vergleich.py` (berechnete Stile aller
+  Ansichten vorher/nachher, zwei Körper, PC und Handy) und der Abnahme.
+- `tools/bilder_rahmen.py` entfällt (ersetzt durch `tools/website_bilder.py`).
+
+### Behoben
+- **Handy, Kopfzeile:** „Knowlin getrennt“ (englisch noch länger) lag über „Aktiv“. Die Meldung wird jetzt gekürzt,
+  ganz steht sie im Tooltip.
+- **Cockpit:** der Text unter dem Zustand („tanzen (party, 110 bpm …)“) war vor der weißen Ente kaum lesbar – er hat
+  jetzt einen engen Schatten.
+
+### Nicht geprüft
+- Die Website auf echten Handys (geprüft mit der Website-Prüfung in Chromium, PC und Handybreite).
+
 ## 0.38.38 – 2026-11-09 – Updates und Downloads mit Fortschritt
 
 ### Neu

@@ -3303,5 +3303,6 @@
  "Installiert MuJoCo … *": "Installing MuJoCo … *",
  "* wird geladen": "downloading *",
  "Installation läuft": "Installing",
- "seit # s": "# s so far"
+ "seit # s": "# s so far",
+ "übt …": "practising …"
 }

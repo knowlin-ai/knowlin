@@ -249,6 +249,55 @@ footer a { color: inherit; text-decoration: underline; text-decoration-color: va
 }
 @media (max-width: 420px) { .steckbrief dl div { grid-template-columns: 1fr; gap: 2px; } }
 
+/* ── Was in ihr steckt: dunkle Vitrine wie die Bühne oben, Kacheln mit echten Programmfenstern (seit 0.38.39,
+   Wunsch: „zeig mehr Features – das soll ja WOW-Effekt erzeugen“). Jede Kachel zeigt einen Ausschnitt des
+   ganzen Fensters (--fx/--fy: wohin, --zoom: wie nah) – nichts ist mit Rand aufgefüllt. ── */
+.vitrine {
+  --v-bg: #07080a; --v-karte: #121418; --v-tinte: #f3f4f6; --v-tinte-2: #a2a9b3; --v-linie: #22262c;
+  background: var(--v-bg); color: var(--v-tinte); color-scheme: dark; position: relative; overflow: hidden; isolation: isolate;
+}
+.vitrine::before {          /* das Orange aus dem Netz oben glimmt nach */
+  content: ""; position: absolute; inset: -20% 30% auto; height: 60%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgb(240 150 44 / 0.10), transparent);
+}
+.vitrine .kopfzeile h2 { color: var(--v-tinte); }
+.vitrine .kopfzeile .leit { color: var(--v-tinte-2); }
+.kacheln { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-flow: dense; gap: 16px; margin-top: 8px; }
+.kachel {
+  margin: 0; display: grid; grid-template-rows: auto 1fr; border-radius: var(--r-rahmen); overflow: hidden;
+  background: var(--v-karte); border: 1px solid var(--v-linie);
+}
+.kachel.breit { grid-column: span 2; }
+.kachel.hoch { grid-row: span 2; }
+.kachel .ausschnitt { position: relative; overflow: hidden; aspect-ratio: 16 / 10; background: #1b1d21; }
+.kachel.breit .ausschnitt { aspect-ratio: 16 / 8; }
+.kachel .ausschnitt img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  object-position: var(--fx, 50%) var(--fy, 50%); transform: scale(var(--zoom, 1)); transform-origin: var(--fx, 50%) var(--fy, 50%);
+}
+.kachel.hoch { grid-template-rows: 1fr auto; }
+/* Handy-Bild füllt die Kachel ganz – kein Rand drumherum; oben bleibt die Kopfzeile der App im Bild */
+.kachel.hoch .ausschnitt { aspect-ratio: auto; height: 100%; min-height: 420px; }
+.kachel.hoch .ausschnitt img { object-position: 50% 0; transform: none; }
+.kachel figcaption { display: grid; gap: 6px; padding: 18px 20px 22px; align-content: start; }
+.kachel h3 { color: var(--v-tinte); font-size: 1.2rem; }
+.kachel p { color: var(--v-tinte-2); font-size: 0.9375rem; }
+.kachel .marke-klein { font: 400 0.75rem/1.3 var(--schrift-mono); letter-spacing: 0.02em; color: #f6c48a; }
+/* Kachel ohne Bild: ein Profil wie im echten Paket */
+.kachel .profil { margin: 0; padding: 22px 20px 0; font: 400 0.8125rem/1.65 var(--schrift-mono); color: #d6dae0; overflow-x: auto; }
+.kachel .profil .k { color: #8b93a1; }
+.kachel .profil .s { color: #f6c48a; }
+.zahlen { display: flex; flex-wrap: wrap; gap: 10px 36px; margin: 0 0 36px; padding: 0; list-style: none; }
+.zahlen li { display: grid; gap: 2px; }
+.zahlen b { font: 650 clamp(1.8rem, 3.2vw, 2.4rem)/1 var(--schrift-anzeige); letter-spacing: -0.02em; color: var(--v-tinte); }
+.zahlen span { color: var(--v-tinte-2); font-size: 0.875rem; }
+@media (max-width: 860px) {
+  .kacheln { grid-template-columns: 1fr; }
+  .kachel.breit, .kachel.hoch { grid-column: auto; grid-row: auto; }
+  .kachel.breit .ausschnitt { aspect-ratio: 16 / 10; }
+  .kachel.hoch .ausschnitt { min-height: 0; aspect-ratio: 9 / 16; }
+  .kachel.hoch .ausschnitt img { object-position: 50% 45%; }
+}
 /* ── Was alle teilen ── */
 .geteilt { display: grid; gap: clamp(56px, 8vw, 96px); }
 .paar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
@@ -339,7 +388,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
     }
     @keyframes naeher { from { transform: translateY(40px) scale(0.97); } to { transform: none; } }
     /* Bilder dürfen aufblenden; Flächen mit Text nur gleiten – Kontrast bleibt in jedem Moment voll (WCAG 1.4.3) */
-    .bild { animation: einblenden linear both; animation-timeline: view(); animation-range: entry 5% cover 30%; }
+    .bild, .kachel { animation: einblenden linear both; animation-timeline: view(); animation-range: entry 5% cover 30%; }
     .buehne .fenster, .code { animation: naeher linear both; animation-timeline: view(); animation-range: entry 5% cover 30%; }
     @keyframes druecken { 0%, 40% { transform: none; } 55% { transform: translateY(2px); box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--tinte) 12%, transparent); } 75%, 100% { transform: none; } }
     .blatt .wert--taste { animation: druecken linear both; animation-timeline: view(); animation-range: entry 40% cover 45%; }
@@ -362,7 +411,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
     <a class="marke" href="#start" aria-label="Knowlin – Startseite"><img src="bilder/zeichen-64.webp" alt="" width="30" height="30">Knowlin</a>
     <nav class="navi" aria-label="Seite">
       <a href="#koerper"><span class="t" lang="de">Körper</span><span class="t" lang="en">Bodies</span></a>
-      <a href="#gemeinsam"><span class="t" lang="de">Funktionen</span><span class="t" lang="en">Features</span></a>
+      <a href="#funktionen"><span class="t" lang="de">Funktionen</span><span class="t" lang="en">Features</span></a>
       <a href="#sicherheit"><span class="t" lang="de">Sicherheit</span><span class="t" lang="en">Safety</span></a>
       <a href="#loslegen"><span class="t" lang="de">Loslegen</span><span class="t" lang="en">Get started</span></a>
     </nav>
@@ -451,6 +500,70 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
     </div>
   </section>
 
+  <section class="vitrine" id="funktionen" aria-labelledby="vitrine-titel">
+    <div class="huelle">
+      <div class="kopfzeile">
+        <h2 id="vitrine-titel"><span class="t" lang="de">Was in ihr steckt.</span><span class="t" lang="en">What's inside.</span></h2>
+        <p class="leit"><span class="t" lang="de">Alles läuft heute schon – im Simulator auf deinem PC, mit echter Physik, ohne Konto und ohne Kosten. Wenn dein Roboter kommt, kann er es auch.</span><span class="t" lang="en">All of this works today – in the simulator on your PC, with real physics, no account, no cost. When your robot arrives, it can do it too.</span></p>
+      </div>
+      <ul class="zahlen">
+        <li><b>4</b><span><span class="t" lang="de">Körper – und deiner</span><span class="t" lang="en">bodies – and yours</span></span></li>
+        <li><b>1</b><span><span class="t" lang="de">Gedächtnis für alle</span><span class="t" lang="en">memory for all</span></span></li>
+        <li><b>8</b><span><span class="t" lang="de">Enten tanzen mit</span><span class="t" lang="en">ducks dance along</span></span></li>
+        <li><b>0 €</b><span><span class="t" lang="de">lokal und offen</span><span class="t" lang="en">local and open</span></span></li>
+      </ul>
+      <div class="kacheln">
+        <figure class="kachel breit">
+          <div class="ausschnitt" style="--fx:60%;--fy:66%;--zoom:1.14">
+            <img data-bild="tanz" src="bilder/tanz-de-1600.webp" srcset="bilder/tanz-de-900.webp 900w, bilder/tanz-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 720px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Tanzen: Knowlin hat den Takt eines Musikstücks erkannt und einen Tanz in Teilen geplant, daneben tanzen die Enten in der Vorschau" data-alt-en="Dancing: Knowlin found the beat of a song and planned a dance in parts, next to it the ducks dance in the preview">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Tanzen</span><span class="t" lang="en">Dance</span></span><h3><span class="t" lang="de">Tanzt zu deiner Musik.</span><span class="t" lang="en">Dances to your music.</span></h3><p><span class="t" lang="de">Sie hört Takt und Teile eines Stücks heraus und studiert einen Tanz ein – bis zu acht Enten tanzen mit. Die Musik bleibt auf deinem PC.</span><span class="t" lang="en">She picks out the beat and the parts of a song and rehearses a dance – up to eight ducks join in. The music stays on your PC.</span></p></figcaption>
+        </figure>
+        <figure class="kachel hoch">
+          <div class="ausschnitt">
+            <img data-bild="handy" data-format="hoch" src="bilder/handy-de-780.webp" srcset="bilder/handy-de-390.webp 390w, bilder/handy-de-780.webp 780w" sizes="(max-width: 860px) 70vw, 300px" width="780" height="1688" loading="lazy" decoding="async"
+              alt="Knowlin am Handy: das Cockpit mit 3D-Ansicht, Steuerkreuz, Gespräch und Not-Aus" data-alt-en="Knowlin on a phone: the cockpit with 3D view, joystick, chat and emergency stop">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Handy</span><span class="t" lang="en">Phone</span></span><h3><span class="t" lang="de">Das Handy wird zur Fernbedienung.</span><span class="t" lang="en">Your phone becomes the remote.</span></h3><p><span class="t" lang="de">QR-Code scannen, fertig – im Heimnetz, ohne App: steuern, sprechen, Not-Aus.</span><span class="t" lang="en">Scan the QR code and go – on your home network, no app: drive, talk, emergency stop.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <div class="ausschnitt" style="--fx:33%;--fy:57%;--zoom:1.85">
+            <img data-bild="akrobatik" src="bilder/akrobatik-de-1600.webp" srcset="bilder/akrobatik-de-900.webp 900w, bilder/akrobatik-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 360px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Akrobatik: die Ente steht in der Physik auf dem linken Bein, Fähigkeit 74 Prozent" data-alt-en="Acrobatics: in the physics the duck stands on its left leg, skill 74 percent">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Akrobatik</span><span class="t" lang="en">Acrobatics</span></span><h3><span class="t" lang="de">Balanciert in echter Physik.</span><span class="t" lang="en">Balances in real physics.</span></h3><p><span class="t" lang="de">Bieg sie wie eine Gliederpuppe, MuJoCo sagt, ob sie steht. Auf einem Bein? Sie übt, bis es klappt.</span><span class="t" lang="en">Pose her like a jointed doll, MuJoCo tells you if she stands. On one leg? She practises until it works.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <div class="ausschnitt" style="--fx:93.3%;--fy:57.8%;--zoom:2.36">
+            <img data-bild="team" src="bilder/team-de-1600.webp" srcset="bilder/team-de-900.webp 900w, bilder/team-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 360px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Team: fünf Enten im Zimmer, alle tanzen" data-alt-en="Team: five ducks in the room, all dancing">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Team</span><span class="t" lang="en">Team</span></span><h3><span class="t" lang="de">Ein ganzes Entenrudel.</span><span class="t" lang="en">A whole flock.</span></h3><p><span class="t" lang="de">Weitere Enten mit eigener Stimme: folgen dir, tanzen mit, räumen gemeinsam Socken zum Sofa.</span><span class="t" lang="en">More ducks with their own voices: they follow you, dance along and tidy socks to the sofa together.</span></p></figcaption>
+        </figure>
+        <figure class="kachel breit">
+          <div class="ausschnitt" style="--fx:52%;--fy:50%;--zoom:1.6">
+            <img data-bild="training" src="bilder/training-de-1600.webp" srcset="bilder/training-de-900.webp 900w, bilder/training-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 720px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Training: viele Enten üben gleichzeitig auf Rampen, Stufen und Wellen" data-alt-en="Training: many ducks practise at the same time on ramps, steps and waves">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Lernen</span><span class="t" lang="en">Learn</span></span><h3><span class="t" lang="de">Lernt, wie echte Roboter lernen.</span><span class="t" lang="en">Learns the way real robots learn.</span></h3><p><span class="t" lang="de">Tausende Versuche parallel in der Physik – am eigenen PC oder kostenlos auf Kaggle. Fertige Gangarten kommen vom Hugging Face Hub und aus Isaac Lab, zurück auf Pollens Standard geht mit einem Klick.</span><span class="t" lang="en">Thousands of tries in parallel in the physics – on your own PC or free on Kaggle. Ready-made gaits come from the Hugging Face Hub and Isaac Lab; back to Pollen's standard is one click.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <pre class="profil" tabindex="0" aria-label="Beispiel: Profil eines eigenen Roboters" data-label-en="Example: profile of your own robot"><span class="k"># pyproject.toml</span>
+[project.entry-points.<span class="s">"knowlin.koerper"</span>]
+rollbot = <span class="s">"mein_roboter:profil"</span>
+
+<span class="k"># mein_roboter.py</span>
+profil = Koerper(
+  id=<span class="s">"rollbot"</span>, name=<span class="s">"Rollbot"</span>,
+  faehigkeiten={<span class="s">"raeder"</span>, <span class="s">"kamera"</span>},
+  fabrik=baue_rollbot)</pre>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Körperschnittstelle</span><span class="t" lang="en">Body interface</span></span><h3><span class="t" lang="de">Dein Roboter, derselbe Geist.</span><span class="t" lang="en">Your robot, the same mind.</span></h3><p><span class="t" lang="de">Ein kleines Paket mit Profil – mit Sicherheitsprüfung, ohne Knowlin zu ändern. LeRobot-Roboter wie SO-101 und LeKiwi sind schon eingebaut.</span><span class="t" lang="en">A small package with a profile – with safety checks, without changing Knowlin. LeRobot robots like SO-101 and LeKiwi are already built in.</span></p></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
   <section id="gemeinsam">
     <div class="huelle geteilt">
       <div class="paar">
@@ -466,7 +579,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
           </ul>
         </div>
         <div class="bild"><img data-bild="synapsen" src="bilder/synapsen-de-1600.webp" srcset="bilder/synapsen-de-900.webp 900w, bilder/synapsen-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 600px" width="1600" height="965" loading="lazy"
-          alt="Hirnaktivität: das Erfahrungsnetz verknüpft Orte, Tätigkeiten, Gefühle und Tageszeiten, etwa Wohnzimmer, tanzen und Freude" data-alt-en="Brain activity: the experience network links places, activities, feelings and times of day, such as living room, dancing and joy"></div>
+          alt="Gedächtnis: Die Hirnaktivität verknüpft Orte, Tätigkeiten, Gefühle und Tageszeiten, etwa Wohnzimmer, tanzen und Freude" data-alt-en="Memory: brain activity links places, activities, feelings and times of day, such as living room, dancing and joy"></div>
       </div>
       <div class="paar links">
         <div class="text">
@@ -483,7 +596,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
           </ul>
         </div>
         <div class="bild"><img data-bild="charakter" src="bilder/charakter-de-1600.webp" srcset="bilder/charakter-de-900.webp 900w, bilder/charakter-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 640px" width="1600" height="965" loading="lazy"
-          alt="Charakterfeld: Knowlins Grundcharakter zwischen ruhig und lebhaft, seriös und verspielt, die Verkörperungen als Punkte" data-alt-en="Character field: Knowlin's basic character between calm and lively, serious and playful, with the embodiments as points"></div>
+          alt="Persönlichkeit: das Charakterfeld zwischen ruhig und lebhaft, ernst und albern, daneben die Farben der Microduck" data-alt-en="Personality: the character field between calm and lively, serious and silly, next to it the Microduck's colours"></div>
       </div>
     </div>
   </section>
@@ -632,8 +745,9 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
 
   const quelle = (name, w) => `bilder/${name}-${sprache()}-${w}.webp`;
   function bildSetzen(img, name) {
-    img.src = quelle(name, 1600);
-    img.srcset = `${quelle(name, 900)} 900w, ${quelle(name, 1600)} 1600w`;
+    const [klein, gross] = img.dataset.format === 'hoch' ? [390, 780] : [900, 1600];   // Handy hochkant (seit 0.38.39)
+    img.src = quelle(name, gross);
+    img.srcset = `${quelle(name, klein)} ${klein}w, ${quelle(name, gross)} ${gross}w`;
   }
 
   // Weiterlesen bei den Herstellern und Projekten (offizielle Seiten, Code, Spaces)
@@ -716,6 +830,11 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
       if (img.closest('.buehne')) continue;
       bildSetzen(img, img.dataset.bild);
       img.alt = l === 'en' && img.dataset.altEn ? img.dataset.altEn : img.dataset.altDe;
+    }
+    // Code-Kachel lässt sich seitlich blättern, ist darum per Tastatur erreichbar – mit Namen in beiden Sprachen
+    for (const el of document.querySelectorAll('[data-label-en]')) {
+      if (!el.dataset.labelDe) el.dataset.labelDe = el.getAttribute('aria-label');
+      el.setAttribute('aria-label', l === 'en' ? el.dataset.labelEn : el.dataset.labelDe);
     }
     bildSetzen(buehne.querySelector('img'), KOERPER[aktiv].bild);
     steckbrief();

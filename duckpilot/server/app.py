@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.gzip import GZipMiddleware
 
 from . import routes as _routes
+from .oberflaeche import seite
 from .runtime import STATIC, Runtime, _plans_from
 from .security import SameOriginMiddleware, _host_ok, origin_allowed
 
@@ -62,7 +63,7 @@ def create_app(runtime: Runtime) -> FastAPI:
     async def index() -> HTMLResponse:
         # Icons mit Prüfsumme in der Adresse: Browser und Edge-App-Fenster merken sich Symbole nach der Adresse –
         # ein neues Icon braucht eine neue Adresse, sonst bleibt das alte stehen
-        page = (STATIC / "index.html").read_text(encoding="utf-8")
+        page = seite()                    # aus Teilen zusammengesetzt (seit 0.38.39, server/oberflaeche.py)
         for ref in ICON_REFS:
             page = page.replace(f'"{ref}"', f'"{ref}?v={stamp}"')
         return HTMLResponse(page, headers={"Cache-Control": "no-store"})

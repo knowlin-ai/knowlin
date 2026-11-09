@@ -62,7 +62,7 @@ something – it suggests the right robot and asks whether to use it.
       the physics first. Simple commands also work without AI – or with a local model on your graphics card.
     </td>
     <td width="50%" valign="top">
-      <img src="docs/bilder/synapsen-en.png" alt="Brain activity: the experience network as a spatial network with glowing connections"><br>
+      <img src="docs/bilder/synapsen-en.png" alt="Memory: brain activity as a spatial network of places, things, times of day and feelings with glowing connections"><br>
       <strong>Memory and experience network</strong><br>
       Knowlin remembers places, things, tricks and what you tell it – and where it learned it: without a body or in which
       embodiment, in the simulator or on the real robot. Everything stays on your PC.
@@ -70,7 +70,7 @@ something – it suggests the right robot and asks whether to use it.
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <img src="docs/bilder/charakter-en.png" alt="Character field: Knowlin's basic character between calm and lively, serious and playful, with the embodiments as points"><br>
+      <img src="docs/bilder/charakter-en.png" alt="Personality of the embodiment: the character field between calm and lively, serious and silly, next to it the Microduck's colours"><br>
       <strong>One character, many variations</strong><br>
       Pick Knowlin's basic character on a field between calm and lively, serious and playful. Each embodiment has its
       own variation and the traits of its form – from beak clattering to antenna play.

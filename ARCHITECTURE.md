@@ -116,6 +116,8 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 | HTTP-Endpunkt | `server/routes/<bereich>.py` | in `register(app, runtime)`; neues Modul in `routes.MODULES` eintragen |
 | Einstellung | `config.py` + `settings.py` EDITABLE + Oberfläche `data-set="…"` | live übernehmen in `Runtime.apply_settings` |
 | Oberflächen-Bereich | `server/static/<bereich>.js` | `export function initX(h)`; Helfer aus `ui.js` importieren, Zustand über Getter (`getConfig`) – keine globalen Variablen, `app.js` nur verdrahten |
+| Markup eines Bereichs (seit 0.38.39, A2) | `server/static/teile/<bereich>.html`, im Gerüst `index.html` als `<!--#teil <bereich>-->` | ≤ 40 KB; der Server setzt die Seite zusammen (`server/oberflaeche.py`); Tests lesen sie mit `seite()`, nie `index.html` direkt |
+| Stile eines Bereichs (seit 0.38.39, A2) | `server/static/bereiche/<bereich>.css`, nach `style.css` eingebunden | ≤ 40 KB; nur Klassen dieses Bereichs; Tests lesen alle Stile mit `stil()`; beim Verschieben mit `tools/oberflaeche_vergleich.py` vorher/nachher prüfen |
 | Auslöser von außen (NFC-Tag, später robotd) | `nfc.py` + `Runtime.nfc_touched` | Satz → `Runtime.chat` (alle Sicherheitsregeln) |
 | Werkzeug auch für andere Programme | `mcp_server.ALLOWED` | nur Bewegung/Ausdruck/Status – nie Personen, Kamera, Gedächtnis schreiben, Training |
 | Datei von einer Originalquelle | `modell/quellen.json` + `ModellStore` | fester Stand, sha256 je Datei; Bau im Datenordner, nie im Paket |
@@ -178,7 +180,8 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 
 - Erst hier und in den Modul-Docstrings schauen, dann gezielt suchen (`grep -n "def name"`), Ausschnitte lesen.
 - Große Dateien nicht ganz lesen: `server/runtime.py`, `brain/tools.py`, `physics/lernen.py`,
-  `kaggle_training.py`, `static/index.html`, `static/style.css`.
+  `kaggle_training.py`, `static/index.html`, `static/style.css` (Tricks steht schon in `teile/tricks.html` und
+  `bereiche/tricks.css`).
 - Leitplanken in `tests/test_codebase.py`: Python-Module ≤ 1 400 Zeilen, JS-Module ≤ 64 KB (`app.js` ≤ 72 KB),
   kein Modul ohne Verwender, ruff sauber,
   Server aus Routen-Modulen. Wird eine Datei zu groß: nach Bereichen aufteilen, nicht kürzen.

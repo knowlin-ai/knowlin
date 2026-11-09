@@ -144,8 +144,10 @@ function setLink(on) {
 function renderLink() {
   const b = $('badge-link');
   const ok = wsOpen && bodyOnline !== false;
-  b.querySelector('span').textContent = !wsOpen ? 'Knowlin getrennt' : bodyOnline === false
+  const text = !wsOpen ? 'Knowlin getrennt' : bodyOnline === false
     ? (config.backend === 'robotd' ? 'Roboter nicht erreichbar' : 'Körper nicht verbunden') : fern.remote ? 'verbunden · Handy' : 'verbunden';
+  b.querySelector('span').textContent = text;
+  b.title = text;                      // am Handy wird der Text gekürzt
   b.querySelector('.dot').className = `dot ${ok ? 'dot--good' : 'dot--critical'}`;
 }
 

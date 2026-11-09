@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -84,13 +85,18 @@ def aufnehmen(ordner: Path, datei: Path) -> None:
     print(f"{len(erg)} Ansichten, {n} Elemente → {datei}")
 
 
+def _ohne_port(w: dict[str, str]) -> dict[str, str]:
+    """Adressen enthalten den zufälligen Port des Testservers – für den Vergleich weglassen."""
+    return {k: re.sub(r"127\.0\.0\.1:\d+", "127.0.0.1", v) for k, v in w.items()}
+
+
 def _kurz(w: dict[str, str]) -> str:
     return hashlib.sha1(json.dumps(w, sort_keys=True).encode()).hexdigest()
 
 
 def vergleichen(vorher: Path, nachher: Path, zeigen: int = 40) -> int:
-    a = json.loads(vorher.read_text(encoding="utf-8"))
-    b = json.loads(nachher.read_text(encoding="utf-8"))
+    a = {v: {e: _ohne_port(w) for e, w in x.items()} for v, x in json.loads(vorher.read_text(encoding="utf-8")).items()}
+    b = {v: {e: _ohne_port(w) for e, w in x.items()} for v, x in json.loads(nachher.read_text(encoding="utf-8")).items()}
     funde: list[str] = []
     for ansicht in sorted(set(a) | set(b)):
         ea, eb = a.get(ansicht, {}), b.get(ansicht, {})

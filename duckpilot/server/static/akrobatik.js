@@ -507,7 +507,7 @@ export function initAkrobatik(h) {
       const hist = u.verlauf || [];
       if (running) {
         li.append(skillMeter(el, (job.faehigkeit ?? 0) / 100, job.verlauf && job.verlauf.length ? job.verlauf[0] / 100 : null,
-          `übt … Runde ${job.generation} von ${job.von || '?'}`));
+          job.von ? `übt … Runde ${job.generation} von ${job.von}` : 'übt …'));   // „von ?“ war nicht übersetzbar (0.38.39)
       } else if (u.beste != null) {
         li.append(skillMeter(el, u.beste / 100, u.start != null ? u.start / 100 : null,
           `beste von ${hist.length} Übungsrunde${hist.length === 1 ? '' : 'n'}`));

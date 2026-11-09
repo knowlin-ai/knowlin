@@ -58,7 +58,7 @@ passenden Roboter vor und fragt, ob er ihn nutzen soll.
       Physik. Einfache Befehle gehen auch ohne KI – oder mit einem lokalen Modell auf deiner Grafikkarte.
     </td>
     <td width="50%" valign="top">
-      <img src="docs/bilder/synapsen.png" alt="Hirnaktivität: das Erfahrungsnetz als räumliches Netz mit leuchtenden Verbindungen"><br>
+      <img src="docs/bilder/synapsen.png" alt="Gedächtnis: die Hirnaktivität als räumliches Netz aus Orten, Dingen, Tageszeiten und Gefühlen mit leuchtenden Verbindungen"><br>
       <strong>Gedächtnis und Erfahrungsnetz</strong><br>
       Knowlin merkt sich Orte, Dinge, Tricks und was du erzählst – und woher er es weiß: ohne Körper oder in welcher
       Verkörperung, im Simulator oder am echten Roboter. Alles bleibt auf deinem PC.
@@ -66,7 +66,7 @@ passenden Roboter vor und fragt, ob er ihn nutzen soll.
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <img src="docs/bilder/charakter.png" alt="Charakterfeld: Knowlins Grundcharakter zwischen ruhig und lebhaft, seriös und verspielt, mit den Verkörperungen als Punkte"><br>
+      <img src="docs/bilder/charakter.png" alt="Persönlichkeit der Verkörperung: das Charakterfeld zwischen ruhig und lebhaft, ernst und albern, daneben die Farben der Microduck"><br>
       <strong>Ein Charakter, viele Ausprägungen</strong><br>
       Knowlins Grundcharakter wählst du im Feld zwischen ruhig und lebhaft, seriös und verspielt. Jede Verkörperung hat
       ihre eigene Ausprägung und die Eigenschaften ihrer Gestalt – vom Schnabelklappern bis zum Antennenspiel.
