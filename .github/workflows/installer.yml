@@ -78,6 +78,8 @@ jobs:
         # Seit 0.38.34: Das erste echte Update (0.38.32 → 0.38.33) lief bei Nutzern nicht durch. Hier läuft es wie zu
         # Hause: ältere Fassung still installieren und starten, dann (A) den Start-Weg der ALTEN Fassung und (B) den der
         # neuen auslösen; danach muss die neue Version installiert sein und von selbst wieder laufen.
+        # Beim Release selbst darf die Probe den Anhang nicht verhindern (geprüft wird vorher per Hand-Start).
+        continue-on-error: ${{ github.event_name == 'release' }}
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -103,22 +105,19 @@ jobs:
           function Ping($port) { try { (Invoke-RestMethod "http://127.0.0.1:$port/api/ping" -TimeoutSec 2).version } catch { $null } }
           function Warte($bedingung, $sek) { foreach ($i in 1..$sek) { if (& $bedingung) { return $true }; Start-Sleep 1 }; return $false }
 
-          # ── A: Start-Weg der älteren Fassung (so lief es bei Nutzern) – nur zur Diagnose
-          AltInstallieren
-          $va = Version
-          Write-Host "A: installiert $va, starte Update mit dem Code von $va"
+          # Der Start-Weg der älteren Fassungen (bis 0.38.33) läuft nachweislich nicht durch (Lauf vom 9.11.) und ließ
+          # einen hängenden Installer zurück, der die Probe störte – deshalb wird nur noch der neue Weg geprüft.
           New-Item -ItemType Directory -Force "$daten\updates" | Out-Null
           Copy-Item $neu "$daten\updates\" -Force
-          & "$app\python\python.exe" -c "from pathlib import Path; from duckpilot.aktualisieren import Aktualisierer as A; A(Path(r'$daten')).installer_starten(Path(r'$daten\updates\Knowlin-Setup-$v.exe'))"
-          $okA = Warte { (Version) -eq $v } 300
-          Write-Host "A: nach bis zu 5 Minuten installiert: $(Version) – $(if ($okA) {'durchgelaufen'} else {'NICHT durchgelaufen'})"
-          Get-Process | Where-Object { $_.Path -like "$app\*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
-          # ── B: Start-Weg der neuen Fassung, ältere Fassung läuft und hält ihre Dateien
+          # ── Start-Weg der neuen Fassung, ältere Fassung läuft und hält ihre Dateien
           AltInstallieren
           Write-Host "B: installiert $(Version)"
-          $srv = Start-Process "$app\python\pythonw.exe" -ArgumentList '-m','duckpilot','--no-browser','--port','8765','--no-memory' -WorkingDirectory $app -PassThru
-          if (-not (Warte { Ping 8765 } 120)) { throw "B: ältere Fassung startet nicht" }
+          $srv = Start-Process "$app\python\python.exe" -ArgumentList '-m','duckpilot','--no-browser','--port','8765','--no-memory' -WorkingDirectory $app -PassThru -RedirectStandardOutput "$env:RUNNER_TEMP\srv.out" -RedirectStandardError "$env:RUNNER_TEMP\srv.err"
+          if (-not (Warte { Ping 8765 } 120)) {
+            Write-Host "── Ausgabe der älteren Fassung"; Get-Content "$env:RUNNER_TEMP\srv.out","$env:RUNNER_TEMP\srv.err" -Tail 40 -ErrorAction SilentlyContinue
+            throw "B: ältere Fassung startet nicht"
+          }
           Remove-Item "$daten\updates\update.log","$daten\updates\setup.log" -ErrorAction SilentlyContinue
           & build\knowlin\python\python.exe -c "from pathlib import Path; from duckpilot.aktualisieren import Aktualisierer as A; A(Path(r'$daten')).installer_starten(Path(r'$daten\updates\Knowlin-Setup-$v.exe'), pid=$($srv.Id))"
           Start-Sleep 2
