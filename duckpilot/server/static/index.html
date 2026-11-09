@@ -133,6 +133,8 @@
 
     <div class="update-bar pc-only" id="update-bar" role="status" hidden>
       <span id="update-text"></span>
+      <!-- Fortschritt beim Herunterladen (seit 0.38.38, „man sieht nicht, was gerade passiert oder ob es hängt“) -->
+      <div class="bar update-balken" id="update-balken" role="progressbar" aria-labelledby="update-text" aria-valuemin="0" aria-valuemax="100" hidden><i></i></div>
       <a class="update-link" id="update-notes" href="https://github.com/knowlin-ai/knowlin/releases/latest" target="_blank" rel="noopener" hidden>Was ist neu</a>
       <button class="btn btn--sm btn--primary" type="button" id="update-go">Jetzt neu starten</button>
       <button class="btn btn--sm btn--primary" type="button" id="update-install" hidden>Jetzt aktualisieren</button>
@@ -238,7 +240,12 @@
           <button class="btn btn--primary" type="button" id="wizard-next">Weiter</button></span>
       </div>
     </dialog>
-    <div class="quit-done" id="quit-done" hidden><div><h2 id="quit-done-title">Knowlin ist beendet</h2><p id="quit-done-text">Du kannst dieses Fenster schließen.</p></div></div>
+    <div class="quit-done" id="quit-done" hidden><div class="quit-done-inhalt"><h2 id="quit-done-title">Knowlin ist beendet</h2><p id="quit-done-text">Du kannst dieses Fenster schließen.</p>
+      <!-- Update und Neustart Schritt für Schritt, mit mitlaufender Zeit (seit 0.38.38) -->
+      <ol class="quit-schritte" id="quit-schritte" aria-label="Fortschritt" hidden></ol>
+      <div class="bar quit-balken" id="quit-balken" role="progressbar" aria-labelledby="quit-done-title" hidden><i></i></div>
+      <p class="quit-zeit" id="quit-zeit" aria-live="off" hidden></p>
+    </div></div>
     <div class="alarm-bar" id="alarm-bar" role="alert" hidden></div>
     <div class="stopp-fenster" id="stopp-fenster" hidden>
       <p role="alert"><b>Gestürzt.</b> <span id="sf-text"></span></p>

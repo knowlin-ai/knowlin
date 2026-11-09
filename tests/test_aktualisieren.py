@@ -166,3 +166,63 @@ def test_koerper_wechseln_vom_handy_nur_im_simulator(tmp_path, monkeypatch):
         rt.config.backend = "robotd"
         r = c.post("/api/koerper/wechseln", json={"modul": "duckpilot"}, headers=h)
         assert r.status_code == 409 and "echten Roboter" in r.json()["fehler"]
+
+
+def test_herunterladen_meldet_fortschritt_und_pruefen(tmp_path):
+    """Seit 0.38.38 (Hinweis: „man sieht immer nicht, was gerade passiert oder ob es hängt“): Das Herunterladen
+    meldet geladene und gesamte Bytes, danach den Schritt „prüfen“; ein Fehler steht ebenfalls im Fortschritt."""
+    daten = b"x" * 1000
+    info = A.auswerten(_release(daten=daten))["installer"]
+    gesehen = []
+
+    def laden(url, limit, melden=None):
+        for n in (250, 500, 1000):
+            melden(n, 1000)
+            gesehen.append(dict(akt.fortschritt))
+        return daten
+
+    akt = A.Aktualisierer(tmp_path, laden=laden)
+    assert akt.fortschritt["schritt"] is None
+    akt.installer_laden(info)
+    assert [(g["schritt"], g["geladen"], g["gesamt"]) for g in gesehen] == [("laden", 250, 1000), ("laden", 500, 1000),
+                                                                         ("laden", 1000, 1000)]
+    assert akt.fortschritt["schritt"] == "pruefen"
+
+
+def test_laden_in_stuecken_mit_groessenangabe(monkeypatch):
+    """Der echte Download liest in Stücken und meldet nach jedem Stück (Content-Length als Gesamtgröße)."""
+    import io
+
+    class Antwort(io.BytesIO):
+        headers = {"Content-Length": str(600 * 1024)}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    monkeypatch.setattr(A.urllib.request, "urlopen", lambda req, timeout=0: Antwort(b"a" * 600 * 1024))
+    meldungen = []
+    roh = A._laden("https://github.com/knowlin-ai/knowlin/releases/download/v1/x.exe", A.MAX_BYTES,
+                   lambda n, g: meldungen.append((n, g)))
+    assert len(roh) == 600 * 1024
+    assert meldungen == [(256 * 1024, 600 * 1024), (512 * 1024, 600 * 1024), (600 * 1024, 600 * 1024)]
+
+
+def test_fortschritt_route(tmp_path, monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from duckpilot import settings as S
+    from duckpilot.config import load
+    from duckpilot.server.app import Runtime, create_app
+
+    monkeypatch.setenv("DUCKPILOT_SETTINGS", str(tmp_path / "settings.json"))
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setattr(S, "_keyring", lambda: None)
+    rt = Runtime(load(memory_path=str(tmp_path / "mem.json")))
+    with TestClient(create_app(rt), base_url="http://127.0.0.1:8765") as c:
+        assert c.get("/api/update/fortschritt").json() == {"ok": True, "laeuft": False, "schritt": None}
+        rt.aktualisierer.melden("laden", geladen=5, gesamt=10)
+        r = c.get("/api/update/fortschritt").json()
+        assert r["schritt"] == "laden" and r["geladen"] == 5 and r["gesamt"] == 10

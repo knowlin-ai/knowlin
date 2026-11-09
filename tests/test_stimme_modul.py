@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from duckpilot import settings as S
 from duckpilot.config import load
 from duckpilot.server.app import Runtime, create_app
+from duckpilot.server.oberflaeche import seite
 from duckpilot.voice import describe as D
 from duckpilot.voice import install as I
 from duckpilot.voice import tts as T
@@ -112,6 +113,6 @@ def test_oberflaeche_je_robotertyp():
     assert "q.vorlagen_kopf" in js and "q.entwurf" in js and "modulJetzt()" in js
     assert "open_duck_mini:" in js and "reachy_mini:" in js
     assert "const kopf = () =>" in js                                              # Kopf-Modus unverändert da
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     i = html.index('id="duckness"')
     assert "nur-ente" in html[html.rindex("<section", 0, i):i]                     # Entenhaft bei Reachy ausgeblendet

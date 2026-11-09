@@ -24,6 +24,7 @@ from duckpilot.motion.engine import MotionEngine
 from duckpilot.motion.reachy_gesten import GESTEN
 from duckpilot.motion.tanz import TANZGESTEN, MusikTanz
 from duckpilot.server.app import Runtime, create_app
+from duckpilot.server.oberflaeche import seite
 
 ANALYSE = {"bpm": 120, "start": 0.4, "energie": [0.1] * 8 + [0.5] * 8 + [0.9, 0.95, 1.0, 0.85] + [0.6] * 4 + [0.2] * 8}
 WS = {"Host": "127.0.0.1:8765", "Origin": "http://127.0.0.1:8765"}
@@ -364,7 +365,7 @@ def test_open_duck_schlaegt_die_antennen_im_takt():
 
 # ── Oberfläche ───────────────────────────────────────────────────────────────────────────────────────────────────
 def test_oberflaeche_tanz_je_koerper():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     zeile = lambda text: next(z for z in html.splitlines() if text in z)          # noqa: E731
     assert "nur-microduck" in zeile("Posen aus Lernen → Akrobatik")
     assert "nur-reachy" in zeile('id="mitwippen"') and "nur-reachy" in zeile('data-set="reachy_begruessung"')

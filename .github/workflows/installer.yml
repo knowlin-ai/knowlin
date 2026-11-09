@@ -128,7 +128,14 @@ jobs:
           if (-not $fertig) { throw "B: Installer hat nicht zu Ende gemeldet" }
           if (-not (Select-String -Path "$daten\updates\update.log" -Pattern 'fertig, Code 0' -Quiet)) { throw "B: Installer meldet einen Fehler" }
           if ((Version) -ne $v) { throw "B: nach dem Update ist $(Version) installiert statt $v" }
-          if (-not (Warte { (Ping 8765) -eq $v } 120)) { throw "B: Knowlin $v ist nach dem Update nicht von selbst wieder gestartet" }
+          # Seit 0.38.38 meldet sich der neue Knowlin beim Hochfahren sofort mit seinem Schritt (startstatus.py) – die Probe
+          # schreibt mit, was sie sieht, und wie lange der Start nach dem Installer dauert
+          $t0 = Get-Date; $script:schritte = @()
+          $da = Warte { $p = try { Invoke-RestMethod "http://127.0.0.1:8765/api/ping" -TimeoutSec 2 } catch { $null }
+                        if ($p -and $p.startet -and $script:schritte -notcontains $p.schritt) { $script:schritte += $p.schritt }
+                        $p -and $p.version -eq $v } 180
+          Write-Host ("B: Start nach dem Installer {0:N0} s; gemeldete Schritte: {1}" -f ((Get-Date) - $t0).TotalSeconds, ($script:schritte -join ' → '))
+          if (-not $da) { throw "B: Knowlin $v ist nach dem Update nicht von selbst wieder gestartet" }
           Write-Host "B: Update auf $v durchgelaufen, Knowlin läuft wieder"
           Get-Process | Where-Object { $_.Path -like "$app\*" } | Stop-Process -Force -ErrorAction SilentlyContinue
           Get-Process msedge -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue

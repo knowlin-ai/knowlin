@@ -14,6 +14,7 @@ import pytest
 from duckpilot.api import Head, Twist
 from duckpilot.backends.sim import display_joints
 from duckpilot.server.app import STATIC
+from duckpilot.server.oberflaeche import seite
 
 
 def test_gangart_wie_im_simulator():
@@ -57,16 +58,16 @@ def test_trainingsfeld_oberflaeche():
     assert "feld.setModell(figur())" in tr and "Vorschau – hier lernt nichts" in tr and "Gemessene Quote" in tr
     app = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "original: scene.modelStyle === 'original'" in app
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert "50 Enten" not in html and 'id="tr-feld-art"' in html and "Gelernt wird erst, wenn du unten einen Lauf startest" in html and "Runde ${runde}" not in tr
 
 
 def test_farbe_auch_unter_charakter():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
-    seite = html[html.index('id="view-persoenlichkeit"'):]
-    seite = seite[:seite.index("</section>\n      <section class=\"view")] if "</section>\n      <section class=\"view" in seite else seite
+    html = seite()
+    teil = html[html.index('id="view-persoenlichkeit"'):]
+    teil = teil[:teil.index("</section>\n      <section class=\"view")] if "</section>\n      <section class=\"view" in teil else teil
     for f in ("cream", "graphite", "lavender", "sky"):
-        assert f'name="farbe-ch" value="{f}" data-set="farbe"' in seite
+        assert f'name="farbe-ch" value="{f}" data-set="farbe"' in teil
     # Hinweise zu Reachy und Odi stehen beim Feld „3D-Ansicht“ (vorher im Microduck-Feld versteckt)
     feld = html[html.index('aria-label="3D-Modell"'):html.index('id="farbe-label"')]
     assert "nur-reachy" in feld and "nur-open-duck" in feld

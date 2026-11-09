@@ -8,11 +8,13 @@ nichts verstellen“.
 import re
 from pathlib import Path
 
+from duckpilot.server.oberflaeche import seite
+
 STATIC = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
 
 
 def test_oben_steht_was_laeuft_und_der_weg_zurueck():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     karte = html[html.index('id="isaaclab"'):html.index('id="il-liste"')]
     aktiv, form = karte.index('id="il-aktiv"'), karte.index('id="il-form"')
     assert aktiv < form, "die Anzeige, was läuft, steht vor dem Formular"

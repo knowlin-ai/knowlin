@@ -8,6 +8,7 @@ from test_gui import tmp_settings, vault  # noqa: F401 – Fixtures
 from duckpilot import settings as S
 from duckpilot.config import load
 from duckpilot.server.app import STATIC, Runtime
+from duckpilot.server.oberflaeche import seite
 
 
 def test_jeder_start_beginnt_mit_einer_ente(tmp_settings, vault, tmp_path, monkeypatch):  # noqa: F811
@@ -22,7 +23,7 @@ def test_jeder_start_beginnt_mit_einer_ente(tmp_settings, vault, tmp_path, monke
 
 
 def test_hinweis_sagt_es():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert "Knowlin startet immer mit einer Ente" in html and "Gäste bleiben bis zum Beenden" in html
 
 

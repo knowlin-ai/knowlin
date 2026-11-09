@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 from duckpilot.motion.mood import Mood
 from duckpilot.protest import ABSTAND_S, GESTEN, SAETZE, Protest, ProtestDienst, nur_kopf
+from duckpilot.server.oberflaeche import seite
 
 
 class Uhr:
@@ -195,14 +196,13 @@ def test_protest_does_not_touch_mood_memory_or_experience(tmp_path, monkeypatch)
 
 
 def test_setting_exists_and_switch_in_panel():
-    from pathlib import Path
 
     from duckpilot import settings as S
     from duckpilot.config import Config
 
     assert Config().kollision_protest is True and "kollision_protest" in Config().public()
     assert S.validate({"kollision_protest": False}) == {"kollision_protest": False}
-    html = (Path(__file__).parents[1] / "duckpilot/server/static/index.html").read_text("utf-8")
+    html = seite()
     assert 'data-set="kollision_protest"' in html
 
 

@@ -18,6 +18,7 @@ from duckpilot.config import load
 from duckpilot.figuren import FIGUREN, FigurenStore, ist_ente
 from duckpilot.motion.engine import MotionEngine
 from duckpilot.server.app import Runtime, create_app
+from duckpilot.server.oberflaeche import seite
 from duckpilot.voice import speech as SP
 
 BRUNO = {"duck_name": "Bruno", "entenlaute": "oft", "entenhaft": 0.5, "weitere_enten": 2, "energie": 0.7}
@@ -147,7 +148,7 @@ def test_oberflaeche_nach_kontext():
     from pathlib import Path
 
     static = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
-    html = (static / "index.html").read_text(encoding="utf-8")
+    html = seite()
     zeile = lambda s: next(z for z in html.splitlines() if s in z)   # noqa: E731
     assert "braucht-tiefensensor" in zeile('data-group="umgebung"')                # Reachy/Open Duck: keine Umgebung
     assert "nur-im-koerper" in zeile('id="raum-start"') and "braucht-tiefensensor" in zeile('id="raum-start"')

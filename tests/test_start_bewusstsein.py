@@ -8,19 +8,20 @@ from pathlib import Path
 import pytest
 
 from duckpilot.server.app import STATIC
+from duckpilot.server.oberflaeche import seite, stil
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_start_zeigt_bewusstsein_statt_startbild():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     start = html[html.index('id="splash"'):html.index("</script>", html.index('id="splash"'))]
     assert "splash.jpg" not in html and "<img" in start and "knowlin-zeichen.png" in start
     assert start.count("<i></i>") == 8 and "Knowlins Bewusstsein lädt …" in start and "Klick oder Taste überspringt" in start
     app = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "box.classList.add('is-wach')" in app and "splash.ready(`Knowlin ist wach" in app
     assert "setTimeout(close, 8000)" in app                                   # kommt die App nicht hoch: trotzdem weg
-    css = (STATIC / "style.css").read_text(encoding="utf-8")
+    css = stil()
     block = css[css.index("/* Start: Knowlins Bewusstsein"):css.index("/* ── Handy-Fernbedienung")]
     assert "@keyframes einfliegen" in block and "prefers-reduced-motion" in block and "#" not in block.replace("#splash", "")
     en = json.loads((ROOT / "duckpilot" / "i18n" / "ui_en.json").read_text(encoding="utf-8"))

@@ -1513,6 +1513,20 @@ details.ak-joints[open] > summary { margin-bottom: var(--spacing-03); }
 .quit-done[hidden] { display: none; }
 .quit-done h2 { margin: 0 0 var(--spacing-03); font-size: 1.25rem; font-weight: 600; }
 .quit-done p { margin: 0; color: var(--ink-2); }
+/* Update und Neustart Schritt für Schritt (0.38.38): erledigt ✓, jetzt hervorgehoben, Rest blass */
+.quit-done-inhalt { display: grid; gap: var(--spacing-04); justify-items: center; width: min(28rem, 100%); }
+.quit-schritte { list-style: none; margin: var(--spacing-03) 0 0; padding: 0; display: grid; gap: var(--spacing-03); justify-items: start; text-align: left; }
+.quit-schritte[hidden], .quit-balken[hidden], .quit-zeit[hidden], .update-balken[hidden] { display: none; }
+.quit-schritte li { display: grid; grid-template-columns: var(--spacing-06) 1fr; gap: var(--spacing-03); align-items: baseline; color: var(--ink-3); }
+.quit-schritte li::before { content: "○"; text-align: center; }
+.quit-schritte li.is-fertig { color: var(--ink-2); }
+.quit-schritte li.is-fertig::before { content: "✓"; color: var(--good-ink); }
+.quit-schritte li.is-jetzt { color: var(--ink); font-weight: 600; }
+.quit-schritte li.is-jetzt::before { content: "●"; color: var(--accent); }
+.quit-schritte small { grid-column: 2; font-weight: 400; color: var(--ink-2); font-size: var(--t-small); }
+.quit-balken { width: 100%; flex: none; }
+.quit-zeit { font-size: var(--t-small); font-variant-numeric: tabular-nums; }
+.update-balken { flex: 1 1 100%; }
 .update-bar {
   position: fixed; top: 56px; right: var(--spacing-05); z-index: 61; display: flex; align-items: center; gap: var(--spacing-03);
   padding: var(--spacing-03) var(--spacing-04); border-radius: var(--r-control); background: var(--surface-2);

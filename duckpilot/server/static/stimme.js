@@ -2,6 +2,7 @@
 // Klang und Entenlaute, Plaudern und das eigene Sprachmodell (Ollama).
 // Was aus Ollama oder pip kommt, ist Fremdtext: nur als textContent.
 import { initAnbieter } from './anbieter.js';
+import { installBalken, installStand } from './fortschritt.js';
 import { t, uebersetzeText } from './i18n.js';
 import { playSound, setKlang } from './voice.js';
 
@@ -250,11 +251,12 @@ export function initVoicePage(h) {
   function jobView(job, doneText) {
     const box = el('div', 'job');
     const status = el('p', `job-state${job.fehler ? ' is-bad' : ''}`);
-    if (job.laeuft) status.textContent = `Schritt ${job.schritt} von ${job.schritte} – ${(job.zeilen || []).slice(-1)[0] || 'startet …'}`;
+    // Seit 0.38.38 mit echtem Fortschritt beim Herunterladen (Datei, MB von MB, Balken – fortschritt.js)
+    if (job.laeuft) status.textContent = installStand(job);
     else if (job.fehler) status.textContent = `Hat nicht geklappt: ${job.fehler}`;
     else status.textContent = doneText;
     box.append(status);
-    if (job.laeuft) box.append(el('div', 'bar is-busy'));
+    if (job.laeuft) box.append(installBalken(el, job));
     if (job.zeilen && job.zeilen.length) {
       const d = el('details', 'log-box');
       d.open = !!job.fehler;

@@ -27,6 +27,7 @@ from duckpilot import remote as R
 from duckpilot.backends.reachy import ReachyMiniSim
 from duckpilot.motion.engine import EngineConfig, MotionEngine
 from duckpilot.motion.reachy_spiel import KOERPER_MAX, KOPF_PITCH_MAX, KOPF_YAW_MAX, NUR_KOPF, SpielHaltung, aufteilen
+from duckpilot.server.oberflaeche import seite, stil
 from duckpilot.server.routes import spiele as SP
 
 STATIC = Path(__file__).resolve().parent.parent / "duckpilot" / "server" / "static"
@@ -345,7 +346,7 @@ def test_handerkennung_quellen_fest_und_mit_pruefsumme():
     assert 10 < H.DOWNLOAD_BYTES / 1e6 < 20                                         # „≈ 14 MB“ steht auf dem Knopf
     notice = (Path(__file__).resolve().parent.parent / "NOTICE").read_text(encoding="utf-8")
     readme = (Path(__file__).resolve().parent.parent / "README.md").read_text(encoding="utf-8")
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     for text in (notice, readme, html):
         assert "MediaPipe Hand Landmarker" in text and "0.10.21" in text
 
@@ -445,7 +446,7 @@ def test_oberflaeche_schickt_keine_bilder():
     assert "initKameraSpiele({ $, api, toast, scene," in app and "case 'spiel':" in app and "part: 'spiele'" in app
     assert "hand.js" not in app and "vision_bundle" not in app                                   # nichts beim Start
     assert "'tricks/spiele'" in (STATIC / "modul.js").read_text(encoding="utf-8")
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     for needle in ('data-part="spiele"', 'id="ks-ampel-start"', 'id="ks-folgen-start"', 'id="badge-spiel-cam"',
                    'role="meter"', 'aria-live="assertive"', 'id="ks-hinweis"', 'id="ks-hand-laden"', 'id="ks-hand-an"',
                    'id="ks-sp-start"', 'id="ks-ssp-start"', 'id="ks-ssp-runde"', 'id="ks-sim-ansicht"', 'id="ks-echt"',
@@ -475,7 +476,7 @@ def test_uebergang_zum_simulator_und_not_aus_vorn():
         assert needle in kern, needle
     d3 = _code("duck3d.js")
     assert "anfahren({" in d3 and "if (REDUCED) {" in d3[d3.index("anfahren({"):]
-    css = re.sub(r"/\*.*?\*/", "", (STATIC / "style.css").read_text(encoding="utf-8"), flags=re.S)
+    css = re.sub(r"/\*.*?\*/", "", stil(), flags=re.S)
     assert ".ks-raster[data-spielt] > .ks-karte:not(.is-aktiv) { display: none; }" in css
     assert re.search(r"prefers-reduced-motion: reduce\)[^\n]*\.ks-raster\[data-spielt\] > \.ks-sim \{ animation: none; \}", css)
 

@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from duckpilot import settings as S
 from duckpilot.config import load
 from duckpilot.server.app import Runtime, create_app, origin_allowed
+from duckpilot.server.oberflaeche import seite, stil, stil_dateien
 
 ORIGIN = {"Origin": "http://testserver"}
 
@@ -183,9 +184,8 @@ def test_training_is_three_clear_steps():
     """Erst was, dann wo und wie, dann ein deutlicher Start-Knopf (Wunsch des Maintainers: der Lernen-Knopf war zu übersehen)."""
     import re
 
-    from duckpilot.server.app import STATIC
 
-    html = (STATIC / "index.html").read_text("utf-8")
+    html = seite()
     flow = html[html.index('class="tr-flow"'):html.index('id="tr-local-progress"')]
     what, how, go = (flow.index(f'id="tr-step-{s}"') for s in ("what", "how", "go"))
     assert what < how < go
@@ -204,8 +204,8 @@ def test_pages_share_one_grid():
 
     from duckpilot.server.app import STATIC
 
-    css = (STATIC / "style.css").read_text("utf-8")
-    html = (STATIC / "index.html").read_text("utf-8")
+    css = stil()
+    html = seite()
     js = (STATIC / "skills.js").read_text("utf-8")
     pages = ["dash", "emo-grid", "hub-grid", "pack-grid", "mem-grid", "settings-grid", "settings-layout", "talk-grid",
              "al-hero", "al-grid", "engines", "ak-layout", "pc-grid"]
@@ -233,7 +233,7 @@ def test_css_uses_only_carbon_values():
     tokens = (STATIC / "ds" / "tokens.css").read_text("utf-8")
     on_scale = {int(v) for v in re.findall(r"--spacing-\d\d: (\d+)px", tokens)}
     assert on_scale == {2, 4, 8, 12, 16, 24, 32, 40, 48, 64, 80, 96, 160}
-    for name in ("style.css", "ds/components.css"):
+    for name in (*stil_dateien(), "ds/components.css"):
         css = re.sub(r"/\*.*?\*/", "", (STATIC / name).read_text("utf-8"), flags=re.S)
         assert not re.search(r"var\(--s-\d|var\(--dur-\d", css), name
         assert not re.search(r"var\(--p-", css), f"{name}: Grundwerte (--p-*) nur in ds/tokens.css"
@@ -256,7 +256,7 @@ def test_collision_mode_and_stop_window_are_wired():
     für alles eine Taste (WCAG 2.1.1); die Wartezeit ist einstellbar (WCAG 2.2.1)."""
     from duckpilot.server.app import STATIC
 
-    html = (STATIC / "index.html").read_text("utf-8")
+    html = seite()
     app = (STATIC / "app.js").read_text("utf-8")
     kol = (STATIC / "kollision.js").read_text("utf-8")
     for needle in ('id="kol-btn"', 'id="kol-panel"', 'data-seite="links"', 'data-ding="wurf"', 'id="stopp-fenster"',
@@ -289,7 +289,7 @@ def test_collision_mode_and_stop_window_are_wired():
     assert 'id="kol-weg"' in html and "e.key !== 'Delete'" in kol and "aktion: 'parken', name: id" in kol
     # Regression: ein frisch hingelegtes, ruhendes Ding kam nie im Strom an und war nicht zu sehen/anzufassen
     assert "applyObjekte(msg.objekte);" in kol and "refresh(true)" in kol
-    css = (STATIC / "style.css").read_text("utf-8")
+    css = stil()
     assert ".stage--greifbar canvas { cursor: grab; }" in css and ".stage--ziehen canvas { cursor: grabbing; }" in css
 
 
@@ -299,7 +299,7 @@ def test_push_series_card_is_wired():
     Erreichbar als #training/stossreihe (z. B. aus dem Kollisionsmodus)."""
     from duckpilot.server.app import STATIC
 
-    html = (STATIC / "index.html").read_text("utf-8")
+    html = seite()
     app = (STATIC / "app.js").read_text("utf-8")
     js = (STATIC / "stossreihe.js").read_text("utf-8")
     view = html[html.index('id="view-training"'):html.index('<!-- Alltag -->')]
@@ -315,7 +315,7 @@ def test_push_series_card_is_wired():
                    "zeichen: '✕', wort: 'fällt'", "'sr-delta is-up'", "'sr-delta is-down'"):
         assert needle in js, needle
     assert "innerHTML" not in js                             # Namen nur über textContent
-    css = (STATIC / "style.css").read_text("utf-8")
+    css = stil()
     for tone in ("good", "warning", "critical"):
         assert f"var(--{tone}-tint)" in css[css.index(".sr-card"):]
 
@@ -325,7 +325,7 @@ def test_phone_controller_is_wired_and_safe():
     Bewegungssensor nur mit https und Kippen nur mit Totmann, Vibrieren bei Stößen (Handy und Gamepad)."""
     from duckpilot.server.app import STATIC
 
-    html = (STATIC / "index.html").read_text("utf-8")
+    html = seite()
     app = (STATIC / "app.js").read_text("utf-8")
     ctl = (STATIC / "controller.js").read_text("utf-8")
     for needle in ('id="ctl-btn"', 'id="ctl"', 'role="dialog"', 'id="ctl-stop"', 'id="ctl-stick"', 'id="ctl-look"', 'id="ctl-cam"',
@@ -476,7 +476,7 @@ def test_mapping_switches_to_cockpit_and_music_button():
     raum = (STATIC / "raum.js").read_text("utf-8")
     app = (STATIC / "app.js").read_text("utf-8")
     tanz = (STATIC / "tanz.js").read_text("utf-8")
-    html = (STATIC / "index.html").read_text("utf-8")
+    html = seite()
     assert "if (zumCockpit) zumCockpit();" in raum and "zumCockpit: () => showView('cockpit')" in app
     assert "function plan(d)" in raum and "piktogramm(s)" in raum and 'id="raum-plan"' in html
     assert 'id="tanz-waehlen"' in html and 'label class="btn btn--primary" for="tanz-datei"' not in html
@@ -504,7 +504,7 @@ def test_farbe_der_microduck_einstellbar(client):
     assert r.status_code == 200
     assert client.runtime.config.farbe == "lavender"
     assert client.post("/api/settings", json={"farbe": "pink"}, headers={"Origin": "http://127.0.0.1:8765"}).status_code >= 400
-    html = (Path(__file__).parent.parent / "duckpilot/server/static/index.html").read_text(encoding="utf-8")
+    html = seite()
     for f in ("cream", "graphite", "lavender", "sky"):
         assert f'value="{f}" data-set="farbe"' in html
     js = (Path(__file__).parent.parent / "duckpilot/server/static/duckmodel.js").read_text(encoding="utf-8")

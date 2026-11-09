@@ -34,6 +34,13 @@ def main() -> int:
     if importlib.util.find_spec("huggingface_hub") is None and not isinstance(HF._hub()[0], HF.EigeneApi):
         fehler.append("Hugging Face geht ohne huggingface_hub nicht")
     from duckpilot.server.app import Runtime, create_app  # noqa: F401 – Oberfläche lässt sich aufbauen
+    from duckpilot.server.oberflaeche import seite
+
+    try:                                    # die Seite aus ihren Teilen (seit 0.38.38): alle Teile im Paket
+        if 'id="view-tricks"' not in seite():
+            fehler.append("Seite unvollständig: Tricks fehlt")
+    except FileNotFoundError as exc:
+        fehler.append(f"Seite: {exc}")
 
     # Pflichtpakete wirklich da (httpx kam bis anthropic 1.x von selbst mit – lokales Modell, andere Anbieter)
     for modul in ("httpx", "anthropic", "fastapi", "uvicorn", "keyring", "numpy", "zeroconf"):

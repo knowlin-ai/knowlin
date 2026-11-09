@@ -11,9 +11,10 @@ from test_gui import tmp_settings, vault  # noqa: F401 – Fixtures
 from duckpilot import __version__, desktop, suite
 from duckpilot.config import load
 from duckpilot.server.app import Runtime, create_app
+from duckpilot.server.oberflaeche import seite
 
 STATIC = Path(__file__).resolve().parent.parent / "duckpilot" / "server" / "static"
-HTML = (STATIC / "index.html").read_text(encoding="utf-8")
+HTML = seite()
 APP = (STATIC / "app.js").read_text(encoding="utf-8")
 
 

@@ -16,6 +16,7 @@ from duckpilot.backends.reachy import ReachyMiniSim
 from duckpilot.brain.kopf import EIGENE_TOOLS, KOPF_TOOLS, KopfRunner
 from duckpilot.config import load
 from duckpilot.server.app import Runtime
+from duckpilot.server.oberflaeche import seite
 from duckpilot.voice import speech as SP
 
 STATIC = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
@@ -259,7 +260,7 @@ def test_kopf_spricht_ohne_entenfilter(tmp_path):
 
 
 def test_startseite_quickstart_aufbau():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     start = html[html.index('id="view-start"'):html.index('id="view-dashboard"')]
     # oben der Kopf mit Gruß und Dialog, darunter die Figuren
     assert start.index('id="mind"') < start.index('id="kopf-gruss"') < start.index('id="kopf-form"') < start.index('id="start-module"')

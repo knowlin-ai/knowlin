@@ -12,6 +12,7 @@ from duckpilot.brain.fallback import parse
 from duckpilot.brain.tools import ToolRunner
 from duckpilot.motion.handeln import Begegnung, Hinterher
 from duckpilot.motion.schwarm import Schwarm
+from duckpilot.server.oberflaeche import seite
 
 
 async def _mit_ente(x=0.4, y=-0.1):
@@ -123,7 +124,7 @@ def test_oberflaeche_anwaehlen():
     from pathlib import Path
 
     static = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
-    html = (static / "index.html").read_text("utf-8")
+    html = seite()
     app = (static / "app.js").read_text("utf-8")
     d3 = (static / "duck3d.js").read_text("utf-8")
     assert 'id="auswahl-pop"' in html and 'id="auswahl-chip"' in html

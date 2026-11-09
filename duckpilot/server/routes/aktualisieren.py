@@ -21,6 +21,11 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         return JSONResponse({"ok": True, **runtime.aktualisierer.status(),
                              "suchen": bool(getattr(runtime.config, "updates_suchen", True))})
 
+    @app.get("/api/update/fortschritt")
+    async def update_fortschritt() -> JSONResponse:
+        """Was das Update gerade macht: laden (mit Bytes), prüfen, installieren, paket – fürs Fenster (seit 0.38.38)."""
+        return JSONResponse({"ok": True, "laeuft": runtime.aktualisierer.laeuft, **runtime.aktualisierer.fortschritt})
+
     @app.post("/api/update/pruefen")
     async def update_pruefen() -> JSONResponse:
         try:
@@ -51,6 +56,7 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         try:
             if st["art"] == "installer":
                 setup = await asyncio.to_thread(akt.installer_laden, neu["installer"])
+                akt.melden("installieren")
                 await asyncio.to_thread(akt.installer_starten, setup)
             else:
                 await asyncio.to_thread(akt.paket_aktualisieren, neu["version"])
@@ -59,6 +65,7 @@ def register(app: FastAPI, runtime: Runtime) -> None:
                     await asyncio.to_thread(runtime.spawn_restart)
         except (UpdateFehler, OSError) as exc:
             akt.laeuft = False
+            akt.melden("fehler", text=str(exc)[:300])
             log.warning("Update: %s", exc)
             return JSONResponse({"ok": False, "fehler": str(exc)[:300]}, status_code=400)
         log.info("Update auf %s – Knowlin beendet sich", neu["version"])

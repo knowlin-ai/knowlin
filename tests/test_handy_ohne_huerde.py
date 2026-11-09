@@ -11,6 +11,7 @@ from duckpilot import remote as R
 from duckpilot import settings as S
 from duckpilot.config import load
 from duckpilot.server.app import Runtime, create_app
+from duckpilot.server.oberflaeche import seite
 from duckpilot.server.security import _host_ok
 
 STATIC = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
@@ -111,7 +112,7 @@ def test_koppeln_mit_eingetipptem_code(app):
 
 
 def test_karte_auf_der_startseite():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     start = html[html.index('id="view-start"'):html.index('id="view-dashboard"')]
     assert 'class="start-handy pc-only" id="start-handy"' in start
     for i in ("handy-qr", "handy-code", "handy-hinweis", "handy-los", "handy-verwalten"):

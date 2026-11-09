@@ -26,6 +26,7 @@ from duckpilot.config import Config
 from duckpilot.motion.apportieren import Apportieren
 from duckpilot.motion.engine import MotionEngine
 from duckpilot.motion.purzelbaum import Purzelbaum
+from duckpilot.server.oberflaeche import seite, stil
 
 
 def run(coro):
@@ -231,7 +232,7 @@ def test_oberflaeche_blendet_beine_aus():
     """Körpermodus (seit 0.38.4 für alle Körper gleich): Klassen nach Eigenschaft und Körper, nicht je Roboter verdrahtet."""
     from pathlib import Path
     static = Path(__file__).resolve().parent.parent / "duckpilot" / "server" / "static"
-    html = (static / "index.html").read_text(encoding="utf-8")
+    html = seite()
     zeile = lambda knopf: next(z for z in html.splitlines() if knopf in z)          # noqa: E731
     assert "braucht-beine" in zeile('id="laser-btn"') and "braucht-beine" in zeile('id="follow-btn"')
     assert "braucht-beine" in zeile('id="ctl-btn"') and "nur-microduck" in zeile('id="kol-btn"')
@@ -240,7 +241,7 @@ def test_oberflaeche_blendet_beine_aus():
     assert 'data-koerper="reachy_sim"' in html and 'data-set="reachy_adresse"' in html and 'id="rail-lernen"' in html
     modul = (static / "modul.js").read_text(encoding="utf-8")
     assert "'tricks/team'" in modul and "'training'" in modul and "ohne-${e}" in modul
-    css = (static / "style.css").read_text(encoding="utf-8")
+    css = stil()
     assert "body:not(.im-kopf).ohne-beine .braucht-beine" in css and "body:not(.koerper-reachy) .nur-reachy" in css
     assert "body.keine-ente .nur-ente" in css                     # Entensachen nur bei Enten (seit 0.38.6)
     d3 = (static / "duck3d.js").read_text(encoding="utf-8")

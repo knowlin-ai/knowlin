@@ -84,9 +84,15 @@ class _Sammler(HTMLParser):
             self.texte.append(s)
 
 
-def texte_html(pfad: Path = INDEX) -> list[str]:
+def texte_html(pfad: Path | None = None) -> list[str]:
     p = _Sammler()
-    p.feed(pfad.read_text(encoding="utf-8"))
+    if pfad is None:                       # die ganze Seite samt Teilen (seit 0.38.38, static/teile/)
+        sys.path.insert(0, str(ROOT))
+        from duckpilot.server.oberflaeche import seite
+
+        p.feed(seite())
+    else:
+        p.feed(pfad.read_text(encoding="utf-8"))
     out: list[str] = []
     for s in p.texte:
         if re.search(r"[A-Za-zÄÖÜäöüß]{2,}", s) and not OHNE.match(s) and s not in out:

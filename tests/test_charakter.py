@@ -12,6 +12,7 @@ from duckpilot.brain.kopf import art
 from duckpilot.config import Config, load
 from duckpilot.figuren import FIGUR_KEYS, FIGUREN, GESTALT, FigurenStore, gestalt_standard, gestalt_text
 from duckpilot.server.app import Runtime
+from duckpilot.server.oberflaeche import seite
 
 
 @pytest.fixture()
@@ -86,7 +87,7 @@ def test_knowlin_feld_punkte_ziehbar():
     pad = (static / "personality.js").read_text(encoding="utf-8")
     assert "onMarke" in pad and "ArrowLeft" in pad[pad.index("markeZiehbar(d, m) {"):]   # auch per Tastatur
     assert "stopPropagation" in pad                                                     # Knowlins Punkt bleibt
-    html = (static / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert "wandern mit" not in html and "um ihren Charakter einzeln anzupassen" in html
 
 
@@ -114,7 +115,7 @@ def test_grundcharakter_als_feld_mit_verkoerperungen(rt):
     from pathlib import Path
 
     static = Path(__file__).resolve().parent.parent / "duckpilot" / "server" / "static"
-    html = (static / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert 'id="pad-knowlin"' in html and 'data-set="grund_humor"' not in html          # Feld statt Schieberegler
     js = (static / "charakter.js").read_text(encoding="utf-8")
     assert "schluessel: ['grund_energie', 'grund_humor']" in js and "goofy: false" in js

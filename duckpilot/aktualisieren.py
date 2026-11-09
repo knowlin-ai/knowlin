@@ -77,6 +77,23 @@ def _lesen(url: str, limit: int = 2_000_000) -> bytes:
         return r.read(limit + 1)[:limit]
 
 
+def _laden(url: str, limit: int, melden=None) -> bytes:
+    """Wie _lesen, aber in Stücken – meldet (geladen, gesamt) für den Fortschrittsbalken (seit 0.38.38)."""
+    req = urllib.request.Request(url, headers={"User-Agent": f"Knowlin/{__version__}"})
+    teile, n = [], 0
+    with urllib.request.urlopen(req, timeout=30) as r:          # noqa: S310 – Adresse vorher geprüft
+        gesamt = int(r.headers.get("Content-Length") or 0)
+        while n <= limit:
+            stueck = r.read(256 * 1024)
+            if not stueck:
+                break
+            teile.append(stueck)
+            n += len(stueck)
+            if melden:
+                melden(n, gesamt)
+    return b"".join(teile)[:limit + 1]
+
+
 def auswerten(daten: dict[str, Any]) -> dict[str, Any] | None:
     """Antwort von releases/latest → {version, notizen, seite, installer: {url, groesse, sha256}}; None ohne Version."""
     if daten.get("draft") or daten.get("prerelease"):
@@ -102,12 +119,19 @@ def auswerten(daten: dict[str, Any]) -> dict[str, Any] | None:
 class Aktualisierer:
     """Merkt sich den letzten Blick (Datei im Datenordner) und führt das Update aus."""
 
-    def __init__(self, ordner: Path, lesen=_lesen):
+    def __init__(self, ordner: Path, lesen=_lesen, laden=None):
         self.ordner = Path(ordner)
         self.datei = self.ordner / "update.json"
         self._lesen = lesen
+        # Herunterladen in Stücken mit Fortschritt; wer nur `lesen` vorgibt (Tests), lädt am Stück
+        self._laden = laden or (_laden if lesen is _lesen else (lambda url, limit, melden=None: self._lesen(url, limit)))
         self.art = installart()
         self.laeuft = False
+        # Was gerade passiert – fürs Fenster (GET /api/update/fortschritt, seit 0.38.38)
+        self.fortschritt: dict[str, Any] = {"schritt": None}
+
+    def melden(self, schritt: str, **mehr: Any) -> None:
+        self.fortschritt = {"schritt": schritt, "zeit": time.time(), **mehr}
 
     def _stand(self) -> dict[str, Any]:
         try:
@@ -151,9 +175,12 @@ class Aktualisierer:
             raise UpdateFehler("Unerwartete Download-Adresse – Update abgebrochen.")
         if not re.fullmatch(r"[0-9a-f]{64}", str(info.get("sha256") or "")):
             raise UpdateFehler("Keine Prüfsumme von GitHub – Update abgebrochen.")
-        roh = self._lesen(url, MAX_BYTES)
+        gesamt = int(info.get("groesse") or 0)
+        self.melden("laden", geladen=0, gesamt=gesamt)
+        roh = self._laden(url, MAX_BYTES, lambda n, g: self.melden("laden", geladen=n, gesamt=g or gesamt))
         if len(roh) >= MAX_BYTES:
             raise UpdateFehler("Der Installer ist unerwartet groß – Update abgebrochen.")
+        self.melden("pruefen", geladen=len(roh), gesamt=len(roh))
         if hashlib.sha256(roh).hexdigest() != info["sha256"]:
             raise UpdateFehler("Die Prüfsumme stimmt nicht – Update abgebrochen, nichts installiert.")
         ziel = self.ordner / "updates" / Path(urllib.request.urlparse(url).path).name
@@ -219,6 +246,7 @@ class Aktualisierer:
         return [sys.executable, "-m", "pip", "install", "--upgrade", "--disable-pip-version-check", f"knowlin=={version}"]
 
     def paket_aktualisieren(self, version: str) -> None:
+        self.melden("paket", version=version)
         r = subprocess.run(self.paket_befehl(version), capture_output=True, text=True, timeout=900)
         if r.returncode != 0:
             raise UpdateFehler(f"pip meldet einen Fehler: {(r.stderr or r.stdout).strip()[-300:]}")

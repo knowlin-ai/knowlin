@@ -9,6 +9,36 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.38 – 2026-11-09 – Updates und Downloads mit Fortschritt
+
+### Neu
+- **Update mit Fortschritt:** Beim Herunterladen zeigt die Leiste einen Balken mit „… MB von … MB“, dann
+  „Prüfe die Prüfsumme …“. Danach führt eine Schrittliste durch das Update (Herunterladen, Prüfsumme prüfen,
+  Installieren, Knowlin startet, Fertig) – mit mitlaufender Zeit, damit man sieht, dass sich etwas tut.
+- **Knowlin meldet sich beim Start sofort:** Das startende Knowlin belegt seinen Port gleich mit einem kleinen
+  Statusdienst und sagt, wobei es ist („Körper, Stimme und Gedächtnis werden aufgebaut“). Das offene Fenster zeigt das
+  nach einem Update oder Neustart an und lädt sich neu, sobald alles bereit ist; ein normaler Start öffnet das Fenster
+  gleich mit „Knowlin startet …“ statt erst nach dem langsamen Teil.
+- **Nachinstallieren mit Fortschritt:** Physik, Stimmen, Gesichter und PyTorch zeigen beim Herunterladen Datei,
+  „… MB von … MB“ und einen Balken (pip ab 24.1; ältere pip-Fassungen ohne Balken).
+
+### Behoben
+- Nach einem Update stand nach 90 Sekunden „Das Update wird noch installiert …“, obwohl der Installer längst fertig war
+  und Knowlin schon startete (bei Alex: Installer 70 s, erster Start danach zwei Minuten). Das Fenster wusste nicht,
+  was passiert; jetzt sagt es der neue Knowlin selbst. Ist das Update nicht durchgelaufen, sagt das Fenster das auch.
+
+### Geändert
+- Startschritte stehen mit Zeit im Protokoll (`duckpilot.log`: „Start nach … s: …“), damit sich ein langsamer Start
+  nachvollziehen lässt. Die Update-Probe bei GitHub misst die Startdauer nach dem Installer und schreibt die gemeldeten
+  Schritte mit.
+- Vorbereitung für das Aufteilen der Oberfläche (Architektur-Etappe A2): Tests und Werkzeuge lesen die Seite über
+  `duckpilot/server/oberflaeche.py`; ein Vertragstest prüft, dass jede ID, die ein Skript holt, auf der Seite steht.
+  An der Oberfläche selbst ändert sich dadurch nichts.
+
+### Nicht geprüft
+- Wie viel der Statusdienst den ersten Start nach einem Update unter Windows tatsächlich verkürzt – er macht ihn
+  sichtbar, nicht schneller. Die Startzeiten im Protokoll zeigen beim nächsten Update, wo die Zeit bleibt.
+
 ## 0.38.37 – 2026-11-09 – Auf einem Bein klappt wieder, Tricks-Vorschau läuft mit
 
 ### Behoben

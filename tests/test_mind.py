@@ -8,6 +8,7 @@ import subprocess
 import pytest
 
 from duckpilot.server.app import STATIC
+from duckpilot.server.oberflaeche import seite, stil
 
 MIND = STATIC / "mind.js"
 
@@ -24,12 +25,12 @@ def test_mind_sparsam_und_ruhig_bei_reduzierter_bewegung():
     assert "getComputedStyle" in js and "--accent" in js and "--ink-3" in js
     assert not re.search(r"#[0-9a-fA-F]{3,8}\b", js)
     assert "import " not in js and "fetch(" not in js and "three" not in js.lower()
-    css = (STATIC / "style.css").read_text(encoding="utf-8")
+    css = stil()
     regel = css[css.index(".mind {"):]
     assert "pointer-events: none" in regel[:regel.index("}")]           # schmückend, fängt keine Klicks
     # seit 0.38.23 auf einem flachen Halo (Wunsch: „nur auf einer Art Halo oder Bezugsfläche“), keine Blase
     assert "function halo(" in js and "function blase(" not in js
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert '<canvas class="mind" id="mind" aria-hidden="true">' in html
 
 

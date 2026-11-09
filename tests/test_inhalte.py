@@ -21,8 +21,9 @@ from html.parser import HTMLParser
 import pytest
 
 from duckpilot.server.app import STATIC
+from duckpilot.server.oberflaeche import seite, stil
 
-INDEX = (STATIC / "index.html").read_text("utf-8")
+INDEX = seite()
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
 ATTRS = ("title", "aria-label", "placeholder", "alt")
 
@@ -193,13 +194,13 @@ def test_ansicht_menue_je_koerper():
 
 def test_blick_aktiv_auch_mit_zweitem_text():
     """Fund aus dem Test 8: Der gewählte Blick war bei Reachy nicht zu sehen – `+ span` traf den ausgeblendeten Enten-Text."""
-    css = (STATIC / "style.css").read_text("utf-8")
+    css = stil()
     assert ".stage-mode input:checked ~ span" in css and ".stage-mode input:checked + span" not in css
 
 
 def test_sicht_kachel_bei_kamera_ohne_tiefensensor():
     """Fund aus dem Test 7: Reachy (Kamera, kein Tiefensensor) bekommt die kleine Kachel mit dem Kamerabild."""
-    css = (STATIC / "style.css").read_text("utf-8")
+    css = stil()
     app = (STATIC / "app.js").read_text("utf-8")
     kachel = (STATIC / "kachel.js").read_text("utf-8")                    # seit 0.38.17 eigenes Modul
     assert 'class="hud-sensor braucht-sicht"' in INDEX
@@ -212,7 +213,7 @@ def test_sicht_kachel_bei_kamera_ohne_tiefensensor():
 
 def test_beenden_bei_knowlin_rechts():
     """Fund aus dem Test 5: Im Kopf fehlen Persönlichkeit und Aktiv/Ruht, die den Beenden-Knopf sonst nach rechts schieben."""
-    css = (STATIC / "style.css").read_text("utf-8")
+    css = stil()
     assert "body.im-kopf .quit-btn { margin-left: auto; }" in css
 
 

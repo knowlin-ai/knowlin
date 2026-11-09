@@ -95,6 +95,8 @@ def main(argv: list[str] | None = None) -> None:
 
     url = f"http://{'127.0.0.1' if cfg.host in ('0.0.0.0', '::') else cfg.host}:{cfg.port}"
     fenster = f"{url}/?modul={args.modul}" if args.modul else url    # was das Fenster zeigt (Startseite oder Modul)
+    startstatus = None
+    fenster_offen = False
     if args.app:
         from .desktop import already_running, open_window, refresh_shortcut_icons
 
@@ -110,21 +112,42 @@ def main(argv: list[str] | None = None) -> None:
                     break
                 time.sleep(0.25)
             restart_log("Port frei" if not already_running(url) else "alter Prozess antwortet noch – gebe auf")
-        if already_running(url):  # zweiter Doppelklick: nur ein weiteres Fenster
+        if not already_running(url):
+            # sofort melden, was passiert (seit 0.38.38, startstatus.py): Das Fenster geht gleich auf und zeigt den
+            # Startschritt, statt nach einem langsamen Start (Windows, erster Start nach einem Update) lange leer zu sein
+            from .startstatus import StartStatus
+
+            startstatus = StartStatus(__version__)
+            if not startstatus.starten(cfg.host, cfg.port):
+                startstatus = None
+        if already_running(url) and startstatus is None:  # zweiter Doppelklick: nur ein weiteres Fenster
             if not args.hintergrund:
                 open_window(fenster)      # dasselbe laufende Knowlin – ein Kern, ein Gedächtnis
             return
+        if startstatus is not None and not args.neustart and not args.hintergrund:
+            open_window(fenster)          # zeigt „Knowlin startet …“ und lädt sich selbst, sobald alles bereit ist
+            fenster_offen = True
 
-    step = restart_log if args.app else (lambda _t: None)    # Programmfenster: Startschritte ins neustart.log
-    step(f"Start {__version__}: lade Programm")
+    import time as _zeit
+
+    t_start = _zeit.monotonic()
+
+    def step(text: str) -> None:            # Programmfenster: Startschritte ins neustart.log und ans Fenster
+        if args.app:
+            restart_log(text)
+            # mit Zeit auch ins duckpilot.log – so lässt sich ein langsamer Start nachvollziehen (seit 0.38.38)
+            logging.getLogger("duckpilot.start").info("Start nach %.1f s: %s", _zeit.monotonic() - t_start, text)
+        if startstatus is not None:
+            startstatus.setzen(text)
+    step(f"Programm wird geladen ({__version__})")
     from .server.app import Runtime, create_app
 
-    step("baue Laufzeit auf (Körper, Stimme, Gedächtnis …)")
+    step("Körper, Stimme und Gedächtnis werden aufgebaut")
     try:
         runtime = Runtime(cfg)
     except ValueError as exc:
         raise SystemExit(str(exc)) from None
-    step("Laufzeit bereit")
+    step("Gleich fertig")
     if args.hintergrund and not runtime.remote.enabled:
         print("  Handy-Fernbedienung ist aus – im Hintergrund gibt es nichts zu tun.")
         return
@@ -159,10 +182,12 @@ def main(argv: list[str] | None = None) -> None:
     def open_when_ready() -> None:
         import time
 
-        for _ in range(100):
+        for _ in range(3000):              # bis 5 min – der erste Start nach einem Update kann dauern
             if server.started:
                 break
             time.sleep(0.1)
+        if args.app:
+            logging.getLogger("duckpilot.start").info("Start nach %.1f s: bereit", _zeit.monotonic() - t_start)
         if args.app and args.hintergrund:
             print("  Im Hintergrund gestartet – Fenster öffnen die Knowlin-Verknüpfungen.")
         elif args.app and args.neustart:
@@ -173,14 +198,17 @@ def main(argv: list[str] | None = None) -> None:
 
                 open_window(url)
         elif args.app:
-            from .desktop import open_window
+            if not fenster_offen:         # sonst ist es schon offen und lädt sich selbst neu (startstatus)
+                from .desktop import open_window
 
-            open_window(fenster)
+                open_window(fenster)
         elif cfg.open_browser:
             webbrowser.open(url)
 
     threading.Thread(target=open_when_ready, daemon=True).start()
-    step("starte Server")
+    step("Oberfläche startet")
+    if startstatus is not None:
+        startstatus.beenden()               # Port für den eigentlichen Server frei
     server.run()
     if args.neustart:
         restart_log("Server beendet")

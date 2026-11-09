@@ -11,6 +11,7 @@ from duckpilot.brain.erfahrung import Erfahrungsnetz, key
 from duckpilot.brain.memory import HERKUNFT, Memory
 from duckpilot.config import load
 from duckpilot.server.app import Runtime
+from duckpilot.server.oberflaeche import seite
 
 
 @pytest.fixture()
@@ -64,5 +65,5 @@ def test_oberflaeche_zeigt_herkunft():
     static = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
     hirn = (static / "hirn.js").read_text(encoding="utf-8")
     assert "passt(k.herkunft, filter)" in hirn and "herkunftListe(" in hirn
-    assert 'id="brain-herkunft"' in (static / "index.html").read_text(encoding="utf-8")
+    assert 'id="brain-herkunft"' in seite()
     assert "gemerkt von" in (static / "gedaechtnis_ui.js").read_text(encoding="utf-8")   # seit 0.38.17 eigenes Modul

@@ -7,6 +7,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from duckpilot.brain.erfahrung import Erfahrungsnetz, key
+from duckpilot.server.oberflaeche import seite
 
 STATIC = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
 
@@ -59,7 +60,7 @@ def test_route_und_karte(tmp_path, monkeypatch):
     with TestClient(create_app(rt), base_url="http://127.0.0.1:8765") as c:
         r = c.get("/api/erfahrung/themen").json()
         assert r["ok"] and "gruppen" in r
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert html.index('id="welt"') < html.index('id="card-brain"')            # Nutzen zuerst, dann das Netz
     assert "Leuchten: gerade aktiv." in html                                          # G2: Legende in Worten
     assert "initWelt" in (STATIC / "gedaechtnis_ui.js").read_text(encoding="utf-8")

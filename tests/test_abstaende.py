@@ -3,9 +3,9 @@ Design-Tests auffallen. Und UX/UI.“ Die Abnahme prüft seitdem Abstände zwisc
 
 from pathlib import Path
 
-from duckpilot.server.app import STATIC
+from duckpilot.server.oberflaeche import stil
 
-CSS = (STATIC / "style.css").read_text(encoding="utf-8")
+CSS = stil()
 ABNAHME = (Path(__file__).resolve().parents[1] / "tools" / "abnahme.py").read_text(encoding="utf-8")
 
 

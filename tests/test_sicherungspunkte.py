@@ -13,6 +13,7 @@ from test_gui import tmp_settings, vault  # noqa: F401 – Fixtures
 from duckpilot import sicherungspunkte as SP
 from duckpilot.config import load
 from duckpilot.server.app import Runtime, create_app
+from duckpilot.server.oberflaeche import seite
 
 
 @pytest.fixture
@@ -131,7 +132,7 @@ def test_taeglich_und_aufraeumen(tmp_path):
 def test_oberflaeche():
     from duckpilot.server.app import STATIC
 
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert 'id="set-sicherung"' in html and "Sicherungspunkt anlegen" in html
     js = (STATIC / "sicherung.js").read_text(encoding="utf-8")
     assert "bestaetigt: true" in js and "/api/sicherung/import" in js and "/export" in js

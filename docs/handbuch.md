@@ -1145,6 +1145,15 @@ Handy aus weckst du sie. Ausschalten (oder die Fernbedienung ausschalten) entfer
   Installer aus dem Release, prüft die SHA-256-Prüfsumme gegen GitHub, beendet Knowlin, installiert still und startet
   neu; mit pipx aktualisiert es das Paket. Nie, während der echte Roboter verbunden ist, und nur am PC. Abschalten und
   von Hand suchen: Einstellungen → Über.
+- **Was gerade passiert (seit 0.38.38):** Beim Herunterladen zeigt die Leiste oben einen Balken mit „… MB von … MB“.
+  Danach führt eine Schrittliste durch das Update – Herunterladen, Prüfsumme prüfen, Installieren, Knowlin startet,
+  Fertig – mit mitlaufender Zeit. Der neu startende Knowlin meldet sich sofort und sagt, wobei er ist („Körper, Stimme
+  und Gedächtnis werden aufgebaut“); das Fenster lädt sich selbst neu, sobald alles bereit ist. Auch ein normaler Start
+  öffnet das Fenster gleich mit „Knowlin startet …“. Der erste Start nach einem Update kann unter Windows ein, zwei
+  Minuten dauern, weil Windows die neuen Dateien prüft. Wie lange jeder Schritt gedauert hat, steht im Protokoll
+  `duckpilot.log` („Start nach … s“).
+- **Nachinstallieren mit Fortschritt (seit 0.38.38):** Physik, Stimmen, Gesichter und PyTorch zeigen beim Herunterladen
+  Datei, „… MB von … MB“ und einen Balken; danach „richtet die geladenen Pakete ein …“.
 
 ## Wenn der Roboter kommt
 

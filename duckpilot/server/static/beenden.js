@@ -47,17 +47,79 @@ export function initBeenden(h) {
     $('quit-done').hidden = false;
   }
 
-  // Nach einem Update bis zu 5 Minuten warten (seit 0.38.33): Der stille Installer entpackt ~100 MB, der Virenscanner
-  // prüft jede Datei – das dauerte beim ersten echten Update länger als die 90 s für einen einfachen Neustart.
+  // Update und Neustart Schritt für Schritt (seit 0.38.38, Hinweis: „man sieht immer nicht, was gerade passiert
+  // oder ob es hängt“). Der neue Knowlin meldet sich schon beim Hochfahren (startstatus.py) mit seinem Schritt.
+  const SCHRITTE_UPDATE = [['laden', 'Herunterladen'], ['pruefen', 'Prüfsumme prüfen'], ['installieren', 'Installieren'],
+    ['startet', 'Knowlin startet'], ['fertig', 'Fertig']];
+  const SCHRITTE_NEUSTART = [['beenden', 'Knowlin beendet sich'], ['startet', 'Knowlin startet'], ['fertig', 'Fertig']];
+  let t0 = 0;
+  let uhr = null;
+  function zeit() {
+    const s = Math.round((Date.now() - t0) / 1000);
+    $('quit-zeit').textContent = `seit ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} min`;
+  }
+  function schritte(liste, jetzt, detail = '') {
+    const ol = $('quit-schritte');
+    const i = liste.findIndex(([k]) => k === jetzt);
+    ol.replaceChildren(...liste.map(([k, text], j) => {
+      const li = el('li', j < i ? 'is-fertig' : j === i ? 'is-jetzt' : null, text);
+      if (j === i) {
+        li.setAttribute('aria-current', 'step');
+        if (detail) li.append(el('small', null, detail));
+      }
+      return li;
+    }));
+    ol.hidden = false;
+    $('quit-zeit').hidden = false;
+    if (!uhr) { t0 = Date.now(); uhr = setInterval(zeit, 1000); zeit(); }
+  }
+  function balken(knoten, anteil) {         // anteil 0…1 oder null = läuft, Dauer unbekannt
+    knoten.hidden = false;
+    knoten.classList.toggle('is-busy', anteil == null);
+    knoten.querySelector('i').style.width = anteil == null ? '0' : `${Math.round(anteil * 100)}%`;
+    if (anteil == null) knoten.removeAttribute('aria-valuenow');
+    else knoten.setAttribute('aria-valuenow', String(Math.round(anteil * 100)));
+  }
+  const mb = (n) => (n / 1048576).toFixed(n < 10485760 ? 1 : 0).replace('.', ',');
+
+  // Nach einem Update bis zu 10 Minuten warten (der erste Start nach einem Update dauerte bei Alex 2 Minuten: Windows
+  // prüft die neuen Dateien). Solange der neue Knowlin meldet, was er tut, wird nicht aufgegeben.
   async function waitForRestart(oldVersion, update = false) {
-    const sekunden = update ? 300 : 90;
-    for (let i = 0; i < sekunden; i++) {
+    const liste = update ? SCHRITTE_UPDATE : SCHRITTE_NEUSTART;
+    const grenze = update ? 600 : 180;
+    balken($('quit-balken'), null);
+    let gemeldet = 0;
+    let weg = false;                         // war der alte Knowlin schon weg? Vorher antwortet er evtl. noch kurz
+    for (let i = 0; i < grenze || (gemeldet && i - gemeldet < 60); i++) {
       await new Promise((r) => setTimeout(r, 1000));
       const p = await fetch('/api/ping', { cache: 'no-store' }).then((x) => x.json()).catch(() => null);
-      if (p && p.version && p.version !== oldVersion) { location.reload(); return; }
-      if (p && p.version && i > 20 && !update) { location.reload(); return; }
-      if (update && i === 90) done('Das Update wird noch installiert …', 'Das kann ein paar Minuten dauern – das Fenster lädt sich dann von selbst neu.');
+      if (!p || p.startet) weg = true;
+      if (p && p.startet) {                  // der neue Knowlin fährt hoch und sagt, wobei er ist
+        gemeldet = i;
+        $('quit-done-title').textContent = `Knowlin ${p.version_neu || ''} startet …`.replace('  ', ' ');
+        $('quit-done-text').textContent = 'Gleich geschafft – das Fenster lädt sich dann von selbst neu.';
+        schritte(liste, 'startet', p.schritt || '');
+        continue;
+      }
+      if (p && p.version && (p.version !== oldVersion || (weg && !update) || (!update && i > 20))) {
+        schritte(liste, 'fertig');
+        balken($('quit-balken'), 1);
+        setTimeout(() => location.reload(), 400);
+        return;
+      }
+      if (p && p.version && update && weg) {  // wieder da, aber mit der alten Version: Update nicht durchgelaufen
+        clearInterval(uhr);
+        $('quit-balken').hidden = true;
+        done('Das Update ist nicht durchgelaufen', `Knowlin läuft wieder mit ${p.version}. Unter Einstellungen → Über steht, wie das letzte Update ausging.`);
+        setTimeout(() => location.reload(), 6000);
+        return;
+      }
+      if (!p && update && !gemeldet && i === 120) {
+        $('quit-done-text').textContent = 'Das dauert länger als sonst – Windows prüft die neuen Dateien. Das Fenster lädt sich dann von selbst neu.';
+      }
     }
+    clearInterval(uhr);
+    $('quit-balken').hidden = true;
     done(update ? 'Das Update dauert ungewöhnlich lange' : 'Neustart dauert länger',
       update ? 'Starte Knowlin über die Desktop-Verknüpfung – unter Einstellungen → Über steht dann die Version.'
         : 'Starte Knowlin über die Desktop-Verknüpfung.');
@@ -72,6 +134,7 @@ export function initBeenden(h) {
       setTimeout(() => window.close(), 400);
     } else if (art === 'neustart') {
       done('Knowlin startet neu …', 'Einen Moment – das Fenster lädt sich gleich von selbst neu.');
+      schritte(SCHRITTE_NEUSTART, 'beenden');
       waitForRestart(info && info.version);
     } else {
       done('Knowlin ist beendet', 'Du kannst dieses Fenster schließen. Starten wieder mit der Desktop-Verknüpfung.');
@@ -89,15 +152,39 @@ export function initBeenden(h) {
     const knopf = $('update-install');
     knopf.disabled = true;
     knopf.classList.add('is-busy');
-    $('update-text').textContent = 'Lade das Update und prüfe es …';
+    $('update-text').textContent = 'Lade das Update …';
+    // Während das Update lädt: Fortschritt abfragen (seit 0.38.38)
+    let fertig = false;
+    const abfragen = async () => {
+      while (!fertig) {
+        const f = await api('/api/update/fortschritt').catch(() => null);
+        if (fertig) break;
+        if (f && f.schritt === 'laden') {
+          $('update-text').textContent = f.gesamt ? `Lade das Update … ${mb(f.geladen || 0)} von ${mb(f.gesamt)} MB`
+            : `Lade das Update … ${mb(f.geladen || 0)} MB`;
+          balken($('update-balken'), f.gesamt ? Math.min(1, (f.geladen || 0) / f.gesamt) : null);
+        } else if (f && f.schritt === 'pruefen') {
+          $('update-text').textContent = 'Prüfe die Prüfsumme …';
+          balken($('update-balken'), 1);
+        } else if (f && f.schritt === 'paket') {
+          $('update-text').textContent = 'Installiere das neue Paket …';
+          balken($('update-balken'), null);
+        }
+        await new Promise((r) => setTimeout(r, 400));
+      }
+    };
+    abfragen();
     const r = await api('/api/update/installieren', 'POST').catch(() => null);
+    fertig = true;
+    $('update-balken').hidden = true;
     if (!r || !r.ok) {
       knopf.disabled = false;
       knopf.classList.remove('is-busy');
       $('update-text').textContent = (r && r.fehler) || 'Das Update ging nicht.';
       return;
     }
-    done(`Knowlin ${r.version} wird installiert …`, 'Knowlin startet gleich von selbst neu – dieses Fenster lädt sich dann neu.');
+    done(`Knowlin ${r.version} wird installiert …`, 'Knowlin beendet sich, installiert und startet von selbst neu – meist in ein bis drei Minuten. Das Fenster lädt sich dann neu.');
+    schritte(SCHRITTE_UPDATE, 'installieren');
     waitForRestart(info && info.version, true);
   });
 

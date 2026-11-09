@@ -4,12 +4,14 @@ import json
 import re
 from pathlib import Path
 
+from duckpilot.server.oberflaeche import seite
+
 STATIC = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
 EN = json.loads((STATIC.parents[1] / "i18n" / "ui_en.json").read_text(encoding="utf-8"))
 
 
 def test_karte_steht_im_training_vor_der_stossreihe_und_nur_am_pc():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     training = html[html.index('id="view-training"'):]
     assert training.index('id="isaaclab"') < training.index('id="stossreihe"')
     karte = re.search(r'<section class="card il-card pc-only" id="isaaclab".*?</section>', html, re.S).group(0)

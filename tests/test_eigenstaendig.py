@@ -33,6 +33,7 @@ from duckpilot.motion.eigenstaendig import (
     wartezeit,
 )
 from duckpilot.server.app import Runtime
+from duckpilot.server.oberflaeche import seite
 
 STATIC = Path(__file__).resolve().parent.parent / "duckpilot" / "server" / "static"
 TRICK_STEHEN = [{"t": 0.0, "kopf": {}}, {"t": 0.5, "kopf": {"nicken": 12}}, {"t": 1.0, "kopf": {}}]
@@ -442,7 +443,7 @@ def test_einstellung_und_schalter(tmp_settings):  # noqa: F811
     with pytest.raises(ValueError):
         S.validate({"eigenstaendig": "immer"})
     assert "eigenstaendig" in FIGUR_KEYS                                # jede Verkörperung für sich
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     for wert in ("aus", "ab_und_zu", "oft"):
         assert f'value="{wert}" data-set="eigenstaendig"' in html
     S.save_user_settings({"eigenstaendig": "oft"})

@@ -1,6 +1,7 @@
 // Lernen → Training → Dieser PC: kostenlos am eigenen PC lernen, mit Lernschleife über den Parcours.
 // Eine Runde trainiert (PPO, Physik auf dem Prozessor, Netz auf der Grafikkarte), dann prüft der Parcours-Test,
 // und die nächste Runde setzt auf dem besten geprüften Stand auf. Alle Namen nur über textContent.
+import { installBalken, installStand } from './fortschritt.js';
 
 export function initLernen(h) {
   const { $, api, el, toast, chart, showView } = h;
@@ -54,8 +55,8 @@ export function initLernen(h) {
     if (!data.verfuegbar) {
       setup.hidden = false;
       if (inst.laeuft) {
-        setup.append(el('p', 'field-help', `Installiere … Schritt ${(inst.schritt || 0) + 1} von ${inst.schritte || '?'}` +
-          ((inst.zeilen || []).length ? ` · ${inst.zeilen[inst.zeilen.length - 1]}` : '')));
+        // mit Datei, MB und Balken (seit 0.38.38) – PyTorch für die Grafikkarte sind gut 2,5 GB
+        setup.append(el('p', 'field-help', `Installiere … ${installStand(inst)}`), installBalken(el, inst));
         watchInstall();
       } else {
         setup.append(el('p', 'field-help', inst.fehler ? `Installation fehlgeschlagen: ${inst.fehler}` : data.grund || ''));

@@ -10,7 +10,7 @@ from duckpilot.backends.fake_robotd import start_server
 from duckpilot.backends.robotd import RobotdBackend
 from duckpilot.brain.tools import ToolRunner
 from duckpilot.motion import behaviors as B
-from duckpilot.server.app import STATIC
+from duckpilot.server.oberflaeche import seite
 
 
 def test_not_aus_macht_die_ente_stromlos_und_sie_bleibt_liegen():
@@ -97,5 +97,5 @@ def test_gaeste_werden_mit_stromlos_und_stehen_nach_der_sperre_auf():
 
 
 def test_oberflaeche_sagt_stromlos():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert "Motoren sofort aus" in html and "Not-Aus: Motoren sofort aus (Esc)" in html

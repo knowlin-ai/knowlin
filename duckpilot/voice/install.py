@@ -228,8 +228,10 @@ class Installer:
         return job
 
     async def _pip(self, args: list[str], job: dict[str, Any]) -> int:
-        # Länger warten und öfter neu versuchen (große Pakete, langsame Quellen wie AMDs Paketquelle)
-        cmd = [python_exe(), "-m", "pip", "install", "--disable-pip-version-check", "--progress-bar", "off",
+        # Länger warten und öfter neu versuchen (große Pakete, langsame Quellen wie AMDs Paketquelle). Seit 0.38.38 mit
+        # maschinenlesbarem Fortschritt („Progress x of y“, pip ab 24.1) für den Balken beim Herunterladen
+        balken = "raw" if await asyncio.to_thread(pip_kann_roh) else "off"
+        cmd = [python_exe(), "-m", "pip", "install", "--disable-pip-version-check", "--progress-bar", balken,
                "--timeout", "60", "--retries", "8", *args]
         self._line(job, "$ pip install " + " ".join(args))
         kw: dict[str, Any] = {"env": pip_umgebung()}
@@ -250,5 +252,36 @@ class Installer:
     def _line(job: dict[str, Any], line: str) -> None:
         if not line.strip():
             return
+        m = FORTSCHRITT.match(line.strip())
+        if m:                       # nicht ins Protokoll – nur für den Balken (pro Datei geladen / gesamt)
+            laden = job.setdefault("laden", {})
+            laden.update(geladen=int(m.group(1)), gesamt=int(m.group(2)))
+            return
+        d = DATEI.match(line.strip())
+        if d and not d.group(1).endswith(".metadata"):
+            job["laden"] = {"datei": d.group(1), "geladen": 0, "gesamt": 0}
+            job["dateien"] = job.get("dateien", 0) + 1
+        elif line.startswith("Installing collected packages"):
+            job["laden"] = {"datei": None, "geladen": 0, "gesamt": 0, "installiert": True}
         job["zeilen"].append(line[:300])
         del job["zeilen"][:-120]
+
+
+# pip-Ausgaben, aus denen der Fortschritt kommt
+FORTSCHRITT = re.compile(r"Progress (\d+) of (\d+)$")
+DATEI = re.compile(r"Downloading (\S+?)(?: \([^)]*\))?$")
+_PIP_ROH: dict[str, bool] = {}
+
+
+def pip_kann_roh(exe: str | None = None) -> bool:
+    """pip ab 24.1 kann „--progress-bar raw“ – ältere brächen mit „invalid choice“ ab, dann ohne Balken."""
+    exe = exe or python_exe()
+    if exe not in _PIP_ROH:
+        try:
+            out = subprocess.run([exe, "-m", "pip", "--version"], capture_output=True, text=True, timeout=60,
+                                 **({"creationflags": 0x08000000} if sys.platform == "win32" else {})).stdout
+            m = re.match(r"pip (\d+)\.(\d+)", out or "")
+            _PIP_ROH[exe] = bool(m) and (int(m.group(1)), int(m.group(2))) >= (24, 1)
+        except (OSError, subprocess.SubprocessError):
+            _PIP_ROH[exe] = False
+    return _PIP_ROH[exe]

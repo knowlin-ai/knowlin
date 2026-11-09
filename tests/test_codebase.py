@@ -10,6 +10,8 @@ from pathlib import Path
 
 import pytest
 
+from duckpilot.server.oberflaeche import seite
+
 ROOT = Path(__file__).resolve().parents[1]
 PKG = ROOT / "duckpilot"
 MAX_PY_LINES = 1400            # größer = in Bereiche aufteilen (so wie server/app.py → runtime, security, routes/*)
@@ -40,7 +42,7 @@ def test_every_frontend_module_is_used():
     """Jedes Modul unter static/ wird von einem anderen importiert oder von index.html geladen – keine Waisen."""
     static = PKG / "server" / "static"
     texte = {p.name: p.read_text(encoding="utf-8") for p in static.glob("*.js")}
-    html = (static / "index.html").read_text(encoding="utf-8") + "".join(
+    html = seite() + "".join(
         p.read_text(encoding="utf-8") for p in static.glob("*.html") if p.name != "index.html")
     waisen = [n for n in texte if not n.endswith(".min.js") and f"./{n}" not in "".join(texte.values()) and n not in html]
     assert not waisen, f"nirgends geladen: {waisen}"

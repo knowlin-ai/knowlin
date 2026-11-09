@@ -4,6 +4,7 @@ import { $, el } from './ui.js';
 import { initMcp } from './mcp.js';
 import { initSettingsNav } from './settingsnav.js';
 import { offenlegen } from './offenlegung.js';
+import { installBalken, installStand } from './fortschritt.js';
 
 export function initEinstellungen({ api, toast, showView, getConfig, scene }) {
   let settings = null;
@@ -34,8 +35,9 @@ export function initEinstellungen({ api, toast, showView, getConfig, scene }) {
     const inst = (msg.installation || {}).physik;
     const job = msg.policies.job || {};
     if (!msg.installiert.physik) {
-      state.append(dot('warning'), document.createTextNode(inst && inst.laeuft ? ` Installiert MuJoCo … ${(inst.zeilen || []).slice(-1)[0] || ''}`
+      state.append(dot('warning'), document.createTextNode(inst && inst.laeuft ? ` Installiert MuJoCo … ${installStand(inst)}`
         : inst && inst.fehler ? ` Installation fehlgeschlagen: ${inst.fehler}` : ' Dafür fehlen MuJoCo und ONNX Runtime (≈ 120 MB, läuft auf dem Prozessor).'));
+      if (inst && inst.laeuft) acts.append(installBalken(el, inst));       // seit 0.38.38: Datei, MB, Balken
       if (!(inst && inst.laeuft)) acts.append(button('MuJoCo installieren', 'btn--primary', () => api('/api/stimme/installieren', 'POST', { paket: 'physik', gpu: 'cpu' })));
     } else if (!msg.policies.bereit) {
       state.append(dot('warning'), document.createTextNode(job.laeuft ? ` ${job.text}` : job.fehler ? ` Laden fehlgeschlagen: ${job.fehler}`

@@ -10,6 +10,7 @@ from test_gui import tmp_settings, vault  # noqa: F401 – Fixtures
 
 from duckpilot.config import load
 from duckpilot.server.app import Runtime, create_app
+from duckpilot.server.oberflaeche import seite, stil, stil_dateien
 
 STATIC = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
 
@@ -52,13 +53,13 @@ def _regeln_ausserhalb_von_media(css: str) -> list[str]:
 
 def test_hover_nur_mit_maus():
     """Auf dem Handy (Fernbedienung) bleiben sonst Hover-Farben nach dem Tippen hängen."""
-    for datei in (STATIC / "style.css", STATIC / "ds" / "components.css"):
+    for datei in (*(STATIC / p for p in stil_dateien()), STATIC / "ds" / "components.css"):
         assert not _regeln_ausserhalb_von_media(datei.read_text(encoding="utf-8")), datei.name
 
 
 def test_not_aus_name_enthaelt_den_sichtbaren_text():
     """WCAG 2.5.3: Wer „Not-Aus Esc“ sieht und per Sprache bedient, muss den Knopf mit diesen Worten treffen."""
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     knopf = re.search(r'<button class="rail-stop" id="stop"[^>]*aria-label="([^"]+)"', html).group(1)
     assert knopf.startswith("Not-Aus Esc")
 
@@ -66,8 +67,8 @@ def test_not_aus_name_enthaelt_den_sichtbaren_text():
 def test_not_aus_klar_ohne_strichelring_und_leiste_unten_deckt():
     """Hinweis 7.11.: Not-Aus „gefällt mir nicht – schon gar nicht mit der gestrichelten Linie“. Jetzt ein
     klarer roter Knopf mit Stopp-Zeichen, Ring durchgehend; am Handy deckt die feste Leiste den Inhalt dahinter ab."""
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
-    css = (STATIC / "style.css").read_text(encoding="utf-8")
+    html = seite()
+    css = stil()
     for teil in re.findall(r'<svg class="estop".*?</svg>', html, re.S):
         assert "estop-zeichen" in teil and "estop-ring" in teil and "radialGradient" not in teil
     regeln = re.findall(r"\.estop[^{]*\{[^}]*\}", css)

@@ -16,6 +16,7 @@ from duckpilot.config import load
 from duckpilot.motion import behaviors as B  # noqa: F401
 from duckpilot.motion import tanz as T
 from duckpilot.server.app import Runtime, create_app
+from duckpilot.server.oberflaeche import seite
 from tests.helpers import make, run_for
 
 ANALYSE = {"bpm": 120, "start": 0.4, "energie": [0.1] * 8 + [0.5] * 8 + [0.9, 0.95, 1.0, 0.85] + [0.6] * 4 + [0.2] * 8}
@@ -404,7 +405,7 @@ def test_music_stops_with_the_dance_and_extra_ducks_show_their_state():
     Musik endet mit dem Tanz (Not-Aus, Esc, Stopp, anderer Befehl), eine Leiste mit Stopp-Knopf solange sie spielt; die
     Auswahl „Weitere Enten“ zeigt beim Start die echte Anzahl und ist ohne einfachen Simulator ausgegraut."""
     static = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
-    html = (static / "index.html").read_text("utf-8")
+    html = seite()
     tanz = (static / "tanz.js").read_text("utf-8")
     app = (static / "app.js").read_text("utf-8")
     enten = (static / "enten.js").read_text("utf-8")
@@ -419,7 +420,7 @@ def test_body_can_be_switched_from_the_top_and_extra_ducks_have_contact_shadows(
     """0.37.2: Körper-Chip oben als Menü (einfach / Physik / Roboter, am Handy nur Anzeige); Kontaktschatten unter
     weiteren Enten (Hinweis aus dem Test „die Enten schweben“)."""
     static = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
-    html = (static / "index.html").read_text("utf-8")
+    html = seite()
     wahl = (static / "koerperwahl.js").read_text("utf-8")
     app = (static / "app.js").read_text("utf-8")
     d3 = (static / "duck3d.js").read_text("utf-8")
