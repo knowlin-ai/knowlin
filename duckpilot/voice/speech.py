@@ -42,7 +42,14 @@ def explain(exc: BaseException, engine: str = "qwen") -> str:
         return f"huggingface_hub hat die falsche Version für {name}. {repair}"
     if isinstance(exc, tts.EngineError):
         return str(exc)
-    return f"{type(exc).__name__}: {exc}"
+    roh = f"{type(exc).__name__}: {exc}"
+    # Seit 0.38.40: statt seitenlanger Rohtexte (gemeldet 11.11. mit drei Bildern) ein Satz, was passiert ist und wo
+    if "Unrecognized model" in roh or "no file named" in roh or "model.safetensors" in roh:
+        return (f"Das Modell für {name} ist nicht vollständig auf diesem PC (ein früherer Download brach ab). Beim "
+                "nächsten Klick prüft Knowlin die Dateien und lädt nur nach, was fehlt.")
+    return einordnen(roh, "Hugging Face")
+
+from ..fehlerort import einordnen  # noqa: E402
 
 FREQ = {"aus": 0.0, "selten": 0.15, "manchmal": 0.35, "oft": 0.6}
 MOTOREN = ("browser", "piper", "qwen")
@@ -423,6 +430,9 @@ class Speaker:
             # je Antwort entscheiden, nicht mitten im Satz wechseln (seit 0.37.9): schafft Qwen es auf diesem Gerät
             # nicht flüssig, spricht die ganze Antwort Piper (falls geladen), sonst die Browser-Stimme
             schafft, warten = self._schaffts("qwen", [i["text"] for i in items if i["art"] == "text"])
+            if not schafft and getattr(self.config, "qwen_geduldig", False):
+                schafft = True                 # „darf halt langsamer sein“ (seit 0.38.40): warten statt wechseln
+                warten = self._gesamt_s("qwen", [i["text"] for i in items if i["art"] == "text"])
             if not schafft:
                 ok, why = False, ("die entworfene Stimme rechnet auf diesem Gerät zu langsam "
                                   f"({self.faktor['qwen']:.1f} s je Sekunde Sprache)").replace(".", ",", 1)
@@ -437,7 +447,8 @@ class Speaker:
         if not ok and self.motor() != "browser":
             out["hinweis"] = why
         if warten is not None:
-            out["warten_s"] = round(min(45.0, max(15.0, warten * 2 + 5)), 1)
+            grenze = self.GEDULD_MAX_S if motor == "qwen" and getattr(self.config, "qwen_geduldig", False) else 45.0
+            out["warten_s"] = round(min(grenze, max(15.0, warten * 2 + 5)), 1)
         return out
 
     def _vorrechnen(self, items: list[dict[str, Any]], motor: str, voice: str, st: tts.Style, quality: str) -> None:
@@ -518,6 +529,15 @@ class Speaker:
         if len(saetze) > 1 and f > self.FLUESSIG_FAKTOR * 1.15:
             return False, erster
         return True, erster
+
+    GEDULD_MAX_S = 240.0                # so lange wartet das Fenster höchstens auf einen Satz, wenn langsam erlaubt ist
+
+    def _gesamt_s(self, motor: str, saetze: list[str]) -> float | None:
+        """Geschätzte Rechenzeit der ganzen Antwort (die Sätze werden nacheinander gerechnet)."""
+        f = self.faktor.get(motor)
+        if f is None or not saetze:
+            return None
+        return f * sum(len(s) for s in saetze) * self.SPRECH_S_JE_ZEICHEN
 
     def _piper_bereit(self) -> bool:
         piper = self.synth.piper

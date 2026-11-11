@@ -163,6 +163,23 @@ def _repo_bytes(repo: str) -> int | None:
         return None
 
 
+def _repo_dateien(repo: str) -> dict[str, int]:
+    """Dateien eines Modells mit Größe – leer, wenn Hugging Face nicht erreichbar ist."""
+    try:
+        from huggingface_hub import HfApi
+
+        info = HfApi().model_info(repo, files_metadata=True)
+        return {s.rfilename: int(s.size or 0) for s in (info.siblings or [])}
+    except Exception:
+        return {}
+
+
+def _netzfehler(exc: BaseException) -> bool:
+    roh = f"{type(exc).__name__} {exc}"
+    return any(k in roh for k in ("ChunkedEncodingError", "IncompleteRead", "Connection broken", "ConnectionError",
+                                  "ReadTimeout", "Read timed out", "RemoteDisconnected", "ProtocolError"))
+
+
 def download_text(n: int, gesamt: int | None) -> str:
     """„1,2 von 2,4 GB (50 %)“ – deutsch formatiert."""
     def gb(x: int) -> str:
@@ -497,9 +514,39 @@ class QwenEngine:
             progress(_ordner_bytes(blobs), gesamt)
             threading.Thread(target=beobachten, daemon=True, name="download-fortschritt").start()
         try:
-            return snapshot_download(repo, cache_dir=str(self.models_dir))
+            # Abbrüche mitten im Download (gemeldet 11.11.: „Connection broken: IncompleteRead“ nach 77 MB von 3,3 GB)
+            # einfach wiederholen – huggingface_hub setzt halbe Dateien fort
+            for versuch in range(4):
+                try:
+                    pfad = snapshot_download(repo, cache_dir=str(self.models_dir))
+                    break
+                except Exception as exc:
+                    if versuch == 3 or not _netzfehler(exc):
+                        raise
+                    log.info("Download %s unterbrochen (%s) – neuer Versuch", repo, type(exc).__name__)
+                    time.sleep(3 * (versuch + 1))
+            self._nachpruefen(repo, Path(pfad))
+            return pfad
         finally:
             stop.set()
+
+    def _nachpruefen(self, repo: str, pfad: Path) -> None:
+        """Fehlt im fertigen Snapshot etwas oder ist eine Datei zu kurz, genau diese Dateien neu laden (seit 0.38.40).
+
+        Gemeldet 11.11.: „Unrecognized model … config.json“ und „no file named model.safetensors“ – ein früher
+        abgebrochener Download hinterließ einen Snapshot, der als fertig galt. Ohne Netz wird nichts geprüft."""
+        soll = _repo_dateien(repo)
+        if not soll:
+            return
+        kaputt = [n for n, groesse in soll.items()
+                  if not (pfad / n).exists() or (groesse and (pfad / n).stat().st_size != groesse)]
+        if not kaputt:
+            return
+        from huggingface_hub import hf_hub_download
+
+        log.info("Modell %s: %d Dateien fehlen oder sind unvollständig – lade sie neu", repo, len(kaputt))
+        for n in kaputt:
+            hf_hub_download(repo, n, cache_dir=str(self.models_dir), force_download=True)
 
     def _load(self, repo: str, progress: Callable[[int, int | None], None] | None = None):
         import torch

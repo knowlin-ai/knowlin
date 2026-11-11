@@ -2409,7 +2409,10 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
   .check { padding-block: var(--spacing-04); }
   details > summary { padding-block: var(--spacing-04); }
   .mic-hint { display: none; }
+  /* Umschalter (z. B. Training „Mit Lernschleife | Am Stück“) mit dem Finger: 44 px statt 40 (Abnahme 0.38.40) */
+  .seg:not(.seg--sm):not(.farbwahl--bilder) > label > span { min-height: 44px; line-height: 44px; }
 }
+@media (pointer: coarse) and (max-width: 671.98px) { .seg:not(.seg--sm):not(.farbwahl--bilder) > label > span { line-height: 1.25; } }
 
 
 /* Was Knowlin über deine Welt weiß (G1, 0.38.27): Themen je Art, Gefühlston als Zeichen + Wort */

@@ -53,6 +53,9 @@ class Config:
     stimme_piper: str = "thorsten_emotional"
     stimme_qwen: str = ""                      # entworfene Entenstimme (Kennung)
     qwen_qualitaet: str = "schnell"            # "schnell" (0,6 Mrd.) | "hoch" (1,7 Mrd.)
+    # Seit 0.38.40 („Oder es wird trotzdem nutzbar und darf halt langsamer sein“): immer mit der entworfenen
+    # Stimme sprechen, auch wenn sie langsamer rechnet als sie spricht – der Text steht sofort da, der Ton folgt
+    qwen_geduldig: bool = False
     entenhaft: float = 0.45                    # 0 = Menschenstimme … 1 = ganz Ente
     weitere_enten: int = 0                     # weitere Enten im einfachen Simulator (seit 0.36.3)
     klang_hoehe: float = 0.0                   # Klangsignatur (seit 0.36.1): Laute in Halbtönen höher/tiefer
@@ -129,6 +132,7 @@ class Config:
             "weitere_enten": self.weitere_enten,
             "klang_farbe": self.klang_farbe,
             "plaudern": self.plaudern,
+            "qwen_geduldig": self.qwen_geduldig,
             "schnellbefehle": self.schnellbefehle,
             "gehirn": self.gehirn,
             "lokal_modell": self.lokal_modell,

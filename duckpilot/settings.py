@@ -69,6 +69,7 @@ EDITABLE: dict[str, Any] = {
     "klang_farbe": "plusminus",                # Klangsignatur: dunkler −1 … heller +1
     "entenlaute": ("aus", "selten", "manchmal", "oft"),
     "plaudern": bool,
+    "qwen_geduldig": bool,
     "schnellbefehle": bool,
     "mcp": bool,
     "gehirn": ("claude", "lokal", "anbieter"),

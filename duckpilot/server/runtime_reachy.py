@@ -145,8 +145,10 @@ class ReachyTeil:
 
                     geometrie_neu_laden()
             except Exception as exc:  # noqa: BLE001 – Laden darf nie den Rest stören
+                from ..fehlerort import einordnen
+
                 log.warning("Pollens Reachy-%s nicht geladen: %s", name, exc)
-                store.job = {"laeuft": False, "text": "fehlgeschlagen", "fehler": f"{type(exc).__name__}: {exc}"}
+                store.job = {"laeuft": False, "text": "fehlgeschlagen", "fehler": einordnen(exc, "GitHub" if name == "modell" else "Hugging Face")}
             await self.broadcast(self.reachy_message())
         job["laeuft"] = False
 

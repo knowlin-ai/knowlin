@@ -59,8 +59,10 @@ jobs:
           & $py -c "from duckpilot.voice import install as I; import sys; sys.exit(0 if I.eingebettet() else 1)"
           if ($LASTEXITCODE -ne 0) { throw "Eingebettetes Python nicht erkannt" }
           & $py -m pip install --disable-pip-version-check setuptools wheel packaging
-          & $py -m pip wheel --no-deps --no-build-isolation --index-url https://stable.repo.amd.com/rocm/whl-next/ -w rocm-probe rocm
-          if ($LASTEXITCODE -ne 0) { throw "Quellpaket ließ sich im eingebetteten Python nicht bauen" }
+          # Seit 0.38.40: Gibt es PyTorch mit ROCm in den festen Fassungen auch für dieses Python? (AMDs Quelle; nur die
+          # Liste der Fassungen, ohne die Gigabytes zu laden) – sonst bliebe Qwen auf dem Prozessor
+          & $py "$env:GITHUB_WORKSPACE\tools\amd_torch_pruefen.py"
+          if ($LASTEXITCODE -ne 0) { throw "PyTorch mit ROCm gibt es nicht für dieses Python (AMD_TORCH prüfen)" }
           Pop-Location
       - name: Installer bauen
         shell: pwsh

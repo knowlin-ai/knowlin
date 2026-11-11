@@ -308,9 +308,12 @@ def test_voice_and_brain_settings_are_validated():
 def test_install_commands_are_fixed_lists():
     assert I.commands("piper") == [["piper-tts>=1.3"]]
     amd = I.commands("qwen", "amd", "gfx1201")
-    assert amd[0][:2] == ["--index-url", I.AMD_INDEX] and "torch[device-gfx1201]" in amd[0]
+    # feste Fassungen (seit 0.38.40): sonst bleibt ein schon installiertes PyTorch „+cpu“ einfach stehen
+    assert amd[0][:2] == ["--index-url", I.AMD_INDEX] and f"torch[device-gfx1201]=={I.AMD_TORCH}" in amd[0]
+    assert f"torchaudio=={I.AMD_TORCHAUDIO}" in amd[0] and "+rocm" in I.AMD_TORCH
     assert amd[1] == ["--no-deps", "qwen-tts==0.1.1"]
-    assert I.commands("qwen", "amd", "; evil")[0][2] == "torch[device-gfx1201]"
+    assert I.commands("qwen", "amd", "; evil")[0][2] == f"torch[device-gfx1201]=={I.AMD_TORCH}"
+    assert I.commands("lernen", "amd", "gfx1201")[0] == ["--index-url", I.AMD_INDEX, f"torch[device-gfx1201]=={I.AMD_TORCH}"]
     assert I.amd_arch(["AMD Radeon RX 9070 XT", "AMD Radeon(TM) Graphics"]) == "gfx1201"
     assert I.suggest_gpu(["NVIDIA GeForce RTX 4070"]) == "nvidia" and I.suggest_gpu([]) == "cpu"
 
@@ -714,3 +717,42 @@ def test_pip_bekommt_den_proxy_des_systems(monkeypatch):
     assert I.pip_umgebung({"HTTPS_PROXY": "http://eigener:1"})["HTTPS_PROXY"] == "http://eigener:1"   # nichts überschreiben
     monkeypatch.setattr(urllib.request, "getproxies", lambda: {})
     assert "HTTPS_PROXY" not in I.pip_umgebung({})
+
+
+def test_torch_bau_erkennt_prozessor_fassung(monkeypatch):
+    # Gemeldet 11.11.: Qwen rechnete auf einer Radeon RX 9070 XT, weil PyTorch „+cpu“ installiert war
+    from importlib import metadata
+
+    for version, erwartet in (("2.14.1+cpu", "cpu"), ("2.12.0+rocm7.14.1", "rocm"), ("2.9.0+cu128", "cuda")):
+        monkeypatch.setattr(metadata, "version", lambda name, v=version: v)
+        monkeypatch.setattr(I, "_installierte", lambda: [])
+        assert I.torch_bau() == erwartet
+
+    def fehlt(name):
+        raise metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(metadata, "version", fehlt)
+    assert I.torch_bau() is None
+
+
+def test_stimmfehler_verstaendlich():
+    from duckpilot.voice.speech import explain
+
+    weg = explain(RuntimeError("ChunkedEncodingError: ('Connection broken: IncompleteRead(77187461 bytes read)')"))
+    assert "abgebrochen" in weg and "bei dir" in weg and "IncompleteRead" not in weg
+    halb = explain(OSError("Error no file named pytorch_model.bin, model.safetensors … found in directory C:\\x"))
+    assert "nicht vollständig" in halb
+    assert len(explain(ValueError("x" * 5000))) < 320
+
+
+def test_geduldig_spricht_trotz_langsamkeit_mit_eigener_stimme():
+    # „Oder es wird trotzdem nutzbar und darf halt langsamer sein“ (11.11.)
+    from types import SimpleNamespace
+
+    from duckpilot.voice.speech import Speaker
+
+    sp = Speaker.__new__(Speaker)
+    sp.faktor = {"qwen": 12.6}
+    sp.config = SimpleNamespace(qwen_geduldig=True)
+    assert sp._schaffts("qwen", ["Hallo, ich bin Quacki."])[0] is False      # ohne Geduld: zu langsam
+    assert sp._gesamt_s("qwen", ["Hallo.", "Wie geht's?"]) > 10

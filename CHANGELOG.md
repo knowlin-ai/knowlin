@@ -9,7 +9,31 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
-## 0.38.40 – 2026-11-09 – Website mit Pollens Originalmodellen (in Arbeit)
+## 0.38.40 – 2026-11-11 – Qwen auf der Grafikkarte, Fehler mit Ort, Website mit Pollens Originalmodellen
+
+### Neu
+- **Qwen3-TTS nutzt die Radeon wirklich:** Auf PC (RX 9070 XT) war PyTorch in der Fassung für den Prozessor
+  installiert – Qwen brauchte 12–40 s je Sekunde Sprache. Die Stimm-Seite erkennt das jetzt und bietet „Für die
+  Grafikkarte einrichten“ an. Die AMD-Installation holt PyTorch mit ROCm aus AMDs aktueller Paketquelle in festen
+  Fassungen (torch 2.12.0, ROCm 7.14.1, auch für Python 3.13) und ersetzt so ein vorhandenes Prozessor-PyTorch.
+- **„Immer mit dieser Stimme sprechen – auch wenn sie länger braucht“:** Für PCs ohne passende Grafikkarte (etwa normale
+  Laptops). Der Text steht sofort da, der Ton folgt Satz für Satz; ohne den Schalter spricht bei langen Antworten wie
+  bisher Piper oder die Browser-Stimme.
+- **Fehler sagen, wo sie liegen:** bei dir (Internet/WLAN), beim Anbieter (Server) oder in Knowlin – statt roher
+  Fehlertexte über eine halbe Seite.
+
+### Behoben
+- **Stimme entwerfen:** Ein abgebrochener Download (schwaches WLAN) hinterließ ein halbes Entwurfsmodell; danach kamen
+  „Unrecognized model“ oder „no file named model.safetensors“. Abbrüche werden jetzt bis zu dreimal fortgesetzt, und vor
+  dem Laden prüft Knowlin jede Datei des Modells gegen Hugging Face und lädt nur nach, was fehlt oder zu kurz ist.
+- **Reachy Mini, 3D-Modell: „HTTP Error 404“** – GitHub liefert Pollens `reachy_mini.xml` nicht mehr über
+  media.githubusercontent.com aus. Knowlin weicht auf raw.githubusercontent.com aus, mit derselben Prüfsumme.
+- **Lokales Modell schrieb Befehle in die Antwort** („[emote: staunen] [head: yaw deg=15 …]“) – sie werden jetzt
+  ausgeführt und weder gezeigt noch vorgelesen; das Modell wird außerdem gebeten, das zu lassen.
+- **LM Studio: „400 Bad Request“** – Modelle auf dem eigenen PC bekommen wie bei Ollama nur die wichtigsten Werkzeuge
+  (passt in den Kontext), und der Fehler nennt den Grund – meist „Kontextlänge in LM Studio auf 16 384 stellen“.
+- Hinweis beim Stimmentwurf ohne Übersetzung behauptete „ohne lokales Modell“, auch wenn eins eingestellt war.
+- Umschalter (z. B. im Training „Mit Lernschleife | Am Stück“) sind mit dem Finger 44 px hoch statt 40.
 
 ### Geändert
 - **Website und README zeigen Microduck und Reachy Mini mit Pollens Originalmodellen** statt der eigenen, einfachen
@@ -22,6 +46,10 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   Kopfleiste „verbunden“ zeigt; die Handy-Szene entfällt.
 - Die Website-Prüfung prüft den Bildnachweis: jedes Bild mit Pollens Modell nennt Urheber, Lizenz und Link, auch unter
   der Bühne je nach Körper.
+
+### Nicht geprüft
+- PyTorch mit ROCm auf einer echten Radeon: geprüft ist, dass AMDs Quelle die festen Fassungen für das Python des
+  Installers anbietet (Installer-Workflow), nicht das Rechnen auf der Karte selbst.
 
 ## 0.38.39 – 2026-11-09 – Website mit Vitrine, neue Bilder, Oberfläche in Teilen
 

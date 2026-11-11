@@ -27,6 +27,8 @@ QUELLEN = json.loads((HERE / "reachy_quellen.json").read_text(encoding="utf-8"))
 REPO, COMMIT, ORDNER = QUELLEN["repo"], QUELLEN["commit"], QUELLEN["ordner"]
 # Die STL liegen bei Pollen in Git LFS – raw.githubusercontent.com gäbe nur den Zeiger, media.… die Datei.
 MEDIA = f"https://media.githubusercontent.com/media/{REPO}/{COMMIT}/{ORDNER}"
+# Dateien ohne LFS (reachy_mini.xml) gibt media.… seit Herbst 2026 nicht mehr aus (404, gemeldet 9.11.) – dann raw.…
+RAW = f"https://raw.githubusercontent.com/{REPO}/{COMMIT}/{ORDNER}"
 SEITE = f"https://github.com/{REPO}/tree/{COMMIT[:12]}/{ORDNER}"
 LIZENZ = f"https://github.com/{REPO}/blob/{COMMIT[:12]}/README.md#license"
 PACKAGED_VIEW = HERE.parent / "server" / "static" / "model" / "reachy_mini.dpm"
@@ -126,16 +128,31 @@ class ReachyModellStore:
                     raise RuntimeError("Offline-Modus (DUCKPILOT_OFFLINE) – Pollens Modell wird nicht geladen")
                 if progress:
                     progress(f"lade Pollens Reachy-Mini-Modell von GitHub ({i + 1} von {len(todo)}) …")
-                data = self.fetch(f"{MEDIA}/{name}")
+                data = self._von_github(name, meta)
                 woher = "von GitHub"
-                if len(data) > MAX_FILE or hashlib.sha256(data).hexdigest() != meta["sha256"]:
-                    raise ValueError(f"{name}: Prüfsumme passt nicht – Laden abgebrochen")
             ziel = self.src / name
             ziel.parent.mkdir(parents=True, exist_ok=True)
             tmp = ziel.with_name(ziel.name + ".teil")
             tmp.write_bytes(data)
             tmp.replace(ziel)
         return woher
+
+    def _von_github(self, name: str, meta: dict[str, Any]) -> bytes:
+        """Erst media.… (liefert LFS-Dateien wie die STL), dann raw.… (Dateien ohne LFS) – genommen wird nur, was die
+        Prüfsumme trifft; raw.… gäbe für LFS-Dateien nur den kleinen Zeiger, media.… für Nicht-LFS-Dateien 404."""
+        import urllib.error
+
+        fehler = ""
+        for basis in (MEDIA, RAW):
+            try:
+                data = self.fetch(f"{basis}/{name}")
+            except urllib.error.HTTPError as e:
+                fehler = f"HTTP {e.code}"
+                continue
+            if len(data) <= MAX_FILE and hashlib.sha256(data).hexdigest() == meta["sha256"]:
+                return data
+            fehler = "Prüfsumme passt nicht"
+        raise ValueError(f"{name}: {fehler} – Laden abgebrochen")
 
     def ensure(self, progress: Callable[[str], None] | None = None, force: bool = False) -> dict[str, Any]:
         if not force and (self.dir / "ansicht.dpm").exists() and not self.veraltet():

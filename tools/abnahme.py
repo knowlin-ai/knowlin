@@ -647,10 +647,14 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
                  not {"Team", "Vom Hub", "Spiele"} & set(reiter), str(reiter))
         # Einfache Darstellung passt zur Open Duck (seit 0.38.15: grau, höher, Antennen – nicht die Microduck)
         einstellen(page, {"model_style": "einfach"})
-        page.wait_for_timeout(2500)
-        b.pruefe("Open Duck: einfache Darstellung ist ihre eigene (nicht die einfache Microduck)", page.evaluate(
-            "() => { const s = window.duckpilot.scene; return !!s && !!s.einfacheOpenDuck && s.duck === s.einfacheOpenDuck "
-            "&& s.duck !== s.simpleDuck; }"))
+        # seit 0.38.40 wartet die Abnahme bis zu 20 s statt fest 2,5 s (bei langsamem Rechner fiel der Schritt sonst durch)
+        eigene = ("() => { const s = window.duckpilot.scene; return !!s && !!s.einfacheOpenDuck && s.duck === s.einfacheOpenDuck "
+                  "&& s.duck !== s.simpleDuck; }")
+        try:
+            page.wait_for_function(eigene, timeout=20000)
+        except Exception:  # noqa: BLE001 – Ergebnis prüft die nächste Zeile
+            pass
+        b.pruefe("Open Duck: einfache Darstellung ist ihre eigene (nicht die einfache Microduck)", page.evaluate(eigene))
         einstellen(page, {"model_style": "original"})
         ansicht(page, "cockpit")
         # seit 0.38.21: Odi läuft auf „lauf zum Ball“ wirklich hin (vorher nur 40 cm geradeaus) und schießt nachgestellt

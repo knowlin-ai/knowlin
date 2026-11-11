@@ -20,7 +20,8 @@ from ..aio import spawn
 
 log = logging.getLogger(__name__)
 
-VOICE_KEYS = {"stimme_motor", "stimme_piper", "stimme_qwen", "qwen_qualitaet", "entenhaft", "entenlaute", "tts"}
+VOICE_KEYS = {"stimme_motor", "stimme_piper", "stimme_qwen", "qwen_qualitaet", "qwen_geduldig", "entenhaft", "entenlaute",
+              "tts"}
 
 
 def _json_default(o: Any) -> Any:
@@ -203,6 +204,8 @@ class KernTeil:
             "pakete": {k: {**v, "installiert": I.installed(k) if not self.installer.running() else None}
                        for k, v in I.PAKETE.items()},
             "grafikkarten": gpus, "gpu_vorschlag": I.suggest_gpu(gpus),
+            # für welches Gerät PyTorch gebaut ist (seit 0.38.40) – „cpu“ trotz Grafikkarte → neu einrichten anbieten
+            "pytorch": I.torch_bau() if not self.installer.running() else None,
             "ollama": self.pulls,
             "werte": {k: getattr(self.config, k) for k in (*sorted(VOICE_KEYS), "plaudern", "gehirn", "lokal_modell",
                                                            "lokal_adresse")},
@@ -213,6 +216,11 @@ class KernTeil:
 
     async def install(self, paket: str, gpu: str) -> None:
         """Installieren – bei Piper gleich die gewählte Stimme mitladen, damit sie sofort spricht."""
+        if paket in ("qwen", "lernen"):
+            # PyTorch wird ersetzt: unter Windows hält der laufende Qwen-Arbeiter dessen DLLs fest (seit 0.38.40)
+            qwen = getattr(getattr(self.speaker, "synth", None), "qwen", None)
+            if qwen is not None and hasattr(qwen, "beenden"):
+                qwen.beenden()
         job = await self.installer.install(paket, gpu)
         if paket in ("physik", "bam") and job.get("fertig"):
             self._wire_practice()

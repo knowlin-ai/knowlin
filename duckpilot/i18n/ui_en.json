@@ -1435,7 +1435,7 @@
  "vom lokalen Modell übersetzt": "translated by the local model",
  "englische Fassung der Vorlage": "English version of the template",
  "An das Modell (*)": "Sent to the model (*)",
- "Ohne Claude-Schlüssel und lokales Modell ging die Beschreibung auf Deutsch ans Modell. Das klappt auch, Feinheiten kommen auf Englisch meist genauer an.": "Without a Claude key or local model the description went to the model in German. That works too, but nuances usually come across more accurately in English.",
+ "Die Beschreibung ging auf Deutsch ans Modell – übersetzen ging gerade nicht (kein Claude-Schlüssel, oder das lokale Modell war noch nicht bereit). Das klappt auch, Feinheiten kommen auf Englisch meist genauer an.": "The description went to the model in German – translating didn't work just now (no Claude key, or the local model wasn't ready yet). That works too, but nuances usually come across more accurately in English.",
  "Fassung # · # s": "Take # · # s",
  "Name für Fassung #": "Name for take #",
  "Übernehmen": "Use",

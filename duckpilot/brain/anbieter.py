@@ -59,6 +59,23 @@ def _tool_spec(t: dict[str, Any]) -> dict[str, Any]:
     return {"type": "function", "function": {"name": t["name"], "description": desc, "parameters": t["input_schema"]}}
 
 
+def grund_400(anbieter: str, antwort: str) -> str:
+    """Verständlicher Satz zu „400 Bad Request“ – meist ist der Kontext des Modells zu klein (LM Studio: 4096)."""
+    try:
+        roh = json.loads(antwort)
+        roh = roh.get("error", roh)
+        roh = roh.get("message", roh) if isinstance(roh, dict) else roh
+    except ValueError:
+        roh = antwort
+    roh = " ".join(str(roh).split())[:200]
+    if any(k in roh.lower() for k in ("context", "token", "too long", "n_ctx", "exceed")):
+        if anbieter == "lmstudio":
+            return ("Das Modell in LM Studio hat zu wenig Kontext für Knowlin. In LM Studio beim Laden des Modells die "
+                    f"Kontextlänge auf mindestens 16 384 stellen. ({roh})")
+        return f"Die Anfrage ist zu lang für dieses Modell ({roh})"
+    return f"Das Modell hat die Anfrage abgelehnt: {roh or 'ohne Begründung'}"
+
+
 class AnbieterBrain:
     def __init__(self, agent: "DuckAgent", anbieter: str = "", modell: str = "", eigene_adresse: str = "",
                  schluessel: str | None = None) -> None:
@@ -98,6 +115,9 @@ class AnbieterBrain:
                 raise RuntimeError(f"Modell „{self.modell}“ oder Adresse nicht gefunden")
             if r.status_code == 429:
                 raise RuntimeError("zu viele Anfragen oder Guthaben aufgebraucht")
+            if r.status_code == 400:
+                # gemeldet 11.11. mit LM Studio: nur „400 Bad Request“ – jetzt mit dem Grund des Servers
+                raise RuntimeError(grund_400(self.anbieter, r.text))
             r.raise_for_status()
             return r.json()
 
@@ -125,7 +145,14 @@ class AnbieterBrain:
 
         t0 = time.monotonic()
         runner = self.agent.runner
-        tools = [_tool_spec(t) for t in runner.tools()]
+        alle = runner.tools()
+        if self.anbieter == "lmstudio":
+            # Modelle auf dem eigenen PC: kleine Auswahl wie bei Ollama – passt in den Kontext und verwirrt sie nicht
+            from .local import LOCAL_TOOLS
+
+            erlaubt = getattr(self.agent, "local_tools", LOCAL_TOOLS)
+            alle = [t for t in alle if t["name"] in erlaubt]
+        tools = [_tool_spec(t) for t in alle]
         messages: list[dict[str, Any]] = [{"role": "system", "content": self.agent._system() + NOTE}]
         messages += self.history[-16:]
         messages.append({"role": "user", "content": f"{text}\n\n{self.agent._context(text)}"})
@@ -168,6 +195,18 @@ class AnbieterBrain:
                     result["hinweis"] = "Das Bild kann gerade nur Claude ansehen."
                 messages.append({"role": "tool", "tool_call_id": str(c.get("id") or name),
                                  "content": json.dumps(result, ensure_ascii=False, default=str)[:2500]})
+        # als Text geschriebene Werkzeuge ausführen und aus der Antwort nehmen (wie beim lokalen Modell, seit 0.38.40)
+        from .local import text_werkzeuge
+
+        final, als_text = text_werkzeuge(final, {t["name"]: t["input_schema"] for t in alle})
+        for name, args in als_text[:4]:
+            result = await runner.run(name, args)
+            action = {"tool": name, "input": args, "result": result}
+            actions.append(action)
+            if notify:
+                maybe = notify({"type": "action", **action})
+                if maybe is not None:
+                    await maybe
         final = final or "Quak!"
         self.history += [{"role": "user", "content": text}, {"role": "assistant", "content": final}]
         self.history = self.history[-16:]

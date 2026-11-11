@@ -343,11 +343,40 @@ export function initVoicePage(h) {
     return box;
   }
 
+  // PyTorch für den Prozessor, obwohl eine Grafikkarte da ist (seit 0.38.40) – deshalb rechnete Qwen auf einer Radeon
+  // RX 9070 XT 12–40 s je Sekunde Sprache. Neu einrichten ersetzt nur PyTorch, Stimmen und Modelle bleiben.
+  function grafikkarteBlock() {
+    const job = (info.installation || {}).qwen;
+    const karte = (info.grafikkarten || []).find((n) => /radeon|nvidia|geforce|rtx/i.test(n)) || GPU_LABEL[info.gpu_vorschlag];
+    const wrap = el('section', 'card install');
+    const row = el('div', 'install-row');
+    const txt = el('div', 'install-text');
+    txt.append(el('b', null, 'Qwen rechnet auf dem Prozessor'));
+    txt.append(el('span', null, `PyTorch ist in der Fassung für den Prozessor installiert – deine ${karte} bleibt ungenutzt. `
+      + 'Für die Grafikkarte einrichten lädt PyTorch neu (≈ 3 GB); deine Stimmen und Modelle bleiben. Danach Knowlin neu starten.'));
+    const btn = el('button', 'btn btn--primary btn--sm');
+    btn.type = 'button';
+    btn.innerHTML = DOWN;
+    btn.append(document.createTextNode(job && job.laeuft ? 'Richtet ein …' : 'Für die Grafikkarte einrichten'));
+    btn.disabled = !!(job && job.laeuft);
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      const r = await api('/api/stimme/installieren', 'POST', { paket: 'qwen', gpu: info.gpu_vorschlag });
+      if (!r.ok) { toast(r.fehler || 'Ging nicht', true); btn.disabled = false; }
+    });
+    row.append(txt, btn);
+    wrap.append(row);
+    if (job) wrap.append(jobView(job, 'Für die Grafikkarte eingerichtet – bitte Knowlin neu starten.'));
+    return wrap;
+  }
+
   function qwenPanel() {
     const out = [];
     const q = info.qwen;
     if (!q.installiert) {
       out.push(installBlock('qwen', 'Qwen3-TTS', 3500, gpuPicker(), q.fehlt, 'qwen_tts'));
+    } else if (info.pytorch === 'cpu' && ['amd', 'nvidia'].includes(info.gpu_vorschlag)) {
+      out.push(grafikkarteBlock());
     }
     // Entwerfen
     const design = el('section', 'card designer');
@@ -396,7 +425,7 @@ export function initVoicePage(h) {
         d.append(el('summary', null, `An das Modell (${WEG[job.weg]})`), el('p', null, job.modell_text));
         design.append(d);
       } else if (job.weg === 'deutsch') {
-        design.append(el('p', 'field-help', 'Ohne Claude-Schlüssel und lokales Modell ging die Beschreibung auf Deutsch ans Modell. Das klappt auch, Feinheiten kommen auf Englisch meist genauer an.'));
+        design.append(el('p', 'field-help', 'Die Beschreibung ging auf Deutsch ans Modell – übersetzen ging gerade nicht (kein Claude-Schlüssel, oder das lokale Modell war noch nicht bereit). Das klappt auch, Feinheiten kommen auf Englisch meist genauer an.'));
       }
       if (job.laeuft) design.append(el('div', 'bar is-busy'));
     }
@@ -479,6 +508,14 @@ export function initVoicePage(h) {
     qf.append(seg);
     if (q.geraet) qf.append(el('p', 'field-help', q.geraet === 'gpu' ? 'Läuft auf der Grafikkarte.'
       : 'Läuft auf dem Prozessor – für flüssige Gespräche zu langsam. Lange Antworten spricht dann Piper (falls geladen) oder die Browser-Stimme. Ohne passende Grafikkarte ist Piper die bessere Wahl.'));
+    // „darf halt langsamer sein“ (seit 0.38.40): trotzdem immer mit dieser Stimme – der Text steht sofort da
+    const geduld = el('label', 'switch');
+    const gk = el('input');
+    gk.type = 'checkbox'; gk.checked = !!werte().qwen_geduldig;
+    gk.addEventListener('change', () => save({ qwen_geduldig: gk.checked },
+      gk.checked ? 'Spricht immer mit der eigenen Stimme' : 'Wechselt bei langen Antworten auf die schnelle Stimme'));
+    geduld.append(gk, el('span', null, 'Immer mit dieser Stimme sprechen – auch wenn sie länger braucht'));
+    qf.append(geduld, el('p', 'field-help', 'Die Antwort steht sofort im Gespräch, der Ton folgt Satz für Satz, sobald er gerechnet ist.'));
     mine.append(qf);
     out.push(mine);
     return out;

@@ -38,8 +38,51 @@ LOCAL_TOOLS = {
 }
 LOCAL_NOTE = """
 - Du läufst gerade als lokales Sprachmodell auf dem PC (ohne Internet). Bleib bei kurzen, freundlichen Antworten \
-und nimm Werkzeuge nur, wenn der Mensch etwas Bewegtes möchte. Erfinde keine Werkzeuge."""
+und nimm Werkzeuge nur, wenn der Mensch etwas Bewegtes möchte. Erfinde keine Werkzeuge.
+- Schreib keine Befehle in eckigen Klammern in deine Antwort – Bewegungen und Gefühle nur über die Werkzeuge."""
 THINK = re.compile(r"<think>.*?</think>", re.S)
+# Kleine lokale Modelle schreiben Werkzeuge manchmal als Text: „[emote: staunen] [head: yaw deg=15, seconds=2]“
+# (gemeldet 11.11. mit qwen3.5:9b). Solche Marken werden ausgeführt, wenn es das Werkzeug gibt, und nie gezeigt oder
+# vorgelesen. Nur [wort: …] – normale Klammern im Text bleiben.
+TEXT_WERKZEUG = re.compile(r"\[\s*([a-z_]{2,30})\s*:\s*([^\[\]]{0,160})\]", re.I)
+
+
+def text_werkzeuge(text: str, schemas: dict[str, dict[str, Any]]) -> tuple[str, list[tuple[str, dict[str, Any]]]]:
+    """Werkzeug-Marken aus dem Text holen → (sauberer Text, [(Werkzeug, Argumente)])."""
+    aufrufe: list[tuple[str, dict[str, Any]]] = []
+
+    def ersetzen(m: re.Match[str]) -> str:
+        name, roh = m.group(1).lower(), m.group(2).strip()
+        schema = schemas.get(name)
+        if schema is not None:
+            props = (schema.get("properties") or {})
+            args: dict[str, Any] = {}
+            for teil in (x.strip() for x in roh.split(",") if x.strip()):
+                if "=" in teil:
+                    k, v = (s.strip() for s in teil.split("=", 1))
+                    k = re.sub(r"\s+", "_", k.lower())
+                    if k not in props and f"{k}_deg" in props:
+                        k = f"{k}_deg"
+                else:
+                    pflicht = list(schema.get("required") or []) or [p for p in props if p != "then"]
+                    k, v = (pflicht[0] if pflicht else ""), teil
+                if k not in props:
+                    continue
+                if props[k].get("type") == "number":
+                    try:
+                        args[k] = float(v.replace(",", "."))
+                    except ValueError:
+                        continue
+                else:
+                    args[k] = v.strip("\"' ")
+            if all(r in args for r in schema.get("required") or []):
+                aufrufe.append((name, args))
+        return ""
+
+    sauber = TEXT_WERKZEUG.sub(ersetzen, text)
+    sauber = re.sub(r"[ \t]{2,}", " ", sauber)
+    sauber = re.sub(r"\s+([.,!?])", r"\1", sauber).strip()
+    return sauber, aufrufe
 
 
 def _tool_spec(t: dict[str, Any]) -> dict[str, Any]:
@@ -123,6 +166,17 @@ class LocalBrain:
                 if isinstance(result, dict) and result.pop("_bild", None) is not None:
                     result["hinweis"] = "Das Bild kann nur Claude ansehen, nicht das eigene Sprachmodell."
                 messages.append({"role": "tool", "tool_name": name, "content": json.dumps(result, ensure_ascii=False)})
+        # Werkzeuge, die das Modell als Text geschrieben hat, ausführen und aus der Antwort nehmen (seit 0.38.40)
+        schemas = {t["name"]: t["input_schema"] for t in runner.tools() if t["name"] in erlaubt}
+        final, als_text = text_werkzeuge(final, schemas)
+        for name, args in als_text[:4]:
+            result = await runner.run(name, args)
+            action = {"tool": name, "input": args, "result": result}
+            actions.append(action)
+            if notify:
+                maybe = notify({"type": "action", **action})
+                if maybe is not None:
+                    await maybe
         final = final or "Quak!"
         # Für den Verlauf nur Frage und Antwort – das hält den Kontext klein
         self.history += [{"role": "user", "content": text}, {"role": "assistant", "content": final}]

@@ -160,6 +160,28 @@ def test_modell_aus_pollens_paket_mit_pruefsumme(tmp_path, monkeypatch):
         store2.holen()
 
 
+def test_modell_ohne_lfs_von_raw_wenn_media_404(tmp_path, monkeypatch):
+    # Gemeldet 11.11.: „3D-Modell: Laden ging nicht: HTTP Error 404“ – media.githubusercontent.com liefert
+    # reachy_mini.xml (kein LFS) nicht mehr aus; dann raw.githubusercontent.com, mit derselben Prüfsumme
+    import urllib.error
+
+    monkeypatch.delenv("DUCKPILOT_OFFLINE", raising=False)
+    dateien = {"reachy_mini.xml": {"sha256": hashlib.sha256(b"<mujoco/>").hexdigest(), "bytes": 9}}
+    monkeypatch.setitem(RM.QUELLEN, "dateien", dateien)
+    geholt = []
+
+    def fetch(url):
+        geholt.append(url)
+        if "media.githubusercontent.com" in url:
+            raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
+        return b"<mujoco/>"
+
+    store = RM.ReachyModellStore(tmp_path / "daten", fetch=fetch, packaged=False, paket=lambda: None)
+    store.holen()
+    assert [u.split("/")[2] for u in geholt] == ["media.githubusercontent.com", "raw.githubusercontent.com"]
+    assert (store.src / "reachy_mini.xml").read_bytes() == b"<mujoco/>"
+
+
 def test_quellen_fester_stand_und_nicht_im_export():
     q = RM.QUELLEN
     assert len(q["commit"]) == 40 and q["stand"] == "v1.13.0" and "reachy_mini.xml" in q["dateien"]

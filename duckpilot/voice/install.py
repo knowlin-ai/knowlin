@@ -23,7 +23,14 @@ from typing import Any, Callable
 
 log = logging.getLogger(__name__)
 
-AMD_INDEX = "https://stable.repo.amd.com/rocm/whl-next/"
+# AMDs Paketquelle für ROCm unter Windows (seit 0.38.40; vorher stable.repo.amd.com/rocm/whl-next/). Dort gibt es
+# PyTorch mit ROCm für Python 3.11–3.14 – auch für das eingebettete Python des Installers (3.13).
+AMD_INDEX = "https://repo.amd.com/rocm/whl-multi-arch/"
+# Feste Fassungen: Ohne Versionsangabe ließ pip ein schon installiertes PyTorch für den Prozessor („+cpu“, etwa vom
+# Lernen-Paket) einfach stehen – Qwen rechnete dann auf dem Prozessor, obwohl eine Radeon da war (gemeldet 11.11.:
+# „selbst auf dem schnellen AMD-Rechner läuft es nicht“; im Protokoll nur „cpu“, 12–40 s je Sekunde Sprache).
+AMD_TORCH = "2.12.0+rocm7.14.1"
+AMD_TORCHAUDIO = "2.11.0+rocm7.14.1"
 CUDA_INDEX = "https://download.pytorch.org/whl/cu128"
 CPU_INDEX = "https://download.pytorch.org/whl/cpu"
 
@@ -83,6 +90,37 @@ def amd_arch(names: list[str]) -> str | None:
     return None
 
 
+def torch_bau() -> str | None:
+    """Für welches Gerät das installierte PyTorch gebaut ist – ohne torch zu laden: "rocm", "cuda", "cpu" oder None.
+
+    Seit 0.38.40: Ein PyTorch „+cpu“ auf einem PC mit Radeon oder GeForce war der Grund, warum Qwen3-TTS dort 12–40 s
+    je Sekunde Sprache brauchte. Die Oberfläche bietet dann an, PyTorch für die Grafikkarte neu einzurichten."""
+    from importlib import metadata
+
+    try:
+        v = metadata.version("torch")
+    except metadata.PackageNotFoundError:
+        return None
+    lokal = v.partition("+")[2].lower()
+    if lokal.startswith("rocm") or "amd-torch-device" in " ".join(_installierte()):
+        return "rocm"
+    if lokal.startswith("cu"):
+        return "cuda"
+    if lokal == "cpu":
+        return "cpu"
+    # ohne Kennung (PyPI): unter Windows/macOS reines Prozessor-PyTorch, unter Linux mit CUDA
+    return "cuda" if sys.platform.startswith("linux") else "cpu"
+
+
+def _installierte() -> list[str]:
+    from importlib import metadata
+
+    try:
+        return [d.metadata["Name"].lower() for d in metadata.distributions() if d.metadata["Name"]]
+    except Exception:
+        return []
+
+
 def suggest_gpu(names: list[str]) -> str:
     if amd_arch(names):
         return "amd"
@@ -129,7 +167,7 @@ def _commands(paket: str, gpu: str = "cpu", arch: str | None = None) -> list[lis
     if paket in ("qwen", "lernen"):
         if gpu == "amd":
             arch = arch if arch and re.fullmatch(r"gfx\d{3,4}", arch) else "gfx1201"
-            torch = ["--index-url", AMD_INDEX, f"torch[device-{arch}]", "torchaudio"]
+            torch = ["--index-url", AMD_INDEX, f"torch[device-{arch}]=={AMD_TORCH}", f"torchaudio=={AMD_TORCHAUDIO}"]
         elif gpu == "nvidia":
             torch = ["--index-url", CUDA_INDEX, "torch", "torchaudio"]
         else:
