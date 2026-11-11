@@ -41,6 +41,7 @@ PRIVAT = {
     "duckpilot/server/static/icon-maskable-512.png", "duckpilot/server/static/apple-touch-icon.png",
     "Gespraechsnotizen.md", "Microduck-Notizen.md",  # Arbeitsnotizen
     "Releaseplan.md", "ZWEIG.md",                    # private Planung und Testanleitung der Zweige
+    "Konzept-Geist.md",                              # Konzept im Entwurf (seit 11.11.2026), erst nach Abstimmung öffentlich
     ".env",                                          # Schlüssel, falls jemand ihn so hinterlegt hat
     "tools/privat_namen.txt",
     "CLAUDE.md",                                     # Arbeitsregeln für Claude in Chats – intern

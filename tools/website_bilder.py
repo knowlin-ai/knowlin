@@ -255,6 +255,15 @@ def szene_training(page, base, sprache):
     A.oeffnen(page, base)
     zu(page, "cockpit")
     zu(page, "training", ms=3000)
+    # seit 0.38.40 („bei Lernen ist auf der Website noch ein Bild mit der Backup-Ente“): warten, bis das Feld die
+    # Originalfigur zeigt – sie wird erst nach der einfachen Ente in den Bildbogen gezeichnet
+    page.wait_for_function("() => /^original/.test(document.getElementById('tr-feld-canvas')?.dataset.figur || '')",
+                           timeout=420000)
+    # Bildbogen steht jetzt – Ansicht neu öffnen, damit die Kamera wieder nah beginnt (vorher war sie schon weit weg)
+    zu(page, "cockpit")
+    zu(page, "training", ms=3000)
+    page.wait_for_function("() => /^original/.test(document.getElementById('tr-feld-canvas')?.dataset.figur || '')",
+                           timeout=420000)
     page.wait_for_timeout(8000)
 
 
