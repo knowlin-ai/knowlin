@@ -16,8 +16,10 @@ from .werkbank import WUERFEL
 
 REIHEN = ((0, 1, 2), (3, 4, 5), (6, 7, 8), (0, 3, 6), (1, 4, 7), (2, 5, 8), (0, 4, 8), (2, 4, 6))
 # Felder 1–9 aus deiner Sicht (du sitzt Ari gegenüber): 1 2 3 hinten bei Ari, 7 8 9 vorn bei dir; links ist links
-REIHE_X = (0.17, 0.215, 0.26)            # m vor dem Sockel – alles in Reichweite (nachgemessen)
-SPALTE_Y = (-0.045, 0.0, 0.045)          # deine linke Spalte liegt rechts von Ari
+# m vor dem Sockel – alles in Reichweite; 5,5 cm Abstand, damit die Backen beim Loslassen neben den Nachbarsteinen Platz
+# haben, auch bei vollem Brett (seit 0.38.55 nachgemessen mit `werkbank_weg.py`; vorher 4,5 cm – die Backe stieß an)
+REIHE_X = (0.17, 0.225, 0.28)
+SPALTE_Y = (-0.055, 0.0, 0.055)          # deine linke Spalte liegt rechts von Ari
 STEINE = 5
 VORRAT = [(0.22 * math.cos(math.radians(g)), 0.22 * math.sin(math.radians(g))) for g in (50, 60, 70, 80, 90)]
 DU, ARI = "du", "ari"

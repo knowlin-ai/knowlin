@@ -27,10 +27,10 @@ Körper   backends/sim.py (einfach)  backends/physics.py (MuJoCo + Pollens Polic
          backends/reachy*.py (Reachy Mini: Simulator, Pollens Daemon)  backends/open_duck.py (Open Duck Mini v2)
          backends/begleiter.py (weitere Enten im Simulator)  backends/lerobot.py (LeRobot-Roboter, seit 0.38.35)
          backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
-         arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)
+         arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)  arm_huelle.py (Fühlpunkte auf Greifer und Backe, erzeugt von tools/arm_huelle_erzeugen.py – Basis, seit 0.38.55)
          backends/werkbank.py (Werkbank des SO-101: Würfel, Kisten, Greifen und Ablegen, seit 0.38.48)
          werkbank_auftrag.py (Aufträge als Daten: Regeln, Prüfung, eigene merken – Basis, seit 0.38.54)
-         backends/werkbank_spiel.py (Tic-Tac-Toe an der Werkbank, seit 0.38.54)
+         backends/werkbank_spiel.py (Tic-Tac-Toe an der Werkbank, seit 0.38.54)  backends/werkbank_weg.py (freier Weg: tastet jede Bewegung mit der Hülle ab, seit 0.38.55)
          gemeinsames Interface: api.py (DuckBackend, DuckState, Perception)
          Körperschnittstelle 1.0: koerper.py (Profile, Wortschatz, Erweiterungen per Entry Point „knowlin.koerper“),
          koerper_pruefung.py (Pflichten P1–P9) – Spezifikation docs/koerper-schnittstelle.md
@@ -244,6 +244,12 @@ Wechsel des #-Teils lädt die Seite nicht); die 3D-Ansicht wird angehalten, weil
   davor drei Würfel und zwei offene Kisten im Sockelrahmen. `greifen`/`ablegen` rechnen mit `arm_kinematik.greifhaltung`
   (von oben, gedämpfte kleinste Quadrate); außer Reichweite → ehrliches Nein. Geht der Greifer auf oder kommt der
   Not-Aus, fällt das Gehaltene unter die Spitze (Kiste oder Werkbank). Zustand `werkbank` in `DuckState`.
+  Seit 0.38.55 prüft jeder Plan seinen Weg (`backends/werkbank_weg.py`): Zwischen zwei Haltungen fährt der Arm eine
+  Gerade im Gelenkraum; die wird abgetastet – Fühlpunkte aus `arm_huelle.py` (aus dem Modell erzeugt, ein Test prüft,
+  dass sie passen) plus der gehaltene Würfel – gegen Würfel, Kistenbretter und Werkbank. Versperrt → andere
+  Handgelenk-Drehung (0, ±90, ±45, ±135), weniger weit offen (Loslassen ab 40°), Überfahrt über die Werkbank (nie beim
+  Öffnen oder Schließen), andere Ruhehaltung (`PARKEN`); sonst ehrliches Nein („… stoßen – mach mir bitte erst Platz“).
+  Kisten 15 cm, Tic-Tac-Toe-Felder 5,5 cm auseinander – darunter passt keine Backe neben einen Würfel.
 - **Aufträge und Spiel an der Werkbank** (seit 0.38.54): `werkbank_auftrag.py` (Basis) – ein Auftrag ist nur Daten
   (Titel + bekannte Regel `zurueck`/`farbe`/`turm`/`schritte`), `pruefen` nimmt nichts anderes an; `planen` macht daraus
   Griffe für den aktuellen Stand. `So101Sim.auftrag_starten` arbeitet sie einzeln ab (jeder Plan geprüft); Not-Aus,

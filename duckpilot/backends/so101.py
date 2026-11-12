@@ -156,7 +156,7 @@ class So101Sim(TischPlatz, SimBackend):
         self._auftrag_abbrechen("Greifen von Hand")
         if not self.powered:
             return IntentResult(False, "Motoren sind aus – erst aufwecken")
-        plan, grund = self.werkbank.greifen_plan(ding)
+        plan, grund = self.werkbank.greifen_plan(ding, self.gelenke)
         if plan is None:
             return IntentResult(False, grund)
         self.sitting = False
@@ -168,7 +168,7 @@ class So101Sim(TischPlatz, SimBackend):
         self._auftrag_abbrechen("Ablegen von Hand")
         if not self.powered:
             return IntentResult(False, "Motoren sind aus – erst aufwecken")
-        plan, grund = self.werkbank.ablegen_plan(ziel)
+        plan, grund = self.werkbank.ablegen_plan(ziel, self.gelenke)
         if plan is None:
             return IntentResult(False, grund)
         self.sitting = False
@@ -207,7 +207,8 @@ class So101Sim(TischPlatz, SimBackend):
                 self.auftrag_ende = self.werkbank.spiel.ari_gesetzt(a["spiel_feld"], True)
             return
         art, ziel = a["schritte"].pop(0)
-        plan, grund = (self.werkbank.greifen_plan(ziel) if art == "greifen" else self.werkbank.ablegen_plan(ziel))
+        plan, grund = (self.werkbank.greifen_plan(ziel, self.gelenke) if art == "greifen"
+                       else self.werkbank.ablegen_plan(ziel, self.gelenke))
         if plan is None:
             self.auftrag, self.auftrag_ende = None, f"{a['titel']} abgebrochen – {grund}"
             if a.get("spiel_feld") and self.werkbank.spiel is not None:

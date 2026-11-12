@@ -15,12 +15,27 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 - **Kachel „Mentor“ statt „Ohne Körper“** (Maintainer: „Knowlin ist per Tailscale und Sprachchat sowieso schon
   übergeordnet da – die Kachel wäre der Human Mentor oder Teacher“): Mit 0.44 ist der Mensch Körper und Lehrer – du
   machst Bewegungen und Abläufe vor, zeigst Dinge und Orte, Knowlin lernt durch Zuschauen (Handy, Webcam, später eine
-  Brille). Bisher stand dort „Dasselbe Gehirn ganz ohne Roboter“ – das ist der Chat auf der Startseite heute schon.
+  Brille – Smart Glasses oder eine VR-Brille wie die Meta Quest, deren Kameras die Hände ohnehin verfolgen). Bisher stand dort „Dasselbe Gehirn ganz ohne Roboter“ – das ist der Chat auf der Startseite heute schon.
 
 ### Behoben
+- **Ari fährt nicht mehr durch Türme** (Fund des Maintainers: „der Greifer ragt in den Turm“): Jede Bewegung an der
+  Werkbank wird vorher abgetastet – mit Fühlpunkten auf Greifer und beweglicher Backe aus dem Modell und dem
+  gehaltenen Würfel. Steht etwas im Weg, dreht er das Handgelenk, öffnet weniger weit oder hebt den Würfel über die
+  Werkbank; geht nichts, sagt er, woran er stoßen würde. Seine Ruhehaltung lag genau über dem blauen Würfel – der
+  steht jetzt weiter vorn, und steht doch etwas darunter, ruht er darüber.
+- **Kisten und Spielfeld mit Platz für die Backen:** In der 8-cm-Kiste lag ein Würfel 5 mm vor der Wand, auf dem
+  Spielfeld 1,5 cm neben dem Nachbarstein – da passt keine Backe dazwischen (auch am echten Arm nicht). Kisten jetzt
+  15 cm breit, Felder 5,5 cm auseinander.
+- **Keine leere Anzeigetafel bei Ari:** Am PC stand unten über der Bühne ein leeres Glas mit „?“ und verdeckte den
+  Tastenhinweis – ein Körper ohne Beine, Tiefensensor und Kamera hat dort nichts anzuzeigen. Die Abnahme prüft die
+  Überdeckungen jetzt für alle vier Körper.
 - **Englische Oberfläche:** Was Ari tut, steht unter dem Chat jetzt auch auf Englisch („grabs the red cube“, „Sort
   by colour 2/5“, „Ari: square 5. Your turn.“), ebenso seine Meldungen an der Werkbank und im Spiel. Dazu „legt den
   blauen Würfel ab“ statt „legt blauer Würfel ab“.
+
+### Nicht geprüft
+- Planungszeit am Laptop: im Simulator meist 0,03 s, die erste Planung an einem neuen Ort mit vielen Varianten bis
+  0,6 s (die Bühne steht so lange). Am echten SO-101 ist der freie Weg ungeprüft.
 
 ## 0.38.54 – 2026-11-12 – Ari räumt auf, sortiert, baut Türme und spielt Tic-Tac-Toe
 

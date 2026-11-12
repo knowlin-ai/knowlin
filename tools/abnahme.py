@@ -222,6 +222,8 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
                                   "so101": "so101"}[modul]
                         b.pruefe(f"Inhalte: Körper {name} ist geladen ({sprache})",
                                  page.evaluate("k => document.body.classList.contains('koerper-' + k)", klasse))
+                        if sprache == "de":                       # jeder Körper, nicht nur Quacki und Reachy
+                            ueberdeckungen(page, b, name)
                     keine_ente = modul in ("reachy_mini", "so101") and wo == "Körper"
                     funde += [f"{v}/{teil or ''}: {z[:80]}" for z in _verbotene_woerter(page.evaluate(SICHTBARER_TEXT),
                                                                                        keine_ente)]
@@ -251,6 +253,10 @@ UEBERDECKUNG_JS = """() => {
     const w = Math.min(r[i].right, r[j].right) - Math.max(r[i].left, r[j].left), h = Math.min(r[i].bottom, r[j].bottom) - Math.max(r[i].top, r[j].top);
     if (w > 4 && h > 4) ueber.push(`${namen[i]} × ${namen[j]} (${Math.round(w)}×${Math.round(h)})`);
   }
+  // eine Tafel ohne sichtbaren Inhalt (nur das „?“) ist ein leeres Glas über der Bühne (Fund 12.11., Ari am PC)
+  const tafel = view.querySelector('.hud-tele');
+  if (tafel && sicht(tafel) && ![...tafel.children].some((c) => !c.matches('.hud-help-btn, .hud-help') && sicht(c)))
+    ueber.push('.hud-tele ist leer – nur „?“ auf einem Glas');
   return { elemente: namen, ueber };
 }"""
 

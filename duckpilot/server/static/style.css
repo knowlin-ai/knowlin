@@ -2044,8 +2044,10 @@ body:not(.koerper-microduck) .nur-microduck, body.koerper-microduck .ohne-microd
 body:not(.koerper-reachy) .nur-reachy, body.keine-ente .nur-ente, body:not(.koerper-so101) .nur-so101,
 body:not(.spielt-ttt) .nur-ttt,
 body:not(.im-kopf).ohne-kopf .braucht-kopf { display: none; }
-/* Sicht-Kachel mit Tiefensensor oder Kamera; Hilfetexte nur für Körper ohne Beine bzw. ohne Tiefensensor (0.38.14) */
+/* Sicht-Kachel mit Tiefensensor oder Kamera; Hilfetexte nur für Körper ohne Beine bzw. ohne Tiefensensor (0.38.14) –
+   ohne Beine, Tiefensensor und Kamera (der Arm) bliebe von der Anzeige nur ein leeres Glas mit „?“ (seit 0.38.55) */
 body:not(.im-kopf).ohne-tiefensensor.ohne-kamera .braucht-sicht,
+body:not(.im-kopf).ohne-beine.ohne-tiefensensor.ohne-kamera .hud-tele,
 body:not(.ohne-beine) .nur-ohne-beine, body:not(.ohne-tiefensensor) .nur-ohne-tiefensensor { display: none; }
 /* Beenden sitzt auch bei Knowlin rechts (dort fehlen Persönlichkeit und Aktiv/Ruht, die ihn sonst nach rechts schieben) */
 body.im-kopf .quit-btn { margin-left: auto; }

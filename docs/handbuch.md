@@ -117,6 +117,8 @@ Prüfen: `python -m duckpilot.koerper_pruefung [id]`. Spezifikation: [Körpersch
   Greifer namens Ari, der an seiner eigenen Werkbank steht – davor fünf Würfel (rot, orange, gelb, grün, blau) und zwei
   Kisten. „Leg den roten Würfel in die linke Kiste“ oder „leg den grünen auf den blauen“ geht auch ohne Sprachmodell;
   was er nicht erreicht, sagt er. Würfel und Kisten lassen sich **anklicken** (Greifen, Hineinlegen, Darauf stellen).
+  Er fährt nicht durch Türme oder Kistenwände: Ist kein Weg frei, dreht er das Handgelenk, öffnet weniger weit oder
+  hebt den Würfel darüber – und wenn gar nichts geht, sagt er, was im Weg steht.
   Er grüßt mit Winken statt Nicken, freut sich mit dem Greifer und sagt ehrlich, was er anders macht. Der Not-Aus lässt
   ihn in die Ruhelage sacken und beendet jeden Auftrag. Am echten Arm läuft er über LeRobot (`so101_follower`, noch
   ungeprüft).

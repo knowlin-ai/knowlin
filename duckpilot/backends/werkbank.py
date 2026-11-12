@@ -9,6 +9,10 @@ eine offene Kiste. Alles in Metern im Rahmen des Sockels (x vorn, y links, z üb
 Haltung kann eine Handlung tragen („fassen“, „loslassen“), die der Simulator beim Ankommen ausführt. Was der Arm nicht
 erreicht, lehnt er mit Grund ab. Öffnet sich der Greifer, während er etwas hält, fällt es dort hin, wo die Spitze gerade
 ist – auch beim Not-Aus.
+
+Seit 0.38.55 prüft jeder Plan seinen Weg (`werkbank_weg.py`): Stieße der Greifer unterwegs an einen Würfel, eine Kiste
+oder die Werkbank, versucht der Planer das Handgelenk gedreht und den Greifer weniger weit offen; sonst lehnt er ab.
+Ruht der Arm danach, wählt er eine Haltung, in der nichts im Greifer steckt („bereit“ oder darüber).
 """
 
 from __future__ import annotations
@@ -18,11 +22,13 @@ from typing import Any
 
 from .. import arm_kinematik as K
 from ..arm import POSEN
+from . import werkbank_weg as W
 
 WERKBANK = {"name": "Werkbank", "x": -1.6, "y": 0.25, "sx": 0.6, "sy": 0.8, "h": 0.75, "color": "#a07e5a"}
 SOCKEL_VOR_KANTE = 0.08          # so weit steht der Sockel vor der hinteren Kante der Werkbank
 WUERFEL = 0.03                   # Kantenlänge
-KISTE = {"s": 0.08, "h": 0.05}
+KISTE = {"s": 0.15, "h": 0.05}     # seit 0.38.55 breiter: neben jedem Würfel passt eine Backe (sonst 5 mm)
+KISTE_VERSATZ = 0.033            # m: vier Plätze in der Kiste, so weit von der Mitte
 UEBER = 0.06                     # so hoch über einem Würfel setzt der Arm an
 TRAGEN = 0.10                    # in dieser Höhe trägt er
 TRAGEN_FLACH = 0.075             # … nah am Sockel reicht die Spitze nicht so hoch: dort flacher (über flachen Steinen)
@@ -30,6 +36,11 @@ GREIFER_AUF, GREIFER_ZU = 60.0, 8.0     # zu: die Backen liegen am Würfel an (n
 HOECHSTE_SPITZE = 0.105          # so hoch erreicht die Spitze senkrecht von oben (vor dem Sockel, nachgemessen)
 HOECHSTER_STAPEL = 0.09          # Mitte des obersten Würfels höchstens hier: drei Würfel
 OFFEN_LAESST_FALLEN = 35.0       # öffnet sich der Greifer weiter, fällt, was er hält
+# Handgelenk: erst so, dass die Backen zum Sockel hin öffnen, sonst quer oder schräg (Tic-Tac-Toe: Nachbarn ringsum)
+DREHUNGEN = (0.0, 90.0, -90.0, 45.0, -45.0, 135.0, -135.0)
+WEITEN = (GREIFER_AUF, 45.0, 40.0, 30.0)  # so weit öffnet er, wenn daneben wenig Platz ist (Loslassen: ab 40°)
+# Ruhehaltungen nach dem Ablegen: „bereit“, und wenn dort etwas steht (ein Turm), darüber – der Greifer schaut von oben
+PARKEN = (dict(POSEN["bereit"]), {**POSEN["bereit"], "shoulder_lift": -60, "elbow_flex": 40, "wrist_flex": 70})
 
 
 def _farbwort(name: str) -> str:
@@ -47,12 +58,12 @@ def startbelegung() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     dinge = [{"name": name, "akk": akk, "farbe": farbe, "x": x, "y": y, "z": WUERFEL / 2, "in": None, "auf": None,
               "start": [x, y]}
              for name, akk, farbe, (x, y) in (("roter Würfel", "den roten Würfel", "#d94a3d", _polar(0.20, 35)),
-                                              ("blauer Würfel", "den blauen Würfel", "#3d6fd9", _polar(0.24, 0)),
+                                              ("blauer Würfel", "den blauen Würfel", "#3d6fd9", _polar(0.28, 0)),
                                               ("gelber Würfel", "den gelben Würfel", "#e8c33a", _polar(0.21, -35)),
                                               ("grüner Würfel", "den grünen Würfel", "#3fa45b", _polar(0.24, 18)),
                                               ("oranger Würfel", "den orangen Würfel", "#ee8a2c", _polar(0.24, -18)))]
     kisten = [{"name": name, "x": x, "y": y, **KISTE}
-              for name, (x, y) in (("linke Kiste", _polar(0.22, 75)), ("rechte Kiste", _polar(0.22, -75)))]
+              for name, (x, y) in (("linke Kiste", _polar(0.24, 75)), ("rechte Kiste", _polar(0.24, -75)))]
     return dinge, kisten
 
 
@@ -78,10 +89,11 @@ class Werkbank:
 
     # ── Pläne ────────────────────────────────────────────────────────────
     @staticmethod
-    def _ik(x: float, y: float, z: float, greifer: float) -> dict[str, float] | None:
-        return K.greifhaltung(x, y, z, greifer)
+    def _ik(x: float, y: float, z: float, greifer: float, drehung: float = 0.0) -> dict[str, float] | None:
+        return K.greifhaltung(x, y, z, greifer, drehung)
 
-    def greifen_plan(self, name: str) -> tuple[list[tuple[dict[str, float], float, str | None]] | None, str]:
+    def greifen_plan(self, name: str, von: dict[str, float] | None = None
+                     ) -> tuple[list[tuple[dict[str, float], float, str | None]] | None, str]:
         if self.haelt:
             h = self.ding(self.haelt)
             return None, f"Ich halte schon {h['akk'] if h else self.haelt} – erst ablegen."
@@ -97,9 +109,11 @@ class Werkbank:
         anfahrt = max(z + 0.03, min(z + UEBER, HOECHSTE_SPITZE))     # oben auf dem Turm: flacher anfahren
         schritte = [(x, y, anfahrt, GREIFER_AUF, 1.2, None), (x, y, z, GREIFER_AUF, 0.7, None),
                     (x, y, z, GREIFER_ZU, 0.5, f"fassen:{d['name']}"), (x, y, TRAGEN, GREIFER_ZU, 0.7, None)]
-        return self._plan(schritte, f"Da komme ich nicht hin – {d['name']} liegt außerhalb meiner Reichweite.")
+        return self._plan(schritte, f"Da komme ich nicht hin – {d['name']} liegt außerhalb meiner Reichweite.", von,
+                          d["name"])
 
-    def ablegen_plan(self, ziel: str) -> tuple[list[tuple[dict[str, float], float, str | None]] | None, str]:
+    def ablegen_plan(self, ziel: str, von: dict[str, float] | None = None
+                     ) -> tuple[list[tuple[dict[str, float], float, str | None]] | None, str]:
         if not self.haelt:
             return None, "Ich halte gerade nichts."
         d = self.ding(self.haelt)
@@ -110,10 +124,8 @@ class Werkbank:
             x, y, z = feld["x"], feld["y"], WUERFEL / 2
             schritte = [(x, y, TRAGEN, GREIFER_ZU, 1.2, None), (x, y, z, GREIFER_ZU, 0.6, None),
                         (x, y, z, GREIFER_AUF, 0.4, f"loslassen:feld:{feld['nr']}"), (x, y, TRAGEN, GREIFER_AUF, 0.6, None)]
-            plan, grund = self._plan(schritte, f"Da komme ich nicht hin – {feld['name']} ist außerhalb meiner Reichweite.")
-            if plan is not None:
-                plan.append((dict(POSEN["bereit"]), 1.0, None))
-            return plan, grund
+            return self._plan(schritte, f"Da komme ich nicht hin – {feld['name']} ist außerhalb meiner Reichweite.",
+                              von, None, parken=True)
         unten = None if k is not None else self._stapelziel(ziel, d)
         if isinstance(unten, str):
             return None, unten
@@ -131,10 +143,8 @@ class Werkbank:
         schritte = [(x, y, TRAGEN, GREIFER_ZU, 1.2, None), (x, y, z, GREIFER_ZU, 0.6, None),
                     (x, y, z, GREIFER_AUF, 0.4, f"loslassen:{k['name'] if k else ('auf:' + unten['name']) if unten else ''}"),
                     (x, y, TRAGEN, GREIFER_AUF, 0.6, None)]
-        plan, grund = self._plan(schritte, f"Da komme ich nicht hin – {text} ist außerhalb meiner Reichweite.")
-        if plan is not None:
-            plan.append((dict(POSEN["bereit"]), 1.0, None))
-        return plan, grund
+        return self._plan(schritte, f"Da komme ich nicht hin – {text} ist außerhalb meiner Reichweite.", von, None,
+                          parken=True)
 
     def _stapelziel(self, ziel: str, haelt: dict[str, Any]) -> dict[str, Any] | str | None:
         """„auf den blauen Würfel“ / „blauer Würfel“ → der Würfel, auf den gestapelt wird; Text = Grund, warum nicht."""
@@ -154,21 +164,74 @@ class Werkbank:
             return "Höher reicht mein Arm nicht – drei Würfel sind mein Turm."
         return u
 
-    def _plan(self, schritte, grund_weit: str):
+    def _haltungen(self, schritte, drehung: float):
         plan = []
         for x, y, z, greifer, s, aktion in schritte:
-            g = self._ik(x, y, z, greifer)
+            g = self._ik(x, y, z, greifer, drehung)
             if g is None and z == TRAGEN:                  # nah am Sockel: flacher tragen (seit 0.38.54, Spielfeld)
-                g = self._ik(x, y, TRAGEN_FLACH, greifer)
+                g = self._ik(x, y, TRAGEN_FLACH, greifer, drehung)
             if g is None:
-                return None, grund_weit
+                return None
             plan.append((g, s, aktion))
-        return plan, ""
+        return plan
+
+    def _plan(self, schritte, grund_weit: str, von: dict[str, float] | None = None, ziel: str | None = None,
+              parken: bool = False):
+        """Haltungen zu den Schritten – mit einem Weg, auf dem der Greifer nichts trifft (seit 0.38.55)."""
+        loslassen = any(a and a.startswith("loslassen") for *_, a in schritte)
+        weiten = [w for w in WEITEN if not loslassen or w >= OFFEN_LAESST_FALLEN + 5]
+        anstoss = None
+        for drehung in DREHUNGEN:
+            haltungen = self._haltungen(schritte, drehung)
+            if haltungen is None:
+                continue
+            for weite in weiten:
+                plan = [({**g, "gripper": weite if g["gripper"] == GREIFER_AUF else g["gripper"]}, s, a)
+                        for g, s, a in haltungen]
+                for ruhe in (PARKEN if parken else (None,)):
+                    voll, hit = self._weg(plan + [(dict(ruhe), 1.0, None)] if ruhe else plan, von, ziel)
+                    if voll is not None:
+                        return voll, ""
+                    anstoss = anstoss or hit
+        if anstoss is None:
+            return None, grund_weit
+        return None, f"Dabei würde ich an {anstoss} stoßen – mach mir bitte erst Platz."
+
+    @staticmethod
+    def _ueberfahrt(a: dict[str, float], b: dict[str, float]) -> list[dict[str, float]]:
+        """Umweg über die Werkbank: hoch (Greifer schaut von oben), hinüberschwenken – danach hinab zu `b`."""
+        hoch = PARKEN[1]
+        return [{**hoch, "shoulder_pan": p["shoulder_pan"], "wrist_roll": p.get("wrist_roll", 0.0),
+                 "gripper": a.get("gripper", 0.0)} for p in (a, b)]
+
+    def _weg(self, plan, von: dict[str, float] | None, ziel: str | None):
+        """Der Plan mit einem Weg, auf dem der Greifer nichts trifft – wo nötig mit Überfahrt. Sonst (None, was im Weg
+        wäre). Gegriffenes und Gehaltenes zählt nicht als Hindernis."""
+        hin = W.hindernisse(self.dinge, self.kisten, WUERFEL, {n for n in (ziel, self.haelt) if n})
+        vorher = dict(von or POSEN["bereit"])
+        traegt = self.haelt is not None
+        out = []
+        for g, s, aktion in plan:
+            loslassen = bool(aktion and aktion.startswith("loslassen"))
+            mit = traegt and not loslassen
+            hit = W.weg(vorher, g, hin, mit, WUERFEL)
+            if hit is not None:
+                um = self._ueberfahrt(vorher, g)
+                if aktion or vorher.get("gripper") != g.get("gripper") or any(W.weg(x, y, hin, mit, WUERFEL) is not None for x, y in zip([vorher, *um], [*um, g])):
+                    return None, hit
+                out += [(u, 0.8, None) for u in um]
+            out.append((g, s, aktion))
+            if aktion and aktion.startswith("fassen"):
+                traegt = True
+            elif loslassen:
+                traegt = False
+            vorher = g
+        return out, None
 
     def _platz_in(self, k: dict[str, Any]) -> tuple[float, float]:
         """Freier Platz in der Kiste: bis zu vier Würfel nebeneinander."""
         belegt = sum(1 for d in self.dinge if d["in"] == k["name"])
-        versatz = k["s"] / 4
+        versatz = KISTE_VERSATZ
         return [(-versatz, -versatz), (versatz, versatz), (-versatz, versatz), (versatz, -versatz)][belegt % 4]
 
     # ── Handlungen beim Ankommen ─────────────────────────────────────────
