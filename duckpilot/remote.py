@@ -68,6 +68,8 @@ PC_ONLY: list[tuple[str, re.Pattern[str]]] = [(m, re.compile(p)) for m, p in [
     ("POST", r"^/api/stimme/(entwerfen|uebernehmen|laden)$"),   # Stimmen entwerfen (Grafikkarte), Modelle laden (0.38.6)
     ("DELETE", r"^/api/stimme/qwen/"),
     ("DELETE", r"^/api/gedankenspur$"),       # seit 0.38.44: Gedankenspur leeren nur am PC
+    ("POST", r"^/api/rueckblick"),            # seit 0.38.45: Lehren korrigieren und Rückblick anstoßen nur am PC
+    ("DELETE", r"^/api/rueckblick/"),
     ("*", r"^/api/fehlerbericht(/|$)"),     # enthält Einstellungen und Protokollzeilen – nur am PC (seit 0.38.6)
     ("*", r"^/api/spiele(/|$)"),            # Kamera-Spiele mit Reachy: Webcam nur am PC (seit 0.38.13)
     ("*", r"^/api/verbindungstest$"),       # prüft Adressen im Heimnetz – nur am PC (seit 0.38.16)

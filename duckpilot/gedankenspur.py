@@ -21,10 +21,11 @@ class Gedankenspur:
         self.zeilen: deque[dict[str, Any]] = deque(maxlen=groesse)
 
     def merken(self, was: str, warum: str, *, quelle: str = "antrieb", wie: str | None = None,
-               ergebnis: str = "getan", person: bool = False, zeit: float | None = None) -> dict[str, Any]:
+               ergebnis: str = "getan", person: bool = False, zeit: float | None = None,
+               art: str | None = None) -> dict[str, Any]:
         z = {"zeit": round(time.time() if zeit is None else zeit, 1), "quelle": quelle if quelle in QUELLEN else "antrieb",
              "was": str(was)[:160], "warum": str(warum)[:200], "wie": wie, "ergebnis": str(ergebnis)[:120],
-             "person": bool(person)}
+             "person": bool(person), "art": art}
         self.zeilen.append(z)
         return z
 

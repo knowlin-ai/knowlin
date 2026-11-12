@@ -2526,4 +2526,9 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
 .gedanke-was { margin: 0; color: var(--ink); }
 .gedanke-was time { color: var(--ink-3); font-variant-numeric: tabular-nums; margin-right: var(--spacing-02); }
 .gedanke-warum { margin: var(--spacing-01) 0 0; color: var(--ink-2); font-size: var(--t-small); }
+/* Rückblick (0.38.45): je Lehre was, woraus, und Korrigieren / Löschen */
+.lehren-liste { display: grid; gap: var(--spacing-05); margin: 0 0 var(--spacing-05); padding: 0; list-style: none; }
+.lehre-was { margin: 0; color: var(--ink); }
+.lehre-woraus { margin: var(--spacing-01) 0 var(--spacing-03); color: var(--ink-2); font-size: var(--t-small); }
+.lehre-knoepfe { display: flex; flex-wrap: wrap; gap: var(--spacing-03); align-items: center; }
 #werte-karte h4 { margin: var(--spacing-05) 0 var(--spacing-03); }

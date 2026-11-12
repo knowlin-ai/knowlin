@@ -231,6 +231,10 @@ Wechsel des #-Teils lädt die Seite nicht); die 3D-Ansicht wird angehalten, weil
   sie von sich aus tut – nie, *wie oft* (das bestimmt der Regler `eigenstaendig`, 0 … 1). Nähe bleibt still, nie
   drängend. Sichtbar nur als Tooltip an der Stimmung. `gedankenspur.py`: je eigene Handlung (und je Absicht mit Ersatz
   oder Nein) eine Zeile im Speicher, `GET/DELETE /api/gedankenspur` (leeren und Zeilen über Personen nur am PC).
+- **Rückblick** (seit 0.38.45, Etappe G4): `rueckblick.py` – nach 10 min ohne Kontakt höchstens stündlich Lehren aus der
+  Gedankenspur (oft nicht geklappt → seltener, oft gelungen → „mag …“), je Verkörperung in `rueckblick.json`. Wirkt nur
+  als Faktor 0,3 … 1,5 auf die Gewichte, betrifft nie Personen, wird nicht erzählt. `/api/rueckblick` (ändern nur am PC);
+  Korrekturen des Menschen überschreibt kein späterer Rückblick.
 - **Charakter je Verkörperung** (seit 0.38.14): Knowlins Grundcharakter wirkt nur auf Knowlin; die Verkörperungen
   stehen einzeln in `figuren.json` (`figur_profil`), im Knowlin-Feld als ziehbare Punkte (`static/personality.js`).
 - **Chat übersteht Verbindungsabbrüche** (seit 0.38.15): Der Browser gibt jeder Nachricht eine Kennung (`cid`) und

@@ -9,6 +9,25 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.45 – 2026-11-12 – Rückblick in Ruhephasen
+
+### Neu
+- **Rückblick (Etappe G4):** Ist zehn Minuten Ruhe, schaut Knowlin höchstens einmal pro Stunde auf seine Gedankenspur
+  zurück und legt kleine Lehren ab: was von sich aus oft nicht geklappt hat („den Raum erkunden klappt hier gerade oft
+  nicht – lieber seltener“) und was er gern macht („mag Tricks üben“). Die Lehren ändern nur, wie oft er sich etwas von
+  selbst aussucht, und gelten je Verkörperung.
+- **Dokumentiert statt erzählt:** Unter Gedächtnis → „Im Rückblick gelernt“ steht jede Lehre mit Datum und woraus sie
+  stammt. Am PC lässt sie sich korrigieren (Seltener / Wie vorher / Öfter) oder löschen; „Jetzt zurückblicken“ stößt
+  den Rückblick von Hand an. Knowlin erzählt nicht ungefragt davon. Deine Korrektur überschreibt kein späterer Rückblick.
+
+### Sicherheit
+- Lehren wirken nur als Faktor 0,3 bis 1,5 auf die Auswahl eigener Beschäftigungen – sie schalten nichts frei, alle
+  Sperren und der Wertekern gelten unverändert. Lehren entstehen nur aus eigenem Tun, nie aus Bitten im Gespräch, und
+  übernehmen keinen Text aus der Spur (keine Namen).
+
+### Nicht geprüft
+- Die Lehren werden noch nicht ins Englische übersetzt angezeigt (wie die Gedankenspur).
+
 ## 0.38.44 – 2026-11-12 – Antrieb, feiner Regler, Gedankenspur
 
 ### Neu

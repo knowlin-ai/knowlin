@@ -8,6 +8,8 @@ Ansprechen und der Not-Aus beenden es sofort (`MotionEngine.kontakt`, `stop_all`
 
 Seit 0.38.44 (Etappe G3): Der Antrieb (`duckpilot/antrieb.py`) gewichtet, *was* sie tut – nie, *wie oft*; jede eigene
 Handlung bekommt eine Zeile in der Gedankenspur (`duckpilot/gedankenspur.py`).
+Seit 0.38.45 (Etappe G4): Nach `RUECKBLICK_RUHE_S` Ruhe schaut sie höchstens stündlich auf die Spur zurück und legt
+Lehren ab (`duckpilot/rueckblick.py`); die wirken nur auf die Gewichte – dokumentiert, korrigierbar, nie erzählt.
 """
 
 from __future__ import annotations
@@ -23,6 +25,8 @@ log = logging.getLogger(__name__)
 
 TAKT_S = 1.0
 SATZ_ANTEIL = 0.35          # so oft sagt ein verspielter Charakter etwas dazu
+RUECKBLICK_RUHE_S = 600.0   # so lange kein Kontakt → Ruhephase für den Rückblick (seit 0.38.45)
+RUECKBLICK_ABSTAND_S = 3600.0
 
 
 class EigenstaendigTeil:
@@ -42,6 +46,20 @@ class EigenstaendigTeil:
         if getattr(self, "_antrieb", None) is None:
             self._antrieb = Antrieb()
         return self._antrieb
+
+    @property
+    def lehrbuch(self):
+        from ..rueckblick import Lehrbuch
+        from ..settings import data_dir
+
+        if getattr(self, "_lehrbuch", None) is None:
+            self._lehrbuch = Lehrbuch(data_dir() / "rueckblick.json")
+        return self._lehrbuch
+
+    def zurueckblicken(self) -> list[dict[str, Any]]:
+        """Rückblick jetzt (Ruhephase oder Knopf am PC): Lehren aus der Gedankenspur ablegen – Knowlin sagt nichts dazu."""
+        self._rueckblick_mono = time.monotonic()
+        return self.lehrbuch.zurueckblicken(self.gedanken.liste(), self.config.modul)
 
     @property
     def gedanken(self):
@@ -85,7 +103,17 @@ class EigenstaendigTeil:
                           akku=getattr(st, "battery", None), energie=cfg.energie)
         los = uhr.takt(jetzt, self.eigenstaendig_sperre(), warten=eng.overlay is not None, energie=cfg.energie,
                        humor=cfg.humor, haeufigkeit=cfg.eigenstaendig, kontakt_at=eng.kontakt_at)
+        if not los and not eng.busy() and self._rueckblick_faellig(jetzt):
+            self.zurueckblicken()
         return await self.eigenstaendig_handeln() if los else None
+
+    def _rueckblick_faellig(self, jetzt: float) -> bool:
+        """Ruhephase: lange kein Kontakt, letzter Rückblick lange her, und es gibt Neues in der Spur."""
+        letzter = getattr(self, "_rueckblick_mono", None)
+        if jetzt - self.engine.kontakt_at < RUECKBLICK_RUHE_S or (letzter is not None and jetzt - letzter < RUECKBLICK_ABSTAND_S):
+            return False
+        zeilen = self.gedanken.liste()
+        return bool(zeilen) and zeilen[0]["zeit"] > self.lehrbuch.zuletzt
 
     def eigenstaendig_lage(self):
         from ..brain.tools import fehlt_dem_koerper
@@ -143,8 +171,8 @@ class EigenstaendigTeil:
         angebote = angebot(lage, cfg.energie, cfg.humor, uhr.rng)
         if art is not None:
             angebote = [b for b in angebote if b.art == art]
-        for b in angebote:                                     # der Antrieb gewichtet, was sie tut (nicht wie oft)
-            b.gewicht *= self.antrieb.faktor(b.art, b.ort)
+        for b in angebote:                                     # der Antrieb gewichtet, was sie tut (nicht wie oft) …
+            b.gewicht *= self.antrieb.faktor(b.art, b.ort) * self.lehrbuch.faktor(cfg.modul, b.art)   # … und Lehren
         wahl = waehlen(angebote, uhr.rng, uhr.zuletzt)
         if wahl is None:
             return None
@@ -157,13 +185,14 @@ class EigenstaendigTeil:
         person = wahl.nachricht.endswith(" dir") or wahl.args.get("ding") == "Mensch"
         if eng.notaus_gesperrt():                              # Not-Aus kam dazwischen: nichts davon bleibt
             eng.eigenstaendig_unterbrechen("Not-Aus")
-            self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="vom Not-Aus beendet", person=person)
+            self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="vom Not-Aus beendet", person=person,
+                                 art=wahl.art)
             return None
         if not ok:
-            self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="ging nicht", person=person)
+            self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="ging nicht", person=person, art=wahl.art)
             return {"ok": False, "art": wahl.art}
         nachricht = ok if isinstance(ok, str) else wahl.nachricht    # z. B. statt der Geste umgeschaut
-        self.gedanken.merken(nachricht, warum, wie=wahl.werkzeug, person=person)
+        self.gedanken.merken(nachricht, warum, wie=wahl.werkzeug, person=person, art=wahl.art)
         self.antrieb.gestillt(wahl.art)
         uhr.zuletzt = wahl.art
         if not (wahl.art == "geste" and ok is True):     # die Geste meldet sich selbst im Ticker (mit eigenstaendig)

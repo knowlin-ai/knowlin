@@ -477,3 +477,29 @@ def test_eigene_handlung_mit_grund_in_der_gedankenspur(rt):
     z = rt.gedanken.liste()[0]
     assert res["ok"] and z["quelle"] == "antrieb" and z["wie"] == "look_around"
     assert "Neugier (stark)" in z["warum"] and rt.antrieb.werte["neugier"] < 0.5
+
+
+# Seit 0.38.45 (G4): Rückblick in Ruhephasen – still, dokumentiert, wirksam
+def test_rueckblick_in_der_ruhephase_still_und_wirksam(rt, tmp_path, monkeypatch):
+    from duckpilot import settings as S
+    monkeypatch.setattr(S, "data_dir", lambda: tmp_path)
+    rt._lehrbuch = None
+    rt.config.eigenstaendig = 0.0                       # der Rückblick kommt auch, wenn sie nichts von sich aus tut
+
+    async def go():
+        gesendet = await _wach(rt)
+        for _ in range(2):
+            rt.gedanken.merken("erkundet den Raum", "Neugier (stark)", art="erkunden", ergebnis="ging nicht")
+        vorher = len(gesendet)
+        jetzt = rt.engine.kontakt_at + 601
+        frueh = rt._rueckblick_faellig(rt.engine.kontakt_at + 60)
+        await rt.eigenstaendig_takt(jetzt)
+        return frueh, [m for m in gesendet[vorher:] if isinstance(m, dict) and m.get("type") in ("chat", "say", "duck_says")]
+
+    frueh, gesagt = asyncio.run(go())
+    assert not frueh                                                       # erst nach zehn Minuten Ruhe
+    assert gesagt == []                                                    # nicht erzählen
+    lehren = rt.lehrbuch.liste()
+    assert lehren and lehren[0]["art"] == "erkunden" and rt.lehrbuch.faktor(rt.config.modul, "erkunden") == 0.5
+    assert (tmp_path / "rueckblick.json").exists()                         # dokumentiert
+    assert not rt._rueckblick_faellig(rt.engine.kontakt_at + 1200)         # höchstens stündlich

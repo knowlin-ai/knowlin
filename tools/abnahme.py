@@ -531,6 +531,12 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Gedankenspur: Karte unter Persönlichkeit, Schnittstelle mit Zeilen und Antrieb",
              karte and isinstance(spur.get("zeilen"), list) and set(spur.get("antrieb", {}).get("werte", {}))
              == {"neugier", "naehe", "ruhe", "koennen"}, f"Karte {karte} · {len(spur.get('zeilen') or [])} Zeilen")
+    # 7d · Seit 0.38.45: Rückblick – Karte im Gedächtnis, „Jetzt zurückblicken“ antwortet, Liste lesbar
+    blick = page.evaluate("() => fetch('/api/rueckblick/jetzt', {method: 'POST'}).then(r => r.json())")
+    lehren_karte = page.evaluate("() => !!document.getElementById('lehren-karte')")
+    b.pruefe("Rückblick: Karte im Gedächtnis, Rückblick am PC anstoßbar, Lehren als Liste",
+             lehren_karte and blick.get("ok") is True and isinstance(blick.get("lehren"), list),
+             f"Karte {lehren_karte} · {len(blick.get('lehren') or [])} Lehren")
 
     # 8 · Zurück zu Knowlin – kurzer Übergang
     page.evaluate("() => { window.__zurueck = ''; const ov = document.getElementById('einzug');"
