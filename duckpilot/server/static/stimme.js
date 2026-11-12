@@ -4,6 +4,7 @@
 import { initAnbieter } from './anbieter.js';
 import { installBalken, installStand } from './fortschritt.js';
 import { t, uebersetzeText } from './i18n.js';
+import { offenlegen } from './offenlegung.js';
 import { playSound, setKlang } from './voice.js';
 
 const tr = (text) => uebersetzeText(text) || text;
