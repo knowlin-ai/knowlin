@@ -236,6 +236,14 @@ def main() -> int:
         b.pruefe("Ende springt zum letzten Körper (Ari, seit 0.38.50)",
                  p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id") == "tab-ari")
         ari_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
+        # Fund 12.11.: Mit fest drei Spalten rutschte der vierte Reiter unter Microduck, der Schieber lag daneben
+        reihe = p.evaluate("""() => { const t = [...document.querySelectorAll('.wahl [role=tab]')];
+            const s = document.querySelector('.wahl .schieber').getBoundingClientRect();
+            const a = document.querySelector('.wahl [aria-selected=true]').getBoundingClientRect();
+            return { zeilen: new Set(t.map((x) => Math.round(x.getBoundingClientRect().top))).size,
+                     versatz: Math.round(Math.abs(s.left - a.left) + Math.abs(s.width - a.width)) }; }""")
+        b.pruefe("Alle Körper-Reiter in einer Zeile, Schieber unter dem gewählten",
+                 reihe["zeilen"] == 1 and reihe["versatz"] <= 4, str(reihe))
         p.keyboard.press("ArrowLeft"); p.wait_for_timeout(400)                   # zurück zu Odi
         steck = p.text_content(".steckbrief") or ""
         b.pruefe("Steckbrief passt zum gewählten Körper", "Open Duck Mini v2" in steck, steck[:60])

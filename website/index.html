@@ -207,12 +207,15 @@ section { padding-block: clamp(72px, 10vw, 136px); }
 
 /* ── Körper ── */
 .kopfzeile { display: grid; gap: 18px; max-width: 760px; margin-bottom: 40px; }
+/* Reiter je Körper: Spaltenzahl aus --anzahl (setzt das Skript aus der Zahl der Reiter; Fund 12.11.: SO-101 rutschte
+   mit fest drei Spalten in eine zweite Zeile unter Microduck) */
 .wahl {
-  position: relative; display: inline-grid; grid-template-columns: repeat(3, 1fr); padding: 4px;
+  --anzahl: 4;
+  position: relative; display: inline-grid; grid-template-columns: repeat(var(--anzahl), 1fr); padding: 4px;
   background: color-mix(in srgb, var(--linie) 55%, var(--bg)); border-radius: 14px; max-width: 100%;
 }
 .wahl .schieber {
-  position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 10px;
+  position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / var(--anzahl)); border-radius: 10px;
   background: var(--flaeche); box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
   transition: transform 260ms var(--raus);
 }
@@ -858,6 +861,7 @@ profil = Koerper(
 
   const tabs = [...document.querySelectorAll('.wahl [role="tab"]')];
   const schieber = document.querySelector('.wahl .schieber');
+  schieber.parentElement.style.setProperty('--anzahl', String(tabs.length));   // eine Zeile, egal wie viele Körper
   const buehne = $('koerper-buehne');
   function waehlen(name, fokus) {
     if (name === aktiv && !fokus) return;
