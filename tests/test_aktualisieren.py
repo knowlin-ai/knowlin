@@ -141,7 +141,7 @@ def test_letztes_update_aus_dem_protokoll(tmp_path):
     (tmp_path / "updates").mkdir()
     (tmp_path / "updates" / "update.log").write_text("2026-11-09T00:01:00 starte Knowlin-Setup-0.38.34.exe\n"
                                                      "2026-11-09T00:02:10 fertig, Code 0\n", encoding="utf-8")
-    assert akt.status()["letztes_update"].endswith("fertig, Code 0")
+    assert akt.status()["letztes_update"] == "am 09.11.2026 um 00:02 ohne Fehler installiert"   # in Worten (seit 0.38.43)
 
 
 def test_koerper_wechseln_vom_handy_nur_im_simulator(tmp_path, monkeypatch):
@@ -226,3 +226,26 @@ def test_fortschritt_route(tmp_path, monkeypatch):
         rt.aktualisierer.melden("laden", geladen=5, gesamt=10)
         r = c.get("/api/update/fortschritt").json()
         assert r["schritt"] == "laden" and r["geladen"] == 5 and r["gesamt"] == 10
+
+
+def test_installer_noch_im_bau_bald_wieder_nachsehen(tmp_path, monkeypatch):
+    """Maintainer 12.11.: „wenn das Update noch nicht ganz abrufbereit ist“ – das Release steht, der Installer wird noch
+    gebaut. Dann nicht erst morgen wieder fragen, sondern nach einer Viertelstunde."""
+    monkeypatch.delenv("DUCKPILOT_OFFLINE", raising=False)
+    akt = A.Aktualisierer(tmp_path, lesen=lambda url, limit=0: json.dumps(_release(mit_installer=False)).encode())
+    akt.art = "installer"
+    st = akt.pruefen()
+    assert st["neu"]["installer"] is None and not st["kann"]
+    alter = json.loads((tmp_path / "update.json").read_text(encoding="utf-8"))["zeit_s"]
+    import time
+    assert A.TAG_S - A.BALD_S - 5 <= time.time() - alter <= A.TAG_S - A.BALD_S + 5
+
+
+def test_letztes_update_in_worten(tmp_path):
+    """Maintainer 12.11.: „fertig, Code 0 – wieso Code 0?“ – Code 0 heißt „ohne Fehler“; das steht jetzt so da."""
+    assert A.update_in_worten("2026-11-11T22:41:16 fertig, Code 0") == "am 11.11.2026 um 22:41 ohne Fehler installiert"
+    assert "mit Fehler beendet (Code 5" in A.update_in_worten("2026-11-11T22:41:16 fertig, Code 5")
+    (tmp_path / "updates").mkdir()
+    (tmp_path / "updates" / "update.log").write_text("2026-11-11T22:40:01 Installer gestartet\n"
+                                                     "2026-11-11T22:41:16 fertig, Code 0\n", encoding="utf-8")
+    assert A.Aktualisierer(tmp_path).letztes_update() == "am 11.11.2026 um 22:41 ohne Fehler installiert"

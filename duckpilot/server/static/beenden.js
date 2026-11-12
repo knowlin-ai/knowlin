@@ -25,8 +25,11 @@ export function initBeenden(h) {
     if (on) $('update-notes').href = on.neu.seite;
     if (fresh) $('update-text').textContent = `Knowlin ${msg.neu} liegt bereit (läuft noch ${msg.version}).`;
     else if (on) {
+      // Release schon da, Installer noch im Bau (seit 0.38.43): nicht „herunterladen“ sagen, wenn es nichts zu laden gibt
+      const imBau = on.art === 'installer' && !on.neu.installer;
       $('update-text').textContent = on.kann && can ? `Knowlin ${on.neu.version} ist da.`
-        : `Knowlin ${on.neu.version} ist da – ${on.art === 'quelle' ? 'neuen Stand holen und start.bat starten' : 'auf der Release-Seite herunterladen'}.`;
+        : imBau ? `Knowlin ${on.neu.version} kommt gleich – der Installer wird noch gebaut. Knowlin schaut in einer Viertelstunde wieder nach.`
+          : `Knowlin ${on.neu.version} ist da – ${on.art === 'quelle' ? 'neuen Stand holen und start.bat starten' : 'auf der Release-Seite herunterladen'}.`;
     }
     const ul = $('quit-running');
     ul.replaceChildren(...(msg.laeuft || []).map((t) => el('li', null, t)));
@@ -195,9 +198,11 @@ export function initBeenden(h) {
     const r = await api('/api/update/pruefen', 'POST').catch(() => null);
     if (!r || !r.ok) { st.textContent = (r && r.fehler) || 'GitHub war nicht erreichbar.'; return; }
     later = false;
-    st.textContent = r.neu ? `Knowlin ${r.neu.version} ist da – siehe Hinweis oben.` : `Knowlin ${r.version} ist aktuell.`;
+    st.textContent = !r.neu ? `Knowlin ${r.version} ist aktuell.`
+      : r.art === 'installer' && !r.neu.installer ? `Knowlin ${r.neu.version} ist veröffentlicht, der Installer wird noch gebaut (etwa 20 Minuten).`
+        : `Knowlin ${r.neu.version} ist da – siehe Hinweis oben.`;
     // Wie das letzte Update ausging (seit 0.38.34, aus updates/update.log) – hilft, wenn eins nicht durchlief
-    if (r.letztes_update) st.textContent += ` Letztes Update: ${r.letztes_update}`;
+    if (r.letztes_update) st.textContent += ` Letztes Update: ${r.letztes_update}.`;
   });
 
   return { update, open };

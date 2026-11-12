@@ -3339,5 +3339,7 @@
  "Werte und Grenzen": "Values and limits",
  "Werte": "Values",
  "Was Knowlin nie tut": "What Knowlin never does",
- "Die Werte bekommt jedes Sprachmodell gleich – Claude, ein lokales oder ein anderes. Die Grenzen stecken im Code: Kein Modell und keine Überredung kann sie verschieben.": "Every language model gets the same values – Claude, a local one or another. The limits live in the code: no model and no persuasion can move them."
+ "Die Werte bekommt jedes Sprachmodell gleich – Claude, ein lokales oder ein anderes. Die Grenzen stecken im Code: Kein Modell und keine Überredung kann sie verschieben.": "Every language model gets the same values – Claude, a local one or another. The limits live in the code: no model and no persuasion can move them.",
+ "Knowlin #.#.# kommt gleich – der Installer wird noch gebaut. Knowlin schaut in einer Viertelstunde wieder nach.": "Knowlin #.#.# is on its way – the installer is still being built. Knowlin will look again in a quarter of an hour.",
+ "Knowlin #.#.# ist veröffentlicht, der Installer wird noch gebaut (etwa # Minuten).": "Knowlin #.#.# is published, the installer is still being built (about # minutes)."
 }

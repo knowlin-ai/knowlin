@@ -33,6 +33,7 @@ log = logging.getLogger(__name__)
 REPO = "knowlin-ai/knowlin"
 API = f"https://api.github.com/repos/{REPO}/releases/latest"
 TAG = re.compile(r"v?(\d+)\.(\d+)\.(\d+)")
+BALD_S = 15 * 60          # Installer noch im Bau: nach einer Viertelstunde wieder nachsehen
 ASSET = re.compile(r"Knowlin-Setup-(\d+\.\d+\.\d+)\.exe")
 ERLAUBTE_HOSTS = ("github.com", "objects.githubusercontent.com", "release-assets.githubusercontent.com")
 MAX_BYTES = 300 * 1024 * 1024
@@ -116,6 +117,20 @@ def auswerten(daten: dict[str, Any]) -> dict[str, Any] | None:
             "notizen": str(daten.get("body") or "")[:4000]}
 
 
+def update_in_worten(zeile: str) -> str:
+    """„2026-11-11T22:41:16 fertig, Code 0“ → „am 11.11.2026 um 22:41 ohne Fehler installiert“."""
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})\S*\s+(.*)$", zeile.strip())
+    if not m:
+        return zeile.strip()[:200]
+    j, mo, t, h, mi, rest = m.groups()
+    wann = f"am {t}.{mo}.{j} um {h}:{mi}"
+    code = re.search(r"fertig, Code (-?\d+)", rest)
+    if code:
+        return f"{wann} ohne Fehler installiert" if code.group(1) == "0" else \
+            f"{wann} mit Fehler beendet (Code {code.group(1)} – Protokoll unter updates/setup.log im Datenordner)"
+    return f"{wann}: {rest[:160]}"
+
+
 class Aktualisierer:
     """Merkt sich den letzten Blick (Datei im Datenordner) und führt das Update aus."""
 
@@ -161,7 +176,12 @@ class Aktualisierer:
         except Exception as exc:
             raise UpdateFehler(f"GitHub antwortet nicht: {str(exc)[:120]}") from exc
         self.ordner.mkdir(parents=True, exist_ok=True)
-        self.datei.write_text(json.dumps({"zeit_s": time.time(), "zeit": time.strftime("%Y-%m-%d %H:%M"),
+        jetzt = time.time()
+        # Release schon da, Installer noch im Bau (Maintainer 12.11.: „wenn das Update noch nicht ganz abrufbereit ist“):
+        # dann nicht erst morgen wieder schauen, sondern nach einer Viertelstunde
+        if neu and neuer(neu["version"]) and self.art == "installer" and not neu.get("installer"):
+            jetzt -= TAG_S - BALD_S
+        self.datei.write_text(json.dumps({"zeit_s": jetzt, "zeit": time.strftime("%Y-%m-%d %H:%M"),
                                           "neu": neu if neu and neuer(neu["version"]) else None}, ensure_ascii=False),
                               encoding="utf-8")
         return self.status()
@@ -233,12 +253,14 @@ class Aktualisierer:
             subprocess.Popen(self.installer_befehl(setup, pid), creationflags=ohne_fenster | gruppe, **kw)
 
     def letztes_update(self) -> str | None:
-        """Letzte Zeile aus updates/update.log – zeigt unter Einstellungen → Über, wie das letzte Update ausging."""
+        """Wie das letzte Update ausging – in Worten (Maintainer 12.11.: „fertig, Code 0 – wieso Code 0?“). Die letzte
+        Zeile aus updates/update.log lautet z. B. „2026-11-11T22:41:16 fertig, Code 0“: Code 0 ist der Rückgabewert des
+        Installers und heißt „ohne Fehler“."""
         try:
             zeilen = (self.ordner / "updates" / "update.log").read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
             return None
-        return zeilen[-1][:200] if zeilen else None
+        return update_in_worten(zeilen[-1]) if zeilen else None
 
     def paket_befehl(self, version: str) -> list[str]:
         if not version_tupel(version):
