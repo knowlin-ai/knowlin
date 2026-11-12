@@ -233,8 +233,10 @@ def main() -> int:
         b.pruefe("Pfeiltaste wählt den nächsten Körper (Fokus folgt)", gewaehlt == "tab-reachy" and fokus == "tab-reachy",
                  f"{gewaehlt}/{fokus}")
         p.keyboard.press("End"); p.wait_for_timeout(400)
-        b.pruefe("Ende springt zum letzten Körper",
-                 p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id") == "tab-odi")
+        b.pruefe("Ende springt zum letzten Körper (Ari, seit 0.38.50)",
+                 p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id") == "tab-ari")
+        ari_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
+        p.keyboard.press("ArrowLeft"); p.wait_for_timeout(400)                   # zurück zu Odi
         steck = p.text_content(".steckbrief") or ""
         b.pruefe("Steckbrief passt zum gewählten Körper", "Open Duck Mini v2" in steck, steck[:60])
         odi_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
@@ -248,8 +250,9 @@ def main() -> int:
             const ok = n && n.offsetParent && /Pollen Robotics/.test(n.textContent) && /CC BY-NC-SA 4\\.0/.test(n.textContent)
               && n.querySelector('a[href*="creativecommons.org/licenses/by-nc-sa/4.0"]');
             return !ok; }).map((img) => img.dataset.bild)""", list(POLLEN_BILDER))
-        b.pruefe("Bildnachweis: jedes Bild mit Pollens Modell nennt Urheber und Lizenz (Odi ohne)",
-                 not ohne and odi_nachweis == "offen", f"ohne Nachweis: {ohne} · Odi: {odi_nachweis}")
+        b.pruefe("Bildnachweis: jedes Bild mit Pollens Modell nennt Urheber und Lizenz (Odi und Ari ohne)",
+                 not ohne and odi_nachweis == ari_nachweis == "offen",
+                 f"ohne Nachweis: {ohne} · Odi: {odi_nachweis} · Ari: {ari_nachweis}")
         ctx.close()
 
         # 5 · Ohne JavaScript
