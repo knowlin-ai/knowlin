@@ -227,6 +227,10 @@ Wechsel des #-Teils lädt die Seite nicht); die 3D-Ansicht wird angehalten, weil
   `server/runtime_eigenstaendig.py` (Uhr in der Runtime). Läuft über `ToolRunner.run`, also mit `fehlt_dem_koerper`.
   Nie während Not-Aus-Sperre, `still`, Ruhe, Kopf, hochgehoben, gefallen, Gespräch, Spiel oder Handsteuerung; am echten
   Roboter keine Ortsbewegung (zusätzlich in `MotionEngine.run` abgelehnt). Jeder Kontakt unterbricht.
+- **Antrieb und Gedankenspur** (seit 0.38.44, Etappe G3): `antrieb.py` (Neugier, Nähe, Ruhe, Können) gewichtet, *was*
+  sie von sich aus tut – nie, *wie oft* (das bestimmt der Regler `eigenstaendig`, 0 … 1). Nähe bleibt still, nie
+  drängend. Sichtbar nur als Tooltip an der Stimmung. `gedankenspur.py`: je eigene Handlung (und je Absicht mit Ersatz
+  oder Nein) eine Zeile im Speicher, `GET/DELETE /api/gedankenspur` (leeren und Zeilen über Personen nur am PC).
 - **Charakter je Verkörperung** (seit 0.38.14): Knowlins Grundcharakter wirkt nur auf Knowlin; die Verkörperungen
   stehen einzeln in `figuren.json` (`figur_profil`), im Knowlin-Feld als ziehbare Punkte (`static/personality.js`).
 - **Chat übersteht Verbindungsabbrüche** (seit 0.38.15): Der Browser gibt jeder Nachricht eine Kennung (`cid`) und

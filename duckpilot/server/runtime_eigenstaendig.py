@@ -5,6 +5,9 @@ Teil der Klasse `Runtime` (server/runtime.py), ausgelagert wie `runtime_reachy.p
 `motion/eigenstaendig.py`; hier wird die Lage gesammelt und über dieselben Werkzeuge ausgeführt wie für die KI
 (`ToolRunner.run` mit `fehlt_dem_koerper`). Alles, was dabei startet, ist als eigenständig markiert – jeder Befehl, jedes
 Ansprechen und der Not-Aus beenden es sofort (`MotionEngine.kontakt`, `stop_all`).
+
+Seit 0.38.44 (Etappe G3): Der Antrieb (`duckpilot/antrieb.py`) gewichtet, *was* sie tut – nie, *wie oft*; jede eigene
+Handlung bekommt eine Zeile in der Gedankenspur (`duckpilot/gedankenspur.py`).
 """
 
 from __future__ import annotations
@@ -32,6 +35,22 @@ class EigenstaendigTeil:
             self._eigen = Eigenstaendig()
         return self._eigen
 
+    @property
+    def antrieb(self):
+        from ..antrieb import Antrieb
+
+        if getattr(self, "_antrieb", None) is None:
+            self._antrieb = Antrieb()
+        return self._antrieb
+
+    @property
+    def gedanken(self):
+        from ..gedankenspur import Gedankenspur
+
+        if getattr(self, "_gedanken", None) is None:
+            self._gedanken = Gedankenspur()
+        return self._gedanken
+
     async def _eigenstaendig(self) -> None:
         """Hintergrundschleife: einmal je Sekunde prüfen, ob Zeit für eine eigene Beschäftigung ist."""
         while True:
@@ -53,10 +72,17 @@ class EigenstaendigTeil:
     async def eigenstaendig_takt(self, jetzt: float | None = None) -> dict[str, Any] | None:
         """Ein Takt der Uhr – handelt, wenn genug Ruhe war. Rückgabe: was sie getan hat, sonst None."""
         cfg, eng = self.config, self.engine
-        if cfg.eigenstaendig not in ("ab_und_zu", "oft"):
+        from ..motion.eigenstaendig import an
+
+        if not an(cfg.eigenstaendig):
             eng.eigenstaendig_unterbrechen("ausgeschaltet")
         uhr = self._eigen_uhr()
         jetzt = time.monotonic() if jetzt is None else jetzt
+        st = eng.last_state
+        kontakt = eng.kontakt_at > getattr(self, "_antrieb_kontakt", 0.0)
+        self._antrieb_kontakt = eng.kontakt_at
+        self.antrieb.takt(jetzt, aktiv=bool(eng.busy() or st.skill), kontakt=kontakt,
+                          akku=getattr(st, "battery", None), energie=cfg.energie)
         los = uhr.takt(jetzt, self.eigenstaendig_sperre(), warten=eng.overlay is not None, energie=cfg.energie,
                        humor=cfg.humor, haeufigkeit=cfg.eigenstaendig, kontakt_at=eng.kontakt_at)
         return await self.eigenstaendig_handeln() if los else None
@@ -117,6 +143,8 @@ class EigenstaendigTeil:
         angebote = angebot(lage, cfg.energie, cfg.humor, uhr.rng)
         if art is not None:
             angebote = [b for b in angebote if b.art == art]
+        for b in angebote:                                     # der Antrieb gewichtet, was sie tut (nicht wie oft)
+            b.gewicht *= self.antrieb.faktor(b.art, b.ort)
         wahl = waehlen(angebote, uhr.rng, uhr.zuletzt)
         if wahl is None:
             return None
@@ -125,16 +153,25 @@ class EigenstaendigTeil:
             ok = await self._eigen_ausfuehren(wahl, lage)
         finally:
             EIGEN.reset(token)
+        warum = self.antrieb.grund(wahl.art)
+        person = wahl.nachricht.endswith(" dir") or wahl.args.get("ding") == "Mensch"
         if eng.notaus_gesperrt():                              # Not-Aus kam dazwischen: nichts davon bleibt
             eng.eigenstaendig_unterbrechen("Not-Aus")
+            self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="vom Not-Aus beendet", person=person)
             return None
         if not ok:
+            self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="ging nicht", person=person)
             return {"ok": False, "art": wahl.art}
         nachricht = ok if isinstance(ok, str) else wahl.nachricht    # z. B. statt der Geste umgeschaut
+        self.gedanken.merken(nachricht, warum, wie=wahl.werkzeug, person=person)
+        self.antrieb.gestillt(wahl.art)
         uhr.zuletzt = wahl.art
         if not (wahl.art == "geste" and ok is True):     # die Geste meldet sich selbst im Ticker (mit eigenstaendig)
             eng.note({"type": "charakter", "message": nachricht, "eigenstaendig": True, "art": wahl.art})
-        if wahl.satz and cfg.humor >= 0.5 and uhr.rng.random() < SATZ_ANTEIL:
+        from ..antrieb import STILLT
+
+        # Nähe drängt nie: wer aus Nähe handelt, bleibt still (Wertekern „nicht manipulieren“, seit 0.38.44)
+        if wahl.satz and STILLT.get(wahl.art) != "naehe" and cfg.humor >= 0.5 and uhr.rng.random() < SATZ_ANTEIL:
             from .. import i18n
 
             await self._duck_says(i18n.t(wahl.satz))      # Reachy: `_speech` nimmt jedes Quaken heraus

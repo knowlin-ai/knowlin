@@ -2,6 +2,7 @@
 // Knowlin); seit 5.11. wirkt er nur auf Knowlin – jede Verkörperung hat ihren eigenen Charakter, anpassbar in ihrem Körper
 // oder als Punkt in Knowlins Feld (`figur_profil`) – plus Eigenschaften, die nur ihre Gestalt hat (Schnabel, Antennen,
 // Tollpatschigkeit …). Die Liste kommt vom Server (`config.gestalt`).
+import { initGedankenspur } from './gedankenspur.js';
 import { t, uebersetzeText } from './i18n.js';
 import { KNOWLIN_NAMEN, KNOWLIN_TEXTE, PersonalityPad } from './personality.js';
 
@@ -15,6 +16,7 @@ function richtung(d, plus, minus) {
 }
 
 export function initCharakter({ $, el, save }) {
+  initGedankenspur();                     // Gedankenspur unter Persönlichkeit (seit 0.38.44)
   // Grundcharakter als Feld mit Quadranten (Wunsch des Maintainers 5.11.) – die Verkörperungen als Punkte, einzeln ziehbar
   const feld = $('pad-knowlin') && new PersonalityPad($('pad-knowlin'), {
     onCommit: (w) => save(w), namen: KNOWLIN_NAMEN, texte: KNOWLIN_TEXTE, goofy: false, leerlauf: false,

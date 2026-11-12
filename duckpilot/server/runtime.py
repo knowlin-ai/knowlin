@@ -270,6 +270,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.choreos = ChoreoBuch(S.settings_path().parent)
         self.runner.choreos = self.choreos
         # Tanzposen nur so stark, wie sie in der Physik sicher stehen (seit 0.38.42)
+        self.runner.gedanken = self.gedanken     # Absichten mit Ersatz oder Nein in die Gedankenspur (seit 0.38.44)
         self.runner.posen = lambda: (self.acro.tanzposen() if getattr(self, "acro", None) is not None else {})
         self.runner.on_musik = lambda datei, ab=0.0: spawn(self.broadcast({"type": "musik", "datei": datei, "ab": ab}))
         self.runner.on_choreo = lambda name: spawn(self.broadcast({"type": "choreo", "name": name}))
@@ -843,6 +844,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                 "mensch": person() if person else None,
                 "engine": self.engine.describe(),
                 "enten": self.schwarm.anzeige() if getattr(self, "schwarm", None) and self.schwarm.enten else None,
+                "antrieb": self.antrieb.hinweis(),      # seit 0.38.44: nur ein feiner Hinweis (Tooltip)
             }, ensure_ascii=False, default=_json_default)
             for ws in list(self.clients):
                 if getattr(ws, "fern_geraet", None) is not None and tick % 2:

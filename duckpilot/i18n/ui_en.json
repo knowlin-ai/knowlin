@@ -2776,7 +2776,6 @@
  "Charakter dieser Verkörperung: Zieh den Punkt dorthin, wo sie sein soll. Knowlins eigener Grundcharakter steht unter Einstellungen → Knowlin.": "Character of this embodiment: drag the dot to where it should be. Knowlin's own base character is under Settings → Knowlin.",
  "Von sich aus beschäftigen": "Keep busy on its own",
  "Ab und zu": "Now and then",
- "Ohne Befehle sucht sie sich nach einer Weile selbst etwas, passend zum Charakter – am echten Roboter nur Gesten.": "Without commands it finds something to do after a while, matching its character – on the real robot only gestures.",
  "Freundlicher Tischroboter": "Friendly desk robot",
  "Neugieriger Beobachter": "Curious observer",
  "Fröhlicher Helfer": "Cheerful helper",
@@ -3343,5 +3342,12 @@
  "Kurze Befehle ohne Sprachmodell": "Short commands without a language model",
  "Für alle Modelle": "For every model",
  "Frei wählbar: Jedes Modell bekommt dieselben Werkzeuge, Werte und Sicherheitsregeln. Ein lokales Modell läuft mit Ollama oder LM Studio auf diesem PC, ohne Internet und Kosten. Claude oder ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter) brauchen einen Schlüssel des Anbieters. Am gründlichsten erprobt ist bisher Claude.": "Your choice: every model gets the same tools, values and safety rules. A local model runs with Ollama or LM Studio on this PC, without internet or costs. Claude or another model (OpenAI, Gemini, Mistral, OpenRouter) need a key from the provider. Claude has been tested most thoroughly so far.",
- "Bühne größer oder kleiner": "Make the stage bigger or smaller"
+ "Bühne größer oder kleiner": "Make the stage bigger or smaller",
+ "Nur auf Ansprache": "Only when spoken to",
+ "Lebendig": "Lively",
+ "Ohne Befehle sucht sie sich nach einer Weile selbst etwas, passend zum Charakter – ganz links nie, in der Mitte ab und zu, rechts oft. Am echten Roboter nur Gesten.": "Without commands she finds something to do after a while, matching her character – far left never, in the middle now and then, right often. On the real robot only gestures.",
+ "Gedankenspur": "Trail of thought",
+ "Was Knowlin von sich aus getan hat und warum – und wo er eine Bitte anders oder gar nicht umsetzen konnte. Bleibt nur, solange die App läuft.": "What Knowlin did on his own and why – and where he carried out a request differently or not at all. Kept only while the app is running.",
+ "Noch nichts – Knowlin hat seit dem Start nichts von sich aus getan.": "Nothing yet – Knowlin hasn't done anything on his own since starting.",
+ "Gedankenspur leeren": "Clear trail of thought"
 }

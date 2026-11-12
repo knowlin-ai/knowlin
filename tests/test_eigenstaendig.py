@@ -347,7 +347,7 @@ async def _wach(rt):
 def test_laufzeit_handelt_und_meldet_im_ticker(rt):
     async def go():
         await _wach(rt)
-        assert rt.config.eigenstaendig == "ab_und_zu" and rt.eigenstaendig_sperre() is None
+        assert rt.config.eigenstaendig in (0.4, "ab_und_zu") and rt.eigenstaendig_sperre() is None
         res = await rt.eigenstaendig_handeln("erkunden")
         b = rt.engine.current
         await run_for(rt.backend, rt.engine, 0.5)
@@ -438,13 +438,42 @@ def test_laufzeit_im_kopf_und_ruhe_nichts(rt):
 
 
 # ── Einstellung und Oberfläche ────────────────────────────────────────────
-def test_einstellung_und_schalter(tmp_settings):  # noqa: F811
-    assert S.validate({"eigenstaendig": "oft"}) == {"eigenstaendig": "oft"}
-    with pytest.raises(ValueError):
-        S.validate({"eigenstaendig": "immer"})
+def test_einstellung_und_regler(tmp_settings):  # noqa: F811
+    # Seit 0.38.44 ein stufenloser Regler (Wunsch des Maintainers: „feinerer Regler“); alte Stufen werden umgerechnet
+    assert S.validate({"eigenstaendig": "oft"}) == {"eigenstaendig": 0.8}
+    assert S.validate({"eigenstaendig": "aus"}) == {"eigenstaendig": 0.0}
+    assert S.validate({"eigenstaendig": 0.65}) == {"eigenstaendig": 0.65}
+    for falsch in ("immer", 1.5, -0.1, True):
+        with pytest.raises(ValueError):
+            S.validate({"eigenstaendig": falsch})
     assert "eigenstaendig" in FIGUR_KEYS                                # jede Verkörperung für sich
     html = seite()
-    for wert in ("aus", "ab_und_zu", "oft"):
-        assert f'value="{wert}" data-set="eigenstaendig"' in html
-    S.save_user_settings({"eigenstaendig": "oft"})
-    assert json.loads(tmp_settings.read_text(encoding="utf-8"))["eigenstaendig"] == "oft"
+    assert 'type="range" id="eigen-regler" min="0" max="1" step="0.05" data-set="eigenstaendig" data-num' in html
+    S.save_user_settings({"eigenstaendig": 0.55})
+    assert json.loads(tmp_settings.read_text(encoding="utf-8"))["eigenstaendig"] == 0.55
+
+
+def test_regler_wartezeit_stufenlos():
+    from duckpilot.motion.eigenstaendig import an, initiative, wartezeit
+
+    assert initiative("ab_und_zu") == 0.4 and initiative("oft") == 0.8 and initiative(None) == 0.4
+    assert not an(0) and not an("aus") and an(0.05)
+    rng = lambda: random.Random(3)  # noqa: E731
+    mitte, oft, wenig = (wartezeit(0.5, 0.5, i, rng()) for i in (0.4, 0.8, 0.1))
+    assert wartezeit(0.5, 0.5, 0.0, rng()) is None
+    assert abs(oft - mitte / 2) < 1e-6 and wenig > mitte > oft          # höher = früher, 0,8 wie das alte „oft“
+    assert wartezeit(0.5, 0.5, "ab_und_zu", rng()) == mitte            # alte Stufe gleich wie 0,4
+
+
+def test_eigene_handlung_mit_grund_in_der_gedankenspur(rt):
+    # Seit 0.38.44 (G3): jede eigene Handlung eine Zeile – was, warum (Bedürfnis), wie; das Bedürfnis sinkt danach
+    async def go():
+        await _wach(rt)
+        rt.antrieb.werte["neugier"] = 0.9
+        res = await rt.eigenstaendig_handeln("umschauen")
+        return res
+
+    res = asyncio.run(go())
+    z = rt.gedanken.liste()[0]
+    assert res["ok"] and z["quelle"] == "antrieb" and z["wie"] == "look_around"
+    assert "Neugier (stark)" in z["warum"] and rt.antrieb.werte["neugier"] < 0.5

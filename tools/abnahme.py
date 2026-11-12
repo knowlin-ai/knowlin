@@ -510,19 +510,27 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     abstaende(page, b, "Persönlichkeit")
     axe(page, b, axe_js, "Persönlichkeit", "#view-persoenlichkeit")
 
-    # 7b · Von sich aus beschäftigen (seit 0.38.14): Standard „ab und zu“, umschaltbar
-    std = json.loads((ordner / "settings.json").read_text(encoding="utf-8")).get("eigenstaendig", "ab_und_zu")
-    b.pruefe("Verhalten: „Von sich aus beschäftigen“ steht auf „ab und zu“", std == "ab_und_zu", str(std))
-    schalter = page.locator('label:has(> input[name="eigenstaendig"][value="oft"])')   # Segment: Eingabe ist versteckt
-    if schalter.count():
-        schalter.first.click()
+    # 7b · Von sich aus beschäftigen (seit 0.38.14; seit 0.38.44 ein stufenloser Regler, Standard 0,4 = „ab und zu“)
+    std = json.loads((ordner / "settings.json").read_text(encoding="utf-8")).get("eigenstaendig", 0.4)
+    b.pruefe("Verhalten: „Von sich aus beschäftigen“ steht auf „ab und zu“ (0,4)", std in (0.4, "ab_und_zu"), str(std))
+    regler = page.locator("#eigen-regler")
+    if regler.count():
+        page.evaluate("() => { const r = document.getElementById('eigen-regler'); r.value = '0.75';"
+                      " r.dispatchEvent(new Event('change', {bubbles: true})); }")
         page.wait_for_timeout(1500)
         jetzt = json.loads((ordner / "settings.json").read_text(encoding="utf-8")).get("eigenstaendig")
-        b.pruefe("Verhalten: „oft“ wird gespeichert", jetzt == "oft", str(jetzt))
-        page.locator('label:has(> input[name="eigenstaendig"][value="ab_und_zu"])').first.click()
+        b.pruefe("Verhalten: Regler fein einstellbar und gespeichert", jetzt == 0.75, str(jetzt))
+        page.evaluate("() => { const r = document.getElementById('eigen-regler'); r.value = '0.4';"
+                      " r.dispatchEvent(new Event('change', {bubbles: true})); }")
         page.wait_for_timeout(1000)
     else:
-        b.pruefe("Verhalten: Schalter „Von sich aus beschäftigen“", False, "nicht gefunden")
+        b.pruefe("Verhalten: Regler „Von sich aus beschäftigen“", False, "nicht gefunden")
+    # 7c · Seit 0.38.44: Gedankenspur unter Persönlichkeit – Karte da, Schnittstelle antwortet, Antrieb ohne eigene Anzeige
+    spur = page.evaluate("() => fetch('/api/gedankenspur').then(r => r.json())")
+    karte = page.evaluate("() => !!document.getElementById('gedanken-karte')")
+    b.pruefe("Gedankenspur: Karte unter Persönlichkeit, Schnittstelle mit Zeilen und Antrieb",
+             karte and isinstance(spur.get("zeilen"), list) and set(spur.get("antrieb", {}).get("werte", {}))
+             == {"neugier", "naehe", "ruhe", "koennen"}, f"Karte {karte} · {len(spur.get('zeilen') or [])} Zeilen")
 
     # 8 · Zurück zu Knowlin – kurzer Übergang
     page.evaluate("() => { window.__zurueck = ''; const ov = document.getElementById('einzug');"

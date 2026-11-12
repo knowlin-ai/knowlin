@@ -9,6 +9,31 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.44 – 2026-11-12 – Antrieb, feiner Regler, Gedankenspur
+
+### Neu
+- **Antrieb (Etappe G3):** Vier Bedürfnisse – Neugier, Nähe, Ruhe, Können – wachsen mit der Zeit und werden durch
+  passendes Tun gestillt. Sie entscheiden mit, *was* Knowlin von sich aus tut (lange nichts Neues gesehen: eher umschauen
+  und erkunden; viel unterwegs oder Akku knapp: eher ausruhen), nie *wie oft*. Nähe bleibt still – kein Satz, kein
+  Drängen. Zu sehen ist der Antrieb nur als feiner Hinweis beim Darüberfahren über die Stimmung („gerade eher neugierig“).
+- **Gedankenspur:** Unter Charakter → Persönlichkeit steht zu jeder eigenen Handlung eine Zeile – Uhrzeit, was, warum
+  (welches Bedürfnis), und ob es ging. Auch wenn Knowlin eine Bitte im Gespräch nur mit Ersatz oder gar nicht umsetzen
+  konnte, steht es dort. Die Spur bleibt nur, solange die App läuft; leeren lässt sie sich am PC, Zeilen über Personen
+  sieht nur der PC.
+
+### Geändert
+- **„Von sich aus beschäftigen“ als feiner Regler:** statt Aus / Ab und zu / Oft ein Regler von „Nur auf Ansprache“
+  bis „Lebendig“, je Verkörperung. Bisherige Einstellungen werden umgerechnet (Aus = 0, Ab und zu = 0,4, Oft = 0,8);
+  0,4 ist der Standard.
+
+### Sicherheit
+- Unbekannte Werte für den Regler schalten das eigenständige Verhalten aus statt an. Alle Sperren (Not-Aus, hochgehoben,
+  gefallen, Gespräch, Ruhe …) gelten unverändert; der Antrieb hebelt keine aus.
+
+### Nicht geprüft
+- Wie sich die Bedürfnisse über einen ganzen Tag anfühlen – die Zuwachsraten sind Startwerte und werden mit deiner
+  Rückmeldung nachgestellt.
+
 ## 0.38.43 – 2026-11-12 – Absicht statt Bewegung, Selbstbild, verständliche Update-Hinweise
 
 ### Neu

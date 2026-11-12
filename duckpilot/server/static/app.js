@@ -494,6 +494,8 @@ function onState(msg) {
   if (!!st.kopf_stabil !== ($('stab-btn').getAttribute('aria-pressed') === 'true')) $('stab-btn').setAttribute('aria-pressed', String(!!st.kopf_stabil));
   if (bodyOnline !== st.connected) { bodyOnline = st.connected; renderLink(); }
   lastEngine = msg.engine || {};
+  const trieb = msg.antrieb || '';     // Antrieb (0.38.44): nur ein feiner Hinweis, Wunsch „nahezu unsichtbar“
+  if ($('d-mood').title !== trieb) { $('d-mood').title = trieb; $('mood').title = trieb; }
   scene.update(st, lastEngine);
   scene.setEnten(msg.enten);
   tanz?.pruefen(lastEngine);

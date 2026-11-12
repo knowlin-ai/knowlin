@@ -1260,12 +1260,12 @@
               <!-- Eigenständig beschäftigen (Wunsch des Maintainers 5.11.) -->
               <div class="field">
                 <span class="field-label" id="eigen-label">Von sich aus beschäftigen</span>
-                <div class="seg" role="radiogroup" aria-labelledby="eigen-label">
-                  <label><input type="radio" name="eigenstaendig" value="aus" data-set="eigenstaendig"><span>Aus</span></label>
-                  <label><input type="radio" name="eigenstaendig" value="ab_und_zu" data-set="eigenstaendig"><span>Ab und zu</span></label>
-                  <label><input type="radio" name="eigenstaendig" value="oft" data-set="eigenstaendig"><span>Oft</span></label>
+                <div class="duckness">
+                  <span>Nur auf Ansprache</span>
+                  <input class="range" type="range" id="eigen-regler" min="0" max="1" step="0.05" data-set="eigenstaendig" data-num aria-labelledby="eigen-label" aria-describedby="eigen-help">
+                  <span>Lebendig</span>
                 </div>
-                <p class="field-help">Ohne Befehle sucht sie sich nach einer Weile selbst etwas, passend zum Charakter – am echten Roboter nur Gesten.</p>
+                <p class="field-help" id="eigen-help">Ohne Befehle sucht sie sich nach einer Weile selbst etwas, passend zum Charakter – ganz links nie, in der Mitte ab und zu, rechts oft. Am echten Roboter nur Gesten.</p>
               </div>
               <!-- Reachy: Begrüßung beim Aufwecken (0.38.13) -->
               <label class="switch nur-reachy"><input type="checkbox" data-set="reachy_begruessung"><span>Beim Aufwecken grüßen <small>Antennen hoch, Kopf heben, nicken – und ein kurzer Gruß mit Tageszeit und deinem Namen</small></span></label>
@@ -1294,6 +1294,16 @@
                 <li>Schlüssel und Zugangsdaten liegen nur im Tresor des Betriebssystems, nie in Dateien.</li>
                 <li>Jedes Sprachmodell bekommt dieselben Werte.</li>
               </ul>
+            </section>
+            <section class="card set-card" id="gedanken-karte" aria-labelledby="gedanken-titel">
+              <h3 id="gedanken-titel">Gedankenspur</h3>
+              <p class="field-help">Was Knowlin von sich aus getan hat und warum – und wo er eine Bitte anders oder gar nicht umsetzen konnte. Bleibt nur, solange die App läuft.</p>
+              <ol class="gedanken-liste" id="gedanken-liste" tabindex="0" aria-labelledby="gedanken-titel" hidden></ol>
+              <p class="field-help" id="gedanken-leer">Noch nichts – Knowlin hat seit dem Start nichts von sich aus getan.</p>
+              <div class="input-row pc-only">
+                <button class="btn btn--sm" type="button" id="gedanken-neu">Neu laden</button>
+                <button class="btn btn--sm btn--ghost" type="button" id="gedanken-leeren">Gedankenspur leeren</button>
+              </div>
             </section>
           </div>
         </div></div>

@@ -91,7 +91,7 @@ EDITABLE: dict[str, Any] = {
     "notaus_danach": ("weiter", "still"),
     "kollision_protest": bool,
     "reachy_begruessung": bool,                # seit 0.38.13: Reachy grüßt beim Aufwecken
-    "eigenstaendig": ("aus", "ab_und_zu", "oft"),   # ohne Befehle selbst etwas tun (Wunsch des Maintainers 5.11.)
+    "eigenstaendig": "initiative",             # ohne Befehle selbst etwas tun, 0 … 1 (seit 0.38.44 stufenlos)
     "radio_adressen": "radio_urls",            # seit 0.38.13: zuletzt genutzte Webradios (Mitwippen), höchstens 5
     "kopf_stabil": bool,
     "updates_suchen": bool,                    # seit 0.38.32: einmal am Tag bei GitHub nach Updates sehen
@@ -144,6 +144,10 @@ def lmstudio_umziehen(werte: dict[str, Any]) -> dict[str, Any]:
     return werte
 
 
+# Bis 0.38.43 drei Stufen „Von sich aus beschäftigen“; seit 0.38.44 ein Regler 0 … 1 – so werden alte Werte umgerechnet
+INITIATIVE_STUFEN = {"aus": 0.0, "ab_und_zu": 0.4, "oft": 0.8}
+
+
 def validate(patch: dict[str, Any]) -> dict[str, Any]:
     """Nur bekannte Schlüssel mit gültigen Werten durchlassen; sonst ValueError."""
     clean: dict[str, Any] = {}
@@ -191,6 +195,13 @@ def validate(patch: dict[str, Any]) -> dict[str, Any]:
         elif rule == "plusminus":
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not -1 <= value <= 1:
                 raise ValueError(f"{key}: Zahl zwischen −1 und 1 erwartet")
+            value = round(float(value), 2)
+        elif rule == "initiative":
+            # Wunsch des Maintainers: „feinerer Regler“ – alte Stufen (aus, ab_und_zu, oft) werden umgerechnet
+            if isinstance(value, str) and value in INITIATIVE_STUFEN:
+                value = INITIATIVE_STUFEN[value]
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:
+                raise ValueError(f"{key}: Zahl zwischen 0 und 1 erwartet")
             value = round(float(value), 2)
         elif rule == "unit":
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:

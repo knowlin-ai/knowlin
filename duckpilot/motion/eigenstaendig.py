@@ -3,7 +3,8 @@ selbst eine Beschäftigung – passend zu ihrem Charakter und zu dem, was ihr K�
 
 Hier steht nur die Entscheidung (Motorik, ohne Gehirn und ohne bestimmten Körper):
 
-- `wartezeit()` – wie lange Ruhe sein muss (ruhig ≈ 4–6 min, lebhaft ≈ 1–2 min; „oft“ halbiert),
+- `initiative()` – Regler „Von sich aus beschäftigen“ 0 … 1 (seit 0.38.44 stufenlos; alte Stufen werden umgerechnet),
+- `wartezeit()` – wie lange Ruhe sein muss (ruhig ≈ 4–6 min, lebhaft ≈ 1–2 min bei „ab und zu“; höher = kürzer),
 - `angebot()` – was der Körper anbieten kann, gewichtet nach Charakter (Energie, Humor, Eigenschaften der Gestalt),
 - `waehlen()` – gewichteter Zufall, nicht zweimal dasselbe hintereinander,
 - `sperre()` – alle Sicherheitsregeln, die eine eigene Beschäftigung verbieten,
@@ -27,7 +28,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
+from ..settings import INITIATIVE_STUFEN
+
 HAEUFIGKEIT = ("aus", "ab_und_zu", "oft")
+# Bis 0.38.43 gab es drei Stufen; seit 0.38.44 ein stufenloser Regler (Wunsch des Maintainers: „feinerer Regler“)
+STUFEN = INITIATIVE_STUFEN
+STANDARD = 0.4
+AUS_BIS = 0.02
 # Gesetzt, während die Laufzeit eine eigene Beschäftigung startet: Die Engine markiert alles, was dabei anläuft
 EIGEN: contextvars.ContextVar[bool] = contextvars.ContextVar("eigenstaendig", default=False)
 
@@ -55,14 +62,29 @@ def _unit(v: float) -> float:
     return max(0.0, min(1.0, float(v)))
 
 
-def wartezeit(energie: float, humor: float, haeufigkeit: str, rng: random.Random | None = None) -> float | None:
-    """Sekunden Ruhe bis zur nächsten eigenen Beschäftigung – None = aus. Ruhig 4–6 min, lebhaft 1–2 min."""
-    if haeufigkeit not in ("ab_und_zu", "oft"):
+def initiative(wert: Any) -> float:
+    """Regler 0 (nur auf Ansprache) … 1 (lebendig); alte Stufen „aus“, „ab_und_zu“, „oft“ werden umgerechnet."""
+    if isinstance(wert, str):                      # Unbekanntes schaltet aus – lieber still als ungefragt aktiv
+        return STUFEN.get(wert, 0.0)
+    if isinstance(wert, bool) or not isinstance(wert, (int, float)):
+        return STANDARD
+    return _unit(wert)
+
+
+def an(wert: Any) -> bool:
+    return initiative(wert) > AUS_BIS
+
+
+def wartezeit(energie: float, humor: float, haeufigkeit: Any, rng: random.Random | None = None) -> float | None:
+    """Sekunden Ruhe bis zur nächsten eigenen Beschäftigung – None = aus. Bei 0,4 („ab und zu“): ruhig 4–6 min,
+    lebhaft 1–2 min; jede 0,4 mehr halbiert die Zeit (0,8 = früher „oft“)."""
+    i = initiative(haeufigkeit)
+    if i <= AUS_BIS:
         return None
     rng = rng or random.Random()
     lebhaft = _unit(0.75 * _unit(energie) + 0.25 * _unit(humor))
     s = rng.uniform(240.0 - 180.0 * lebhaft, 360.0 - 240.0 * lebhaft)
-    return s * (0.5 if haeufigkeit == "oft" else 1.0)
+    return s * 2.0 ** ((STANDARD - i) / 0.4)
 
 
 @dataclass
@@ -221,10 +243,10 @@ def waehlen(angebote: list[Beschaeftigung], rng: random.Random | None = None,
     return wahl[-1]
 
 
-def sperre(engine: Any, *, haeufigkeit: str, im_koerper: bool = True, ruhe: bool = False, spiel: bool = False,
+def sperre(engine: Any, *, haeufigkeit: Any, im_koerper: bool = True, ruhe: bool = False, spiel: bool = False,
            gespraech: bool = False) -> str | None:
     """Warum jetzt keine eigene Beschäftigung – oder None. Jede Sperre setzt die Uhr zurück."""
-    if haeufigkeit not in ("ab_und_zu", "oft"):
+    if not an(haeufigkeit):
         return "ausgeschaltet"
     if not im_koerper:
         return "Knowlin ist im Kopf – kein Körper wach"
@@ -271,7 +293,7 @@ class Eigenstaendig:
         self.grund: str | None = None              # letzte Sperre (für Tests und Status)
 
     def takt(self, jetzt: float, gesperrt: str | None, *, warten: bool, energie: float, humor: float,
-             haeufigkeit: str, kontakt_at: float = 0.0) -> bool:
+             haeufigkeit: Any, kontakt_at: float = 0.0) -> bool:
         """True = jetzt etwas tun."""
         self.grund = gesperrt
         if gesperrt:

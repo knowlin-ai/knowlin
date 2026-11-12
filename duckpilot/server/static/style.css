@@ -2521,4 +2521,9 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
 
 /* Wertekern (seit 0.38.42): Werte und Grenzen unter Charakter → Persönlichkeit */
 .werte-liste { display: grid; gap: var(--spacing-03); margin: 0 0 var(--spacing-05); padding-left: var(--spacing-06); color: var(--ink-2); }
+/* Gedankenspur (0.38.44): je eigene Handlung eine Zeile – Zeit, was, warum */
+.gedanken-liste { display: grid; gap: var(--spacing-04); margin: 0 0 var(--spacing-05); padding: 0; list-style: none; max-height: 24rem; overflow-y: auto; }
+.gedanke-was { margin: 0; color: var(--ink); }
+.gedanke-was time { color: var(--ink-3); font-variant-numeric: tabular-nums; margin-right: var(--spacing-02); }
+.gedanke-warum { margin: var(--spacing-01) 0 0; color: var(--ink-2); font-size: var(--t-small); }
 #werte-karte h4 { margin: var(--spacing-05) 0 var(--spacing-03); }

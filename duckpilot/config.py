@@ -87,7 +87,7 @@ class Config:
     notaus_danach: str = "weiter"              # danach: „weiter“ wie vorher oder „still“, bis du sie ansprichst
     kollision_protest: bool = True             # Kollisionsmodus: beschwert sich ab und zu (Quak, Geste, Satz)
     reachy_begruessung: bool = True            # Reachy Mini grüßt beim Aufwecken (Geste und kurzer Satz, seit 0.38.13)
-    eigenstaendig: str = "ab_und_zu"           # ohne Befehle selbst etwas tun, passend zum Charakter: aus | ab_und_zu | oft
+    eigenstaendig: float | str = 0.4           # ohne Befehle selbst etwas tun: 0 nur auf Ansprache … 1 lebendig (alt: Stufen)
     radio_adressen: list[str] = field(default_factory=list)   # zuletzt genutzte Webradios (Mitwippen), höchstens 5
     updates_suchen: bool = True                # seit 0.38.32: einmal am Tag bei GitHub nach einer neuen Version sehen
     kopf_stabil: bool = False                  # Kopf-Stabilisator: Kopf bleibt beim Laufen ruhig wie beim Huhn
@@ -207,6 +207,10 @@ def load(path: str | os.PathLike | None = None, use_user_settings: bool = True, 
 
         for key, value in load_user_settings().items():
             setattr(cfg, key, value)
+    if isinstance(cfg.eigenstaendig, str):              # bis 0.38.43 Stufen, seit 0.38.44 ein Regler 0 … 1
+        from .settings import INITIATIVE_STUFEN
+
+        cfg.eigenstaendig = INITIATIVE_STUFEN.get(cfg.eigenstaendig, 0.4)
     dotenv = _read_dotenv(PROJECT_DIR / ".env")
     vault = None
     if use_user_settings:

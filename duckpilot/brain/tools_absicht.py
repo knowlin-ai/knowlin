@@ -39,13 +39,31 @@ class AbsichtWerkzeuge:
 
     async def _absicht(self, a: dict[str, Any]) -> dict[str, Any]:
         _st, faehig, lage = self._lage()
-        plan = A.aushandeln(str(a.get("aktion") or ""), faehig, lage)
+        aktion = str(a.get("aktion") or "")
+        plan = A.aushandeln(aktion, faehig, lage)
         if plan["antwort"] == "nein":
+            self._spur(aktion, "nein", plan.get("grund"))
             return {"ok": False, **plan}
         out = await self.run(plan["werkzeug"], plan["argumente"])
         if not out.get("ok", True):
-            return {"ok": False, "antwort": "nein", "grund": out.get("fehler") or "Der Körper hat abgelehnt."}
+            grund = out.get("fehler") or "Der Körper hat abgelehnt."
+            self._spur(aktion, "nein", grund)
+            return {"ok": False, "antwort": "nein", "grund": grund}
+        if plan["antwort"] == "ersatz":
+            self._spur(aktion, "ersatz", plan["wie"])
         return {"ok": True, "antwort": plan["antwort"], "wie": plan["wie"], "absicht": plan["absicht"]}
+
+    def _spur(self, aktion: str, antwort: str, text: str | None) -> None:
+        """Gedankenspur (seit 0.38.44): Abweichungen von der Absicht festhalten – wie gemeint ausgeführt braucht keine Zeile."""
+        spur = getattr(self, "gedanken", None)
+        if spur is None:
+            return
+        absicht = (A.AKTIONEN.get(aktion) or {}).get("absicht") or aktion
+        if antwort == "ersatz":
+            spur.merken(f"wollte {absicht}", "gewünscht", quelle="gespraech", wie=text,
+                        ergebnis=f"stattdessen: {text}")
+        else:
+            spur.merken(f"wollte {absicht}", "gewünscht", quelle="gespraech", ergebnis=f"nicht getan: {text}")
 
     def _selbstbild(self) -> dict[str, Any]:
         st, faehig, lage = self._lage()
