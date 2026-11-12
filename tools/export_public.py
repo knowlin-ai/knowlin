@@ -48,7 +48,7 @@ PRIVAT = {
     "docs/befund-architektur-design.md",             # interner Prüfbericht                        # Namen aus Umfeld für den Scan – nie veröffentlichen
 }
 OHNE_ORDNER = {"__pycache__", ".pytest_cache", ".ruff_cache", ".git", ".venv", "venv", "node_modules", ".mypy_cache",
-               ".claude", "build", "dist"}   # Bauergebnisse (pip wheel, Installer) – nie veröffentlichen                  # Arbeitsordner von Helfern (git-Worktrees) – nie veröffentlichen
+               ".claude", "build", "dist", "Archiv"}   # Bauergebnisse (pip wheel, Installer) – nie veröffentlichen                  # Arbeitsordner von Helfern (git-Worktrees) – nie veröffentlichen
 OHNE_ENDUNG = {".pyc", ".pyo", ".teil", ".log"}
 
 # Geheimnis-Scan: (Name, Muster). Bewusst streng – lieber einmal zu viel anhalten.

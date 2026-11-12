@@ -17,6 +17,13 @@ alle nacheinander laufen und schreibt einen Bericht:
 8. Website                   – Bau und Prüfung von knowlin.de (nicht mit --schnell)
 
 Rückgabewert 0 nur, wenn alles bestanden ist. Bericht: `<ordner>/pruefkette.md`.
+
+Seit 0.38.41 („Durchlaufzeiten … verbrauchen extrem viele Tokens und dauern sehr lange“): Die teuren Teile
+merken sich, mit welchem Stand ihrer Dateien sie zuletzt bestanden haben (`~/.cache/knowlin-pruefkette/stand.json`).
+Ist ihr Bereich unverändert, werden sie übersprungen – „Code“ (pytest, öffentliche Fassung, Paket, Abnahme) und
+„Website“ (Bau und Prüfung, dazu ihr Test) getrennt. `--alles` lässt alles laufen (vor jedem Release Pflicht).
+Die öffentliche Fassung läuft nur noch einmal (mit MuJoCo und Pollens Modell); die Fassung ohne Physik prüft GitHub
+bei jedem Push ohnehin („Prüfen“).
 """
 
 from __future__ import annotations
@@ -30,6 +37,50 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+STAND = Path.home() / ".cache" / "knowlin-pruefkette" / "stand.json"
+# private Notizen ändern nichts an Code oder Website
+NOTIZEN = {"Gespraechsnotizen.md", "Releaseplan.md", "Microduck-Notizen.md", "Konzept-Geist.md", "ZWEIG.md", "CLAUDE.md"}
+WEBSITE = ("website/", "docs/bilder/", "tools/website", "tests/test_website_seo.py")
+
+
+def _dateien() -> list[str]:
+    r = subprocess.run(["git", "ls-files", "-co", "--exclude-standard"], cwd=ROOT, capture_output=True, text=True,
+                       check=True)
+    return sorted(d for d in r.stdout.splitlines()
+                  if d not in NOTIZEN and not d.startswith("Archiv/") and "__pycache__" not in d and not d.endswith(".pyc") and (ROOT / d).is_file())
+
+
+def fingerabdruck(bereich: str) -> str:
+    """Prüfsumme über die Dateien eines Bereichs: „website“ (Website, ihre Bilder, Werkzeuge und Test, die Demo-Dateien
+    aus der App und die Version) oder „code“ (alles andere ohne private Notizen)."""
+    import hashlib
+    h = hashlib.sha256()
+    for d in _dateien():
+        web = d.startswith(WEBSITE)
+        if bereich == "website":
+            if not (web or d in ("pyproject.toml", "README.md", "README.en.md", "NOTICE", "LICENSE")
+                    or d.startswith("duckpilot/server/static/vendor/") or d.endswith((".dpm", "3d.js", "duckmodel.js"))):
+                continue
+        elif web:
+            continue
+        h.update(d.encode() + b"\0" + hashlib.sha256((ROOT / d).read_bytes()).digest())
+    return h.hexdigest()
+
+
+def stand_lesen() -> dict[str, str]:
+    try:
+        import json
+        return json.loads(STAND.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def stand_merken(bereich: str, wert: str) -> None:
+    import json
+    s = stand_lesen()
+    s[bereich] = wert
+    STAND.parent.mkdir(parents=True, exist_ok=True)
+    STAND.write_text(json.dumps(s, indent=1), encoding="utf-8")
 
 
 class Kette:
@@ -75,6 +126,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--axe", help="axe.min.js für Abnahme und Website")
     ap.add_argument("--eslint", help="Ordner mit node_modules/.bin/eslint und eslint.config.mjs")
     ap.add_argument("--schnell", action="store_true", help="ohne Browser-Abnahme und Website")
+    ap.add_argument("--alles", action="store_true", help="auch unveränderte Bereiche prüfen (vor jedem Release)")
     ap.add_argument("--ohne", action="append", default=[], help="Schritt auslassen (website, abnahme, paket, oeffentlich)")
     a = ap.parse_args(argv)
     ordner = Path(a.ordner).resolve()
@@ -84,6 +136,9 @@ def main(argv: list[str] | None = None) -> int:
     k = Kette(ordner)
     py = sys.executable
     axe = ["--axe", a.axe] if a.axe else []
+    # pytest auf allen Kernen, wenn pytest-xdist da ist (seit 0.38.41: 5 min → 2,5 min mit zwei Kernen)
+    import importlib.util
+    par = ["-n", "auto"] if importlib.util.find_spec("xdist") else []
 
     ruff = shutil.which("ruff")
     k.schritt("ruff", [ruff, "check", "duckpilot", "tests", "tools"] if ruff else
@@ -96,38 +151,54 @@ def main(argv: list[str] | None = None) -> int:
     else:
         k.uebersprungen("eslint", "ohne --eslint")
     k.schritt("Sprachkatalog", [py, "tools/i18n_texte.py"], ok_wenn=" 0 fehlen")
-    k.schritt("pytest", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider"])
 
+    unveraendert = False
+    stand = stand_lesen()
+    code, web = fingerabdruck("code"), fingerabdruck("website")
+    code_neu = a.alles or stand.get("code") != code
+    web_neu = a.alles or stand.get("website") != web
     oeffentlich = ordner / "oeffentlich"
+    if not code_neu:
+        k.uebersprungen("pytest, öffentliche Fassung, Paket, Abnahme", "Code unverändert seit dem letzten Bestehen")
+        a.ohne += ["oeffentlich", "paket", "abnahme"]
+        unveraendert = True
+    else:
+        k.schritt("pytest", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider", *par])
     if "oeffentlich" in a.ohne:
-        k.uebersprungen("öffentliche Fassung", "--ohne oeffentlich")
+        if not unveraendert:
+            k.uebersprungen("öffentliche Fassung", "--ohne oeffentlich")
     elif k.schritt("öffentliche Fassung: Export", [py, "tools/export_public.py", str(oeffentlich)], ok_wenn="Geheimnis-Scan: sauber"):
         # wie die Prüfung bei GitHub: eigene Umgebung ohne Physik-Zusätze (dort gibt es kein MuJoCo, Physik-Tests
         # überspringen sich), Pollens Modell von GitHub in einen eigenen Datenordner. Mit MuJoCo und dem nachgeladenen
         # Modell im normalen Datenordner änderten sich sonst die privaten Tests (erster Lauf der Kette, 9.11.).
         venv_ci = Path.home() / ".cache" / "knowlin-pruefkette" / "venv"
         py_ci = str(venv_ci / ("Scripts" if os.name == "nt" else "bin") / "python")
-        if not Path(py_ci).exists():
+        if a.alles and not Path(py_ci).exists():
             k.schritt("öffentliche Fassung: Umgebung anlegen", [py, "-m", "venv", str(venv_ci)])
-        k.schritt("öffentliche Fassung: Pakete", [py_ci, "-m", "pip", "install", "-q", "-r", "requirements.txt", "pytest"],
-                  cwd=oeffentlich, timeout=1200)
         daten = dict(os.environ, XDG_DATA_HOME=str(ordner / "daten"), LOCALAPPDATA=str(ordner / "daten"))
         daten.pop("DUCKPILOT_SETTINGS", None)
-        k.schritt("öffentliche Fassung: Modell laden", [py_ci, "-m", "duckpilot.modell"], cwd=oeffentlich, env=daten,
-                  timeout=900)
-        k.schritt("öffentliche Fassung: Tests", [py_ci, "-m", "pytest", "-q", "-p", "no:cacheprovider"], cwd=oeffentlich,
-                  env=daten)
+        # die Fassung ohne Physik (eigene Umgebung wie bei GitHub) läuft seit 0.38.41 nur noch mit --alles – GitHub prüft
+        # sie bei jedem Push; hier zählt der Lauf mit echter Physik
+        if a.alles:
+            k.schritt("öffentliche Fassung: Pakete", [py_ci, "-m", "pip", "install", "-q", "-r", "requirements.txt",
+                                                      "pytest"], cwd=oeffentlich, timeout=1200)
+            k.schritt("öffentliche Fassung: Modell laden", [py_ci, "-m", "duckpilot.modell"], cwd=oeffentlich, env=daten,
+                      timeout=900)
+            k.schritt("öffentliche Fassung: Tests", [py_ci, "-m", "pytest", "-q", "-p", "no:cacheprovider"],
+                      cwd=oeffentlich, env=daten)
         # und einmal mit echter Physik (MuJoCo aus dieser Umgebung) gegen Pollens nachgeladenes Modell – wie der Lauf
         # „physik“ bei GitHub. Mit dem eingebauten privaten Modell gelang „Auf einem Bein“, mit Pollens nie (9.11.).
         # das Physik-Modell baut `duckpilot.modell` nur, wenn MuJoCo da ist – in der Umgebung oben fehlt es
         k.schritt("öffentliche Fassung: Physik-Modell", [py, "-m", "duckpilot.modell"], cwd=oeffentlich, env=daten,
                   ok_wenn="physik", timeout=900)
-        k.schritt("öffentliche Fassung: Physik", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider"], cwd=oeffentlich,
+        k.schritt("öffentliche Fassung: Physik", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider", *par],
+                  cwd=oeffentlich,
                   env=daten)
 
     venv_py = None
     if "paket" in a.ohne or not oeffentlich.exists():
-        k.uebersprungen("Paket", "--ohne paket oder ohne Export")
+        if not unveraendert:
+            k.uebersprungen("Paket", "--ohne paket oder ohne Export")
     else:
         rad = ordner / "rad"
         venv = ordner / "venv"
@@ -141,17 +212,30 @@ def main(argv: list[str] | None = None) -> int:
         for weg in ("build",):
             shutil.rmtree(oeffentlich / weg, ignore_errors=True)
 
-    if a.schnell or "abnahme" in a.ohne:
+    if unveraendert:
+        pass
+    elif a.schnell or "abnahme" in a.ohne:
         k.uebersprungen("Abnahme (installiert)", "--schnell" if a.schnell else "--ohne abnahme")
     elif venv_py is None:
         k.uebersprungen("Abnahme (installiert)", "kein installiertes Paket")
     else:
         k.schritt("Abnahme (installiert)", [py, "tools/abnahme.py", str(ordner / "abnahme"), *axe,
                                             "--installiert", venv_py], timeout=5400)
+    code_ok = all(ok for _, ok, _, _ in k.zeilen)       # einschließlich ruff, eslint und Sprachkatalog
     if a.schnell or "website" in a.ohne:
         k.uebersprungen("Website", "--schnell" if a.schnell else "--ohne website")
+    elif not web_neu:
+        k.uebersprungen("Website", "Website unverändert seit dem letzten Bestehen")
     else:
+        w0 = len(k.zeilen)
+        if not code_neu:     # sonst lief der Test schon mit pytest
+            k.schritt("Website-Test", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_website_seo.py"])
         k.schritt("Website", [py, "tools/website_pruefen.py", str(ordner / "website"), *axe], timeout=2400)
+        if all(ok for _, ok, _, _ in k.zeilen[w0:]) and code_ok:
+            stand_merken("website", web)
+    # nur ein vollständiger Code-Durchgang zählt (nicht --schnell, nicht --ohne)
+    if code_neu and code_ok and not a.schnell and not a.ohne and a.eslint and a.axe:
+        stand_merken("code", code)
     return 0 if k.bericht() else 1
 
 

@@ -28,6 +28,7 @@ import { initReachyApps } from './reachy_apps.js';
 import { initAuswahl } from './auswahl.js';
 import { initAugen } from './augen.js';
 import { initFollow, initLaser } from './laser.js';
+import { initHandyLeiste } from './handy.js';
 import { initKollision } from './kollision.js';
 import { initController } from './controller.js';
 import { ladeSprache, uebersetze, uebersetzeText } from './i18n.js';
@@ -266,11 +267,12 @@ function onInit(msg) {
   if (config.model_style) { scene.setModelStyle(config.model_style); $('opt-model').checked = config.model_style === 'original'; }
   if (config.farbe) scene.setFarbe(config.farbe);
   const brain = $('badge-brain');
-  const local = config.gehirn === 'lokal' && config.lokal_modell;
+  const lm = config.lokal_programm === 'lmstudio';   // LM Studio seit 0.38.41 unter „Lokales Modell“
+  const local = config.gehirn === 'lokal' && (lm ? config.anbieter_bereit && config.lmstudio_modell : config.lokal_modell);
   const anderes = config.gehirn === 'anbieter' && config.anbieter_bereit;
-  brain.textContent = local ? `Lokales Modell · ${config.lokal_modell}` : anderes ? `Modell · ${config.anbieter_modell}`
+  brain.textContent = local ? `Lokales Modell · ${lm ? config.lmstudio_modell : config.lokal_modell}` : anderes ? `Modell · ${config.anbieter_modell}`
     : config.online ? `Claude ${modelShort(config.model)}` : 'Einfache Befehle';
-  brain.title = local ? 'Ein offenes Sprachmodell läuft auf diesem PC (Ollama) – ohne Internet, mit demselben Gedächtnis'
+  brain.title = local ? 'Ein offenes Sprachmodell läuft auf diesem PC (Ollama oder LM Studio) – ohne Internet, mit demselben Gedächtnis'
     : anderes ? 'Ein anderes KI-Modell denkt mit – dieselben Werkzeuge und Sicherheitsregeln'
     : config.online ? 'Claude versteht freie Sprache und plant Bewegungen'
       : 'Kein API-Schlüssel – nur kurze Befehle wie „tanz“ oder „stopp“. Schlüssel unter Einstellungen.';
@@ -695,7 +697,7 @@ function onChat(m) {
   const meta = m.source === 'claude' ? `Claude, ${m.seconds} s` : m.source === 'lokal' ? `lokales Modell, ${m.seconds} s`
     : m.source === 'anbieter' ? `anderes Modell, ${m.seconds} s`
     : m.source === 'system' ? 'Knowlin'
-    : m.source === 'reflex' ? 'sofort, ohne Claude' : m.source === 'alltag' ? 'Alltagsbuddy' : m.source === 'spiel' ? 'beim Spielen' : 'einfache Befehle';
+    : m.source === 'reflex' ? 'sofort, ohne Sprachmodell' : m.source === 'alltag' ? 'Alltagsbuddy' : m.source === 'spiel' ? 'beim Spielen' : 'einfache Befehle';
   addLine('duck', m.text, uebersetzeText(meta) || meta, config.duck_name);
   if (m.error && m.source !== 'claude') addLine('err', m.error);
   if (!imKopf || m.source === 'alltag') vorlesen(m);   // bei Knowlin keine Entenstimme – nur Erinnerungen
@@ -1021,7 +1023,7 @@ function setupVoice() {
   const mode = config.stt === 'whisper' && config.whisper ? 'whisper' : config.stt === 'aus' ? 'aus' : 'browser';
   const sig = `${mode}|${config.wake_word}`;
   ttsOn = config.tts && !fern.remote;
-  $('opt-tts').checked = ttsOn;
+  $('opt-tts').checked = ttsOn; $('opt-tts').dispatchEvent(new Event('input'));
   // Sprache aus: Sprechtaste, Weckwort und Plaudern ausblenden, nur „Antworten vorlesen“ bleibt
   document.querySelector('.voice').classList.toggle('voice--off', mode === 'aus');
   document.querySelector('.voice').classList.toggle('voice--insecure', !window.isSecureContext);
@@ -1232,7 +1234,7 @@ function onConnection(msg) {
     fernAnnounced = true;
     // auf dem Handy nicht doppelt vorlesen – der PC spricht schon; einschalten unter „Antworten vorlesen“
     ttsOn = false;
-    $('opt-tts').checked = false;
+    $('opt-tts').checked = false; $('opt-tts').dispatchEvent(new Event('input'));
     toast(`Verbunden als Fernbedienung (${msg.geraet || 'Handy'})`);
   }
 }
@@ -1276,4 +1278,5 @@ else if (direkt || startView === 'cockpit') {
   const [g0, t0] = groupOf('cockpit'); renderSubnav(g0, t0); pageTitle = t0.label || ''; updateTitle();
 }
 else showView('start');
+initHandyLeiste();
 window.duckpilot = { scene, map, send, showView, renderTasks, akrobatik, alltag, kollision, ctl, get state() { return lastState; } };

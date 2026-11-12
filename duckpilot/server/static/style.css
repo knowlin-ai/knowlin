@@ -2453,3 +2453,62 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
 .handy-code b { font-family: var(--font-mono); font-weight: 600; letter-spacing: .12em; color: var(--ink); }
 .handy-code[hidden], .handy-qr[hidden] { display: none; }
 .handy-acts { display: flex; flex-wrap: wrap; gap: var(--spacing-03); margin-top: var(--spacing-02); }
+
+
+/* ── Handy (seit 0.38.41, Alex: „Der Bereich vom Textverlauf ist immer noch zu flach. Die Platzverteilung ist noch
+   nicht gut“) ─────────────────────────────────────────────────────────────────────────────────────────────────────
+   Das Cockpit füllt genau den Bildschirm: oben die Bühne (gut ein Drittel), darunter der Verlauf mit allem freien Platz,
+   die Schnellbefehle als eine Wischreihe und die Eingabe mit Vorlese-Knopf. Unten vier Bereiche und „Mehr“ (handy.js). */
+.rail-mehr, .mehr-pop, .say-laut { display: none; }
+@media (max-width: 671.98px) {
+  .rail-mehr:not([hidden]) { display: grid; }
+  .rail .in-mehr { display: none; }
+  .rail-mehr.ist-aktiv { color: var(--ink); }
+  .rail-mehr.ist-aktiv svg { color: var(--accent); }
+  .rail-mehr.ist-aktiv::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--accent); }
+  .rail-mehr .rail-dot { position: absolute; top: 6px; right: calc(50% - 18px); }
+  .mehr-pop:not([hidden]) {
+    display: grid; position: fixed; z-index: var(--z-pop); right: var(--spacing-05); bottom: calc(64px + var(--spacing-03));
+    min-width: 200px; padding: var(--spacing-02); gap: var(--spacing-01);
+    background: var(--surface-glass-fest); -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass);
+    border: 1px solid var(--border-subtle); border-radius: var(--r-card); box-shadow: var(--e-2);
+  }
+  .mehr-eintrag { display: flex; align-items: center; gap: var(--spacing-04); min-height: 48px; padding: 0 var(--spacing-05);
+    border: 0; border-radius: var(--r-control); background: none; color: var(--ink); font: inherit; font-size: var(--t-body);
+    text-align: left; cursor: pointer; }
+  .mehr-eintrag svg { width: 20px; height: 20px; color: var(--ink-2); fill: none; stroke: currentColor; stroke-width: 1.5;
+    stroke-linecap: round; stroke-linejoin: round; }
+  .mehr-eintrag svg .fill { fill: currentColor; stroke: none; }
+  .mehr-eintrag img { width: 20px; height: 20px; }
+  .mehr-eintrag[aria-current="page"] { background: var(--fill-subtle); }
+  .mehr-eintrag[aria-current="page"] svg { color: var(--accent); }
+  .mehr-eintrag:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+  /* Cockpit: Bühne + Gespräch teilen sich genau den Bildschirm zwischen Kopfzeile und Leiste */
+  .view-cockpit:not([hidden]) { display: flex; flex-direction: column; height: calc(100dvh - var(--top-h) - var(--spacing-10)); }
+  .views:has(> .view-cockpit:not([hidden])) { padding-bottom: 0; }     /* die Leiste ist im Cockpit schon abgezogen */
+  .view-cockpit > .stage, .view-cockpit .stage { flex: none; height: 34%; min-height: 180px; }
+  .view-cockpit > .talk { flex: 1 1 0; min-height: 0; max-height: none; display: flex; flex-direction: column; }
+  .view-cockpit .log { flex: 1 1 0; min-height: 0; max-height: none; padding-top: var(--spacing-04); }
+  .view-cockpit .quick { flex: none; padding-block: var(--spacing-02); }
+  .view-cockpit .say { position: static; flex: none; align-items: center; }
+  .view-cockpit .hud-tele { display: none; }          /* Tempo-Anzeige: am Handy reicht der Steuerknopf */
+  /* Senden als Symbol, damit das Eingabefeld Platz hat (Name bleibt für Screenreader) */
+  .say .btn--primary { gap: 0; padding-inline: var(--spacing-04); min-width: 48px; justify-content: center; }
+  .say-senden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .say .btn--primary svg { width: 20px; height: 20px; }
+  /* „Antworten vorlesen“ als Knopf neben der Eingabe; ohne sichere Verbindung (Handy übers WLAN) gibt es keine
+     Sprechtaste – dann fällt der ganze Sprechbereich weg, Diktieren geht über die Handy-Tastatur */
+  .say-laut { display: inline-grid; place-items: center; flex: none; width: 48px; height: 48px; border: 1px solid var(--border-subtle);
+    border-radius: var(--r-control); background: var(--fill-subtle); color: var(--ink-2); cursor: pointer; }
+  .say-laut svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .say-laut[aria-pressed="true"] { color: var(--accent); border-color: var(--accent-line); }
+  .say-laut[aria-pressed="true"] .laut-aus, .say-laut[aria-pressed="false"] .laut-an { display: none; }
+  .say-laut:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .view-cockpit .voice--insecure { display: none; }
+  /* mit Sprechtaste (sichere Verbindung): nur die Taste, flach; Weckwort und Plaudern sind am Handy nicht sinnvoll */
+  .view-cockpit .voice { flex: none; padding: 0 var(--spacing-05) var(--spacing-03); gap: var(--spacing-02); }
+  .view-cockpit .mic { min-height: 48px; padding-block: var(--spacing-02); }
+  .view-cockpit .voice-opts label { display: none; }
+  .view-cockpit .voice-opts:not(:has(.partial:not(:empty))) { display: none; }   /* Zeile nur, solange erkannt wird */
+}

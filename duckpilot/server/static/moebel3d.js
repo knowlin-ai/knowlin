@@ -113,7 +113,8 @@ function tisch(b, tone) {
   kasten(g, holz, b.sx - 2 * rand, 0.015, b.sy - 2 * rand, 0, H * 0.22, 0);                // Ablage unten
   // ein Buch und eine Tasse auf der Ablage bzw. Platte – kleine Hinweise, dass es ein Tisch ist
   kasten(g, stoff(BUCH[1], 0.7), b.sx * 0.4, 0.025, b.sy * 0.3, -b.sx * 0.12, H * 0.22 + 0.02, 0.01);
-  rolle(g, stoff(0xe9e2cf, 0.4), 0.022, 0.018, 0.045, b.sx * 0.22, H + 0.0225, -b.sy * 0.18, 12);
+  // Tasse in die Ecke statt nahe der Mitte – dort stand sie in Reachys Sockel (12.11.); auf kleinen Tischen keine
+  if (b.sx >= 0.45 && b.sy >= 0.45) rolle(g, stoff(0xe9e2cf, 0.4), 0.022, 0.018, 0.045, b.sx / 2 - 0.06, H + 0.0225, -(b.sy / 2 - 0.06), 12);
   for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
     rolle(g, dunkel, bein / 2, bein / 2.6, H - platte, sx * (b.sx / 2 - rand), (H - platte) / 2, sz * (b.sy / 2 - rand), 8);
   }

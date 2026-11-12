@@ -107,7 +107,7 @@ export function initKopf({ $, el, toast, sendChat, vorlesen, figurWecken, isRemo
       return;
     }
     const meta = m.source === 'claude' ? `Claude, ${m.seconds} s` : m.source === 'lokal' ? tr(`lokales Modell, ${m.seconds} s`)
-      : m.source === 'anbieter' ? tr(`anderes Modell, ${m.seconds} s`) : m.source === 'reflex' ? tr('sofort, ohne Claude')
+      : m.source === 'anbieter' ? tr(`anderes Modell, ${m.seconds} s`) : m.source === 'reflex' ? tr('sofort, ohne Sprachmodell')
         : tr('einfache Befehle');
     const p = zeile('kopf', m.text, meta);
     if (m.vorschlag && m.vorschlag.modul) nutzenKnopf(p, m.vorschlag.figur);

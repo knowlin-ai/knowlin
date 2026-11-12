@@ -126,8 +126,8 @@ export function initTraining(h) {
     $('tr-add-variant').hidden = isKaggle();
     $('tr-cost-label').textContent = isKaggle() ? 'Kostenlos' : 'Kosten';
     $('tr-start-note').textContent = isKaggle()
-      ? 'Kostenlos: ein Klick startet. Zieht nur Stunden von deinem Kaggle-Wochenkontingent ab. Auch Claude darf solche Läufe starten.'
-      : 'Zwei Klicks: Der erste zeigt den Preis noch einmal, der zweite startet. Claude kann bezahlte Läufe nur vorschlagen.';
+      ? 'Kostenlos: ein Klick startet. Zieht nur Stunden von deinem Kaggle-Wochenkontingent ab. Auch das Sprachmodell darf solche Läufe starten.'
+      : 'Zwei Klicks: Der erste zeigt den Preis noch einmal, der zweite startet. Das Sprachmodell kann bezahlte Läufe nur vorschlagen.';
     if (pc) return;
     renderAccess();
     renderKaggleAccess();

@@ -86,7 +86,7 @@ export function initParcours(h) {
 
   function renderMission() {
     const a = data.auftrag;
-    $('pc-goal').textContent = a ? a.ziel : 'Noch kein Auftrag – wähl eine Vorlage oder beschreib Claude, was die Ente schaffen soll.';
+    $('pc-goal').textContent = a ? a.ziel : 'Noch kein Auftrag – wähl eine Vorlage oder beschreib Knowlin, was die Ente schaffen soll.';
     const hist = $('pc-history');
     hist.replaceChildren(...(data.verlauf || []).map((m) => {
       const o = new Option(`${m.erstellt} – ${m.ziel}`, m.id);
@@ -134,7 +134,7 @@ export function initParcours(h) {
     const ask = $('pc-ask-go');
     if (!asked) {
       ask.disabled = !data.claude || !data.verfuegbar;
-      $('pc-ask-hint').textContent = data.claude ? '' : 'Dafür braucht es Claude (Schlüssel) oder ein lokales Sprachmodell – sonst eine Vorlage nehmen.';
+      $('pc-ask-hint').textContent = data.claude ? '' : 'Dafür braucht es ein Sprachmodell (Claude, lokal oder ein anderes) – sonst eine Vorlage nehmen.';
     }
     const pre = $('pc-presets');
     if (!pre.childElementCount) {
@@ -371,7 +371,7 @@ export function initParcours(h) {
     if (text.length < 8) { toast('Beschreib kurz, was die Ente schaffen soll', true); return; }
     asked = true;
     $('pc-ask-go').disabled = true;
-    $('pc-ask-hint').textContent = 'Claude baut den Parcours und testet ihn …';
+    $('pc-ask-hint').textContent = 'Knowlin baut den Parcours und testet ihn …';
     $('pc-reply').hidden = true;
     h.sendChat(`Neuer Auftrag für den Parcours: ${text} Bau dafür mit parcours_bauen einen passenden Parcours (Ziel in einem Satz) und teste ihn mit parcours_testen.`);
     setTimeout(() => { if (asked) { asked = false; $('pc-ask-go').disabled = false; $('pc-ask-hint').textContent = ''; } }, 180000);

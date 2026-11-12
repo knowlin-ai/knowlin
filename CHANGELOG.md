@@ -9,6 +9,32 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.41 – 2026-11-12 – Handyansicht mit Platz, LM Studio unter „Lokales Modell“, neutral gegenüber dem Sprachmodell
+
+### Neu
+- **Handyansicht neu verteilt:** Das Cockpit füllt genau den Bildschirm – die Bühne gut ein Drittel, der Gesprächsverlauf
+  den ganzen freien Platz (vorher etwa ein Achtel), darunter die Schnellbefehle als Wischreihe und die Eingabe. Die Seite
+  rollt nicht mehr. „Antworten vorlesen“ ist ein Lautsprecher-Knopf neben der Eingabe, „Senden“ ein Symbol; über das
+  WLAN steht im Feld „Schreiben oder diktieren …“ statt eines eigenen Hinweises.
+- **Untere Leiste am Handy:** höchstens vier Bereiche mit vollem Namen und „Mehr“ (Charakter, System, Knowlin) – wie
+  bei üblichen Apps. Der Not-Aus bleibt groß und rot rechts daneben.
+- **LM Studio unter „Lokales Modell“:** Dort wählst du jetzt Ollama oder LM Studio – beides läuft auf diesem PC. „Anderes
+  Modell“ ist für Anbieter mit Schlüssel (OpenAI, Gemini, Mistral, OpenRouter). Wer LM Studio bisher dort hatte, behält
+  Modell und Adresse.
+
+### Geändert
+- **Neutral gegenüber dem Sprachmodell:** „An Claude“ heißt „An Knowlin“, Texte wie „Vorschlag von Claude“ oder „Claude
+  kann bezahlte Läufe nur vorschlagen“ nennen das Sprachmodell – egal ob Claude, lokal oder ein anderes. Die Kopfzeile
+  zeigt bei LM Studio das gewählte Modell.
+- Die Deko-Tasse steht in der Tischecke statt in der Mitte – dort stand sie in Reachys Sockel.
+- **Schnellere Prüfungen vor dem Hochladen (für Mitwirkende):** `tools/pruefen_alles.py` überspringt Bereiche, deren
+  Dateien seit dem letzten Bestehen gleich sind, und rechnet die Tests auf allen Kernen (`pytest-xdist`); `--alles`
+  prüft alles. Dazu `tools/oeffentlich_abgleichen.py` und `tools/release_nachpruefen.py`.
+
+### Nicht geprüft
+- Die Handyansicht auf echten Handys (geprüft im Browser mit 390 × 760 px, mit Touch).
+- LM Studio unter „Lokales Modell“ gegen ein laufendes LM Studio (geprüft mit Tests der Einstellungen).
+
 ## 0.38.40 – 2026-11-11 – Qwen auf der Grafikkarte, Fehler mit Ort, Website mit Pollens Originalmodellen
 
 ### Neu

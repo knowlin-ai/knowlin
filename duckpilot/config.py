@@ -71,7 +71,12 @@ class Config:
     lokal_adresse: str = "http://127.0.0.1:11434"
     anbieter: str = "openai"                    # anderes KI-Modell (seit 0.35): openai | gemini | mistral | openrouter | lmstudio | eigen
     anbieter_modell: str = ""
-    anbieter_adresse: str = ""                  # nur für LM Studio und „eigen“
+    anbieter_adresse: str = ""                  # nur für „eigen“ (LM Studio seit 0.38.41 unter „Lokales Modell“)
+    # Lokales Modell (seit 0.38.41, Alex: „macht keinen Sinn, dass LM Studio bei andere Modelle steht“): Ollama oder
+    # LM Studio – beides läuft auf diesem PC; LM Studio spricht dieselbe Schnittstelle wie die anderen Anbieter
+    lokal_programm: str = "ollama"              # "ollama" | "lmstudio"
+    lmstudio_modell: str = ""
+    lmstudio_adresse: str = ""
     # [engine]
     idle_life: bool = True
     obstacle_guard: bool = True
@@ -138,6 +143,9 @@ class Config:
             "lokal_modell": self.lokal_modell,
             "anbieter": self.anbieter,
             "anbieter_modell": self.anbieter_modell,
+            "lokal_programm": self.lokal_programm,
+            "lmstudio_modell": self.lmstudio_modell,
+            "lmstudio_adresse": self.lmstudio_adresse,
             "sprache": self.sprache,
             "goofy": self.goofy,
             "humor": self.humor,

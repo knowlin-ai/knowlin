@@ -34,7 +34,18 @@ log = logging.getLogger(__name__)
 STATIC = Path(__file__).parent / "static"
 
 AGENT_KEYS = {"model", "duck_name", "gehirn", "lokal_modell", "lokal_adresse", "sprache", "anbieter", "anbieter_modell",
-              "anbieter_adresse"}
+              "anbieter_adresse", "lokal_programm", "lmstudio_modell", "lmstudio_adresse"}
+
+
+def gehirn_fuer_agent(cfg: Any) -> dict[str, Any]:
+    """Welches Gehirn der Agent bekommt. LM Studio steht seit 0.38.41 unter „Lokales Modell“, spricht aber dieselbe
+    Schnittstelle wie die anderen Anbieter – der Agent bekommt es deshalb als Anbieter „lmstudio“ mit eigenen Feldern."""
+    if cfg.gehirn == "lokal" and getattr(cfg, "lokal_programm", "ollama") == "lmstudio":
+        return {"gehirn": "anbieter", "anbieter": "lmstudio", "anbieter_modell": cfg.lmstudio_modell,
+                "anbieter_adresse": cfg.lmstudio_adresse, "anbieter_schluessel": None}
+    return {"gehirn": cfg.gehirn, "anbieter": cfg.anbieter, "anbieter_modell": cfg.anbieter_modell,
+            "anbieter_adresse": cfg.anbieter_adresse,
+            "anbieter_schluessel": S.get_anbieter_key(cfg.anbieter) if cfg.gehirn == "anbieter" else None}
 LIVE_AGENT_KEYS = {"plaudern", "entenlaute", "schnellbefehle"}          # gelten ab der nächsten Antwort, Verlauf bleibt
 ENGINE_KEYS = {"idle_life", "obstacle_guard", "ausweichen", "auto_recover", "stopp_fenster_s", "humor", "energie", "emotions",
                "notaus_sperre_s", "notaus_danach"}
@@ -347,10 +358,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         cfg = self.config
         self.agent = DuckAgent(self.runner, AgentConfig(
             api_key=cfg.api_key, model=cfg.model, duck_name=cfg.duck_name, plaudern=cfg.plaudern,
-            entenlaute=cfg.entenlaute, gehirn=cfg.gehirn, lokal_modell=cfg.lokal_modell, lokal_adresse=cfg.lokal_adresse,
-            schnellbefehle=cfg.schnellbefehle, sprache=cfg.sprache, anbieter=cfg.anbieter, anbieter_modell=cfg.anbieter_modell,
-            anbieter_adresse=cfg.anbieter_adresse,
-            anbieter_schluessel=S.get_anbieter_key(cfg.anbieter) if cfg.gehirn == "anbieter" else None,
+            entenlaute=cfg.entenlaute, lokal_modell=cfg.lokal_modell, lokal_adresse=cfg.lokal_adresse,
+            schnellbefehle=cfg.schnellbefehle, sprache=cfg.sprache, **gehirn_fuer_agent(cfg),
             andere_figuren=tuple(f"{f['name']} ({f['art']})" for m, f in self.figuren.alle(cfg.modul, {}).items()
                                  if m != cfg.modul),
         ))

@@ -218,8 +218,8 @@
         <h2>Womit denkt Knowlin?</h2>
         <div class="quit-choices">
           <button type="button" class="quit-choice" data-wiz-brain="claude"><b>Claude</b><small>Versteht freie Sprache und plant Bewegungen am besten. Braucht einen Anthropic-API-Schlüssel.</small></button>
-          <button type="button" class="quit-choice" data-wiz-brain="anbieter"><b>Anderes Modell</b><small>OpenAI, Gemini, Mistral, OpenRouter oder LM Studio – unter Einstellungen → KI-Modell einrichten.</small></button>
-          <button type="button" class="quit-choice" data-wiz-brain="lokal"><b>Lokales Modell</b><small>Ollama auf deiner Grafikkarte, ohne Internet.</small></button>
+          <button type="button" class="quit-choice" data-wiz-brain="anbieter"><b>Anderes Modell</b><small>OpenAI, Gemini, Mistral oder OpenRouter mit eigenem Schlüssel – unter Einstellungen → KI-Modell einrichten.</small></button>
+          <button type="button" class="quit-choice" data-wiz-brain="lokal"><b>Lokales Modell</b><small>Ollama oder LM Studio auf diesem PC, ohne Internet.</small></button>
           <button type="button" class="quit-choice" data-wiz-brain="ohne"><b>Erst mal ohne</b><small>Einfache Befehle wie „lauf vor“, „tanz“, „stopp“ gehen sofort.</small></button>
         </div>
         <form class="input-row" id="wizard-key-form" hidden>
@@ -453,7 +453,8 @@
           <p class="auswahl-chip" id="auswahl-chip" hidden><span>Angewählt: <b id="auswahl-name"></b> – „das“ im Chat meint es</span><button class="auswahl-zu" type="button" id="auswahl-weg" aria-label="Auswahl aufheben">×</button></p>
           <form class="say" id="say">
             <input class="input" id="say-text" type="text" autocomplete="off" placeholder="Schreiben oder sprechen …" aria-label="Nachricht an die Verkörperung">
-            <button class="btn btn--primary" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14"/><path d="m21 3-7 18-4-7-7-4z"/></svg>Senden</button>
+            <button class="say-laut" id="say-laut" type="button" aria-pressed="true" aria-label="Antworten vorlesen" title="Antworten vorlesen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path class="laut-an" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="laut-aus" d="m16 9 5 6M21 9l-5 6"/></svg></button>
+            <button class="btn btn--primary" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14"/><path d="m21 3-7 18-4-7-7-4z"/></svg><span class="say-senden">Senden</span></button>
           </form>
           <div class="voice">
             <button class="mic" id="mic" type="button" aria-pressed="false">
@@ -785,7 +786,7 @@
           </div>
           <section class="card set-card mem-switch pc-only">
             <label class="switch"><input type="checkbox" data-set="memory"><span>Gedächtnis an
-              <small>Liegt nur auf diesem PC. Claude bekommt bei jeder Nachricht nur den passenden Ausschnitt.</small></span></label>
+              <small>Liegt nur auf diesem PC. Das Sprachmodell bekommt bei jeder Nachricht nur den passenden Ausschnitt.</small></span></label>
           </section>
           <div class="mem-body" id="mem-body">
           <section class="card mem-netz">
@@ -911,7 +912,7 @@
                   <label><input type="radio" name="gehirn" value="lokal" data-voice="gehirn"><span>Lokales Modell</span></label>
                   <label class="pc-only"><input type="radio" name="gehirn" value="anbieter" data-voice="gehirn"><span>Anderes Modell</span></label>
                 </div>
-                <p class="field-help">Claude plant Bewegungen am besten. Das lokale Modell läuft mit Ollama auf deiner Grafikkarte, ohne Internet und Kosten – und springt ein, wenn Claude nicht erreichbar ist. Ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter) geht mit eigenem Schlüssel; LM Studio auf diesem PC steht ebenfalls dort.</p>
+                <p class="field-help">Claude plant Bewegungen am besten. Ein lokales Modell läuft mit Ollama oder LM Studio auf diesem PC, ohne Internet und Kosten – und springt ein, wenn Claude nicht erreichbar ist. Ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter) geht mit eigenem Schlüssel.</p>
               </div>
             </div>
             <div class="ki-teil pc-only" id="anbieter-card" data-zeige-wenn="gehirn=anbieter">
@@ -933,14 +934,33 @@
             </div>
             <div class="ki-teil" id="local-card" data-zeige-wenn="gehirn=lokal">
               <h4>Lokales Modell</h4>
-              <p class="local-state" id="local-state">Prüfe Ollama …</p>
-              <label class="field"><span class="field-label">Modell</span><select class="select" id="local-model"></select></label>
-              <ul class="local-suggest" id="local-suggest"></ul>
-              <details class="adv">
-                <summary>Adresse von Ollama</summary>
-                <label class="field"><span class="field-label">Adresse</span><input class="input" type="text" id="local-url" spellcheck="false" placeholder="http://127.0.0.1:11434"></label>
-              </details>
-              <p class="field-help">Nutzt du LM Studio statt Ollama? Oben „Anderes Modell“ wählen, dann „LM Studio (auf diesem PC)“.</p>
+              <div class="field pc-only">
+                <span class="field-label">Programm auf diesem PC</span>
+                <div class="seg" role="radiogroup" aria-label="Programm für das lokale Modell">
+                  <label><input type="radio" name="lokal_programm" value="ollama" data-set="lokal_programm"><span>Ollama</span></label>
+                  <label><input type="radio" name="lokal_programm" value="lmstudio" data-set="lokal_programm"><span>LM Studio</span></label>
+                </div>
+              </div>
+              <div class="stapel" data-zeige-wenn="lokal_programm=ollama">
+                <p class="local-state" id="local-state">Prüfe Ollama …</p>
+                <label class="field"><span class="field-label">Modell</span><select class="select" id="local-model"></select></label>
+                <ul class="local-suggest" id="local-suggest"></ul>
+                <details class="adv">
+                  <summary>Adresse von Ollama</summary>
+                  <label class="field"><span class="field-label">Adresse</span><input class="input" type="text" id="local-url" spellcheck="false" placeholder="http://127.0.0.1:11434"></label>
+                </details>
+              </div>
+              <div class="stapel pc-only" id="lmstudio-teil" data-zeige-wenn="lokal_programm=lmstudio">
+                <p class="local-state" id="lmstudio-state">In LM Studio unter „Developer“ den lokalen Server starten, dann „Modelle laden“.</p>
+                <div class="field"><label class="field-label" for="lmstudio-model">Modell</label>
+                  <div class="input-row"><select class="select" id="lmstudio-model"></select>
+                    <button class="btn btn--ghost" type="button" id="lmstudio-load">Modelle laden</button></div></div>
+                <details class="adv">
+                  <summary>Adresse von LM Studio</summary>
+                  <label class="field"><span class="field-label">Adresse</span><input class="input" type="text" id="lmstudio-url" data-set="lmstudio_adresse" spellcheck="false" placeholder="http://127.0.0.1:1234/v1"></label>
+                </details>
+                <p class="field-help">Beim Laden des Modells in LM Studio die Kontextlänge auf mindestens 16 384 stellen – sonst passt Knowlins Anleitung nicht hinein.</p>
+              </div>
             </div>
             </section>
             <section class="card set-card pc-only nur-im-koerper" id="set-koerper">
@@ -1440,7 +1460,7 @@
               </section>
 
               <section class="card tr-proposal" id="tr-proposal" hidden>
-                <h3>Vorschlag von Claude</h3>
+                <h3>Vorschlag des Sprachmodells</h3>
                 <p class="tr-proposal-title" id="tr-proposal-title"></p>
                 <p class="field-help" id="tr-proposal-adj"></p>
                 <p id="tr-proposal-why"></p>
@@ -1498,13 +1518,13 @@
                   <button class="btn btn--primary tr-go" type="submit" form="lr-form" id="lr-go">Kostenlos lernen</button>
                   <button class="btn btn--ghost" type="button" id="lr-stop" hidden>Beenden und besten Stand speichern</button>
                 </div>
-                <p class="field-help" id="lr-go-help">Ein Klick startet – es kostet nichts außer Strom. Die Ente auf dem Bildschirm bewegt sich dabei nicht, das Lernen rechnet in eigenen, unsichtbaren Welten. Auch Claude darf so einen Lauf starten.</p>
+                <p class="field-help" id="lr-go-help">Ein Klick startet – es kostet nichts außer Strom. Die Ente auf dem Bildschirm bewegt sich dabei nicht, das Lernen rechnet in eigenen, unsichtbaren Welten. Auch das Sprachmodell darf so einen Lauf starten.</p>
               </div>
               <div class="tr-go-box tr-summary" id="tr-go-cloud" hidden>
                 <span class="field-label" id="tr-cost-label">Kosten</span>
                 <div class="tr-cost" id="tr-cost" aria-live="polite"></div>
                 <button class="btn btn--primary tr-go" type="submit" form="tr-form" id="tr-start">Training starten</button>
-                <p class="field-help" id="tr-start-note">Zwei Klicks: Der erste zeigt den Preis noch einmal, der zweite startet. Claude kann bezahlte Läufe nur vorschlagen.</p>
+                <p class="field-help" id="tr-start-note">Zwei Klicks: Der erste zeigt den Preis noch einmal, der zweite startet. Das Sprachmodell kann bezahlte Läufe nur vorschlagen.</p>
                 <p class="field-msg" id="tr-job" aria-live="polite"></p>
               </div>
             </li>
@@ -1731,7 +1751,7 @@
               <button type="button" class="btn btn--sm al-nfc-add" id="nfc-add">Tag zum Ausprobieren anlegen</button>
             </section>
           </div>
-          <p class="field-help al-say">Das geht auch per Sprache, mit und ohne Claude: „Wie spät ist es?“, „Stell einen Timer auf 5 Minuten“, „Erinnere mich morgen um 9 an den Arzt“, „Setz Milch auf die Liste“, „Was steht heute an?“, „Ruhemodus“, „Wach auf“.</p>
+          <p class="field-help al-say">Das geht auch per Sprache, mit und ohne Sprachmodell: „Wie spät ist es?“, „Stell einen Timer auf 5 Minuten“, „Erinnere mich morgen um 9 an den Arzt“, „Setz Milch auf die Liste“, „Was steht heute an?“, „Ruhemodus“, „Wach auf“.</p>
 
           <section class="card al-buddy" id="al-buddy" aria-labelledby="al-buddy-title">
             <h3 id="al-buddy-title">Was der Buddy darf</h3>
@@ -1871,10 +1891,10 @@
               <div class="pc-build">
                 <span class="field-label">Vorlage</span>
                 <div class="presets" id="pc-presets"></div>
-                <label class="field"><span class="field-label">Oder beschreib Claude, was die Ente schaffen soll</span>
+                <label class="field"><span class="field-label">Oder beschreib Knowlin, was die Ente schaffen soll</span>
                   <textarea class="input design-text" id="pc-ask" rows="2" maxlength="400" placeholder="z. B. Sie soll eine Rampe mit 8° hinauf und danach durch einen Slalom mit vier Stangen."></textarea></label>
                 <div class="design-actions">
-                  <button type="button" class="btn btn--sm" id="pc-ask-go">An Claude</button>
+                  <button type="button" class="btn btn--sm" id="pc-ask-go">An Knowlin</button>
                   <span class="field-help" id="pc-ask-hint"></span>
                 </div>
                 <p class="pc-reply" id="pc-reply" hidden></p>

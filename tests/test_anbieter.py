@@ -117,7 +117,10 @@ def test_stop_never_needs_the_model(rt, monkeypatch):
 def test_routes_key_status_and_model_list(rt, monkeypatch):
     with TestClient(create_app(rt), base_url="http://127.0.0.1:8765") as c:
         st = c.get("/api/anbieter").json()
-        assert {a["id"] for a in st["anbieter"]} >= {"openai", "gemini", "mistral", "openrouter", "lmstudio", "eigen"}
+        # LM Studio steht seit 0.38.41 unter „Lokales Modell“ – nicht mehr in der Liste der anderen Anbieter
+        ids = {a["id"] for a in st["anbieter"]}
+        assert ids >= {"openai", "gemini", "mistral", "openrouter", "eigen"} and "lmstudio" not in ids
+        assert st["lmstudio"]["adresse"] == "http://127.0.0.1:1234/v1"
         assert not next(a for a in st["anbieter"] if a["id"] == "gemini")["hat_schluessel"]
         assert c.post("/api/anbieter/schluessel", json={"anbieter": "gemini", "schluessel": "AIza-test-123456"}).json()["ok"]
         st = c.get("/api/anbieter").json()

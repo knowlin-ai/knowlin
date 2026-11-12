@@ -31,9 +31,42 @@ export function initAnbieter({ $, el, api, toast, save }) {
             : st.aktiv ? `Denkt mit ${st.modell}.` : `Bereit: ${st.modell}. Oben „Anderes Modell“ wählen.`)));
   }
 
+  // LM Studio (seit 0.38.41 unter „Lokales Modell“): Adresse und Modell eigen, ohne Schlüssel
+  function renderLmStudio() {
+    const lm = st && st.lmstudio;
+    const m = $('lmstudio-model');
+    if (!lm || !m) return;
+    if (lm.modell && ![...m.options].some((o) => o.value === lm.modell)) {
+      const o = el('option', null, lm.modell); o.value = lm.modell; m.append(o);
+    }
+    m.value = lm.modell || '';
+    if (lm.modell) {
+      const s = $('lmstudio-state');
+      s.replaceChildren(el('i', `dot ${lm.aktiv ? 'dot--good' : 'dot--warning'}`), document.createTextNode(
+        ' ' + (lm.aktiv ? `Denkt mit ${lm.modell} in LM Studio.` : `Bereit: ${lm.modell}. Oben „Lokales Modell“ wählen.`)));
+    }
+  }
+
   async function load() {
     st = await api('/api/anbieter').catch(() => null);
     render();
+    renderLmStudio();
+  }
+
+  const lmLaden = $('lmstudio-load');
+  if (lmLaden) {
+    lmLaden.addEventListener('click', async () => {
+      const r = await api('/api/anbieter/modelle', 'POST', { anbieter: 'lmstudio', adresse: $('lmstudio-url').value })
+        .catch(() => ({ ok: false }));
+      if (!r.ok) { toast(r.fehler || 'LM Studio antwortet nicht – erst den lokalen Server in LM Studio starten.', true); return; }
+      const m = $('lmstudio-model');
+      m.replaceChildren(el('option', null, '– wählen –'), ...r.modelle.map((x) => { const o = el('option', null, x); o.value = x; return o; }));
+      m.firstChild.value = '';
+      toast(`${r.modelle.length} Modelle in LM Studio`);
+    });
+    $('lmstudio-model').addEventListener('change', async (e) => {
+      if (await save({ lmstudio_modell: e.target.value }, e.target.value ? `Modell: ${e.target.value}` : null)) await load();
+    });
   }
 
   pick.addEventListener('change', async () => {

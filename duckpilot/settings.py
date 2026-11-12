@@ -76,6 +76,9 @@ EDITABLE: dict[str, Any] = {
     "anbieter": ("openai", "gemini", "mistral", "openrouter", "lmstudio", "eigen"),
     "anbieter_modell": "ollama_model",
     "anbieter_adresse": "anbieter_url",
+    "lokal_programm": ("ollama", "lmstudio"),
+    "lmstudio_modell": "ollama_model",
+    "lmstudio_adresse": "anbieter_url",
     "sprache": ("de", "en"),
     "lokal_modell": "ollama_model",
     "lokal_adresse": "local_url",
@@ -125,10 +128,20 @@ def load_user_settings() -> dict[str, Any]:
         return {}
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
-        return {k: v for k, v in raw.items() if k in EDITABLE}
+        return lmstudio_umziehen({k: v for k, v in raw.items() if k in EDITABLE})
     except Exception as exc:
         log.error("Einstellungen nicht lesbar (%s) – nutze Standardwerte", exc)
         return {}
+
+
+def lmstudio_umziehen(werte: dict[str, Any]) -> dict[str, Any]:
+    """Seit 0.38.41 steht LM Studio unter „Lokales Modell“: Wer es bisher als „Anderes Modell“ nutzte, behält es dort."""
+    if werte.get("gehirn") == "anbieter" and werte.get("anbieter") == "lmstudio":
+        werte = {**werte, "gehirn": "lokal", "lokal_programm": "lmstudio", "anbieter": "openai",
+                 "lmstudio_modell": werte.get("lmstudio_modell") or werte.get("anbieter_modell", ""),
+                 "lmstudio_adresse": werte.get("lmstudio_adresse") or werte.get("anbieter_adresse", "")}
+        werte["anbieter_modell"] = ""
+    return werte
 
 
 def validate(patch: dict[str, Any]) -> dict[str, Any]:

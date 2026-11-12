@@ -334,6 +334,50 @@ def kopfzeile(page, b: "Bericht") -> None:
              "; ".join(funde[:6]))
 
 
+HANDY_JS = """() => {
+  const sicht = (e) => e.offsetParent !== null && e.getBoundingClientRect().width > 0;
+  const unten = [...document.querySelectorAll('.rail .rail-btn, .rail .rail-logo-btn')].filter(sicht);
+  const abgeschnitten = unten.map((e) => e.querySelector('span')).filter((s) => s && s.scrollWidth > s.clientWidth + 1)
+    .map((s) => s.textContent.trim());
+  const log = document.getElementById('log').getBoundingClientRect();
+  const say = document.getElementById('say').getBoundingClientRect();
+  const rail = document.querySelector('.rail').getBoundingClientRect();
+  return { anzahl: unten.length, namen: unten.map((e) => (e.querySelector('span') || e).textContent.trim()), abgeschnitten,
+           verlauf: Math.round(log.height), hoehe: innerHeight, eingabeSichtbar: say.bottom <= rail.top + 1 && say.top >= 0,
+           seiteRollt: document.documentElement.scrollHeight > innerHeight + 2 };
+}"""
+
+
+def handyansicht(page, b: "Bericht") -> None:
+    """Seit 0.38.41 („Der Bereich vom Textverlauf ist immer noch zu flach“): unten höchstens fünf Bereiche mit
+    vollem Namen plus Not-Aus, der Rest unter „Mehr“; im Cockpit hat der Verlauf Platz, die Eingabe steht über der Leiste."""
+    alt = page.viewport_size
+    page.set_viewport_size({"width": 390, "height": 760})
+    page.wait_for_timeout(1200)
+    r = page.evaluate(HANDY_JS)
+    b.pruefe("Handy: unten höchstens fünf Bereiche mit vollem Namen, dazu der Not-Aus",
+             r["anzahl"] <= 5 and not r["abgeschnitten"], f"{r['namen']} abgeschnitten: {r['abgeschnitten']}")
+    b.pruefe("Handy: Verlauf im Cockpit mindestens ein Viertel hoch, Eingabe über der Leiste, Seite rollt nicht",
+             r["verlauf"] >= r["hoehe"] * 0.25 and r["eingabeSichtbar"] and not r["seiteRollt"],
+             f"Verlauf {r['verlauf']} von {r['hoehe']} px, Eingabe sichtbar {r['eingabeSichtbar']}, rollt {r['seiteRollt']}")
+    mehr = page.locator("#rail-mehr")
+    ok, eintraege = False, []
+    if mehr.is_visible():
+        mehr.click()
+        page.wait_for_timeout(400)
+        eintraege = [t.strip() for t in page.locator("#mehr-pop .mehr-eintrag").all_text_contents()]
+        if "Charakter" in eintraege:
+            page.locator("#mehr-pop .mehr-eintrag", has_text="Charakter").click()
+            page.wait_for_timeout(1500)
+            ok = page.evaluate("() => document.getElementById('rail-mehr').classList.contains('ist-aktiv')"
+                               " && document.getElementById('mehr-pop').hidden")
+    b.pruefe("Handy: „Mehr“ öffnet Charakter, System und Knowlin; die Wahl führt hin und markiert „Mehr“",
+             ok and {"System", "Knowlin"} <= set(eintraege), str(eintraege))
+    page.evaluate("() => window.duckpilot.showView('cockpit')")
+    page.set_viewport_size(alt)
+    page.wait_for_timeout(800)
+
+
 def ueberdeckungen(page, b: "Bericht", wer: str) -> None:
     alt = page.viewport_size
     funde = []
@@ -416,6 +460,7 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.foto(page, "03-cockpit", "Quacki im Cockpit mit dem Wunsch")
     ueberdeckungen(page, b, "Quacki")
     kopfzeile(page, b)
+    handyansicht(page, b)
     abstaende(page, b, "Tanzen und Team", (("tricks", "tanz"), ("tricks", "team")))
     page.evaluate("() => window.duckpilot.showView('cockpit')")
     page.wait_for_timeout(1500)
@@ -822,7 +867,8 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     lm = page.evaluate("() => fetch('/api/anbieter/modelle', {method: 'POST', headers: {'Content-Type': 'application/json'},"
                        " body: JSON.stringify({anbieter: 'lmstudio', adresse: 'http://127.0.0.1:9/v1'})}).then(r => r.json())")
     b.pruefe("Anderes Modell: Anbieter unter Einstellungen gelistet, LM Studio ohne Server mit klarem Hinweis",
-             {"openai", "lmstudio", "eigen"} <= set(anbieter) and "LM Studio antwortet nicht" in (lm.get("fehler") or ""),
+             {"openai", "eigen"} <= set(anbieter) and "lmstudio" not in anbieter      # seit 0.38.41 unter „Lokales Modell“
+             and "LM Studio antwortet nicht" in (lm.get("fehler") or ""),
              f"{len(anbieter)} Anbieter · {lm.get('fehler')}")
 
     # 13f · Seit 0.38.27: Policies aus Isaac Lab – Karte, falsche Datei wird abgewiesen, nichts übernommen

@@ -48,7 +48,10 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         cfg = runtime.config
         return JSONResponse({
             "anbieter": [{"id": k, "name": n, "adresse": a, "schluessel": b,
-                          "hat_schluessel": bool(S.get_anbieter_key(k)) if b else None} for k, (n, a, b) in ANBIETER.items()],
+                          "hat_schluessel": bool(S.get_anbieter_key(k)) if b else None} for k, (n, a, b) in ANBIETER.items()
+                         if k != "lmstudio"],     # seit 0.38.41 unter „Lokales Modell“
+            "lmstudio": {"modell": cfg.lmstudio_modell, "adresse": cfg.lmstudio_adresse or ANBIETER["lmstudio"][1],
+                         "aktiv": cfg.gehirn == "lokal" and cfg.lokal_programm == "lmstudio"},
             "gewaehlt": cfg.anbieter, "modell": cfg.anbieter_modell, "adresse": cfg.anbieter_adresse,
             "aktiv": cfg.gehirn == "anbieter", "bereit": runtime.agent.anbieter.configured,
             "fehler_zuletzt": runtime.agent.anbieter.last_error, "tresor": S.vault_available()})

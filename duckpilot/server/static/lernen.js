@@ -161,7 +161,7 @@ export function initLernen(h) {
     if (run.umgebungen) parts.push(`${run.umgebungen} Enten gleichzeitig`);
     if (loop.laeuft) parts.push(`${num(loop.verbraucht_minuten, 0)} von ${num(loop.budget_minuten, 0)} min`);
     else if (run.minuten) parts.push(`${num(run.minuten, 1)} min`);
-    if (loop.von === 'claude') parts.push('gestartet von Claude' + (loop.begruendung ? `: ${loop.begruendung}` : ''));
+    if (loop.von === 'claude') parts.push('gestartet vom Sprachmodell' + (loop.begruendung ? `: ${loop.begruendung}` : ''));
     if (run.hinweis) parts.push(run.hinweis);
     $('lr-numbers').textContent = parts.join(' · ');
   }

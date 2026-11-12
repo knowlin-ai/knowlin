@@ -59,7 +59,7 @@ export function initSkills({ $, api, el, toast, send, showView }) {
       if (!r.ok) { toast(r.fehler || 'Nicht geändert', true); cb.checked = !cb.checked; cb.disabled = false; return; }
       packs = r.pakete;
       const now = packs.find((x) => x.id === p.id);
-      toast(now.an ? `„${p.name}“ aktiv${now.werkzeug ? ' – Claude kann es jetzt nutzen' : ''}` : `„${p.name}“ aus`);
+      toast(now.an ? `„${p.name}“ aktiv${now.werkzeug ? ' – das Sprachmodell kann es jetzt nutzen' : ''}` : `„${p.name}“ aus`);
       renderPacks();
       renderSections();
       if (now.an) requestAnimationFrame(() => document.getElementById(`pack-sec-${p.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
@@ -75,7 +75,7 @@ export function initSkills({ $, api, el, toast, send, showView }) {
     const origin = { offiziell: 'Von Pollen', community: 'Community', gemischt: 'Pollen & Community', duckpilot: 'In Knowlin eingebaut' }[p.herkunft] || 'Community';
     const meta = [origin];
     if (p.braucht) meta.push(p.braucht === 'kamera' ? 'braucht die Kamera' : 'braucht den Roboter');
-    if (p.werkzeug) meta.push('auch für Claude');
+    if (p.werkzeug) meta.push('auch fürs Sprachmodell');
     if (p.lizenz) meta.push(`Lizenz: ${p.lizenz}`);
     const foot = el('p', 'pack-foot', meta.join(' · '));
     if (p.quelle) {
