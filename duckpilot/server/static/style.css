@@ -2490,9 +2490,14 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
   .views:has(> .view-cockpit:not([hidden])) { padding-bottom: 0; }     /* die Leiste ist im Cockpit schon abgezogen */
   .view-cockpit > .stage, .view-cockpit .stage { flex: none; height: var(--buehne, 40%); min-height: 160px; }
   /* Griff zum Größerziehen der Bühne (seit 0.38.43): 24 px hoch zum Greifen, sichtbar als kurzer Balken */
-  .buehne-teiler { display: grid; place-items: center; flex: none; height: var(--spacing-06); margin-top: calc(-1 * var(--spacing-03));
-    margin-bottom: calc(-1 * var(--spacing-03)); position: relative; z-index: var(--z-hud); touch-action: none; cursor: row-resize; }
-  .buehne-teiler::before { content: ""; width: 44px; height: 4px; border-radius: var(--r-bar); background: var(--ink-3); }
+  /* Griff als eigene Leiste unter der Bühne, nicht über ihr (Fund 12.11.: am iPhone war er nicht zu sehen – Safari zeichnet
+     die 3D-Fläche über Überlappendes); eigene Ebene, breiter und heller */
+  /* … aber schmal (Maintainer: „nicht zu dick – sonst nimmt er ja auch wieder Platz weg“): 12 px sichtbar, die Fläche
+     zum Greifen reicht unsichtbar darüber und darunter (::after, 40 px) */
+  .buehne-teiler { display: grid; place-items: center; flex: none; height: var(--spacing-04); position: relative;
+    z-index: var(--z-hud); transform: translateZ(0); background: var(--surface-2); touch-action: none; cursor: row-resize; }
+  .buehne-teiler::before { content: ""; width: 48px; height: 4px; border-radius: var(--r-bar); background: var(--ink-2); }
+  .buehne-teiler::after { content: ""; position: absolute; inset: calc(-1 * var(--spacing-05)) 0; }
   .buehne-teiler.zieht::before, .buehne-teiler:focus-visible::before { background: var(--accent); }
   .buehne-teiler:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
   .view-cockpit > .talk { flex: 1 1 0; min-height: 0; max-height: none; display: flex; flex-direction: column; }
