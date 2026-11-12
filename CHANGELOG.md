@@ -9,9 +9,14 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
-## 0.38.52 – 2026-11-12 – Griff für die Bühne am Handy deutlich sichtbar
+## 0.38.52 – 2026-11-12 – Ruhiges 3D-Bild beim Fahren, Griff für die Bühne am Handy sichtbar
 
 ### Behoben
+- **3D-Bild ruckelt und zappelt nicht mehr beim Fahren** (Maintainer: „Der Controller-Modus ruckelt stark bei
+  Bewegung bzw. zappelt“). Zwei Ursachen: Der Zustand kommt übers WLAN unregelmäßig, die Figur sprang; und im
+  Entenblick wackelte die Kopfkamera mit jedem Schritt. Jetzt gleitet die Lage der Figur zum neuesten Wert
+  (`glaetten3d.js`, große Sprünge gelten sofort), und der Entenblick ist stabilisiert – Ort und Blick geglättet,
+  Horizont gerade. Was die Ente für die Erkennung „sieht“, bleibt ungeglättet.
 - **Griff zwischen 3D-Bühne und Gespräch am Handy** (Frage des Maintainers: „Wie kann ich im Handymode das 3D höher
   machen?“ – auf seinem iPhone war der Griff nicht zu sehen). Er ist jetzt eine eigene, hellere Leiste unter der
   Bühne statt eines dünnen Strichs über ihrer Kante, mit eigener Ebene, damit Safari die 3D-Fläche nicht darüber
@@ -20,6 +25,7 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 
 ### Nicht geprüft
 - Auf dem iPhone selbst (hier nur Chromium in Handygröße; WebKit steht im Prüfaufbau nicht zur Verfügung).
+- Wie ruhig das Bild übers WLAN auf dem Handy wirkt (hier mit gleichmäßigem und künstlich holprigem Zustand getestet).
 
 ## 0.38.51 – 2026-11-12 – Ari auf der Startseite, Porträts aller Roboter
 

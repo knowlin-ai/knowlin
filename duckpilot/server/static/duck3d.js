@@ -13,6 +13,7 @@ import { allesVerschmelzen, FARBEN } from './formen3d.js';
 import { sockeHaengen, sockeLegen, sockenForm } from './dinge3d.js';
 import { loadReachy, RealReachy } from './reachymodell.js';
 import { ladeArm, RealArm } from './arm3d.js';
+import { Lage, Stabilisator } from './glaetten3d.js';
 import { EffectComposer } from './vendor/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
 import { GTAOPass } from './vendor/jsm/postprocessing/GTAOPass.js';
@@ -161,6 +162,8 @@ export class Scene3D {
     this._last = performance.now();
     this._lastDuckPos = new THREE.Vector3();
     this.state = null;
+    this.lage = new Lage();               // seit 0.38.52: ruhige Lage trotz holprigem Zustand übers WLAN
+    this.stabil = new Stabilisator();     // … und ruhiger Entenblick
     this.engine = null;
     this.intro = REDUCED ? null : { t: 0, done: false };
     this.paused = false;
@@ -178,7 +181,7 @@ export class Scene3D {
 
   // Kopfkamera: Lage aus dem Originalmodell (Stelle head_camera im Kieferkörper, Blick entlang −z,
   // oben = +x im MJCF-Rahmen) oder aus dem Kopf der einfachen Ente.
-  _placePovCam(aspect) {
+  _placePovCam(aspect, dt = null) {     // mit dt: stabilisiert (ganze Bühne im Entenblick)
     const site = this.duck.sites && this.duck.sites.head_camera;
     const node = site || this.duck.povNode || this.duck.headRoll || this.duck.root;   // povNode: Reachy Minis Kamera
     node.updateWorldMatrix(true, false);
@@ -187,9 +190,12 @@ export class Scene3D {
     node.getWorldQuaternion(q);
     const dir = (site ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(1, 0, 0)).applyQuaternion(q);
     const up = (site ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)).applyQuaternion(q);
-    this.povCam.position.copy(pos).addScaledVector(dir, 0.004);
-    this.povCam.up.copy(up);
-    this.povCam.lookAt(pos.clone().add(dir));
+    if (dt !== null) this.stabil.fuehren(this.povCam, pos.addScaledVector(dir, 0.004), dir, dt);
+    else {
+      this.povCam.position.copy(pos).addScaledVector(dir, 0.004);
+      this.povCam.up.copy(up);
+      this.povCam.lookAt(pos.clone().add(dir));
+    }
     this.povCam.aspect = aspect;
     this.povCam.updateProjectionMatrix();
   }
@@ -680,6 +686,7 @@ export class Scene3D {
 
   setMode(mode) {
     this.mode = mode === 'entenblick' ? 'entenblick' : 'beobachten';
+    this.stabil.ort = null;
     this.controls.enabled = this.mode === 'beobachten';
   }
 
@@ -1163,7 +1170,7 @@ export class Scene3D {
     const st = this.state;
     if (st) {
       if ((st.koerper || 'microduck') !== this.koerper) { this.koerper = st.koerper || 'microduck'; this._figurWaehlen(); }
-      this.duck.update(st, dt);
+      this.duck.update(this.lage.glaetten(st, dt), dt);
       this._waendeAusrichten?.(this.camera);
       this._entenZeichnen(dt);
       this._auswahlZeichnen(now);
@@ -1274,7 +1281,7 @@ export class Scene3D {
       // Entenblick: die ganze Bühne zeigt, was die Kopfkamera sieht
       const size = this.renderer.getSize(new THREE.Vector2());
       this.povCam.fov = 70;
-      this._placePovCam(size.x / Math.max(1, size.y));
+      this._placePovCam(size.x / Math.max(1, size.y), dt);
       const rays = this.rays ? this.rays.visible : false;
       if (this.rays) this.rays.visible = false;
       this.renderer.render(this.scene, this.povCam);
