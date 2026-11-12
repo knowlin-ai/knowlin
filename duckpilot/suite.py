@@ -15,7 +15,25 @@ from pathlib import Path
 from typing import Any
 
 FIGUREN_BILDER = Path(__file__).resolve().parent / "server" / "static" / "figuren"
-BILD_DATEI = {"duckpilot": "microduck.png", "reachy-mini": "reachy-mini.png", "open-duck-mini": "open-duck-mini.png"}
+BILD_DATEI = {"duckpilot": "microduck.png", "reachy-mini": "reachy-mini.png", "open-duck-mini": "open-duck-mini.png",
+              "so101": "so101.png"}
+
+
+def eigenes_portraet(kid: str) -> Path:
+    """Auf diesem PC gerendertes Porträt (seit 0.38.51, `routes/portraet.py`)."""
+    from .settings import data_dir
+
+    return data_dir() / "portraets" / f"{kid}.png"
+
+
+def portraet_pfad(kid: str) -> Path | None:
+    """Mitgeliefertes Porträt vor dem hier gerenderten; None, wenn es noch keins gibt."""
+    if kid not in BILD_DATEI:
+        return None
+    for p in (FIGUREN_BILDER / BILD_DATEI[kid], eigenes_portraet(kid)):
+        if p.is_file():
+            return p
+    return None
 
 # id, Name, Körper, Stand („fertig“ | „geplant“ | „anleitung“), Version, ein Satz
 MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
@@ -26,7 +44,7 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
     ("open-duck-mini", "Open Duck Mini", "offener Selbstbau-Vorgänger (Antoine Pirrone)", "fertig", "",
      "Laufen, Kopf und Antennen im Simulator, mit dem offenen 3D-Modell; Ausstattung je Bau. Echte Open Duck geplant."),
     # seit 0.38.51: Ari bekommt seine Kachel (Fund 12.11.: der Arm war nur über Einstellungen → Körper zu finden)
-    ("so101", "SO-101", "offener Roboterarm von TheRobotStudio und Hugging Face", "fertig", "",
+    ("so101", "SO-101", "offener Roboterarm (TheRobotStudio, LeRobot)", "fertig", "",
      "Greifen und Räumen an der eigenen Werkbank im Simulator, mit dem offenen 3D-Modell; echter Arm über LeRobot "
      "(ungetestet)."),
     ("knowlets", "Knowlets", "Verkörperungen, Tricks und Tänze teilen", "fertig", "",
@@ -65,8 +83,8 @@ def module(koerper: str = "", aktiv: str = "duckpilot") -> list[dict[str, Any]]:
     for mid, name, art, stand, version, satz in MODULE:
         m = {"id": mid, "name": name, "koerper": art, "stand": stand, "version": version, "kurz": satz,
              "art": "koerper" if mid in KOERPER_NAME else "werkzeug", "koerper_name": KOERPER_NAME.get(mid, name)}
-        if mid in BILD_DATEI:                   # Porträt nur, wenn es da ist (öffentliche Fassung: ohne Pollens Modelle)
-            m["bild"] = (FIGUREN_BILDER / BILD_DATEI[mid]).is_file()
+        if mid in BILD_DATEI:                   # Porträt mitgeliefert oder hier gerendert (seit 0.38.51); sonst rendert die Startseite
+            m["bild"] = portraet_pfad(mid) is not None
         if mid in ANSICHT:
             m["ansicht"] = ANSICHT[mid]
         if mid in KOERPER_MODUL:

@@ -24,23 +24,55 @@ const UMRISS = {
   'eigenes-modul': '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 18h10v-6a4 4 0 0 1 8 0v6h10v10h-6a4 4 0 0 0 0 8h6v8H8z"/></svg>',
 };
 
-// Porträt je Körper (seit 0.38.4): aus dem 3D-Modell gerendert, für alle gleich im Kreis – fehlt eines (öffentliche
-// Fassung ohne Pollens Modelle), steht der Umriss da
-const BILD = { duckpilot: '/static/figuren/microduck.png', 'reachy-mini': '/static/figuren/reachy-mini.png',
-  'open-duck-mini': '/static/figuren/open-duck-mini.png' };
-
+// Porträt je Körper (seit 0.38.4): aus dem 3D-Modell gerendert, für alle gleich im Kreis. Seit 0.38.51 rendert die
+// Startseite fehlende Porträts selbst aus den geladenen Modellen (`portraet3d.js`) und legt sie am PC ab – bis dahin
+// steht der Umriss da.
+const BILD = (id) => `/api/portraet/${id}.png`;
+const RENDERBAR = new Set(['duckpilot', 'reachy-mini', 'open-duck-mini', 'so101']);
 const ohneBild = new Set();             // Körper ohne Porträt (aus /api/module) – gar nicht erst anfragen
+const kisten = new Map();               // id → Porträt-Boxen auf der Seite (zum Nachreichen)
+
+function bildSetzen(box, src, umriss) {
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = '';
+  img.addEventListener('error', umriss, { once: true });
+  box.replaceChildren(img);
+}
+
 function portraet(id, klasse) {
   const box = document.createElement('span');
   box.className = klasse;
   const umriss = () => { box.innerHTML = UMRISS[id] || UMRISS['eigenes-modul']; };
-  if (!BILD[id] || ohneBild.has(id)) { umriss(); return box; }
-  const img = document.createElement('img');
-  img.src = BILD[id];
-  img.alt = '';
-  img.addEventListener('error', umriss, { once: true });
-  box.append(img);
+  if (!kisten.has(id)) kisten.set(id, new Set());
+  kisten.get(id).add(box);
+  if (!RENDERBAR.has(id) || ohneBild.has(id)) umriss();
+  else bildSetzen(box, BILD(id), umriss);
   return box;
+}
+
+// Fehlende Porträts nachrendern, eins nach dem anderen; klappt es nicht (Modell noch nicht geladen), bleibt der Umriss
+let rendert = false;
+async function portraetsNachrendern() {
+  const fehlend = [...ohneBild].filter((id) => RENDERBAR.has(id));
+  if (rendert || !fehlend.length) return;
+  rendert = true;
+  try {
+    const { portraet: rendern } = await import('./portraet3d.js');
+    for (const id of fehlend) {
+      const url = await rendern(id).catch((e) => { console.info(`Porträt ${id} (noch) nicht möglich:`, e.message); return null; });
+      if (!url) continue;
+      ohneBild.delete(id);
+      for (const box of kisten.get(id) || []) {
+        if (box.isConnected) bildSetzen(box, url, () => {});
+        else kisten.get(id).delete(box);
+      }
+      const png = await (await fetch(url)).blob();
+      fetch(`/api/portraet/${id}`, { method: 'POST', headers: { 'Content-Type': 'image/png' }, body: png }).catch(() => {});
+    }
+  } finally {
+    rendert = false;
+  }
 }
 
 // Mind to Body: Knowlin (oben) → Strahl → Verkörperung in ihrem Körper (unten). `modell` ist der Roboter (Microduck …),
@@ -193,8 +225,9 @@ export function initStart({ $, api, el, toast, showView, save, isRemote, getConf
     const r = await api('/api/module').catch(() => null);
     if (!r || !r.ok) return;
     $('start-kern').replaceChildren(...gemeinsam(r.kern, r.gemeinsam || {}));
-    for (const m of r.module) if (m.bild === false) ohneBild.add(m.id);
+    for (const m of r.module) { if (m.bild === false) ohneBild.add(m.id); else ohneBild.delete(m.id); }
     box.replaceChildren(...r.module.filter((m) => m.art === 'koerper').map(kachel));
+    portraetsNachrendern();                  // seit 0.38.51: fehlende Porträts aus den 3D-Modellen
     $('start-werkzeuge').replaceChildren(...r.module.filter((m) => m.art !== 'koerper').map(kachel));
     module = r.module;
     if (vorschlaege) vorschlaege(r.module.filter((m) => m.figur && m.stand === 'fertig').map((m) => m.figur));

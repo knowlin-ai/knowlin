@@ -9,7 +9,14 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
-## 0.38.51 – 2026-11-12 – Ari auf der Startseite
+## 0.38.51 – 2026-11-12 – Ari auf der Startseite, Porträts aller Roboter
+
+### Neu
+- **Porträts aller Roboter auf der Startseite** (Frage des Maintainers: „Wieso laden wir nicht die Bilder der
+  Roboter?“). Pollens Porträts dürfen nicht ins Repo (CC BY-NC-SA), deshalb standen bei Microduck und Reachy nur
+  Umrisse. Jetzt rendert die Startseite fehlende Porträts selbst aus den geladenen 3D-Modellen (`portraet3d.js`) und
+  legt sie am PC im Datenordner ab (`portraets/`, nur PNG, nur am PC). Ari bekommt sein Porträt aus dem offenen Modell.
+  Ist ein Modell noch nicht geladen, bleibt bis dahin der Umriss.
 
 ### Behoben
 - **Ari (SO-101) hat eine eigene Kachel auf der Startseite** – mit „Ari wecken“ und „Verknüpfung“ wie die anderen
@@ -17,9 +24,12 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   finden. Neu auch die Verknüpfung „Knowlin - SO-101“ zum Direktstart; ein Test sorgt dafür, dass jede Verkörperung
   ihre Kachel hat.
 - Zurück von Ari zu Knowlin zeigt den Übergang mit Aris Umriss statt dem der Microduck.
+- Aris Kachel ist gebaut wie die anderen: Herstellerzeile kurz und zweizeilig („offener Roboterarm (TheRobotStudio,
+  LeRobot)“).
 
 ### Nicht geprüft
 - Verknüpfung „Knowlin - SO-101“ unter Windows (wie die anderen Verknüpfungen nur im Test).
+- Porträts im Fenster unter Windows (im Test mit Chromium unter Linux gerendert).
 
 ## 0.38.50 – 2026-11-12 – „Kopf“ statt „Geist“, Ari hält den Würfel richtig
 

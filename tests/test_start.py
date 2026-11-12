@@ -146,3 +146,29 @@ def test_jede_verkoerperung_hat_eine_kachel():
     assert set(suite.KOERPER_MODUL) <= set(VERKNUEPFUNGEN)
     js = (Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static" / "start.js").read_text(encoding="utf-8")
     assert all(f"'{k}'" in js or f"{k}:" in js for k in suite.KOERPER_MODUL)       # Umriss je Körper
+
+
+def test_portraets_rendert_die_startseite_selbst(tmp_settings, vault, tmp_path, monkeypatch):  # noqa: F811
+    """Frage des Maintainers: „Wieso laden wir nicht die Bilder der Roboter?“ – Pollens Porträts liegen nicht im Repo;
+    die Startseite rendert sie aus den geladenen Modellen und legt sie am PC ab (seit 0.38.51)."""
+    from duckpilot import remote
+
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "daten"))
+    monkeypatch.setattr(sys, "platform", "linux")
+    rt = Runtime(load(memory_path=str(tmp_path / "mem.json")))
+    png = b"\x89PNG\r\n\x1a\n" + b"\0" * 64
+    with TestClient(create_app(rt), base_url="http://127.0.0.1:8765") as c:
+        assert next(m for m in suite.module() if m["id"] == "so101")["bild"] is False
+        assert c.get("/api/portraet/so101.png").status_code == 404
+        assert c.post("/api/portraet/so101", content=b"kein Bild").status_code == 400
+        assert c.post("/api/portraet/fremd", content=png).status_code == 400
+        assert c.post("/api/portraet/so101", content=png + b"\0" * 700_000).status_code == 400
+        assert c.post("/api/portraet/so101", content=png).json()["ok"]
+        r = c.get("/api/portraet/so101.png")
+        assert r.status_code == 200 and r.content == png and r.headers["content-type"] == "image/png"
+        assert next(m for m in suite.module() if m["id"] == "so101")["bild"] is True
+        if (suite.FIGUREN_BILDER / "open-duck-mini.png").is_file():                 # Mitgeliefertes geht vor
+            assert c.get("/api/portraet/open-duck-mini.png").content == (suite.FIGUREN_BILDER / "open-duck-mini.png").read_bytes()
+    assert remote.pc_only("POST", "/api/portraet/so101") and not remote.pc_only("GET", "/api/portraet/so101.png")
+    js = (Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static" / "portraet3d.js").read_text(encoding="utf-8")
+    assert all(f"'{k}'" in js or f"{k}:" in js for k in suite.BILD_DATEI)        # jeder Körper lässt sich rendern
