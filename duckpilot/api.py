@@ -206,6 +206,7 @@ class DuckState:
     antennen: list[float] = field(default_factory=list)  # Reachy Mini: Antennen [rechts, links] in rad
     kopf_lage: dict[str, float] = field(default_factory=dict)  # Reachy Mini: Kopflage {z, roll, pitch, yaw} relativ zum Körper
     stand_z: float = 0.0                                 # Höhe der Standfläche über dem Boden (m) – Reachy auf dem Tisch
+    werkbank: dict[str, Any] = field(default_factory=dict)  # SO-101: Würfel und Kisten im Sockelrahmen (seit 0.38.48)
     standflaeche: str = ""                               # worauf er steht („“ = Boden)
 
     def to_dict(self) -> dict[str, Any]:

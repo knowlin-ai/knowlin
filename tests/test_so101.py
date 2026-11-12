@@ -32,7 +32,7 @@ def test_profil_und_figur():
 def test_aufwecken_geste_und_not_aus():
     async def go():
         sim = So101Sim(realtime=False)
-        assert sim.sitting and not sim.powered and sim.standflaeche == "Couchtisch"
+        assert sim.sitting and not sim.powered and sim.standflaeche == "Werkbank"           # eigene Werkbank (0.38.48)
         assert not (await sim.geste("winken")).accepted                 # Motoren aus: nichts bewegt sich
         assert (await sim.init()).accepted
         _laufen(sim, 1.5)

@@ -27,7 +27,8 @@ Körper   backends/sim.py (einfach)  backends/physics.py (MuJoCo + Pollens Polic
          backends/reachy*.py (Reachy Mini: Simulator, Pollens Daemon)  backends/open_duck.py (Open Duck Mini v2)
          backends/begleiter.py (weitere Enten im Simulator)  backends/lerobot.py (LeRobot-Roboter, seit 0.38.35)
          backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
-         arm.py (Arm-Haltungen und -Gesten in Grad – Basis)
+         arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)
+         backends/werkbank.py (Werkbank des SO-101: Würfel, Kisten, Greifen und Ablegen, seit 0.38.48)
          gemeinsames Interface: api.py (DuckBackend, DuckState, Perception)
          Körperschnittstelle 1.0: koerper.py (Profile, Wortschatz, Erweiterungen per Entry Point „knowlin.koerper“),
          koerper_pruefung.py (Pflichten P1–P9) – Spezifikation docs/koerper-schnittstelle.md
@@ -237,6 +238,10 @@ Wechsel des #-Teils lädt die Seite nicht); die 3D-Ansicht wird angehalten, weil
   gebacken in `static/model/so101.dpm`, `tools/bake_so101.py`), Simulator `backends/so101.py` (Kinematik, steht auf dem
   Couchtisch), Werkzeug `arm`, Armgesten im Aktionskatalog. Kopf-Werkzeuge (head, emote, dance, choreo) brauchen seitdem
   „kopf“, `turn` braucht Beine, Räder oder Körperdrehung. Ohne Kopf keine Leerlaufgesten.
+- **Werkbank** (seit 0.38.48): Der SO-101 steht immer an seiner eigenen Werkbank (Box „Werkbank“ in seiner Welt),
+  davor drei Würfel und zwei offene Kisten im Sockelrahmen. `greifen`/`ablegen` rechnen mit `arm_kinematik.greifhaltung`
+  (von oben, gedämpfte kleinste Quadrate); außer Reichweite → ehrliches Nein. Geht der Greifer auf oder kommt der
+  Not-Aus, fällt das Gehaltene unter die Spitze (Kiste oder Werkbank). Zustand `werkbank` in `DuckState`.
 - **Rückblick** (seit 0.38.45, Etappe G4): `rueckblick.py` – nach 10 min ohne Kontakt höchstens stündlich Lehren aus der
   Gedankenspur (oft nicht geklappt → seltener, oft gelungen → „mag …“), je Verkörperung in `rueckblick.json`. Wirkt nur
   als Faktor 0,3 … 1,5 auf die Gewichte, betrifft nie Personen, wird nicht erzählt. `/api/rueckblick` (ändern nur am PC);

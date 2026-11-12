@@ -113,8 +113,9 @@ Jeder Körper beschreibt sich mit einem **Profil** – was er kann, aus einem fe
 **Sicherheitspflichten** bestehen (Not-Aus macht stromlos, ohne Strom bewegt sich nichts, Stopp hält an, Grenzen).
 Prüfen: `python -m duckpilot.koerper_pruefung [id]`. Spezifikation: [Körperschnittstelle](koerper-schnittstelle.md).
 
-- **SO-101 im Simulator** (seit 0.38.47): Einstellungen → Körper → „SO-101“. Ein Arm mit Greifer namens Ari, der auf
-  dem Couchtisch steht. Er grüßt mit Winken statt Nicken, freut sich mit dem Greifer und sagt ehrlich, was er anders
+- **SO-101 im Simulator** (seit 0.38.47): Einstellungen → Körper → „SO-101“. Ein Arm mit Greifer namens Ari, der an
+  seiner eigenen Werkbank steht (seit 0.38.48) – davor drei Würfel und zwei Kisten. Mit einem Sprachmodell: „Leg den
+  roten Würfel in die linke Kiste“; was er nicht erreicht, sagt er. Er grüßt mit Winken statt Nicken, freut sich mit dem Greifer und sagt ehrlich, was er anders
   macht. Schnellknöpfe im Cockpit: Aufwecken, Ruhelage, Winken, Freuen, Umsehen. Der Not-Aus lässt ihn in die Ruhelage
   sacken. Am echten Arm läuft er über LeRobot (`so101_follower`, noch ungeprüft).
 - **LeRobot-Roboter** (SO-101, LeKiwi, Koch …): eingebaut als Körper `lerobot`. Was er kann (Arm, Greifer, Räder,

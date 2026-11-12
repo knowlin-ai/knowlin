@@ -40,6 +40,28 @@ ARM_TOOL = {
         "sekunden": {"type": "number"}}},
 }
 
+GREIFEN_TOOL = {
+    "name": "greifen",
+    "description": "An der Werkbank ein Ding mit dem Greifer nehmen (fährt hin, greift von oben, hebt es an). "
+                   "Dinge: {dinge}. Was außer Reichweite liegt, lehnt der Arm mit Grund ab.",
+    "input_schema": {"type": "object", "properties": {"ding": {"type": "string"}}, "required": ["ding"]},
+}
+ABLEGEN_TOOL = {
+    "name": "ablegen",
+    "description": "Was der Greifer hält, ablegen: in eine Kiste ({kisten}) oder „Platz“ = zurück an seinen Platz.",
+    "input_schema": {"type": "object", "properties": {"ziel": {"type": "string"}}, "required": ["ziel"]},
+}
+
+
+def werkbank_werkzeuge(be: Any) -> list[dict[str, Any]]:
+    """Greifen und Ablegen nur für Körper mit Werkbank (SO-101 im Simulator, seit 0.38.48) – mit ihren Namen."""
+    wb = getattr(be, "werkbank", None)
+    if wb is None or not hasattr(be, "greifen"):
+        return []
+    n = wb.namen()
+    return [{**GREIFEN_TOOL, "description": GREIFEN_TOOL["description"].replace("{dinge}", ", ".join(n["dinge"]))},
+            {**ABLEGEN_TOOL, "description": ABLEGEN_TOOL["description"].replace("{kisten}", ", ".join(n["kisten"]))}]
+
 
 class AbsichtWerkzeuge:
     def _lage(self) -> tuple[Any, set[str], dict[str, bool]]:
@@ -95,6 +117,18 @@ class AbsichtWerkzeuge:
             r = await be.haltung(gelenke, float(a.get("sekunden") or 1.0))
         return {"ok": bool(r.accepted), "info" if r.accepted else "fehler": r.reason}
 
+    async def _werkbank(self, name: str, a: dict[str, Any]) -> dict[str, Any]:
+        """Greifen und Ablegen (seit 0.38.48). Nach dem Not-Aus bleibt der Arm still, bis die Sperre um ist."""
+        be = self.engine.backend
+        if bool(getattr(self.engine, "notaus_gesperrt", lambda: False)()):
+            return {"ok": False, "fehler": "Nach dem Not-Aus bleibe ich still, bis die Sperre um ist."}
+        if not werkbank_werkzeuge(be):
+            return {"ok": False, "fehler": "Dieser Körper hat keine Werkbank."}
+        r = await (be.greifen(str(a.get("ding") or "")) if name == "greifen" else be.ablegen(str(a.get("ziel") or "")))
+        return {"ok": bool(r.accepted), "info" if r.accepted else "fehler": r.reason}
+
     def _selbstbild(self) -> dict[str, Any]:
         st, faehig, lage = self._lage()
-        return {"ok": True, **A.selbstbild(st, faehig, koerper.KURZ, lage["gesperrt"])}
+        wb = getattr(self.engine.backend, "werkbank", None)
+        extra = {"werkbank": {"haelt": wb.haelt, **wb.namen()}} if wb is not None else None
+        return {"ok": True, **A.selbstbild(st, faehig, koerper.KURZ, lage["gesperrt"], extra)}

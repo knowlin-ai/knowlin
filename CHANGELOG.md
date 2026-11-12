@@ -9,6 +9,27 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.48 – 2026-11-12 – Werkbank: greifen und in Kisten legen
+
+### Neu
+- **Eigene Werkbank für den Arm** (Wunsch des Maintainers: „auf einer eigenen Plattform, wo in Reichweite greifbare
+  Objekte oder Boxen sind, wo man Sachen rein- und rausmachen kann“): Ari steht hinten auf einer Werkbank im Wohnzimmer,
+  davor ein roter, ein blauer und ein gelber Würfel, links und rechts je eine offene Kiste.
+- **Greifen und Ablegen:** „Leg den roten Würfel in die linke Kiste“ – der Arm rechnet die Gelenkwinkel zum Ziel selbst
+  aus (Kinematik aus dem Modell, Greifer senkrecht von oben), fährt hin, fasst, trägt und lässt über der Kiste los.
+  „Platz“ legt ein Ding zurück an seinen Platz. Was außer Reichweite liegt, lehnt er mit Grund ab.
+- Unter dem Zustand steht, was er gerade hält; „Wie geht's dir?“ kennt seine Würfel und Kisten.
+
+### Geändert
+- Der SO-101 bleibt immer an seiner Werkbank (statt auf dem Couchtisch).
+
+### Sicherheit
+- Not-Aus beim Tragen: Der Würfel fällt unter dem Greifer auf die Werkbank oder in die Kiste, der Arm sackt in die
+  Ruhelage; während der Sperre lehnen „greifen“ und „ablegen“ ab. Öffnet sich der Greifer, fällt, was er hält.
+
+### Nicht geprüft
+- Greifen am echten SO-101 – die Werkbank gibt es nur im Simulator.
+
 ## 0.38.47 – 2026-11-12 – SO-101: ein Arm als neuer Körper
 
 ### Neu

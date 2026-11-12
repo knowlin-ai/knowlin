@@ -1,6 +1,6 @@
 """SO-101 im Simulator (seit 0.38.47, Etappe G5 aus dem Konzept „Knowlins Geist“).
 
-Ein Arm ohne Kopf, ohne Beine und ohne Stimme: Er steht wie Reachy fest auf dem Couchtisch (`TischPlatz`) und bewegt
+Ein Arm ohne Kopf, ohne Beine und ohne Stimme: Er steht fest auf seiner eigenen Werkbank (seit 0.38.48, `werkbank.py`) und bewegt
 sechs Gelenke (`duckpilot/arm.py`). Gezeigt wird, dass derselbe Geist mit einem ganz anderen Körper zurechtkommt – der
 Aktionskatalog handelt „grüßen“ hier als Winken aus, nicht als Nicken.
 
@@ -18,6 +18,8 @@ from .. import arm as A
 from ..api import DuckState, Head, IntentResult, Perception, Pose, Twist
 from .sim import SimBackend
 from .tischplatz import TischPlatz
+from .werkbank import OFFEN_LAESST_FALLEN, SOCKEL_VOR_KANTE, WERKBANK, Werkbank
+from .world import Box
 
 EIGENSCHAFTEN = frozenset({"arm", "greifer", "simulator", "zuruecksetzen"})
 OHNE = "Der SO-101 ist ein Arm – er hat keine Beine, keinen Kopf und keine Stimme"
@@ -28,6 +30,7 @@ class So101Sim(TischPlatz, SimBackend):
     koerper_art = "so101"
     platz_name = "Der SO-101"
     fuss_m = 0.06
+    standard_flaeche = WERKBANK["name"]                     # eigene Werkbank (seit 0.38.48)
 
     def __init__(self, realtime: bool = True, seed: int | None = None) -> None:
         super().__init__(realtime=realtime, seed=seed)
@@ -36,8 +39,12 @@ class So101Sim(TischPlatz, SimBackend):
         self._ziel: dict[str, float] = dict(self.gelenke)
         self._dauer = 0.0
         self._zeit = 0.0
-        self._folge: list[tuple[dict[str, float], float]] = []
+        self._folge: list[tuple[dict[str, float], float, str | None]] = []
+        self._bei_ankunft: str | None = None
         self.geste_name: str | None = None
+        self.werkbank = Werkbank()
+        if not any(b.name == WERKBANK["name"] for b in self.world_model.boxes):
+            self.world_model.boxes.append(Box(**{k: WERKBANK[k] for k in ("name", "x", "y", "sx", "sy", "h", "color")}))
         self.sitting = True                                             # beginnt in der Ruhelage, Motoren aus
         self.powered = False
         self.enabled = False
@@ -49,6 +56,27 @@ class So101Sim(TischPlatz, SimBackend):
 
     def skills(self) -> list[str]:
         return []
+
+    # ── Platz: immer an der eigenen Werkbank, Sockel hinten, Blick über die Werkbank ─────
+    def platz_pruefen(self, flaeche: str) -> str | None:
+        if str(flaeche or "").strip().lower() != WERKBANK["name"].lower():
+            return "Ari bleibt an seiner Werkbank – dort liegen seine Würfel und Kisten."
+        return None
+
+    def platzieren(self, flaeche: str) -> tuple[bool, str]:
+        grund = self.platz_pruefen(flaeche)
+        if grund is not None:
+            return False, grund
+        w = WERKBANK
+        self.stand_z, self.standflaeche = float(w["h"]), w["name"]
+        self._ente_setzen(w["x"] - w["sx"] / 2 + SOCKEL_VOR_KANTE, w["y"], 0.0)
+        return True, f"Ari steht an seiner {w['name']}"
+
+    def szene_zuruecksetzen(self, ente: bool = True) -> dict[str, Any]:
+        out = super().szene_zuruecksetzen(ente=ente)
+        self.werkbank.zuruecksetzen()
+        out["dinge"] = [*out.get("dinge", []), *self.werkbank.namen()["dinge"]]
+        return out
 
     def fassung(self, skill: str) -> dict[str, str]:
         return {"fassung": "SO-101 im Simulator von Knowlin – Kinematik ohne Physik, Modell von TheRobotStudio"}
@@ -66,9 +94,15 @@ class So101Sim(TischPlatz, SimBackend):
             a = self._zeit / self._dauer
             a = a * a * (3 - 2 * a)                                     # weich anfahren und abbremsen
             self.gelenke = {g: self._von[g] + (self._ziel[g] - self._von[g]) * a for g in A.GELENKE}
+            if self.werkbank.haelt and self.gelenke["gripper"] > OFFEN_LAESST_FALLEN:
+                self.werkbank.fallen_lassen(self.gelenke)              # Greifer geht auf: es fällt
+            if self._zeit >= self._dauer and self._bei_ankunft:
+                aktion, self._bei_ankunft = self._bei_ankunft, None
+                self.werkbank.ausfuehren(aktion, self.gelenke)
         elif self._folge:
-            haltung, s = self._folge.pop(0)
+            haltung, s, aktion = self._folge.pop(0)
             self._anfahren(haltung, s)
+            self._bei_ankunft = aktion
         else:
             self.geste_name = None
 
@@ -89,7 +123,7 @@ class So101Sim(TischPlatz, SimBackend):
         ziel, unbekannt = A.begrenzen(gelenke)
         if unbekannt:
             return IntentResult(False, f"Gelenk unbekannt: {', '.join(unbekannt)} – bekannt: {', '.join(A.GELENKE)}")
-        self._folge, self.geste_name = [], None
+        self._folge, self.geste_name, self._bei_ankunft = [], None, None
         self.sitting = False
         self._anfahren(ziel, max(0.3, min(10.0, float(sekunden))))
         return IntentResult(True, f"fährt {len(ziel)} Gelenke in {self._dauer:.1f} s an")
@@ -99,12 +133,37 @@ class So101Sim(TischPlatz, SimBackend):
             return IntentResult(False, f"Geste unbekannt – bekannt: {', '.join(A.GESTEN)}")
         if not self.powered:
             return IntentResult(False, "Motoren sind aus – erst aufwecken")
-        folge = [(dict(h), s) for h, s in A.GESTEN[name]]
+        self._folgen([(dict(h), s, None) for h, s in A.GESTEN[name]], name)
         self.sitting = name == "ruhe"
-        self._folge = folge[1:]
-        self._anfahren(*folge[0])
-        self.geste_name = name
         return IntentResult(True, f"{name} ({A.dauer(name):.1f} s)")
+
+    def _folgen(self, folge: list[tuple[dict[str, float], float, str | None]], name: str) -> None:
+        self._folge = folge[1:]
+        self._anfahren(folge[0][0], folge[0][1])
+        self._bei_ankunft = folge[0][2]
+        self.geste_name = name
+
+    # ── Greifen und Ablegen an der Werkbank (seit 0.38.48) ───────────────
+    async def greifen(self, ding: str) -> IntentResult:
+        if not self.powered:
+            return IntentResult(False, "Motoren sind aus – erst aufwecken")
+        plan, grund = self.werkbank.greifen_plan(ding)
+        if plan is None:
+            return IntentResult(False, grund)
+        self.sitting = False
+        self._folgen(plan, "greifen")
+        d = self.werkbank.ding(ding)
+        return IntentResult(True, f"greift {d['name'] if d else ding} ({sum(s for _, s, _ in plan):.1f} s)")
+
+    async def ablegen(self, ziel: str) -> IntentResult:
+        if not self.powered:
+            return IntentResult(False, "Motoren sind aus – erst aufwecken")
+        plan, grund = self.werkbank.ablegen_plan(ziel)
+        if plan is None:
+            return IntentResult(False, grund)
+        self.sitting = False
+        self._folgen(plan, "ablegen")
+        return IntentResult(True, f"legt {self.werkbank.haelt} ab ({sum(s for _, s, _ in plan):.1f} s)")
 
     # ── Intents, die ein Arm nicht hat ───────────────────────────────────
     async def move(self, twist: Twist) -> None:
@@ -149,7 +208,7 @@ class So101Sim(TischPlatz, SimBackend):
         return IntentResult(True, "legt sich in die Ruhelage")
 
     async def stop(self) -> IntentResult:
-        self._folge, self.geste_name = [], None
+        self._folge, self.geste_name, self._bei_ankunft = [], None, None
         self._von = self._ziel = dict(self.gelenke)
         self._dauer = self._zeit = 0.0
         self.requested = Twist()
@@ -158,7 +217,8 @@ class So101Sim(TischPlatz, SimBackend):
     def lahm(self) -> None:
         """Not-Aus: Motoren sofort aus; ohne Kraft sackt der Arm in die Ruhelage (nur fürs Bild)."""
         self.powered = self.enabled = False
-        self._folge, self.geste_name = [], None
+        self._folge, self.geste_name, self._bei_ankunft = [], None, None
+        self.werkbank.fallen_lassen(self.gelenke)                      # ohne Kraft hält der Greifer nichts
         self._anfahren(A.POSEN["ruhe"], SACKEN_S)
         self.sitting = True
 
@@ -178,4 +238,6 @@ class So101Sim(TischPlatz, SimBackend):
         st.display_joints = rad
         st.skill = None                                                 # Gesten sind keine Skills (keine Anzeige „geste:…“)
         st.stand_z, st.standflaeche = round(self.stand_z, 4), self.standflaeche
+        st.holding = self.werkbank.haelt
+        st.werkbank = self.werkbank.als_dict()
         return st

@@ -20,7 +20,7 @@ from ..motion import reachy_tanz as RT
 from ..motion import tanz as T
 from ..motion.apportieren import Apportieren
 from ..motion.engine import MotionEngine
-from .tools_absicht import ABSICHT_TOOL, ARM_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge
+from .tools_absicht import ABSICHT_TOOL, ARM_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge, werkbank_werkzeuge
 from .tools_lab import (  # noqa: F401 – Werkzeuge der Trainingshalle, seit 0.38 eigene Datei
     FREE_TRAINING_TOOL,
     PARCOURS_BUILD_TOOL,
@@ -632,7 +632,7 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
         tools = [t for t in tools if fehlt_dem_koerper(t["name"], be) is None]
         tools = [*tools, ABSICHT_TOOL, SELBSTBILD_TOOL]      # Aktionskatalog und Selbstbild (seit 0.38.43, G2)
         if "arm" in eig:
-            tools = [*tools, ARM_TOOL]                       # Arm (seit 0.38.47, G5)
+            tools = [*tools, ARM_TOOL, *werkbank_werkzeuge(be)]   # Arm (0.38.47, G5), Werkbank (0.38.48)
         if "antennen" in eig:
             tools = [*tools, ANTENNEN_TOOL]
         if getattr(be, "koerper_art", "") == "reachy_mini":   # Reachys eigener Tanz (seit 0.38.13): nur seine Bewegungen
@@ -743,6 +743,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
                 result = self._selbstbild()
             elif name == "arm":
                 result = await self._arm(args or {})
+            elif name in ("greifen", "ablegen"):
+                result = await self._werkbank(name, args or {})
             elif name == "bewegung_ueben":
                 result = await self._practice(args or {})
             elif name == "training_auswerten" and self.trainer is not None:
