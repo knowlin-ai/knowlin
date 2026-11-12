@@ -9,7 +9,7 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
-## Unveröffentlicht
+## 0.38.55 – 2026-11-13 – Ari stößt nirgends mehr an, Kachel „Mentor“, englische Spur
 
 ### Geändert
 - **Kachel „Mentor“ statt „Ohne Körper“** (Maintainer: „Knowlin ist per Tailscale und Sprachchat sowieso schon
