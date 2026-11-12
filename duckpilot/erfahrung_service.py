@@ -93,7 +93,9 @@ class ErfahrungService:
             name = str(ev["name"])
             self.netz.erleben({key("gefuehl", name): name}, 0.9, warum=msg, herkunft=self.herkunft())
         elif kind == "trick" and msg:
-            name = msg.split("„")[-1].split("“")[0][:30] if "„" in msg else "Trick"
+            from .brain.erfahrung import lesbarer_name
+
+            name = lesbarer_name(msg.split("„")[-1].split("“")[0]) if "„" in msg else "Trick"
             self.netz.erleben({key("taetigkeit", name): name}, 1.0, warum=msg, herkunft=self.herkunft())
 
     def hear(self, text: str, via: str) -> None:

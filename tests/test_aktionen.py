@@ -63,3 +63,17 @@ def test_selbstbild_sagt_was_unsicher_ist():
                          koerper="microduck", backend="sim", holding="Socke", skill=None)
     bild = A.selbstbild(st, ENTE, {"kopf": "Kopf bewegen"}, False)
     assert bild["haltung"] == "steht" and bild["haelt"] == "Socke" and "Akkustand unbekannt" in bild["unsicher"]
+
+
+def test_wissen_lesbare_namen_und_volle_breite():
+    """Fund 12.11. (Bild Gedächtnis): technische Trick-Namen als Tätigkeiten, Infozeile umgebrochen, rechts ein leeres
+    Drittel – Namen jetzt lesbar, Spalten über die ganze Breite."""
+    from pathlib import Path
+
+    from duckpilot.brain.erfahrung import lesbarer_name
+
+    assert lesbarer_name("Duck Skill 20261105 Got A Talent") == "Got A Talent"
+    assert lesbarer_name("Got A Talent Run 1106 0803 009") == "Got A Talent" and lesbarer_name("spielen") == "spielen"
+    css = (Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static" / "style.css").read_text(encoding="utf-8")
+    regel = css[css.index(".welt-gruppen {"):]
+    assert "1fr" in regel[:regel.index("}")]

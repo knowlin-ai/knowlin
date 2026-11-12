@@ -55,6 +55,17 @@ def _pair(a: str, b: str) -> str:
     return f"{a}|{b}" if a < b else f"{b}|{a}"
 
 
+
+def lesbarer_name(name: str) -> str:
+    """Technische Trick- und Lauf-Namen lesbar machen (Fund 12.11.: „Duck Skill 20261105 Got A Tale“ und „Got A Talent Run
+    1106 0803 009“ standen als Tätigkeiten im Gedächtnis): Datum und Laufnummern, „Duck Skill“ und „Run“ fallen weg."""
+    import re as _re
+
+    teile = [w for w in _re.split(r"[\s_]+", str(name or "")) if w and not _re.fullmatch(r"\d{2,}|v?\d+(\.\d+)*", w)]
+    teile = [w for w in teile if w.lower() not in ("duck", "skill", "run")] or teile
+    text = " ".join(teile).strip() or "Trick"
+    return text if len(text) <= 40 else text[:40].rsplit(" ", 1)[0] + " …"
+
 class Erfahrungsnetz:
     def __init__(self, path: Path | None = None) -> None:
         self.path = path
@@ -317,7 +328,8 @@ class Erfahrungsnetz:
         n = int(k.get("n", 0))
         sicher = "oft bestätigt" if n >= 10 else "ein paar Mal erlebt" if n >= 3 else "erst einmal erlebt" if n <= 1 else "zweimal erlebt"
         mit = [self.knoten[o]["name"] for _, o in sorted(nachbarn, reverse=True)[:3] if o in self.knoten]
-        return {"id": kid, "name": k["name"], "art": k["art"], "erlebnisse": n,
+        return {"id": kid, "name": lesbarer_name(k["name"]) if k["art"] == "taetigkeit" else k["name"], "art": k["art"],
+                "erlebnisse": n,
                 "verbindungen": sum(1 for p in self.kanten if kid in p.split("|")), "ton": ton,
                 "zuletzt": {"tage": round(tage, 1), "wort": frische}, "sicherheit": sicher, "mit": mit}
 

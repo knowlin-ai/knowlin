@@ -2421,11 +2421,11 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
 .welt-card h3 { margin: 0; }
 /* Spalten nicht über die ganze Kachel ziehen (gemeldet nach 0.38.33: der Gefühlston stand weit weg vom Namen), Luft zum Text */
 .welt-gruppen { display: grid; gap: var(--spacing-05) var(--spacing-07); margin-top: var(--spacing-03);
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 26rem)); }
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }   /* volle Breite (Fund 12.11.) */
 .welt-gruppe h4 { margin: 0 0 var(--spacing-03); font-size: var(--t-small); font-weight: 600; color: var(--ink-2); }
 .welt-gruppe h4 small { font-weight: 400; color: var(--ink-3); }
 .welt-liste { list-style: none; margin: 0; padding: 0; display: grid; }
-.welt-thema { display: grid; gap: var(--spacing-02); padding: var(--spacing-03) 0; border-top: 1px solid var(--line-soft); }
+.welt-thema { display: grid; gap: var(--spacing-02); padding: var(--spacing-04) 0; border-top: 1px solid var(--line-soft); }
 .welt-kopf { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--spacing-02) var(--spacing-04); }
 .welt-name { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left;
   border-radius: var(--r-control); }

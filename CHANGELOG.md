@@ -25,6 +25,10 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   installiert“ statt „fertig, Code 0“). Ist ein Release schon da, aber der Installer noch im Bau, heißt es „kommt
   gleich“ statt „herunterladen“, und Knowlin schaut nach einer Viertelstunde wieder nach statt erst am nächsten Tag.
 
+- **Gedächtnis → „Was Knowlin über deine Welt weiß“:** Die Spalten nutzen die ganze Breite (vorher blieb rechts ein
+  Drittel leer, und die Infozeile brach um, sodass die Einträge ungleich hoch waren); Tricks vom Hub und Trainingsläufe
+  stehen mit lesbarem Namen da statt „Duck Skill 20261105 …“.
+
 ### Nicht geprüft
 - Wie oft die Sprachmodelle von sich aus `absicht` und `selbstbild` nehmen (geprüft sind die Werkzeuge im Simulator mit
   Microduck und Reachy Mini).
