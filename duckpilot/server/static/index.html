@@ -867,8 +867,23 @@
               <p class="field-help nur-im-kopf">Wie Knowlin klingt: <button type="button" class="link" id="goto-kopf-stimme">Knowlins Stimme</button> – wählen, entwerfen, probehören.</p>
               <p class="field-help">Beides geht auch im Gespräch auf der Startseite: „Ich nenne dich …“ oder „Ich heiße …“. Leer lassen: „Knowlin“ und „Hallo Mensch“. Dein Name bleibt auf diesem PC.</p>
             </section>
-            <section class="card set-card" id="set-claude">
-              <h3>Claude</h3>
+            <section class="card set-card set-ki" id="set-ki">
+              <h3>KI-Modell</h3>
+              <p class="field-help">Womit Knowlin und alle Verkörperungen denken – gilt für jeden Körper.</p>
+            <div class="ki-teil">
+              <h4>Sprachmodell</h4>
+              <div class="field">
+                <div class="seg" role="radiogroup" aria-label="Sprachmodell">
+                  <label><input type="radio" name="gehirn" value="claude" data-voice="gehirn"><span>Claude</span></label>
+                  <label><input type="radio" name="gehirn" value="lokal" data-voice="gehirn"><span>Lokales Modell</span></label>
+                  <label class="pc-only"><input type="radio" name="gehirn" value="anbieter" data-voice="gehirn"><span>Anderes Modell</span></label>
+                </div>
+                <p class="field-help">Frei wählbar: Jedes Modell bekommt dieselben Werkzeuge, Werte und Sicherheitsregeln. Ein lokales Modell läuft mit Ollama oder LM Studio auf diesem PC, ohne Internet und Kosten. Claude oder ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter) brauchen einen Schlüssel des Anbieters. Am gründlichsten erprobt ist bisher Claude.</p>
+              </div>
+            </div>
+            <!-- Claude ist ein Anbieter unter mehreren (seit 0.38.43, Maintainer: „das Claude-Monopol soll geändert werden, dass man frei wählen kann“) -->
+            <div class="ki-teil" id="set-claude" data-zeige-wenn="gehirn=claude">
+              <h4>Claude</h4>
               <div class="field">
                 <span class="field-label">API-Schlüssel</span>
                 <p class="key-state" id="key-state">–</p>
@@ -884,36 +899,7 @@
                 <p class="field-msg" id="key-msg" aria-live="polite"></p>
               </div>
               <label class="field pc-only"><span class="field-label">Modell</span><select class="select" data-set="model"></select></label>
-              <label class="switch pc-only"><input type="checkbox" data-set="schnellbefehle"><span>Kurze Befehle ohne Claude
-                <small>„Tanz“, „stopp“ &amp; Co. erledigt Knowlin selbst – schneller und ohne Tokens.</small></span></label>
               <p class="field-help pc-only" id="usage-line" aria-live="polite"></p>
-              <label class="switch pc-only"><input type="checkbox" data-set="mcp"><span>Andere Programme dürfen steuern (MCP)
-                <small>Claude Desktop, Claude Code oder eigene Agenten steuern die Verkörperung – nur auf diesem PC, mit Schlüssel. Personen, Kamera und Gedächtnis bleiben außen vor.</small></span></label>
-              <div class="mcp-box pc-only" id="mcp-box" hidden>
-                <p class="field-help" id="mcp-state"></p>
-                <div class="key-actions"><button type="button" class="btn btn--sm" id="mcp-key">Neuen Schlüssel erzeugen</button></div>
-                <p class="field-help" id="mcp-key-note" hidden>Der Schlüssel steht nur jetzt im Befehl unten – danach nur noch im Tresor. Nicht weitergeben.</p>
-                <p class="field-label">Claude Code</p>
-                <pre class="mcp-code" id="mcp-code"></pre>
-                <button type="button" class="btn btn--ghost btn--sm" data-copy="mcp-code">Kopieren</button>
-                <p class="field-label">Claude Desktop (claude_desktop_config.json) – holt den Schlüssel selbst aus dem Tresor</p>
-                <pre class="mcp-code" id="mcp-desktop"></pre>
-                <button type="button" class="btn btn--ghost btn--sm" data-copy="mcp-desktop">Kopieren</button>
-              </div>
-            </section>
-            <section class="card set-card set-ki" id="set-ki">
-              <h3>KI-Modell</h3>
-              <p class="field-help">Womit Knowlin und alle Verkörperungen denken – gilt für jeden Körper.</p>
-            <div class="ki-teil">
-              <h4>Sprachmodell</h4>
-              <div class="field">
-                <div class="seg" role="radiogroup" aria-label="Sprachmodell">
-                  <label><input type="radio" name="gehirn" value="claude" data-voice="gehirn"><span>Claude</span></label>
-                  <label><input type="radio" name="gehirn" value="lokal" data-voice="gehirn"><span>Lokales Modell</span></label>
-                  <label class="pc-only"><input type="radio" name="gehirn" value="anbieter" data-voice="gehirn"><span>Anderes Modell</span></label>
-                </div>
-                <p class="field-help">Claude plant Bewegungen am besten. Ein lokales Modell läuft mit Ollama oder LM Studio auf diesem PC, ohne Internet und Kosten – und springt ein, wenn Claude nicht erreichbar ist. Ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter) geht mit eigenem Schlüssel.</p>
-              </div>
             </div>
             <div class="ki-teil pc-only" id="anbieter-card" data-zeige-wenn="gehirn=anbieter">
               <h4>Anderes Modell</h4>
@@ -960,6 +946,24 @@
                   <label class="field"><span class="field-label">Adresse</span><input class="input" type="text" id="lmstudio-url" data-set="lmstudio_adresse" spellcheck="false" placeholder="http://127.0.0.1:1234/v1"></label>
                 </details>
                 <p class="field-help">Beim Laden des Modells in LM Studio die Kontextlänge auf mindestens 16 384 stellen – sonst passt Knowlins Anleitung nicht hinein.</p>
+              </div>
+            </div>
+            <div class="ki-teil pc-only">
+              <h4>Für alle Modelle</h4>
+              <label class="switch pc-only"><input type="checkbox" data-set="schnellbefehle"><span>Kurze Befehle ohne Sprachmodell
+                <small>„Tanz“, „stopp“ &amp; Co. erledigt Knowlin selbst – schneller und ohne Tokens.</small></span></label>
+              <label class="switch pc-only"><input type="checkbox" data-set="mcp"><span>Andere Programme dürfen steuern (MCP)
+                <small>Claude Desktop, Claude Code oder eigene Agenten steuern die Verkörperung – nur auf diesem PC, mit Schlüssel. Personen, Kamera und Gedächtnis bleiben außen vor.</small></span></label>
+              <div class="mcp-box pc-only" id="mcp-box" hidden>
+                <p class="field-help" id="mcp-state"></p>
+                <div class="key-actions"><button type="button" class="btn btn--sm" id="mcp-key">Neuen Schlüssel erzeugen</button></div>
+                <p class="field-help" id="mcp-key-note" hidden>Der Schlüssel steht nur jetzt im Befehl unten – danach nur noch im Tresor. Nicht weitergeben.</p>
+                <p class="field-label">Claude Code</p>
+                <pre class="mcp-code" id="mcp-code"></pre>
+                <button type="button" class="btn btn--ghost btn--sm" data-copy="mcp-code">Kopieren</button>
+                <p class="field-label">Claude Desktop (claude_desktop_config.json) – holt den Schlüssel selbst aus dem Tresor</p>
+                <pre class="mcp-code" id="mcp-desktop"></pre>
+                <button type="button" class="btn btn--ghost btn--sm" data-copy="mcp-desktop">Kopieren</button>
               </div>
             </div>
             </section>

@@ -19,6 +19,14 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   Modell sagt es ehrlich weiter. Neue Aktionen sind Daten in `duckpilot/aktionen.py`.
 - **Selbstbild:** „Wie geht's dir?“ und „Was kannst du?“ beantwortet Knowlin aus den Daten seines Körpers (Werkzeug
   `selbstbild`: Haltung, Fähigkeiten, Sperre, Akku, was er hält) und sagt, was unsicher ist.
+- **Handy: Bühne frei skalierbar:** Zwischen 3D-Ansicht und Gesprächsverlauf sitzt ein Griff. Ziehen verteilt den
+  Platz (22–75 % der Höhe), Pfeiltasten gehen auch, Doppeltippen setzt auf 40 % zurück; jedes Gerät merkt sich seine
+  Aufteilung.
+
+### Geändert
+- **Sprachmodell frei wählbar, ohne Vorrang für Claude:** Die eigene Claude-Karte in den Einstellungen ist weg. Unter
+  „KI-Modell“ stehen alle Modelle gleichrangig; Schlüssel und Modell für Claude erscheinen erst, wenn Claude gewählt
+  ist. „Kurze Befehle ohne Sprachmodell“ und der MCP-Zugang stehen unter „Für alle Modelle“.
 
 ### Behoben
 - **Update-Hinweise verständlich:** „Letztes Update“ steht in Worten („am 11.11.2026 um 22:41 ohne Fehler

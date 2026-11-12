@@ -186,7 +186,6 @@
  "Verbindung prüfen": "Test connection",
  "Schlüssel entfernen": "Remove key",
  "Modell": "Model",
- "Kurze Befehle ohne Claude": "Short commands without Claude",
  "„Setz dich“, „tanz“ & Co. erledigt duckpilot selbst – schneller und ohne Tokens.": "“Sit down”, “dance” & co. are handled by duckpilot itself – faster and without tokens.",
  "Andere Programme dürfen steuern (MCP)": "Other programs may take control (MCP)",
  "Claude Desktop, Claude Code oder eigene Agenten steuern die Ente – nur auf diesem PC, mit Schlüssel. Personen, Kamera und Gedächtnis bleiben außen vor.": "Claude Desktop, Claude Code or your own agents control the duck – only on this PC, with a key. People, camera and memory stay out of it.",
@@ -3285,7 +3284,6 @@
  "Mehr": "More",
  "Weitere Bereiche": "More areas",
  "Schreiben oder diktieren …": "Type or dictate …",
- "Claude plant Bewegungen am besten. Ein lokales Modell läuft mit Ollama oder LM Studio auf diesem PC, ohne Internet und Kosten – und springt ein, wenn Claude nicht erreichbar ist. Ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter) geht mit eigenem Schlüssel.": "Claude plans movements best. A local model runs with Ollama or LM Studio on this PC, without internet or costs – and steps in when Claude can't be reached. Another model (OpenAI, Gemini, Mistral, OpenRouter) works with your own key.",
  "Programm auf diesem PC": "App on this PC",
  "Programm für das lokale Modell": "App for the local model",
  "Ollama": "Ollama",
@@ -3341,5 +3339,9 @@
  "Was Knowlin nie tut": "What Knowlin never does",
  "Die Werte bekommt jedes Sprachmodell gleich – Claude, ein lokales oder ein anderes. Die Grenzen stecken im Code: Kein Modell und keine Überredung kann sie verschieben.": "Every language model gets the same values – Claude, a local one or another. The limits live in the code: no model and no persuasion can move them.",
  "Knowlin #.#.# kommt gleich – der Installer wird noch gebaut. Knowlin schaut in einer Viertelstunde wieder nach.": "Knowlin #.#.# is on its way – the installer is still being built. Knowlin will look again in a quarter of an hour.",
- "Knowlin #.#.# ist veröffentlicht, der Installer wird noch gebaut (etwa # Minuten).": "Knowlin #.#.# is published, the installer is still being built (about # minutes)."
+ "Knowlin #.#.# ist veröffentlicht, der Installer wird noch gebaut (etwa # Minuten).": "Knowlin #.#.# is published, the installer is still being built (about # minutes).",
+ "Kurze Befehle ohne Sprachmodell": "Short commands without a language model",
+ "Für alle Modelle": "For every model",
+ "Frei wählbar: Jedes Modell bekommt dieselben Werkzeuge, Werte und Sicherheitsregeln. Ein lokales Modell läuft mit Ollama oder LM Studio auf diesem PC, ohne Internet und Kosten. Claude oder ein anderes Modell (OpenAI, Gemini, Mistral, OpenRouter) brauchen einen Schlüssel des Anbieters. Am gründlichsten erprobt ist bisher Claude.": "Your choice: every model gets the same tools, values and safety rules. A local model runs with Ollama or LM Studio on this PC, without internet or costs. Claude or another model (OpenAI, Gemini, Mistral, OpenRouter) need a key from the provider. Claude has been tested most thoroughly so far.",
+ "Bühne größer oder kleiner": "Make the stage bigger or smaller"
 }

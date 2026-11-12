@@ -357,9 +357,26 @@ def handyansicht(page, b: "Bericht") -> None:
     r = page.evaluate(HANDY_JS)
     b.pruefe("Handy: unten höchstens fünf Bereiche mit vollem Namen, dazu der Not-Aus",
              r["anzahl"] <= 5 and not r["abgeschnitten"], f"{r['namen']} abgeschnitten: {r['abgeschnitten']}")
-    b.pruefe("Handy: Verlauf im Cockpit mindestens ein Viertel hoch, Eingabe über der Leiste, Seite rollt nicht",
-             r["verlauf"] >= r["hoehe"] * 0.25 and r["eingabeSichtbar"] and not r["seiteRollt"],
+    b.pruefe("Handy: Verlauf im Cockpit sichtbar hoch, Eingabe über der Leiste, Seite rollt nicht",
+             r["verlauf"] >= r["hoehe"] * 0.18 and r["eingabeSichtbar"] and not r["seiteRollt"],
              f"Verlauf {r['verlauf']} von {r['hoehe']} px, Eingabe sichtbar {r['eingabeSichtbar']}, rollt {r['seiteRollt']}")
+    # Bühne ziehen (seit 0.38.43): Griff nach unten ziehen macht die Bühne größer, Doppeltippen setzt zurück
+    griff = page.locator(".buehne-teiler")
+    vorher = page.evaluate("() => document.querySelector('#view-cockpit > .stage').getBoundingClientRect().height")
+    kasten = griff.bounding_box() if griff.is_visible() else None
+    if kasten:
+        x, y = kasten["x"] + kasten["width"] / 2, kasten["y"] + kasten["height"] / 2
+        page.mouse.move(x, y)
+        page.mouse.down()
+        page.mouse.move(x, y + 120, steps=6)
+        page.mouse.up()
+        page.wait_for_timeout(300)
+    nachher = page.evaluate("() => document.querySelector('#view-cockpit > .stage').getBoundingClientRect().height")
+    b.pruefe("Handy: Bühne lässt sich am Griff größer ziehen", bool(kasten) and nachher > vorher + 60,
+             f"{vorher:.0f} → {nachher:.0f} px")
+    if kasten:
+        griff.dblclick()
+        page.wait_for_timeout(300)
     mehr = page.locator("#rail-mehr")
     ok, eintraege = False, []
     if mehr.is_visible():

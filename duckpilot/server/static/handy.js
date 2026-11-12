@@ -109,6 +109,7 @@ export function initHandyLeiste() {
   SCHMAL.addEventListener('change', ordnen);
   ordnen();
   vorleseKnopf();
+  buehnenTeiler();
 }
 
 // „Antworten vorlesen“ als Knopf neben der Eingabe (am Handy); er schaltet dasselbe Häkchen wie am PC
@@ -128,4 +129,58 @@ function vorleseKnopf() {
   // Ohne sichere Verbindung (Handy übers WLAN) gibt es keine Sprechtaste: diktiert wird über die Handy-Tastatur
   const feld = document.getElementById('say-text');
   if (feld && !window.isSecureContext) feld.placeholder = 'Schreiben oder diktieren …';
+}
+
+// Bühne größer oder kleiner ziehen (seit 0.38.43, Maintainer: „Nun ist das 3D-Fenster zu klein. Kann man die Kanten der
+// Bereiche ziehen zum Skalieren? Handys sind ja unterschiedlich groß“): Ein Griff zwischen Bühne und Gespräch, mit dem
+// Finger ziehen, mit den Pfeiltasten verstellen, doppelt tippen setzt zurück. Der Anteil bleibt auf diesem Gerät gemerkt.
+const TEILER_SCHLUESSEL = 'knowlin.buehne';
+const STANDARD = 40, MIN = 22, MAX = 75;
+
+function buehnenTeiler() {
+  const view = document.getElementById('view-cockpit');
+  const stage = view && view.querySelector(':scope > .stage');
+  const talk = view && view.querySelector(':scope > .talk');
+  if (!stage || !talk) return;
+  const griff = document.createElement('div');
+  griff.className = 'buehne-teiler';
+  griff.setAttribute('role', 'separator');
+  griff.setAttribute('aria-orientation', 'horizontal');
+  griff.setAttribute('aria-label', 'Bühne größer oder kleiner');
+  griff.setAttribute('aria-valuemin', String(MIN));
+  griff.setAttribute('aria-valuemax', String(MAX));
+  griff.tabIndex = 0;
+  view.insertBefore(griff, talk);
+
+  let anteil = STANDARD;
+  try { anteil = Number(localStorage.getItem(TEILER_SCHLUESSEL)) || STANDARD; } catch { /* egal */ }
+  const setzen = (wert, merken = false) => {
+    anteil = Math.round(Math.min(MAX, Math.max(MIN, wert)));
+    view.style.setProperty('--buehne', `${anteil}%`);
+    griff.setAttribute('aria-valuenow', String(anteil));
+    window.dispatchEvent(new Event('resize'));          // die 3D-Ansicht passt sich an
+    if (merken) { try { localStorage.setItem(TEILER_SCHLUESSEL, String(anteil)); } catch { /* egal */ } }
+  };
+  setzen(anteil);
+
+  let start = null;
+  griff.addEventListener('pointerdown', (ev) => {
+    start = { y: ev.clientY, wert: anteil, hoehe: view.getBoundingClientRect().height };
+    griff.setPointerCapture(ev.pointerId);
+    griff.classList.add('zieht');
+  });
+  griff.addEventListener('pointermove', (ev) => {
+    if (!start) return;
+    setzen(start.wert + (ev.clientY - start.y) / start.hoehe * 100);
+  });
+  const ende = () => { if (start) { start = null; griff.classList.remove('zieht'); setzen(anteil, true); } };
+  griff.addEventListener('pointerup', ende);
+  griff.addEventListener('pointercancel', ende);
+  griff.addEventListener('dblclick', () => setzen(STANDARD, true));
+  griff.addEventListener('keydown', (ev) => {
+    const schritt = { ArrowUp: -5, ArrowDown: 5, Home: MIN - anteil, End: MAX - anteil }[ev.key];
+    if (schritt === undefined) return;
+    ev.preventDefault();
+    setzen(anteil + schritt, true);
+  });
 }

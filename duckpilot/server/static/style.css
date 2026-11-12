@@ -2459,7 +2459,7 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
    nicht gut“) ─────────────────────────────────────────────────────────────────────────────────────────────────────
    Das Cockpit füllt genau den Bildschirm: oben die Bühne (gut ein Drittel), darunter der Verlauf mit allem freien Platz,
    die Schnellbefehle als eine Wischreihe und die Eingabe mit Vorlese-Knopf. Unten vier Bereiche und „Mehr“ (handy.js). */
-.rail-mehr, .mehr-pop, .say-laut { display: none; }
+.rail-mehr, .mehr-pop, .say-laut, .buehne-teiler { display: none; }
 @media (max-width: 671.98px) {
   .rail-mehr:not([hidden]) { display: grid; }
   .rail .in-mehr { display: none; }
@@ -2487,7 +2487,13 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
   /* Cockpit: Bühne + Gespräch teilen sich genau den Bildschirm zwischen Kopfzeile und Leiste */
   .view-cockpit:not([hidden]) { display: flex; flex-direction: column; height: calc(100dvh - var(--top-h) - var(--spacing-10)); }
   .views:has(> .view-cockpit:not([hidden])) { padding-bottom: 0; }     /* die Leiste ist im Cockpit schon abgezogen */
-  .view-cockpit > .stage, .view-cockpit .stage { flex: none; height: 34%; min-height: 180px; }
+  .view-cockpit > .stage, .view-cockpit .stage { flex: none; height: var(--buehne, 40%); min-height: 160px; }
+  /* Griff zum Größerziehen der Bühne (seit 0.38.43): 24 px hoch zum Greifen, sichtbar als kurzer Balken */
+  .buehne-teiler { display: grid; place-items: center; flex: none; height: var(--spacing-06); margin-top: calc(-1 * var(--spacing-03));
+    margin-bottom: calc(-1 * var(--spacing-03)); position: relative; z-index: var(--z-hud); touch-action: none; cursor: row-resize; }
+  .buehne-teiler::before { content: ""; width: 44px; height: 4px; border-radius: var(--r-bar); background: var(--ink-3); }
+  .buehne-teiler.zieht::before, .buehne-teiler:focus-visible::before { background: var(--accent); }
+  .buehne-teiler:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
   .view-cockpit > .talk { flex: 1 1 0; min-height: 0; max-height: none; display: flex; flex-direction: column; }
   .view-cockpit .log { flex: 1 1 0; min-height: 0; max-height: none; padding-top: var(--spacing-04); }
   .view-cockpit .quick { flex: none; padding-block: var(--spacing-02); }

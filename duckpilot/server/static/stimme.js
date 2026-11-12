@@ -123,6 +123,7 @@ export function initVoicePage(h) {
       ? 'Bei entworfenen Stimmen aus – sie klingen schon so, wie du sie beschrieben hast.'
       : 'Höher und nasaler. Für Thorsten & Co. etwa die Mitte.';
     for (const r of document.querySelectorAll('[data-voice]')) r.checked = w[r.dataset.voice] === r.value;
+    offenlegen();      // die Teile zur gewählten KI (Claude, lokal, anderes) passend zeigen (seit 0.38.43)
     for (const [id, key] of [['klang-hoehe', 'klang_hoehe'], ['klang-farbe', 'klang_farbe']]) {
       const el = $(id);
       if (document.activeElement !== el) el.value = w[key] ?? 0;
