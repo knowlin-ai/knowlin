@@ -189,7 +189,14 @@ section { padding-block: clamp(72px, 10vw, 136px); }
   .anker-reihe { order: 1; margin: 230px 0 8px; justify-self: stretch; }
   .anker { flex: 1 1 0; min-width: 0; }
 }
-@media (max-width: 420px) { .anker { padding-inline: 10px; } .anker small { display: none; } }
+/* Handy: vier Körper nebeneinander – Schrift wächst mit der Breite, Namen bleiben im Rahmen (Fund 12.11.: „Microduck“
+   ragte über den Rand, „Open Duck Mini“ brach dreizeilig um) */
+@media (max-width: 560px) {
+  .anker-reihe { gap: 6px; }
+  .anker { min-height: 48px; padding: 8px 6px; justify-items: center; align-content: center; text-align: center;
+    font-size: clamp(0.6875rem, 3.2vw, 0.875rem); hyphens: manual; }
+  .anker small { display: none; }
+}
 
 /* Das Produkt schaut aus der Bühne heraus */
 .produkt { margin-top: clamp(-220px, -16vw, -110px); position: relative; z-index: 2; }

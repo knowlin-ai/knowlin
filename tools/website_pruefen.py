@@ -129,6 +129,12 @@ def main() -> int:
                         p.screenshot(path=str(out / f"seite-{sprache}.png"), full_page=True)
                     if breite == 390 and thema == "dark":
                         p.screenshot(path=str(out / f"handy-{sprache}-dunkel.png"), full_page=True)
+                        # Fund 12.11.: „Microduck“ ragte am Handy über den Rand seines Ankers
+                        ueber = p.evaluate("""() => [...document.querySelectorAll('.anker')].filter((a) => {
+                            const k = a.getBoundingClientRect(), r = document.createRange(); r.selectNodeContents(a.firstChild);
+                            const q = r.getBoundingClientRect(); return q.left < k.left + 2 || q.right > k.right - 2;
+                          }).map((a) => a.firstChild.textContent.trim())""")
+                        b.pruefe(f"Handy: Körpernamen bleiben in ihren Ankern ({sprache})", not ueber, str(ueber))
                     ctx.close()
 
         # 2b · Impressum und Datenschutz (seit 0.38.27): aus der Fußzeile erreichbar, barrierefrei, nichts Fremdes
