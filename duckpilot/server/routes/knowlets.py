@@ -52,10 +52,14 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         tricks = tricks_von(modul)
         wahl_t = {n: tricks[n] for n in b.get("tricks") or [] if n in tricks}
         wahl_c = {n: c for n in b.get("taenze") or [] if (c := runtime.choreos.hole(n))}
+        from ...werkbank_auftrag import eigene
+
+        alle_a = eigene()
+        wahl_a = {n: alle_a[n] for n in b.get("auftraege") or [] if n in alle_a}
         daten = K.packe(titel=b.get("titel") or "", beschreibung=b.get("beschreibung") or "",
                         urheber=b.get("urheber") or "", lizenz=b.get("lizenz") or "CC-BY-4.0", modul=modul,
                         figur=figur_werte(modul) if b.get("figur") else None, tricks=wahl_t, taenze=wahl_c,
-                        version=__version__)
+                        version=__version__, auftraege=wahl_a)
         return daten, K.pruefe(daten)["steckbrief"]
 
     def merke(paket: dict[str, Any]) -> dict[str, Any]:
@@ -90,7 +94,10 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         except Exception:
             token = False
         gesichert = sorted((p.name for p in ordner().glob(f"*{K.ENDUNG}")), reverse=True)[:20]
+        from ...werkbank_auftrag import eigene
+
         return JSONResponse({"figuren": figuren, "taenze": [c["name"] for c in runtime.choreos.liste()],
+                             "auftraege": [{"id": k, "titel": v["titel"]} for k, v in eigene().items()],
                              "lizenzen": list(K.LIZENZEN), "hub": {"schluessel": token}, "gesichert": gesichert})
 
     @app.post("/api/knowlets/packen")
@@ -171,6 +178,14 @@ def register(app: FastAPI, runtime: Runtime) -> None:
                 return fehler(exc)
             belegt.add(frei)
             getan.append(f"Tanz {frei}")
+        if b.get("auftraege"):                    # Werkbank-Aufträge (seit 0.38.54): geprüft gemerkt, nie Code
+            from ...werkbank_auftrag import speichern
+
+            for n in [n for n in b["auftraege"] if n in paket.get("auftraege", {})]:
+                k, grund = speichern(paket["auftraege"][n])
+                if k is None:
+                    return fehler(K.KnowletFehler(grund))
+                getan.append(f"Auftrag {paket['auftraege'][n]['titel']}")
         if not getan:
             return fehler(K.KnowletFehler("Nichts ausgewählt."))
         offen.pop(str(b.get("id")), None)

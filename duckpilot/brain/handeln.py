@@ -118,6 +118,9 @@ def werkbank_ding(name: str, backend: Any) -> dict[str, Any] | None:
     for k in wb.kisten:
         if k["name"].lower() == n:
             return {"name": k["name"], "art": "kiste", "x": k["x"], "y": k["y"], "werkbank": True}
+    for f in getattr(wb, "felder", []):                      # Tic-Tac-Toe (seit 0.38.54)
+        if f["name"].lower() == n:
+            return {"name": f["name"], "art": "feld", "nr": f["nr"], "x": f["x"], "y": f["y"], "werkbank": True}
     return None
 
 
@@ -128,17 +131,22 @@ def werkbank_aktionen(ding: dict[str, Any], backend: Any) -> list[dict[str, str]
         return []
     if ding["art"] == "kiste":
         return [{"id": "hineinlegen", "label": "Hier hineinlegen"}] if wb.haelt else []
+    if ding["art"] == "feld":
+        return [{"id": "setzen", "label": "Hierhin setzen"}]
     if wb.haelt == ding["name"]:
         return [{"id": "platz", "label": "An seinen Platz legen"},
                 *({"id": "hineinlegen:" + k["name"], "label": f"In die {k['name']}"} for k in wb.kisten)]
-    if wb.haelt:
-        return []
     d = wb.ding(ding["name"]) or {}
+    if wb.haelt:                                   # Stapeln (seit 0.38.54): auf einen freien Würfel, der nicht in der Kiste liegt
+        frei = not d.get("in") and not any(x.get("auf") == d.get("name") for x in wb.dinge)
+        return [{"id": "stapeln", "label": "Darauf stellen"}] if frei else []
     return [{"id": "greifen", "label": "Greifen"}, *([{"id": "platz", "label": "Zurück an seinen Platz"}]
                                                      if d.get("in") else [])]
 
 
 def werkbank_werkzeug(ding: dict[str, Any], aktion: str) -> tuple[str, dict[str, Any]] | None:
+    if aktion == "setzen" and ding["art"] == "feld":
+        return ("tictactoe", {"aktion": "zug", "feld": ding["nr"]})
     if aktion == "greifen" and ding["art"] == "wuerfel":
         return ("greifen", {"ding": ding["name"]})
     if aktion == "hineinlegen" and ding["art"] == "kiste":
@@ -147,6 +155,8 @@ def werkbank_werkzeug(ding: dict[str, Any], aktion: str) -> tuple[str, dict[str,
         return ("ablegen", {"ziel": aktion.split(":", 1)[1]})
     if aktion == "platz":
         return ("ablegen", {"ziel": "platz"})
+    if aktion == "stapeln" and ding["art"] == "wuerfel":
+        return ("ablegen", {"ziel": "auf " + ding["name"]})
     return None
 
 

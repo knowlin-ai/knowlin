@@ -432,6 +432,8 @@
                 <li class="nur-so101">Wink mal!</li>
                 <li class="nur-so101">Zeig mir, wie du dich freust.</li>
                 <li class="nur-so101">Leg den roten Würfel in die linke Kiste.</li>
+                <li class="nur-so101">Sortier die Würfel nach Farben.</li>
+                <li class="nur-so101">Lass uns Tic-Tac-Toe spielen.</li>
                 <li class="nur-ente">Zeig mir, wie du lachst.</li>
                 <li class="braucht-beine">Das hier ist die Küche.</li>
               </ul>
@@ -452,6 +454,11 @@
             <button class="chip" data-tool="arm" data-args='{"geste":"winken"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V6a2 2 0 0 1 4 0v5M11 10V4a2 2 0 0 1 4 0v6M15 10V6a2 2 0 0 1 4 0v8a7 7 0 0 1-14 0v-3a2 2 0 0 1 4 0"/></svg>Winken</button>
             <button class="chip" data-tool="absicht" data-args='{"aktion":"freuen"}'><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1.9 2 5.1 2 7 0M9 9.5h.01M15 9.5h.01"/></svg>Freuen</button>
             <button class="chip" data-tool="arm" data-args='{"geste":"umsehen"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Umsehen</button>
+            <button class="chip" data-tool="auftrag" data-args='{"auftrag":"sortieren"}'><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="7" height="7" rx="1"/><rect x="14" y="13" width="7" height="7" rx="1"/><path d="M6.5 10V4M17.5 10V4M4 7l2.5-3L9 7M15 7l2.5-3L20 7"/></svg>Sortieren</button>
+            <button class="chip" data-tool="auftrag" data-args='{"auftrag":"turm"}'><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="15" width="8" height="6" rx="1"/><rect x="8" y="9" width="8" height="6" rx="1"/><rect x="8" y="3" width="8" height="6" rx="1"/></svg>Turm bauen</button>
+            <button class="chip" data-tool="auftrag" data-args='{"auftrag":"aufraeumen"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 20l2-9h6l2 9M10 11V4h4v7"/></svg>Aufräumen</button>
+            <button class="chip" data-tool="tictactoe" data-args='{"aktion":"start"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>Tic-Tac-Toe</button>
+            <button class="chip nur-ttt" data-tool="tictactoe" data-args='{"aktion":"ende"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Spiel beenden</button>
           </div>
           <div class="quick braucht-beine" role="group" aria-label="Schnellbefehle">
             <button class="chip" data-tool="power" data-args='{"action":"stand_up"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Aufstehen</button>
@@ -730,6 +737,7 @@
               <label class="knowlet-wahl"><input type="checkbox" id="kn-mit-figur" checked> Charakter: Name, Persönlichkeit, Sprechweise, Stimme</label>
               <fieldset class="knowlet-gruppe"><legend class="field-label">Tricks</legend><div id="kn-tricks"></div></fieldset>
               <fieldset class="knowlet-gruppe"><legend class="field-label">Tänze</legend><div id="kn-taenze"></div></fieldset>
+              <fieldset class="knowlet-gruppe"><legend class="field-label">Aufträge an der Werkbank</legend><div id="kn-auftraege"></div></fieldset>
               <label class="field"><span class="field-label">Name des Knowlets</span><input class="input" type="text" id="kn-titel" maxlength="40"></label>
               <label class="field"><span class="field-label">Beschreibung (optional)</span><textarea class="input" id="kn-beschreibung" rows="2" maxlength="400"></textarea></label>
               <label class="field"><span class="field-label">Urheber (optional, öffentlich sichtbar)</span><input class="input" type="text" id="kn-urheber" maxlength="80" autocomplete="off"></label>

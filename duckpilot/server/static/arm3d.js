@@ -30,6 +30,31 @@ function kiste(k) {
   g.position.set(k.x, k.y, 0);
   return g;
 }
+// Tic-Tac-Toe-Feld (seit 0.38.54): dunkle Linien auf der Werkbank, je Feld eine unsichtbare Fläche zum Anklicken
+function spielfeld(felder) {
+  const g = new THREE.Group();
+  const linie = new THREE.MeshBasicMaterial({ color: 0x3a2c1f });
+  const xs = felder.map((f) => f.x), ys = felder.map((f) => f.y);
+  const schritt = Math.abs(xs[3] - xs[0]), x0 = Math.min(...xs), y0 = Math.min(...ys);
+  const breite = schritt * 3, mx = x0 + schritt, my = y0 + schritt;
+  const matte = new THREE.Mesh(new THREE.BoxGeometry(breite + 0.01, breite + 0.01, 0.0008),
+    new THREE.MeshPhysicalMaterial({ color: 0xeee3cf, ...FINISH.plastic }));   // helle Unterlage: Feld gut sichtbar
+  matte.position.set(mx, my, 0.0004); matte.receiveShadow = true; g.add(matte);
+  for (const k of [-0.5, 0.5]) {
+    const a = new THREE.Mesh(new THREE.BoxGeometry(0.004, breite, 0.0012), linie);
+    a.position.set(mx + k * schritt, my, 0.0009); g.add(a);
+    const b = new THREE.Mesh(new THREE.BoxGeometry(breite, 0.004, 0.0012), linie);
+    b.position.set(mx, my + k * schritt, 0.0009); g.add(b);
+  }
+  const leer = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+  for (const f of felder) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(schritt * 0.95, schritt * 0.95), leer);
+    m.position.set(f.x, f.y, 0.0016);
+    m.userData.werkstueck = { name: f.name, art: 'feld' };
+    g.add(m);
+  }
+  return g;
+}
 const q4 = (q) => new THREE.Quaternion(q[1], q[2], q[3], q[0]);   // MJCF w x y z
 
 export class RealArm {
@@ -121,6 +146,14 @@ export class RealArm {
         this.werkbank.add(g);
       }
     }
+    const feldSchluessel = JSON.stringify((wb.felder || []).map((f) => f.name));
+    if (feldSchluessel !== this.felderGebaut) {   // Spiel beginnt oder endet
+      this.felderGebaut = feldSchluessel;
+      if (this.spielfeld) { this.werkbank.remove(this.spielfeld); this.spielfeld = null; }
+      if ((wb.felder || []).length) { this.spielfeld = spielfeld(wb.felder); this.werkbank.add(this.spielfeld); }
+    }
+    const da = new Set((wb.dinge || []).map((d) => d.name));
+    for (const [name, m] of this.wuerfel) if (!da.has(name)) { this.werkbank.remove(m); this.wuerfel.delete(name); }
     const a = wb.wuerfel || 0.03;
     for (const d of wb.dinge || []) {
       let m = this.wuerfel.get(d.name);

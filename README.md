@@ -116,7 +116,7 @@ dem Tisch. Jeder Körper zeigt nur, was er kann – was fehlt (Beine, Tiefensens
 | **Quacki** | Microduck | duckpilot | Pollen Robotics und Hugging Face | einfach und mit echter Physik | über `robotd` (Pollens Daemon) |
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone und Community | offenes Modell: laufen, Kopf, Antennen, mit Kamera ausweichen | geplant |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics und Hugging Face | Pollens Modell, Emotionen, Tänze, Spiele | über Pollens Daemon (ungetestet) |
-| **Ari** | SO-101 (Greifarm) | so101 | TheRobotStudio und Hugging Face | offenes Modell an eigener Werkbank: Gesten, Würfel greifen und in Kisten legen | über LeRobot (ungetestet) |
+| **Ari** | SO-101 (Greifarm) | so101 | TheRobotStudio und Hugging Face | offenes Modell an eigener Werkbank: Gesten, sortieren, Türme bauen, aufräumen, Tic-Tac-Toe | über LeRobot (ungetestet) |
 | – | weitere LeRobot-Roboter (LeKiwi, Koch …) | lerobot | Hugging Face LeRobot | – | über LeRobot (Arm, Greifer, Räder; ungetestet) |
 
 **Dein eigener Roboter:** Über die [Körperschnittstelle](docs/koerper-schnittstelle.md) bekommt jeder Roboter Knowlin –

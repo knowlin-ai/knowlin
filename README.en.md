@@ -120,7 +120,7 @@ robots. Every body shows only what it can do – what it lacks (legs, depth sens
 | **Quacki** | Microduck | duckpilot | Pollen Robotics and Hugging Face | simple and with real physics | via `robotd` (Pollen's daemon) |
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone and community | open model: walking, head, antennas, avoids obstacles with its camera | planned |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics and Hugging Face | Pollen's model, emotions, dances, games | via Pollen's daemon (untested) |
-| **Ari** | SO-101 (gripper arm) | so101 | TheRobotStudio and Hugging Face | open model at its own workbench: gestures, picking up cubes and putting them in boxes | via LeRobot (untested) |
+| **Ari** | SO-101 (gripper arm) | so101 | TheRobotStudio and Hugging Face | open model at its own workbench: gestures, sorting, building towers, tidying up, tic-tac-toe | via LeRobot (untested) |
 | – | more LeRobot robots (LeKiwi, Koch …) | lerobot | Hugging Face LeRobot | – | via LeRobot (arm, gripper, wheels; untested) |
 
 **Your own robot:** With the [body interface](docs/body-interface.md) any robot can get Knowlin – as its own Python

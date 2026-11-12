@@ -428,6 +428,47 @@ GRUPPE_MODUS = (("folgen", r"folg|nach|zu mir|komm|follow|come"), ("tanzen", r"t
 WER_BIST_DU = re.compile(r"\b(wie hei(ß|ss)t du|wer bist du|dein name|what(?:'| i)s your name|who are you)\b", re.I)
 
 
+def spiel_befehl(low: str, wb: Any) -> dict[str, Any] | None:
+    """„Lass uns Tic-Tac-Toe spielen“, „Feld 5“, „Spiel beenden“ (seit 0.38.54)."""
+    if re.search(r"tic.?tac.?toe|drei gewinnt|noughts", low):
+        return {"aktion": "ende"} if re.search(r"\b(beend|stopp|aufhör|end|quit)", low) else {"aktion": "start"}
+    if getattr(wb, "spiel", None) is None:
+        return None
+    m = re.search(r"\b(?:feld|field|square)\s*(\d)\b", low)
+    if m:
+        return {"aktion": "zug", "feld": int(m.group(1))}
+    if re.search(r"spiel\w* (beend|stopp|aus)|\bgenug gespielt|\bend the game", low):
+        return {"aktion": "ende"}
+    return None
+
+
+def werkbank_befehl(low: str, wb: Any) -> dict[str, Any] | None:
+    """Kurze Befehle für den Arm → Argumente fürs Werkzeug „auftrag“ (None: kein Werkbank-Befehl)."""
+    for en, de in (("red", "rot"), ("blue", "blau"), ("yellow", "gelb"), ("green", "grün"), ("orange", "orang")):
+        low = re.sub(rf"\b{en}\b", de, low)
+    if re.search(r"\bsortier|\bsort\b", low):
+        return {"auftrag": "sortieren"}
+    if re.search(r"\bturm\b|\bstapel|\btower\b|\bstack\b", low) and not re.search(r"\bauf (den|dem|die)\b", low):
+        return {"auftrag": "turm"}
+    if re.search(r"räum\w* .*auf|\baufräum|\baufraeum|tidy up|clean up", low):
+        return {"auftrag": "aufraeumen"}
+    farben = [w for w in re.findall(r"\w+", low) if any(w.startswith(d["name"].split()[0][:-2].lower()) for d in wb.dinge)]
+    if not re.search(r"\b(leg|stell|pack|tu|setz|put|place)\w*\b", low) or not farben:
+        return None
+    ding = next(d["name"] for d in wb.dinge if farben[0].startswith(d["name"].split()[0][:-2].lower()))
+    if "link" in low or "left" in low:
+        ziel = "linke Kiste"
+    elif "recht" in low or "right" in low:
+        ziel = "rechte Kiste"
+    elif re.search(r"\bauf (den|dem|die)\b|\bon top of\b|\bonto\b", low) and len(farben) > 1:
+        ziel = "auf " + next(d["name"] for d in wb.dinge if farben[1].startswith(d["name"].split()[0][:-2].lower()))
+    elif re.search(r"zurück|zurueck|platz|\bback\b", low):
+        ziel = "platz"
+    else:
+        return None
+    return {"schritte": [{"ding": ding, "ziel": ziel}]}
+
+
 class FallbackBrain:
     def __init__(self, runner: "ToolRunner", name=None) -> None:
         self.runner = runner
@@ -448,6 +489,15 @@ class FallbackBrain:
         if WER_BIST_DU.search(low):
             name = self.name() or "Quacki"
             return Reply(f"I'm {name}." if _en() else f"Ich bin {name}.", [], "einfach")
+        # Arm an der Werkbank (seit 0.38.54): „sortier die Würfel“, „räum auf“, „bau einen Turm“, „leg den roten in die
+        # linke Kiste“ – auch ohne Sprachmodell
+        if hasattr(eng.backend, "auftrag_starten"):
+            spiel = spiel_befehl(low, eng.backend.werkbank)
+            arm = werkbank_befehl(low, eng.backend.werkbank) if spiel is None else None
+            if spiel is not None or arm is not None:
+                r = await self.runner.run("tictactoe", spiel) if spiel is not None else await self.runner.run("auftrag", arm)
+                text_ok = r.get("info") or "mach ich"
+                return Reply(text_ok if r.get("ok") else r.get("fehler", "geht gerade nicht"), [], "einfach")
         # Goofy-Modus per Sprache
         if GOOFY_OFF.search(low):
             r = await self.runner.run("set_goofy", {"an": False})

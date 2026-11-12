@@ -9,6 +9,29 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.54 – 2026-11-12 – Ari räumt auf, sortiert, baut Türme und spielt Tic-Tac-Toe
+
+### Neu
+- **Aufträge an der Werkbank** (Wunsch des Maintainers nach Anwendungen, wie sie die SO-101-Gemeinde zeigt):
+  „Sortieren“ (warme Farben in die linke Kiste, kalte in die rechte), „Turm bauen“ (drei Würfel, unten der blaue) und
+  „Aufräumen“ – als Knöpfe, im Chat und auch ohne Sprachmodell („sortier die Würfel“, „räum auf“, „leg den grünen auf
+  den blauen“). Ari führt die Griffe nacheinander aus, jeder wird geprüft; oben steht der Fortschritt („2/5“), am Ende
+  eine Meldung. Der Not-Aus, ein Stopp oder eine Geste von Hand beenden den Auftrag; solange er arbeitet, hält sich die
+  Eigeninitiative zurück (`werkbank_auftrag.py`).
+- **Zwei Würfel mehr** (grün, orange) und **Stapeln**: „auf den blauen Würfel“, im Menü „Darauf stellen“. Höchstens
+  drei hoch – höher reicht der Arm nicht; wer oben liegt, muss zuerst runter.
+- **Tic-Tac-Toe mit Ari** (nach dem Vorbild „LeX-O“ aus dem LeRobot-Hackathon): Spielfeld auf der Werkbank, du klickst
+  ein Feld, Ari greift seinen Stein und setzt. Die Wahl des Feldes braucht kein Sprachmodell (gewinnen, verhindern,
+  Mitte, Ecke) – gut, aber zu schlagen (`backends/werkbank_spiel.py`).
+- **Aufträge zum Nachladen**: Eigene Aufträge („sortier rot nach links … merk dir das als Rot links“) werden gemerkt und
+  lassen sich als **Knowlet** packen, teilen und übernehmen – nur Daten mit bekannten Regeln, nie Code.
+
+### Geändert
+- Nah am Sockel trägt Ari flacher (die Spitze reicht dort nicht so hoch).
+
+### Nicht geprüft
+- Aufträge und Tic-Tac-Toe am echten SO-101 (nur Simulator).
+
 ## 0.38.53 – 2026-11-12 – Ari greift per Klick
 
 ### Behoben

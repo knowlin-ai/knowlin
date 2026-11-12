@@ -463,6 +463,10 @@ function posture(st) {
   if (st.fallen) return 'umgefallen';
   if (!st.powered) return st.skill === '_init' ? 'wacht auf' : 'ruht';
   if (st.skill) return SKILL_DE[st.skill] || st.skill;
+  const sp = st.werkbank?.spiel;                   // Tic-Tac-Toe (seit 0.38.54)
+  if (sp) return sp.ergebnis || (sp.dran === 'du' ? 'du bist dran' : 'Ari setzt');
+  const auf = st.werkbank?.auftrag;                // Arm bei der Arbeit (seit 0.38.54): „Aufräumen 2/6“
+  if (auf) return `${auf.titel} ${auf.erledigt}/${auf.gesamt}`;
   if (st.koerper === 'so101') return st.sitting ? 'Ruhelage' : 'bereit';   // Arm (0.38.47): sitzt und steht nicht
   if (st.sitting) return 'sitzt';
   const v = Math.hypot(st.twist.vx, st.twist.vy);
@@ -487,7 +491,7 @@ function gauge(el, label, v, max, text) {
   label.textContent = text;
 }
 
-let lastPosture = '';
+let lastPosture = '', lastEnde;           // lastEnde: Ende des letzten Auftrags (nicht beim Laden melden)
 let t0 = performance.now();
 function onState(msg) {
   const st = msg.state;
@@ -508,6 +512,10 @@ function onState(msg) {
   follow?.onState(msg.mensch);
   map.setLaser(msg.laser);
 
+  document.body.classList.toggle('spielt-ttt', !!st.werkbank?.spiel);
+  const ende = st.werkbank?.auftrag_ende;
+  if (ende && lastEnde !== undefined && ende !== lastEnde) toast(ende, ende.includes('abgebrochen'));
+  lastEnde = ende;
   const p = posture(st);
   if (p !== lastPosture) {
     $('posture').textContent = p;
@@ -684,8 +692,9 @@ function onAction(a) {
   const label = {
     sound: `Laut: ${a.input?.tag}`, get_status: 'schaut nach dem Zustand', stop: 'angehalten',
     power: POWER[a.input?.action], wait: 'wartet, bis die Bewegung fertig ist', recall: 'schaut ins Gedächtnis',
+    szene: 'Szene zurückgesetzt',
   }[a.tool];
-  li.textContent = r.gestartet || (r.gemerkt && `merkt sich ${r.gemerkt}`) || (r.vergessen && `vergisst ${r.vergessen}`) || label || a.tool;
+  li.textContent = r.gestartet || (r.gemerkt && `merkt sich ${r.gemerkt}`) || (r.vergessen && `vergisst ${r.vergessen}`) || label || r.info || a.tool;
   if (r.ok === false) { li.classList.add('bad'); li.textContent += ` – ${r.fehler || r.grund || 'abgelehnt'}`; }
   else if (r.hinweis) li.textContent += ` (${r.hinweis})`;
   else if (r.grund) li.textContent += ` (${r.grund})`;

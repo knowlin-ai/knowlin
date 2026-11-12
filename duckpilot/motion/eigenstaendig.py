@@ -270,7 +270,7 @@ def sperre(engine: Any, *, haeufigkeit: Any, im_koerper: bool = True, ruhe: bool
         return "in Ruhe (Motoren aus)"
     if st.skill:
         return "eine gelernte Bewegung läuft"
-    if engine.busy():
+    if engine.busy() or bool(getattr(engine.backend, "beschaeftigt", lambda: False)()):   # Arm mitten im Auftrag (0.38.54)
         return "beschäftigt"
     if spiel:
         return "ein Spiel läuft"

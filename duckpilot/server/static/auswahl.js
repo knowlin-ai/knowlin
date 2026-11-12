@@ -96,6 +96,13 @@ export function initAuswahl({ $, api, el, scene, send, toast, stageEl }) {
           .catch((e) => toast(e.message, true));
         return;
       }
+      if (p && p.art === 'feld') {               // Tic-Tac-Toe (seit 0.38.54): Klick aufs Feld = dein Zug
+        zu();
+        api('/api/handeln', 'POST', { ding: p.name, aktion: 'setzen' })
+          .then((r) => { if (r && r.ok === false) toast(r.fehler || tr('Geht gerade nicht'), true); })
+          .catch((e) => toast(e.message, true));
+        return;
+      }
       if (p && p.name) waehle(p, x, y);
       else leeren();
     },

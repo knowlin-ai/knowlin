@@ -534,7 +534,8 @@ BRAUCHT_EIGENSCHAFT = {"explore": {"tiefensensor"}, "karte": {"tiefensensor"}, "
                        "team": {"schnabel"}, "kopf_ruhig": {"beine"}, "sound": {"stimmbank"}, "arm": {"arm"},
                        # seit 0.38.47: ein Arm ohne Kopf (SO-101) bekommt keine Kopf-Werkzeuge
                        "head": {"kopf"}, "look_around": {"kopf"}, "emote": {"kopf"}, "dance": {"kopf"},
-                       "choreo": {"kopf"}, "choreography": {"kopf"}}
+                       "choreo": {"kopf"}, "choreography": {"kopf"}, "auftrag": {"greifer"},   # Werkbank-Aufträge (0.38.54)
+                       "tictactoe": {"greifer"}}
 # Drehen geht mit Beinen, Rädern oder einem drehbaren Körper (Reachy) – irgendeins davon reicht
 DREHEN = {"beine", "raeder", "koerperdrehung"}
 BRAUCHT_SKILL = {"schiessen": ("kick_left", "kick_right"), "apportieren": ("ground_pick",), "team": ("ground_pick",)}
@@ -745,6 +746,10 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
                 result = await self._arm(args or {})
             elif name in ("greifen", "ablegen"):
                 result = await self._werkbank(name, args or {})
+            elif name == "auftrag":
+                result = await self._auftrag(args or {})
+            elif name == "tictactoe":
+                result = await self._tictactoe(args or {})
             elif name == "bewegung_ueben":
                 result = await self._practice(args or {})
             elif name == "training_auswerten" and self.trainer is not None:

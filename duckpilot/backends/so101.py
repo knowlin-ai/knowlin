@@ -16,9 +16,11 @@ from typing import Any
 
 from .. import arm as A
 from ..api import DuckState, Head, IntentResult, Perception, Pose, Twist
+from ..werkbank_auftrag import planen, pruefen
 from .sim import SimBackend
 from .tischplatz import TischPlatz
 from .werkbank import OFFEN_LAESST_FALLEN, SOCKEL_VOR_KANTE, WERKBANK, Werkbank
+from .werkbank_spiel import TicTacToe
 from .world import Box
 
 EIGENSCHAFTEN = frozenset({"arm", "greifer", "simulator", "zuruecksetzen"})
@@ -43,6 +45,8 @@ class So101Sim(TischPlatz, SimBackend):
         self._bei_ankunft: str | None = None
         self.geste_name: str | None = None
         self.werkbank = Werkbank()
+        self.auftrag: dict[str, Any] | None = None      # Aufräumen, Sortieren, Turm … (seit 0.38.54)
+        self.auftrag_ende: str | None = None
         if not any(b.name == WERKBANK["name"] for b in self.world_model.boxes):
             self.world_model.boxes.append(Box(**{k: WERKBANK[k] for k in ("name", "x", "y", "sx", "sy", "h", "color")}))
         self.sitting = True                                             # beginnt in der Ruhelage, Motoren aus
@@ -105,6 +109,8 @@ class So101Sim(TischPlatz, SimBackend):
             self._bei_ankunft = aktion
         else:
             self.geste_name = None
+            if self.auftrag is not None:
+                self._auftrag_weiter()
 
     def _step_base(self, dt: float) -> None:
         self.applied = Twist()                                          # steht fest
@@ -118,6 +124,7 @@ class So101Sim(TischPlatz, SimBackend):
 
     async def haltung(self, gelenke: dict[str, Any], sekunden: float = 1.0) -> IntentResult:
         """Gelenke in Grad (Namen wie in `arm.GELENKE`, auch deutsch) in `sekunden` anfahren."""
+        self._auftrag_abbrechen("eine Haltung von Hand")
         if not self.powered:
             return IntentResult(False, "Motoren sind aus – erst aufwecken")
         ziel, unbekannt = A.begrenzen(gelenke)
@@ -129,6 +136,7 @@ class So101Sim(TischPlatz, SimBackend):
         return IntentResult(True, f"fährt {len(ziel)} Gelenke in {self._dauer:.1f} s an")
 
     async def geste(self, name: str) -> IntentResult:
+        self._auftrag_abbrechen("eine Geste")
         if name not in A.GESTEN:
             return IntentResult(False, f"Geste unbekannt – bekannt: {', '.join(A.GESTEN)}")
         if not self.powered:
@@ -145,6 +153,7 @@ class So101Sim(TischPlatz, SimBackend):
 
     # ── Greifen und Ablegen an der Werkbank (seit 0.38.48) ───────────────
     async def greifen(self, ding: str) -> IntentResult:
+        self._auftrag_abbrechen("Greifen von Hand")
         if not self.powered:
             return IntentResult(False, "Motoren sind aus – erst aufwecken")
         plan, grund = self.werkbank.greifen_plan(ding)
@@ -153,9 +162,10 @@ class So101Sim(TischPlatz, SimBackend):
         self.sitting = False
         self._folgen(plan, "greifen")
         d = self.werkbank.ding(ding)
-        return IntentResult(True, f"greift {d['name'] if d else ding} ({sum(s for _, s, _ in plan):.1f} s)")
+        return IntentResult(True, f"greift {d.get('akk') or d['name'] if d else ding} ({sum(s for _, s, _ in plan):.1f} s)")
 
     async def ablegen(self, ziel: str) -> IntentResult:
+        self._auftrag_abbrechen("Ablegen von Hand")
         if not self.powered:
             return IntentResult(False, "Motoren sind aus – erst aufwecken")
         plan, grund = self.werkbank.ablegen_plan(ziel)
@@ -164,6 +174,85 @@ class So101Sim(TischPlatz, SimBackend):
         self.sitting = False
         self._folgen(plan, "ablegen")
         return IntentResult(True, f"legt {self.werkbank.haelt} ab ({sum(s for _, s, _ in plan):.1f} s)")
+
+    # ── Aufträge: mehrere Griffe nacheinander (seit 0.38.54, `werkbank_auftrag.py`) ──────────
+    async def auftrag_starten(self, auftrag: dict[str, Any]) -> IntentResult:
+        geprueft, grund = pruefen(auftrag)
+        if geprueft is None:
+            return IntentResult(False, grund)
+        if not self.powered:
+            return IntentResult(False, "Motoren sind aus – erst aufwecken")
+        if self.werkbank.spiel is not None and geprueft["titel"] != "Tic-Tac-Toe":
+            return IntentResult(False, "Gerade läuft Tic-Tac-Toe – erst „Spiel beenden“.")
+        schritte, grund = planen(geprueft, self.werkbank)
+        if not schritte:
+            return IntentResult(False, grund)
+        self._auftrag_abbrechen("ein neuer Auftrag")
+        self._folge, self.geste_name, self._bei_ankunft = [], None, None
+        griffe = sum(1 for art, _ in schritte if art == "greifen")
+        self.auftrag = {"titel": geprueft["titel"], "schritte": schritte, "griffe": griffe}
+        self.auftrag_ende = None
+        self.sitting = False
+        self._dauer = self._zeit = 0.0                                  # gleich im nächsten Takt beginnen
+        return IntentResult(True, f"{geprueft['titel']}: {griffe} {'Griff' if griffe == 1 else 'Griffe'}")
+
+    def _auftrag_weiter(self) -> None:
+        a = self.auftrag
+        if a is None:
+            return
+        if not a["schritte"]:
+            self.auftrag, self.auftrag_ende = None, f"{a['titel']} – fertig"
+            if a.get("spiel_feld") and self.werkbank.spiel is not None:          # Aris Zug ist gesetzt
+                self.auftrag_ende = self.werkbank.spiel.ari_gesetzt(a["spiel_feld"], True)
+            return
+        art, ziel = a["schritte"].pop(0)
+        plan, grund = (self.werkbank.greifen_plan(ziel) if art == "greifen" else self.werkbank.ablegen_plan(ziel))
+        if plan is None:
+            self.auftrag, self.auftrag_ende = None, f"{a['titel']} abgebrochen – {grund}"
+            if a.get("spiel_feld") and self.werkbank.spiel is not None:
+                self.werkbank.spiel.ari_gesetzt(a["spiel_feld"], False)
+            return
+        self._folgen(plan, art)
+
+    def _auftrag_abbrechen(self, wodurch: str) -> None:
+        if self.auftrag is not None:
+            self.auftrag_ende = f"{self.auftrag['titel']} abgebrochen ({wodurch})"
+            if self.auftrag.get("spiel_feld") and self.werkbank.spiel is not None:
+                self.werkbank.spiel.ari_gesetzt(self.auftrag["spiel_feld"], False)
+            self.auftrag = None
+
+    # ── Tic-Tac-Toe (seit 0.38.54, `werkbank_spiel.py`) ──────────────────
+    async def spiel_aktion(self, aktion: str, feld: int | None = None) -> IntentResult:
+        if aktion == "start":
+            self._auftrag_abbrechen("ein neues Spiel")
+            self.werkbank.zuruecksetzen()
+            self.werkbank.spiel = TicTacToe(self.werkbank)
+            self.auftrag_ende = None
+            return IntentResult(True, "Tic-Tac-Toe: du fängst an – klick ein Feld oder sag „Feld 5“.")
+        if aktion == "ende":
+            self._auftrag_abbrechen("Spiel beendet")
+            self.werkbank.zuruecksetzen()
+            return IntentResult(True, "Spiel beendet, die Werkbank ist wieder aufgeräumt.")
+        spiel = self.werkbank.spiel
+        if spiel is None:
+            return IntentResult(False, "Es läuft kein Spiel – erst „Tic-Tac-Toe“ starten.")
+        if not self.powered:
+            return IntentResult(False, "Motoren sind aus – erst aufwecken")
+        nr_ari, text = spiel.zug_mensch(int(feld or 0))
+        if nr_ari is None:
+            return IntentResult(spiel.ergebnis is not None, text)
+        stein = spiel.stein_fuer_ari()
+        r = await self.auftrag_starten({"titel": "Tic-Tac-Toe", "regel": "schritte",
+                                        "schritte": [{"ding": stein, "ziel": f"Feld {nr_ari}"}]})
+        if not r.accepted:
+            spiel.ari_gesetzt(nr_ari, False)
+            return IntentResult(False, r.reason)
+        self.auftrag["spiel_feld"] = nr_ari
+        return IntentResult(True, f"{text} Ari überlegt …")
+
+    def beschaeftigt(self) -> bool:
+        """Für die Eigeninitiative: Der Arm arbeitet gerade (Auftrag oder Bewegung)."""
+        return self.auftrag is not None or bool(self._folge) or self._zeit < self._dauer
 
     # ── Intents, die ein Arm nicht hat ───────────────────────────────────
     async def move(self, twist: Twist) -> None:
@@ -208,6 +297,7 @@ class So101Sim(TischPlatz, SimBackend):
         return IntentResult(True, "legt sich in die Ruhelage")
 
     async def stop(self) -> IntentResult:
+        self._auftrag_abbrechen("Stopp")
         self._folge, self.geste_name, self._bei_ankunft = [], None, None
         self._von = self._ziel = dict(self.gelenke)
         self._dauer = self._zeit = 0.0
@@ -217,6 +307,7 @@ class So101Sim(TischPlatz, SimBackend):
     def lahm(self) -> None:
         """Not-Aus: Motoren sofort aus; ohne Kraft sackt der Arm in die Ruhelage (nur fürs Bild)."""
         self.powered = self.enabled = False
+        self._auftrag_abbrechen("Not-Aus")
         self._folge, self.geste_name, self._bei_ankunft = [], None, None
         self.werkbank.fallen_lassen(self.gelenke)                      # ohne Kraft hält der Greifer nichts
         self._anfahren(A.POSEN["ruhe"], SACKEN_S)
@@ -239,5 +330,8 @@ class So101Sim(TischPlatz, SimBackend):
         st.skill = None                                                 # Gesten sind keine Skills (keine Anzeige „geste:…“)
         st.stand_z, st.standflaeche = round(self.stand_z, 4), self.standflaeche
         st.holding = self.werkbank.haelt
-        st.werkbank = self.werkbank.als_dict()
+        st.werkbank = {**self.werkbank.als_dict(), "auftrag_ende": self.auftrag_ende,
+                       "auftrag": None if self.auftrag is None else {          # gezählt in Griffen: „2/5“
+                           "titel": self.auftrag["titel"], "gesamt": self.auftrag["griffe"],
+                           "erledigt": self.auftrag["griffe"] - sum(1 for s in self.auftrag["schritte"] if s[0] == "greifen")}}
         return st

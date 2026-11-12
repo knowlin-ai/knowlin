@@ -48,8 +48,34 @@ GREIFEN_TOOL = {
 }
 ABLEGEN_TOOL = {
     "name": "ablegen",
-    "description": "Was der Greifer hält, ablegen: in eine Kiste ({kisten}) oder „Platz“ = zurück an seinen Platz.",
+    "description": "Was der Greifer hält, ablegen: in eine Kiste ({kisten}), „Platz“ = zurück an seinen Platz, oder auf "
+                   "einen anderen Würfel („auf blauer Würfel“, stapeln – höchstens drei hoch).",
     "input_schema": {"type": "object", "properties": {"ziel": {"type": "string"}}, "required": ["ziel"]},
+}
+
+
+AUFTRAG_TOOL = {
+    "name": "auftrag",
+    "description": "Mehrere Griffe nacheinander an der Werkbank (seit 0.38.54). Entweder ein fertiger Auftrag: {auftraege}. "
+                   "Oder eigene Schritte: Liste von {{ding, ziel}} (Ziel: Kiste, „Platz“ oder „auf <Würfel>“), oder eine "
+                   "eigene Farbregel mit links/rechts (Farben je Kiste). Mit merken_als (Titel) merkt Knowlin den Auftrag "
+                   "und kann ihn als Knowlet teilen. Läuft im Hintergrund; jede Bewegung wird geprüft, der Not-Aus beendet ihn.",
+    "input_schema": {"type": "object", "properties": {
+        "auftrag": {"type": "string"}, "merken_als": {"type": "string"},
+        "links": {"type": "array", "items": {"type": "string"}}, "rechts": {"type": "array", "items": {"type": "string"}},
+        "schritte": {"type": "array", "items": {"type": "object", "properties": {
+            "ding": {"type": "string"}, "ziel": {"type": "string"}}, "required": ["ding", "ziel"]}}}},
+}
+
+
+TICTACTOE_TOOL = {
+    "name": "tictactoe",
+    "description": "Tic-Tac-Toe mit dem Menschen an der Werkbank (seit 0.38.54): aktion „start“ (neues Spiel, der Mensch "
+                   "fängt an), „zug“ mit feld 1–9 (der Zug des Menschen: 1 2 3 hinten bei dir, 7 8 9 vorn beim Menschen; "
+                   "danach setzt du selbst), „ende“. Dein Feld wählt das Spiel – du kommentierst nur.",
+    "input_schema": {"type": "object", "properties": {"aktion": {"type": "string", "enum": ["start", "zug", "ende"]},
+                                                      "feld": {"type": "integer", "minimum": 1, "maximum": 9}},
+                     "required": ["aktion"]},
 }
 
 
@@ -59,8 +85,17 @@ def werkbank_werkzeuge(be: Any) -> list[dict[str, Any]]:
     if wb is None or not hasattr(be, "greifen"):
         return []
     n = wb.namen()
-    return [{**GREIFEN_TOOL, "description": GREIFEN_TOOL["description"].replace("{dinge}", ", ".join(n["dinge"]))},
-            {**ABLEGEN_TOOL, "description": ABLEGEN_TOOL["description"].replace("{kisten}", ", ".join(n["kisten"]))}]
+    from ..werkbank_auftrag import alle
+
+    liste = "; ".join(f"{k} ({v['titel']}: {v['beschreibung']})" for k, v in alle().items())
+    werkzeuge = [{**GREIFEN_TOOL, "description": GREIFEN_TOOL["description"].replace("{dinge}", ", ".join(n["dinge"]))},
+                 {**ABLEGEN_TOOL, "description": ABLEGEN_TOOL["description"].replace("{kisten}", ", ".join(n["kisten"]))}]
+    if hasattr(be, "spiel_aktion"):
+        werkzeuge.append(TICTACTOE_TOOL)
+    if hasattr(be, "auftrag_starten"):
+        werkzeuge.append({**AUFTRAG_TOOL, "description": AUFTRAG_TOOL["description"].replace("{auftraege}", liste)
+                          .replace("{{", "{").replace("}}", "}")})
+    return werkzeuge
 
 
 class AbsichtWerkzeuge:
@@ -115,6 +150,46 @@ class AbsichtWerkzeuge:
             if not gelenke:
                 return {"ok": False, "fehler": "geste, haltung oder gelenke angeben"}
             r = await be.haltung(gelenke, float(a.get("sekunden") or 1.0))
+        return {"ok": bool(r.accepted), "info" if r.accepted else "fehler": r.reason}
+
+    async def _auftrag(self, a: dict[str, Any]) -> dict[str, Any]:
+        """Ein Auftrag an der Werkbank (seit 0.38.54): fertiger Name oder eigene Schritte."""
+        from ..werkbank_auftrag import alle
+
+        be = self.engine.backend
+        if bool(getattr(self.engine, "notaus_gesperrt", lambda: False)()):
+            return {"ok": False, "fehler": "Nach dem Not-Aus bleibe ich still, bis die Sperre um ist."}
+        if not hasattr(be, "auftrag_starten"):
+            return {"ok": False, "fehler": "Dieser Körper hat keine Werkbank."}
+        titel = str(a.get("merken_als") or "").strip() or "Eigener Auftrag"
+        if a.get("schritte"):
+            auftrag = {"titel": titel, "regel": "schritte", "schritte": a["schritte"]}
+        elif a.get("links") or a.get("rechts"):
+            auftrag = {"titel": titel, "regel": "farbe", "links": a.get("links") or [], "rechts": a.get("rechts") or []}
+        else:
+            auftrag = alle().get(str(a.get("auftrag") or "").strip().lower())
+            if auftrag is None:
+                return {"ok": False, "fehler": f"Kenne diesen Auftrag nicht – bekannt: {', '.join(alle())}."}
+        gemerkt = ""
+        if a.get("merken_als"):
+            from ..werkbank_auftrag import speichern
+
+            k, grund = speichern(auftrag)
+            gemerkt = f" Gemerkt als „{k}“." if k else f" Merken ging nicht: {grund}"
+        r = await be.auftrag_starten(auftrag)
+        return {"ok": bool(r.accepted), "info" if r.accepted else "fehler": (r.reason or "") + gemerkt}
+
+    async def _tictactoe(self, a: dict[str, Any]) -> dict[str, Any]:
+        be = self.engine.backend
+        if bool(getattr(self.engine, "notaus_gesperrt", lambda: False)()):
+            return {"ok": False, "fehler": "Nach dem Not-Aus bleibe ich still, bis die Sperre um ist."}
+        if not hasattr(be, "spiel_aktion"):
+            return {"ok": False, "fehler": "Dieser Körper hat keine Werkbank."}
+        try:
+            feld = int(a.get("feld") or 0)
+        except (TypeError, ValueError):
+            feld = 0
+        r = await be.spiel_aktion(str(a.get("aktion") or "start"), feld)
         return {"ok": bool(r.accepted), "info" if r.accepted else "fehler": r.reason}
 
     async def _werkbank(self, name: str, a: dict[str, Any]) -> dict[str, Any]:

@@ -71,7 +71,7 @@ def test_wuerfel_in_die_kiste_und_zurueck():
         assert (await sim.ablegen("Platz")).accepted                   # … und an seinen Platz
         _laufen(sim, 4.5)
         assert rot["in"] is None and [rot["x"], rot["y"]] == rot["start"]
-        nein = await sim.greifen("grüner Würfel")
+        nein = await sim.greifen("lila Würfel")                       # seit 0.38.54 gibt es einen grünen
         assert not nein.accepted and "roter Würfel" in nein.reason
         assert not (await sim.ablegen("linke Kiste")).accepted         # hält nichts
         assert sim.state().werkbank["kisten"][0]["name"] == "linke Kiste"
@@ -168,7 +168,8 @@ def test_wuerfel_und_kisten_anklicken():
         ids = [a["id"] for a in H.werkbank_aktionen(rot, sim)]
         assert ids[0] == "platz" and "hineinlegen:linke Kiste" in ids
         assert [a["id"] for a in H.werkbank_aktionen(links, sim)] == ["hineinlegen"]
-        assert H.werkbank_aktionen(H.ding_finden("blauer Würfel", sim), sim) == []   # erst ablegen
+        blau = [a["id"] for a in H.werkbank_aktionen(H.ding_finden("blauer Würfel", sim), sim)]
+        assert blau == ["stapeln"]                                      # nicht greifen, aber darauf stellen (0.38.54)
         assert H.werkbank_werkzeug(links, "hineinlegen") == ("ablegen", {"ziel": "linke Kiste"})
         assert H.werkbank_werkzeug(rot, "hineinlegen:rechte Kiste") == ("ablegen", {"ziel": "rechte Kiste"})
     asyncio.run(go())

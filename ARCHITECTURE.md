@@ -29,6 +29,8 @@ Körper   backends/sim.py (einfach)  backends/physics.py (MuJoCo + Pollens Polic
          backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
          arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)
          backends/werkbank.py (Werkbank des SO-101: Würfel, Kisten, Greifen und Ablegen, seit 0.38.48)
+         werkbank_auftrag.py (Aufträge als Daten: Regeln, Prüfung, eigene merken – Basis, seit 0.38.54)
+         backends/werkbank_spiel.py (Tic-Tac-Toe an der Werkbank, seit 0.38.54)
          gemeinsames Interface: api.py (DuckBackend, DuckState, Perception)
          Körperschnittstelle 1.0: koerper.py (Profile, Wortschatz, Erweiterungen per Entry Point „knowlin.koerper“),
          koerper_pruefung.py (Pflichten P1–P9) – Spezifikation docs/koerper-schnittstelle.md
@@ -242,6 +244,13 @@ Wechsel des #-Teils lädt die Seite nicht); die 3D-Ansicht wird angehalten, weil
   davor drei Würfel und zwei offene Kisten im Sockelrahmen. `greifen`/`ablegen` rechnen mit `arm_kinematik.greifhaltung`
   (von oben, gedämpfte kleinste Quadrate); außer Reichweite → ehrliches Nein. Geht der Greifer auf oder kommt der
   Not-Aus, fällt das Gehaltene unter die Spitze (Kiste oder Werkbank). Zustand `werkbank` in `DuckState`.
+- **Aufträge und Spiel an der Werkbank** (seit 0.38.54): `werkbank_auftrag.py` (Basis) – ein Auftrag ist nur Daten
+  (Titel + bekannte Regel `zurueck`/`farbe`/`turm`/`schritte`), `pruefen` nimmt nichts anderes an; `planen` macht daraus
+  Griffe für den aktuellen Stand. `So101Sim.auftrag_starten` arbeitet sie einzeln ab (jeder Plan geprüft); Not-Aus,
+  Stopp, Geste oder Griff von Hand beenden den Auftrag, `beschaeftigt()` hält die Eigeninitiative zurück. Eigene
+  Aufträge liegen in `auftraege.json` im Datenordner und reisen in Knowlets (`auftraege/*.json`). Stapeln höchstens
+  drei hoch (`HOECHSTER_STAPEL`). Tic-Tac-Toe in `backends/werkbank_spiel.py`: Felder auf der Werkbank, die Wahl
+  des Feldes ohne Sprachmodell; Aris Zug ist ein Auftrag mit `spiel_feld`.
 - **Rückblick** (seit 0.38.45, Etappe G4): `rueckblick.py` – nach 10 min ohne Kontakt höchstens stündlich Lehren aus der
   Gedankenspur (oft nicht geklappt → seltener, oft gelungen → „mag …“), je Verkörperung in `rueckblick.json`. Wirkt nur
   als Faktor 0,3 … 1,5 auf die Gewichte, betrifft nie Personen, wird nicht erzählt. `/api/rueckblick` (ändern nur am PC);

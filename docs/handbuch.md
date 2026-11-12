@@ -113,11 +113,21 @@ Jeder Körper beschreibt sich mit einem **Profil** – was er kann, aus einem fe
 **Sicherheitspflichten** bestehen (Not-Aus macht stromlos, ohne Strom bewegt sich nichts, Stopp hält an, Grenzen).
 Prüfen: `python -m duckpilot.koerper_pruefung [id]`. Spezifikation: [Körperschnittstelle](koerper-schnittstelle.md).
 
-- **SO-101 im Simulator** (seit 0.38.47): Einstellungen → Körper → „SO-101“. Ein Arm mit Greifer namens Ari, der an
-  seiner eigenen Werkbank steht (seit 0.38.48) – davor drei Würfel und zwei Kisten. Mit einem Sprachmodell: „Leg den
-  roten Würfel in die linke Kiste“; was er nicht erreicht, sagt er. Er grüßt mit Winken statt Nicken, freut sich mit dem Greifer und sagt ehrlich, was er anders
-  macht. Schnellknöpfe im Cockpit: Aufwecken, Ruhelage, Winken, Freuen, Umsehen. Der Not-Aus lässt ihn in die Ruhelage
-  sacken. Am echten Arm läuft er über LeRobot (`so101_follower`, noch ungeprüft).
+- **SO-101 im Simulator** (seit 0.38.47): Startseite → Kachel „SO-101“ (oder Einstellungen → Körper). Ein Arm mit
+  Greifer namens Ari, der an seiner eigenen Werkbank steht – davor fünf Würfel (rot, orange, gelb, grün, blau) und zwei
+  Kisten. „Leg den roten Würfel in die linke Kiste“ oder „leg den grünen auf den blauen“ geht auch ohne Sprachmodell;
+  was er nicht erreicht, sagt er. Würfel und Kisten lassen sich **anklicken** (Greifen, Hineinlegen, Darauf stellen).
+  Er grüßt mit Winken statt Nicken, freut sich mit dem Greifer und sagt ehrlich, was er anders macht. Der Not-Aus lässt
+  ihn in die Ruhelage sacken und beendet jeden Auftrag. Am echten Arm läuft er über LeRobot (`so101_follower`, noch
+  ungeprüft).
+  - **Aufträge** (seit 0.38.54, nach Anwendungen aus der SO-101-Gemeinde): Knöpfe „Sortieren“ (warme Farben links,
+    kalte rechts), „Turm bauen“ (höchstens drei hoch – höher reicht der Arm nicht) und „Aufräumen“. Oben steht, wie weit
+    er ist („Nach Farben sortieren 2/5“). Mit Sprachmodell gehen eigene Regeln („sortier rot nach links, den Rest nach
+    rechts“); mit „merk dir das als …“ wird daraus ein eigener Auftrag. Aufträge sind nur Daten und lassen sich als
+    **Knowlet** teilen und laden (Tricks → Knowlets → „Aufträge an der Werkbank“).
+  - **Tic-Tac-Toe** (seit 0.38.54, nach dem Vorbild „LeX-O“): Knopf „Tic-Tac-Toe“ oder „lass uns Tic-Tac-Toe spielen“.
+    Du fängst an und klickst ein Feld (oder sagst „Feld 5“), dein roter Stein erscheint; dann greift Ari einen seiner
+    blauen Steine und setzt. „Spiel beenden“ räumt die Werkbank wieder auf.
 - **LeRobot-Roboter** (SO-101, LeKiwi, Koch …): eingebaut als Körper `lerobot`. Was er kann (Arm, Greifer, Räder,
   Kamera), liest Knowlin aus dem Roboter selbst; der Not-Aus schaltet das Drehmoment ab. Einrichten vorerst in der
   Einstellungsdatei: `modul = "lerobot"`, `backend = "robotd"`, `koerper_optionen = {typ = "so101_follower",
