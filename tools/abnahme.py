@@ -200,7 +200,8 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
     if not page.url.startswith(base):
         oeffnen(page, base)                                     # einstellen() braucht die eigene Herkunft
     for sprache in ("de", "en"):
-        for modul, name in (("duckpilot", "Microduck"), ("reachy_mini", "Reachy Mini"), ("open_duck_mini", "Open Duck")):
+        for modul, name in (("duckpilot", "Microduck"), ("reachy_mini", "Reachy Mini"), ("open_duck_mini", "Open Duck"),
+                            ("so101", "SO-101")):                # Arm seit 0.38.47 (G5)
             einstellen(page, {"modul": modul, "backend": "sim", "sim_physik": False, "sprache": sprache})
             oeffnen(page, base)                                 # Startseite; showView einer Körperseite weckt den Körper
             reihen = [("Körper", KOERPER_ANSICHTEN)] + ([("Knowlin", KOPF_ANSICHTEN)] if modul == "duckpilot" else [])
@@ -217,13 +218,15 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
                     page.wait_for_timeout(800)
                     ruhig(page)
                     if v == "cockpit" and wo == "Körper":
-                        klasse = {"duckpilot": "microduck", "reachy_mini": "reachy", "open_duck_mini": "open-duck"}[modul]
+                        klasse = {"duckpilot": "microduck", "reachy_mini": "reachy", "open_duck_mini": "open-duck",
+                                  "so101": "so101"}[modul]
                         b.pruefe(f"Inhalte: Körper {name} ist geladen ({sprache})",
                                  page.evaluate("k => document.body.classList.contains('koerper-' + k)", klasse))
+                    keine_ente = modul in ("reachy_mini", "so101") and wo == "Körper"
                     funde += [f"{v}/{teil or ''}: {z[:80]}" for z in _verbotene_woerter(page.evaluate(SICHTBARER_TEXT),
-                                                                                       modul == "reachy_mini" and wo == "Körper")]
+                                                                                       keine_ente)]
                 titel = f"Inhalte {name if wo == 'Körper' else 'Knowlin (Kopf)'} ({sprache}): kein „duckpilot“" + \
-                    (", keine Enten-Wörter" if modul == "reachy_mini" and wo == "Körper" else "")
+                    (", keine Enten-Wörter" if modul in ("reachy_mini", "so101") and wo == "Körper" else "")
                 b.pruefe(titel, not funde, " · ".join(funde[:6]) + (f" (+{len(funde) - 6})" if len(funde) > 6 else ""))
     einstellen(page, {"modul": "duckpilot", "backend": "sim", "sim_physik": False, "sprache": "de"})
 

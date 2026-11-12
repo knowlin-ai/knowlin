@@ -12,6 +12,7 @@ import { boden, himmel, teppich, waende } from './raum3d.js';
 import { allesVerschmelzen, FARBEN } from './formen3d.js';
 import { sockeHaengen, sockeLegen, sockenForm } from './dinge3d.js';
 import { loadReachy, RealReachy } from './reachymodell.js';
+import { ladeArm, RealArm } from './arm3d.js';
 import { EffectComposer } from './vendor/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
 import { GTAOPass } from './vendor/jsm/postprocessing/GTAOPass.js';
@@ -991,10 +992,25 @@ export class Scene3D {
       if (!this.realReachy) this.ladeReachy();
       want = this.modelStyle === 'original' && this.realReachy ? this.realReachy : this.reachy || (this.reachy = new Reachy());
     }
+    if (this.koerper === 'so101') {
+      // SO-101 (seit 0.38.47, G5): offenes Modell (Apache-2.0) liegt bei Knowlin; bis es geladen ist, bleibt die Figur
+      if (!this.realArm) this.ladeArm();
+      if (this.realArm) want = this.realArm;
+    }
     if (want === this.duck) return;
     this.scene.remove(this.duck.root);
     this.duck = want;
     this.scene.add(this.duck.root);
+  }
+
+  ladeArm() {
+    if (this.realArm || this._ladeArm) return;
+    this._ladeArm = true;
+    ladeArm().then((m) => {
+      this.realArm = new RealArm(m);
+      if (this.koerper === 'so101') this._figurWaehlen();
+    }).catch((e) => console.info('SO-101-Modell nicht da:', e.message))
+      .finally(() => { this._ladeArm = false; });
   }
 
   ladeOpenDuck() {

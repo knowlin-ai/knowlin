@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from .. import aktionen as A
+from .. import arm as ARM
 from .. import koerper
 
 ABSICHT_TOOL = {
@@ -25,6 +26,18 @@ SELBSTBILD_TOOL = {
                    "Sperre nach dem Not-Aus, Akku, was du hältst). Nimm es, wenn jemand fragt, wie es dir geht oder was "
                    "du kannst, und antworte nur mit dem, was hier steht; was unter „unsicher“ steht, sag als unsicher.",
     "input_schema": {"type": "object", "properties": {}},
+}
+
+ARM_TOOL = {
+    "name": "arm",
+    "description": "Den Arm bewegen (SO-101 und andere Arme): eine Geste (" + ", ".join(ARM.GESTEN) + "), eine Haltung ("
+                   + ", ".join(ARM.POSEN) + ") oder einzelne Gelenke in Grad (" + ", ".join(ARM.GELENKE)
+                   + "; greifer 0 = zu … 100 = offen). Für Gefühle lieber „absicht“ nehmen.",
+    "input_schema": {"type": "object", "properties": {
+        "geste": {"type": "string", "enum": list(ARM.GESTEN)},
+        "haltung": {"type": "string", "enum": list(ARM.POSEN)},
+        "gelenke": {"type": "object", "additionalProperties": {"type": "number"}},
+        "sekunden": {"type": "number"}}},
 }
 
 
@@ -64,6 +77,23 @@ class AbsichtWerkzeuge:
                         ergebnis=f"stattdessen: {text}")
         else:
             spur.merken(f"wollte {absicht}", "gewünscht", quelle="gespraech", ergebnis=f"nicht getan: {text}")
+
+    async def _arm(self, a: dict[str, Any]) -> dict[str, Any]:
+        """Arm-Werkzeug (seit 0.38.47, G5). Nach dem Not-Aus bleibt der Arm still, bis die Sperre um ist."""
+        be = self.engine.backend
+        if bool(getattr(self.engine, "notaus_gesperrt", lambda: False)()):
+            return {"ok": False, "fehler": "Nach dem Not-Aus bleibe ich still, bis die Sperre um ist."}
+        if a.get("geste"):
+            geste = getattr(be, "geste", None)
+            if geste is None:
+                return {"ok": False, "fehler": "Gesten gibt es für diesen Arm noch nicht – nur einzelne Haltungen."}
+            r = await geste(str(a["geste"]))
+        else:
+            gelenke = dict(ARM.POSEN.get(str(a.get("haltung") or ""), {})) or dict(a.get("gelenke") or {})
+            if not gelenke:
+                return {"ok": False, "fehler": "geste, haltung oder gelenke angeben"}
+            r = await be.haltung(gelenke, float(a.get("sekunden") or 1.0))
+        return {"ok": bool(r.accepted), "info" if r.accepted else "fehler": r.reason}
 
     def _selbstbild(self) -> dict[str, Any]:
         st, faehig, lage = self._lage()

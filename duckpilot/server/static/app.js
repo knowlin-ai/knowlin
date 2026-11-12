@@ -234,7 +234,7 @@ function onInit(msg) {
   config = msg.config;
   // Der Verlauf geht über alle Körper weiter – sichtbar getrennt, wenn eine andere Verkörperung übernimmt (0.38.10)
   if (vorher && vorher !== `${config.modul}|${config.backend}` && $('log').querySelector('.msg')) {
-    const art = { duckpilot: 'Microduck', reachy_mini: 'Reachy Mini', open_duck_mini: 'Open Duck Mini v2' }[config.modul] || '';
+    const art = { duckpilot: 'Microduck', reachy_mini: 'Reachy Mini', open_duck_mini: 'Open Duck Mini v2', so101: 'SO-101' }[config.modul] || '';
     const t = `Jetzt in ${config.duck_name} · ${art} · ${config.backend === 'sim' ? 'Simulator' : 'echter Roboter'}`;
     $('log').append(el('p', 'msg-trenner', uebersetzeText(t) || t));
   }
@@ -463,6 +463,7 @@ function posture(st) {
   if (st.fallen) return 'umgefallen';
   if (!st.powered) return st.skill === '_init' ? 'wacht auf' : 'ruht';
   if (st.skill) return SKILL_DE[st.skill] || st.skill;
+  if (st.koerper === 'so101') return st.sitting ? 'Ruhelage' : 'bereit';   // Arm (0.38.47): sitzt und steht nicht
   if (st.sitting) return 'sitzt';
   const v = Math.hypot(st.twist.vx, st.twist.vy);
   if (v > 0.02) return 'läuft';
@@ -875,13 +876,15 @@ const HINTS_REACHY = {
   beobachten: '<b>Klick</b> hinschauen · <b>Doppelklick</b> hindrehen · <b>Ziehen</b> Kamera drehen · <kbd>A</kbd><kbd>D</kbd> drehen · <kbd>Esc</kbd> stoppt',
   entenblick: '<b>Ziehen</b> umschauen · <b>Klick</b> hinschauen · <kbd>A</kbd><kbd>D</kbd> drehen · <kbd>Esc</kbd> stoppt',
 };
+const HINTS_OHNE_KOPF = { beobachten: '<b>Ziehen</b> Kamera drehen · <kbd>Esc</kbd> stoppt', entenblick: '<kbd>Esc</kbd> stoppt' };
 const YAW_MAX = 1.05, PITCH_MAX = 0.65;
 function setStageMode(mode) {
   mode = mode === 'entenblick' ? 'entenblick' : 'beobachten';
   scene.setMode(mode);
   if (activePointer()) scene.controls.enabled = false;   // Laser oder Folg mir an: Ziehen bewegt den Zeiger
   for (const r of document.querySelectorAll('input[name="stage-mode"]')) r.checked = r.value === mode;
-  $('stage-hint').innerHTML = (config.modul === 'reachy_mini' ? HINTS_REACHY : HINTS)[mode];   // feste Texte, keine Fremddaten
+  const ohneKopf = config.eigenschaften && !config.eigenschaften.includes('kopf');      // Arm (0.38.47)
+  $('stage-hint').innerHTML = (ohneKopf ? HINTS_OHNE_KOPF : config.modul === 'reachy_mini' ? HINTS_REACHY : HINTS)[mode];   // feste Texte
   updatePov();
   document.querySelector('.view-cockpit .stage').classList.toggle('is-pov', mode === 'entenblick');
   remember('stageMode', mode);

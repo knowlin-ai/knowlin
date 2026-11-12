@@ -461,6 +461,8 @@ class MotionEngine:
 
         if ist_reachy(self.backend):
             return self._reachy_leerlauf()
+        if "kopf" not in self.backend.eigenschaften():         # ohne Kopf (SO-101) keine Kopf- und Entengesten
+            return None
         rep = REPERTOIRE.get(persona or self.persona) or {}
         legs_ok = st.backend == "sim" and not st.sitting        # am echten Roboter nie ungefragt losdrehen
         options: list[tuple[str, list[dict[str, Any]], bool, str]] = []

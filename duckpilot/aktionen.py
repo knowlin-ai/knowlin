@@ -10,6 +10,7 @@ Wortschatz der Körperschnittstelle (`duckpilot/koerper.py`). Der Körper antwor
 * **nein**   – mit Grund, den das Sprachmodell ehrlich weitersagt (keine passende Fähigkeit, liegt, Sperre nach dem
   Not-Aus, hochgehoben …).
 
+Seit 0.38.47 (G5) hat jede Aktion auch eine Umsetzung für Arme (`arm.GESTEN`) – der SO-101 grüßt mit Winken.
 Neue Aktionen sind Daten, kein Code. Das **Selbstbild** fasst zusammen, was der Körper ist, kann und gerade erlebt –
 damit „Wie geht's dir?“ aus Daten beantwortet wird statt erfunden.
 Diese Datei gehört zur Basis und importiert nichts aus Knowlin.
@@ -23,30 +24,40 @@ from typing import Any
 AKTIONEN: dict[str, dict[str, Any]] = {
     "gruessen": {"absicht": "jemanden bemerken und freundlich zeigen, dass man ihn sieht", "umsetzungen": [
         ({"kopf"}, "emote", {"emotion": "begruessen"}, "grüßt mit dem Kopf"),
+        ({"arm"}, "arm", {"geste": "winken"}, "winkt mit dem Arm"),
         ({"stimmbank"}, "sound", {"tag": "greet"}, "grüßt mit einem Laut")]},
     "zustimmen": {"absicht": "zeigen, dass man einverstanden ist", "umsetzungen": [
         ({"kopf"}, "emote", {"emotion": "nicken"}, "nickt"),
+        ({"arm"}, "arm", {"geste": "nicken"}, "nickt mit dem Greifer"),
         ({"stimmbank"}, "sound", {"tag": "chirp"}, "gibt einen zufriedenen Laut")]},
     "ablehnen": {"absicht": "freundlich zeigen, dass man etwas nicht möchte", "umsetzungen": [
-        ({"kopf"}, "emote", {"emotion": "nein"}, "schüttelt den Kopf")]},
+        ({"kopf"}, "emote", {"emotion": "nein"}, "schüttelt den Kopf"),
+        ({"arm"}, "arm", {"geste": "kopfschuetteln"}, "dreht den Greifer hin und her")]},
     "freuen": {"absicht": "Freude zeigen", "umsetzungen": [
         ({"beine", "kopf"}, "emote", {"emotion": "begeistert"}, "freut sich mit dem ganzen Körper"),
         ({"kopf"}, "emote", {"emotion": "freude"}, "freut sich mit dem Kopf"),
+        ({"arm"}, "arm", {"geste": "freuen"}, "reckt den Arm und klappert mit dem Greifer"),
         ({"stimmbank"}, "sound", {"tag": "wheee"}, "jauchzt kurz")]},
     "neugierig": {"absicht": "zeigen, dass einen etwas interessiert", "umsetzungen": [
-        ({"kopf"}, "emote", {"emotion": "neugierig"}, "legt neugierig den Kopf schief")]},
+        ({"kopf"}, "emote", {"emotion": "neugierig"}, "legt neugierig den Kopf schief"),
+        ({"arm"}, "arm", {"geste": "neugierig"}, "neigt den Greifer neugierig")]},
     "umsehen": {"absicht": "sich umschauen, was los ist", "umsetzungen": [
-        ({"kopf"}, "emote", {"emotion": "umherspaehen"}, "schaut sich um")]},
+        ({"kopf"}, "emote", {"emotion": "umherspaehen"}, "schaut sich um"),
+        ({"arm"}, "arm", {"geste": "umsehen"}, "schwenkt den Arm und schaut sich um")]},
     "aufmerksam_machen": {"absicht": "auf sich aufmerksam machen", "umsetzungen": [
         ({"beine", "kopf"}, "emote", {"emotion": "hibbeln"}, "hibbelt auf der Stelle"),
         ({"kopf"}, "emote", {"emotion": "aufhorchen"}, "reckt den Kopf"),
+        ({"arm"}, "arm", {"geste": "aufmerksam"}, "winkt mit dem ganzen Arm"),
         ({"stimmbank"}, "sound", {"tag": "greet"}, "ruft mit einem Laut")]},
     "traurig": {"absicht": "zeigen, dass einen etwas bedrückt", "umsetzungen": [
-        ({"kopf"}, "emote", {"emotion": "traurig"}, "lässt den Kopf hängen")]},
+        ({"kopf"}, "emote", {"emotion": "traurig"}, "lässt den Kopf hängen"),
+        ({"arm"}, "arm", {"geste": "traurig"}, "lässt den Arm sinken")]},
     "staunen": {"absicht": "Staunen zeigen", "umsetzungen": [
-        ({"kopf"}, "emote", {"emotion": "staunen"}, "staunt")]},
+        ({"kopf"}, "emote", {"emotion": "staunen"}, "staunt"),
+        ({"arm"}, "arm", {"geste": "staunen"}, "reißt den Arm hoch und öffnet den Greifer")]},
     "ausruhen": {"absicht": "zur Ruhe kommen", "umsetzungen": [
-        ({"kopf"}, "emote", {"emotion": "doesen"}, "döst kurz")]},
+        ({"kopf"}, "emote", {"emotion": "doesen"}, "döst kurz"),
+        ({"arm"}, "arm", {"geste": "ruhe"}, "legt den Arm in die Ruhelage")]},
 }
 
 # Was in jeder Lage geht, ohne den Körper zu belasten: nur der Kopf (z. B. hochgehoben)

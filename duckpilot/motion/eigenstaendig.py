@@ -136,9 +136,14 @@ def angebot(lage: Lage, energie: float, humor: float, rng: random.Random | None 
     add = out.append
 
     # Gesten des eigenen Charakters (Reachy: eigene Regungen mit Antennen, nie Entengesten)
-    add(Beschaeftigung("geste", "zeigt von sich aus eine kleine Geste", 1.0 + 0.4 * h))
-    add(Beschaeftigung("umschauen", "schaut sich von sich aus um", 0.8 + 0.5 * ruhig + neugier, "look_around",
-                       {"seconds": round(5 + 3 * ruhig, 1)}))
+    if "kopf" in eig:
+        add(Beschaeftigung("geste", "zeigt von sich aus eine kleine Geste", 1.0 + 0.4 * h))
+        add(Beschaeftigung("umschauen", "schaut sich von sich aus um", 0.8 + 0.5 * ruhig + neugier, "look_around",
+                           {"seconds": round(5 + 3 * ruhig, 1)}))
+    if "arm" in eig and not lage.sitzt:                    # Arm (SO-101, seit 0.38.47): eine kleine Armgeste
+        geste = rng.choice(("neugierig", "umsehen", "nicken", "freuen") if h >= 0.5 else ("neugierig", "umsehen"))
+        add(Beschaeftigung("armgeste", f"bewegt von sich aus den Arm ({geste})", 1.0 + 0.4 * h + neugier, "arm",
+                           {"geste": geste}))
     # Gelernte Tricks aus dem Gedächtnis (am echten Roboter nur solche ohne Laufen und Skills)
     if lage.tricks and not reachy:
         namen = [n for n, kf in lage.tricks.items() if not lage.echt or _trick_ohne_ort(kf)]

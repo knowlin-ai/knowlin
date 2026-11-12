@@ -25,6 +25,7 @@ STILLT = {
     "gefuehl": "naehe", "pollen": "naehe", "zuwenden": "naehe", "antennen": "naehe",
     "sitzen": "ruhe",
     "trick": "koennen", "tanzen": "koennen", "ball": "koennen", "laufen": "koennen", "aufstehen": "koennen",
+    "armgeste": "koennen",
 }
 # Zuwachs je Minute (0 … 1); Neugier wächst mit der Energie des Charakters
 ZUWACHS = {"neugier": 0.012, "naehe": 0.010, "koennen": 0.008}

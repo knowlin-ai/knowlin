@@ -20,7 +20,7 @@ from ..motion import reachy_tanz as RT
 from ..motion import tanz as T
 from ..motion.apportieren import Apportieren
 from ..motion.engine import MotionEngine
-from .tools_absicht import ABSICHT_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge
+from .tools_absicht import ABSICHT_TOOL, ARM_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge
 from .tools_lab import (  # noqa: F401 – Werkzeuge der Trainingshalle, seit 0.38 eigene Datei
     FREE_TRAINING_TOOL,
     PARCOURS_BUILD_TOOL,
@@ -531,7 +531,12 @@ BEINE_TOOLS = {"walk", "drive", "go_to", "approach", "umrunden", "apportieren", 
 # Was ein Werkzeug sonst noch vom Körper braucht (seit 0.38.6) – Eigenschaften aus `eigenschaften()`, gelernte
 # Bewegungen aus `skills()`. Gehirn, Oberfläche (CSS braucht-*) und Fähigkeiten (motion/faehigkeit) folgen derselben Regel.
 BRAUCHT_EIGENSCHAFT = {"explore": {"tiefensensor"}, "karte": {"tiefensensor"}, "apportieren": {"schnabel"},
-                       "team": {"schnabel"}, "kopf_ruhig": {"beine"}, "sound": {"stimmbank"}}
+                       "team": {"schnabel"}, "kopf_ruhig": {"beine"}, "sound": {"stimmbank"}, "arm": {"arm"},
+                       # seit 0.38.47: ein Arm ohne Kopf (SO-101) bekommt keine Kopf-Werkzeuge
+                       "head": {"kopf"}, "look_around": {"kopf"}, "emote": {"kopf"}, "dance": {"kopf"},
+                       "choreo": {"kopf"}, "choreography": {"kopf"}}
+# Drehen geht mit Beinen, Rädern oder einem drehbaren Körper (Reachy) – irgendeins davon reicht
+DREHEN = {"beine", "raeder", "koerperdrehung"}
 BRAUCHT_SKILL = {"schiessen": ("kick_left", "kick_right"), "apportieren": ("ground_pick",), "team": ("ground_pick",)}
 # Pollens Microduck-Welt: Hub-Policies, Trainingshalle, Parcours – nur für die Microduck
 NUR_MICRODUCK = {"trick_vom_hub", "parcours_bauen", "parcours_testen", "bewegung_ueben", "training_vorschlagen",
@@ -548,6 +553,8 @@ def fehlt_dem_koerper(name: str, backend: Any) -> str | None:
     profil = koerper.zu_zustand(getattr(backend, "koerper_art", "") or koerper.holen("duckpilot").koerper_zustand)
     if name in NUR_MICRODUCK and not (profil and profil.lab):            # Trainingshalle laut Profil (seit 0.38.35)
         return "Das gibt es nur für die Microduck (Pollens Policies und Trainingshalle)."
+    if name == "turn" and not DREHEN & eig:
+        return "Dieser Körper kann sich nicht drehen."
     ohne = sorted(BRAUCHT_EIGENSCHAFT.get(name, set()) - eig)
     if ohne:
         return f"Das kann dieser Körper nicht (fehlt: {', '.join(ohne)})."
@@ -624,6 +631,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
         be = self.engine.backend                  # nur anbieten, was dieser Körper wirklich kann (seit 0.38.6 vollständig)
         tools = [t for t in tools if fehlt_dem_koerper(t["name"], be) is None]
         tools = [*tools, ABSICHT_TOOL, SELBSTBILD_TOOL]      # Aktionskatalog und Selbstbild (seit 0.38.43, G2)
+        if "arm" in eig:
+            tools = [*tools, ARM_TOOL]                       # Arm (seit 0.38.47, G5)
         if "antennen" in eig:
             tools = [*tools, ANTENNEN_TOOL]
         if getattr(be, "koerper_art", "") == "reachy_mini":   # Reachys eigener Tanz (seit 0.38.13): nur seine Bewegungen
@@ -732,6 +741,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
                 result = await self._absicht(args or {})
             elif name == "selbstbild":
                 result = self._selbstbild()
+            elif name == "arm":
+                result = await self._arm(args or {})
             elif name == "bewegung_ueben":
                 result = await self._practice(args or {})
             elif name == "training_auswerten" and self.trainer is not None:

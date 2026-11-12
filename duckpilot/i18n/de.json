@@ -30,6 +30,7 @@
   "gruss.duckpilot": "*quak* Da bin ich!",
   "gruss.open_duck_mini": "*quak* {name} ist bereit!",
   "gruss.reachy_mini": "Hallo. Ich bin wach.",
+  "gruss.so101": "Hallo. Ari ist bereit.",
   "stimme.untertitel_kopf": "Stimme von {name} – gilt ohne Körper. Die Verkörperungen haben ihre eigenen.",
   "stimme.entwerfen_hilfe": "Beschreib die Stimme auf Deutsch – Alter, Höhe, Tempo, Charakter. Knowlin übersetzt sie vor dem Entwerfen ins Englische, weil das Modell Beschreibungen so am genauesten umsetzt. Daraus entstehen drei Fassungen derselben Probe; die schönste übernimmst du.",
   "stimme.laute": "Entenlaute: {wert}",

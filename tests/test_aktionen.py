@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from helpers import make
 
 from duckpilot import aktionen as A
+from duckpilot import arm as ARM
 from duckpilot.brain.tools import ToolRunner
 from duckpilot.motion import behaviors as B
 
@@ -21,7 +22,12 @@ def test_katalog_nutzt_nur_bekannte_faehigkeiten_gefuehle_und_laute():
         assert a["absicht"] and a["umsetzungen"], name
         for braucht, werkzeug, argumente, wie in a["umsetzungen"]:
             assert braucht <= set(koerper.FAEHIGKEITEN) and wie
-            assert (argumente["emotion"] in B.EMOTIONS) if werkzeug == "emote" else (argumente["tag"] in SOUND_TAGS)
+            if werkzeug == "emote":
+                assert argumente["emotion"] in B.EMOTIONS
+            elif werkzeug == "arm":                                        # seit 0.38.47: Armgesten (SO-101)
+                assert argumente["geste"] in ARM.GESTEN
+            else:
+                assert werkzeug == "sound" and argumente["tag"] in SOUND_TAGS
 
 
 def test_kann_ersatz_nein():
@@ -29,8 +35,10 @@ def test_kann_ersatz_nein():
     assert A.aushandeln("freuen", ENTE, frei)["antwort"] == "kann"
     ersatz = A.aushandeln("freuen", {"kopf", "antennen"}, frei)           # Reachy: ohne Beine nur mit dem Kopf
     assert ersatz["antwort"] == "ersatz" and ersatz["argumente"] == {"emotion": "freude"}
-    arm = A.aushandeln("neugierig", {"arm", "greifer"}, frei)              # ein Arm ohne Kopf
-    assert arm["antwort"] == "nein" and "kopf" in arm["grund"]
+    arm = A.aushandeln("neugierig", {"arm", "greifer"}, frei)              # ein Arm ohne Kopf: mit dem Greifer
+    assert arm["antwort"] == "ersatz" and arm["argumente"] == {"geste": "neugierig"}
+    raeder = A.aushandeln("neugierig", {"raeder"}, frei)                   # weder Kopf noch Arm
+    assert raeder["antwort"] == "nein" and "arm" in raeder["grund"]
     assert A.aushandeln("fliegen", ENTE, frei)["antwort"] == "nein"
 
 

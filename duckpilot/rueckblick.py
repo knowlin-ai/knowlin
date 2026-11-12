@@ -30,7 +30,7 @@ ARTEN: dict[str, tuple[str, str]] = {
     "sitzen": ("sich hinsetzen", "sitting down"), "trick": ("Tricks üben", "practising tricks"),
     "tanzen": ("tanzen", "dancing"), "ball": ("mit dem Ball spielen", "playing with the ball"),
     "laufen": ("herumlaufen", "walking around"), "aufstehen": ("aufstehen", "standing up"),
-    "geste": ("Gesten machen", "making gestures"),
+    "geste": ("Gesten machen", "making gestures"), "armgeste": ("den Arm bewegen", "moving the arm"),
 }
 ART_TEXT = {k: v[0] for k, v in ARTEN.items()}
 FEHLSCHLAEGE = 2           # so oft „ging nicht“ seit dem letzten Rückblick → „klappt gerade oft nicht“

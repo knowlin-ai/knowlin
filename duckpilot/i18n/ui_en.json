@@ -3360,5 +3360,14 @@
  "Neues im Rückblick gelernt.": "Learned something new in hindsight.",
  "Nichts Neues gelernt.": "Nothing new learned.",
  "Ging nicht – bitte noch einmal.": "Didn't work – please try again.",
- "Modelle, die für Roboter gemacht sind (z. B. Googles „Gemini Robotics-ER“), stehen nach „Modelle laden“ ganz oben.": "Models made for robots (e.g. Google's \"Gemini Robotics-ER\") appear at the top after \"Load models\"."
+ "Modelle, die für Roboter gemacht sind (z. B. Googles „Gemini Robotics-ER“), stehen nach „Modelle laden“ ganz oben.": "Models made for robots (e.g. Google's \"Gemini Robotics-ER\") appear at the top after \"Load models\".",
+ "SO-101": "SO-101",
+ "Greiferblick": "Gripper view",
+ "Sprich mit Ari – er hört zu, denkt nach und antwortet mit seinem Arm.": "Talk to Ari – he listens, thinks and answers with his arm.",
+ "Wink mal!": "Give us a wave!",
+ "Ruhelage": "Rest",
+ "Winken": "Wave",
+ "Umsehen": "Look around",
+ "Aufwecken": "Wake up",
+ "Im Leerlauf: kleine Regungen mit Kopf und Antennen.": "Idle: small movements of head and antennas."
 }

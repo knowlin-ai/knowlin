@@ -67,6 +67,22 @@ def baue_open_duck(cfg):
     return be
 
 
+def baue_so101(cfg):
+    """SO-101 (seit 0.38.47, Etappe G5): Simulator; am echten Arm über LeRobot (Typ so101_follower)."""
+    if cfg.backend == "robotd":
+        from .lerobot import baue_lerobot
+
+        optionen = dict(getattr(cfg, "koerper_optionen", {}) or {})
+        optionen.setdefault("typ", "so101_follower")
+        cfg.koerper_optionen = optionen
+        be = baue_lerobot(cfg)
+        be.koerper_art = "so101"                       # meldet sich als SO-101, nicht als allgemeiner LeRobot
+        return be
+    from .so101 import So101Sim
+
+    return So101Sim()
+
+
 def physics_problem() -> str:
     """Leer, wenn der Physik-Simulator starten kann; sonst der Grund."""
     import importlib.util

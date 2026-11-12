@@ -35,6 +35,7 @@ from .reachy_ausdruck import ANTENNE_RUHE, ANTENNE_SCHLAF, SCHLAF_LAGE, Aufnahme
 from .reachy_kinematik import GRENZE as _GRENZE
 from .reachy_kinematik import begrenzen, gerundet
 from .sim import SimBackend
+from .tischplatz import STANDARD_FLAECHE, STELL_RAND_M, STELLFLAECHEN, TischPlatz  # noqa: F401 – Tests, Abwärts
 
 __all__ = ["ANTENNE_RUHE", "KOERPER_GRAD", "NICHT_OHNE_BEINE", "ReachyMiniDaemon", "ReachyMiniSim", "antennen_aus_mund",
            "kopf_ziel"]
@@ -49,10 +50,7 @@ SCHLAF_NICKEN = 0.42          # Kopf im Schlaf nach vorn gesenkt (Pollens SLEEP_
 EIGENSCHAFTEN = frozenset({"kopf", "antennen", "koerperdrehung", "kamera", "mikrofon", "lautsprecher",
                            "pollen_bewegungen"})
 FUSS_M = 0.065               # Fuß von Reachy Mini ≈ 13 cm Durchmesser (der Körper darüber ist etwas breiter)
-STELL_RAND_M = 0.01          # so viel Platz rundum braucht der Fuß auf einer Fläche
 # Worauf man Reachy stellen kann (Name enthält …) – Sofa (weich) und Pflanze sind keine Stellflächen
-STELLFLAECHEN = ("tisch", "hocker", "kiste", "regal", "kommode", "schrank", "bank", "stuhl")
-STANDARD_FLAECHE = "Couchtisch"
 
 
 def kopf_ziel(head: Head, pose: Pose | None = None) -> dict[str, float]:
@@ -71,10 +69,12 @@ def zusammen(basis: dict[str, float], zusatz: dict[str, float]) -> dict[str, flo
     return begrenzen({k: basis.get(k, 0.0) + zusatz.get(k, 0.0) for k in _GRENZE})
 
 
-class ReachyMiniSim(SimBackend):
+class ReachyMiniSim(TischPlatz, SimBackend):
     """Reachy Mini im Simulator von duckpilot (gleiches Wohnzimmer, gleiche Dinge, Kamera statt Tiefensensor)."""
 
     koerper_art = "reachy_mini"
+    platz_name = "Reachy"
+    fuss_m = FUSS_M
 
     def __init__(self, realtime: bool = True, seed: int | None = None) -> None:
         super().__init__(realtime=realtime, seed=seed)
@@ -89,74 +89,6 @@ class ReachyMiniSim(SimBackend):
         self.stand_z = 0.0                                  # Höhe der Standfläche (Tischroboter: auf dem Couchtisch)
         self.standflaeche = ""
         self.platzieren(STANDARD_FLAECHE)
-
-    # ── Wo er steht (seit 0.38.10): Tischroboter, Standard auf dem Couchtisch ─────────
-    def _flaeche(self, name: str) -> Any:
-        n = str(name or "").strip().lower()
-        return next((m for m in [*self.world_model.boxes, *self.world_model.cylinders] if m.name.lower() == n), None)
-
-    def platz_pruefen(self, flaeche: str) -> str | None:
-        """Kann Reachy dort stehen? None = ja, sonst der Grund. „boden“ geht immer."""
-        if str(flaeche or "").strip().lower() in ("boden", "fußboden", "floor"):
-            return None
-        m = self._flaeche(flaeche)
-        if m is None:
-            return f"Kenne keine Fläche namens „{flaeche}“"
-        if not any(w in m.name.lower() for w in STELLFLAECHEN):
-            return f"Auf {m.name} kann Reachy nicht sicher stehen"
-        innen = m.r if hasattr(m, "r") else min(m.sx, m.sy) / 2
-        if innen < FUSS_M + STELL_RAND_M:
-            return f"{m.name} ist zu klein für Reachys Fuß"
-        if not 0.05 <= m.h <= 1.2:
-            return f"{m.name} ist zu hoch oder zu niedrig"
-        return None
-
-    def _blick_zum_sofa(self, x: float, y: float) -> float:
-        """Ausrichtung: zum Sofa (dort sitzen die Menschen), sonst zur Raummitte."""
-        sofa = self._flaeche("Sofa")
-        zx, zy = (sofa.x, sofa.y) if sofa is not None else (0.0, 0.0)
-        return math.atan2(zy - y, zx - x) if math.hypot(zx - x, zy - y) > 0.05 else 0.0
-
-    def _platz_am_boden(self) -> tuple[float, float]:
-        """Freier Platz am Boden: vor der Fläche, auf der er gerade steht (Richtung Sofa) – sonst der Startplatz."""
-        m = self._flaeche(self.standflaeche) if self.standflaeche else None
-        if m is not None:
-            richtung = self._blick_zum_sofa(m.x, m.y)
-            ausdehnung = m.r if hasattr(m, "r") else max(m.sx, m.sy) / 2
-            for d in (0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, math.pi):
-                a = richtung + d
-                for r in (ausdehnung + FUSS_M + 0.08, ausdehnung + FUSS_M + 0.2):
-                    x, y = m.x + r * math.cos(a), m.y + r * math.sin(a)
-                    if self.world_model.collide(x, y, FUSS_M + 0.02) is None:
-                        return x, y
-        return self.START_POSE[0], self.START_POSE[1]
-
-    def platzieren(self, flaeche: str) -> tuple[bool, str]:
-        """Reachy auf eine Fläche stellen (Mitte, Blick zum Sofa) oder auf den Boden – nur im Simulator, mit der Hand."""
-        grund = self.platz_pruefen(flaeche)
-        if grund is not None:
-            return False, grund
-        m = None if str(flaeche).strip().lower() in ("boden", "fußboden", "floor") else self._flaeche(flaeche)
-        if m is None:
-            x, y = self._platz_am_boden()
-            self.stand_z, self.standflaeche = 0.0, ""
-            text = "Reachy steht jetzt auf dem Boden"
-        else:
-            x, y = m.x, m.y
-            self.stand_z, self.standflaeche = float(m.h), m.name
-            text = f"Reachy steht jetzt auf: {m.name}"
-        self._ente_setzen(x, y, self._blick_zum_sofa(x, y))
-        return True, text
-
-    def szene_zuruecksetzen(self, ente: bool = True) -> dict[str, Any]:
-        out = super().szene_zuruecksetzen(ente=False)
-        if ente:                                           # Reachy fällt nicht – zurück auf seinen Standardplatz
-            out["ente"] = self.platzieren(STANDARD_FLAECHE)[0]
-        return out
-
-    def _push_items(self) -> None:
-        if self.stand_z <= 0.0:                            # auf dem Tisch schiebt er nichts am Boden
-            super()._push_items()
 
     # ── Körper ───────────────────────────────────────────────────────────
     def eigenschaften(self) -> frozenset[str]:

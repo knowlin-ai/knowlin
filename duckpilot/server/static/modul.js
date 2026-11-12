@@ -12,8 +12,9 @@ export const KOERPER = {
   duckpilot: { klasse: 'microduck', name: 'Microduck', ente: true },
   reachy_mini: { klasse: 'reachy', name: 'Reachy Mini', ente: false },
   open_duck_mini: { klasse: 'open-duck', name: 'Open Duck Mini v2', ente: true },
+  so101: { klasse: 'so101', name: 'SO-101', ente: false },             // Arm (seit 0.38.47, G5)
 };
-const OHNE = ['beine', 'tiefensensor', 'schnabel', 'antennen', 'kamera'];
+const OHNE = ['beine', 'tiefensensor', 'schnabel', 'antennen', 'kamera', 'kopf'];
 // Unterseiten, die es nur bei der Microduck gibt (Pollens Policies, Hub-Tricks, weitere Microducks)
 const NUR_MICRODUCK = ['tricks/team', 'tricks/hub', 'akrobatik', 'parcours', 'training'];
 // Unterseiten, die es nur bei Reachy Mini gibt (Kamera-Spiele, seit 0.38.13)
@@ -29,6 +30,7 @@ export function setzeModul(config, { $, hiddenTabs }) {
   const microduck = k.klasse === 'microduck';
   for (const t of NUR_MICRODUCK) { if (microduck) hiddenTabs.delete(t); else hiddenTabs.add(t); }
   for (const t of NUR_REACHY) { if (k.klasse === 'reachy') hiddenTabs.delete(t); else hiddenTabs.add(t); }
+  if (eig.has('kopf')) hiddenTabs.delete('tricks/tanz'); else hiddenTabs.add('tricks/tanz');   // Tanzen braucht einen Kopf
   const lernen = $('rail-lernen');
   if (lernen) lernen.hidden = !microduck;
   // Kopfzeile „Knowlin › Verkörperung · Körper“

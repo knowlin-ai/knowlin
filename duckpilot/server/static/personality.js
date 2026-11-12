@@ -70,6 +70,10 @@ export function setIdleRepertoire(catalog) {
   for (const pad of pads) pad.render();
 }
 export function idleText(name) {
+  // Entengesten nur bei Enten (Befund der Abnahme 12.11.: Reachy „putzt sich das Gefieder“)
+  const cl = document.body.classList;
+  if (cl.contains('koerper-reachy')) return 'Im Leerlauf: kleine Regungen mit Kopf und Antennen.';
+  if (cl.contains('keine-ente')) return '';
   if (name === 'Ausgeglichen') return 'Im Leerlauf: schaut sich ruhig um.';
   const list = idleByPersona.get(name);
   return list && list.length ? `Im Leerlauf: ${list.slice(0, 4).join(', ')}${list.length > 4 ? ' …' : '.'}` : '';

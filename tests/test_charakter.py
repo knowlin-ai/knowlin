@@ -49,7 +49,8 @@ def test_startwerte_passen_zum_koerper():
     assert start["duckpilot"]["energie"] > 0.6 and 0.3 < start["duckpilot"]["humor"] < 0.5     # lebhaft-verspielt
     assert start["reachy_mini"]["energie"] < 0.34 and start["reachy_mini"]["humor"] < 0.5      # ruhig-neugierig
     assert start["open_duck_mini"]["humor"] >= 0.5                                              # tollpatschig-verspielt
-    assert len({persona(s["energie"], s["humor"]) for s in start.values()}) == 3               # drei verschiedene
+    assert 0.3 < start["so101"]["energie"] < 0.5 and start["so101"]["humor"] < 0.5              # ruhig-genau (0.38.47)
+    assert len({persona(s["energie"], s["humor"]) for s in start.values()}) == len(start)      # jede anders
 
 
 def test_figur_profil_verschiebt_eine_verkoerperung_einzeln(rt, tmp_settings):  # noqa: F811

@@ -9,6 +9,34 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.47 – 2026-11-12 – SO-101: ein Arm als neuer Körper
+
+### Neu
+- **SO-101 im Simulator (Etappe G5):** Der offene Arm von TheRobotStudio und Hugging Face als vierte Verkörperung –
+  „Ari“, ohne Kopf, Beine und Stimme, auf dem Couchtisch. Einstellungen → Körper → „SO-101“. Das 3D-Modell
+  (Apache-2.0) liegt bei Knowlin; Lizenzhinweis in `static/model/LIZENZ-so101.md`.
+- **Derselbe Geist, anderer Körper:** Der Aktionskatalog hat jetzt Armgesten – „grüßen“ wird beim SO-101 zu Winken,
+  „zustimmen“ zu Nicken mit dem Greifer, „traurig“ lässt den Arm sinken. Knowlin sagt, dass er es anders zeigt.
+- **Werkzeug „arm“:** Gesten (winken, nicken, freuen, umsehen …), Haltungen (Ruhe, bereit, hoch, zeigen …) oder einzelne
+  Gelenke in Grad, immer in den Grenzen des Arms. Schnellknöpfe im Cockpit: Aufwecken, Ruhelage, Winken, Freuen,
+  Umsehen. Von sich aus macht Ari ab und zu eine kleine Armgeste.
+
+### Geändert
+- Kopf-Werkzeuge (Kopf drehen, Gefühle, Tanzen, Choreografie) gibt es nur noch für Körper mit Kopf; Drehen nur mit
+  Beinen, Rädern oder drehbarem Körper. Tanzen-Seite und Entenblick heißen beim Arm anders oder fehlen.
+- Reachy und der SO-101 teilen sich den Platz auf dem Tisch (`backends/tischplatz.py`).
+
+### Behoben
+- Bei Reachy stand unter Persönlichkeit „Im Leerlauf: … putzt sich das Gefieder“ – Entengesten zeigt die Seite nur
+  noch bei Enten; die Abnahme prüft jetzt auch den SO-101 auf Enten-Wörter.
+
+### Sicherheit
+- Not-Aus beim SO-101: Motoren aus, der Arm sackt in die Ruhelage, bis zum Aufwecken bewegt sich nichts; während der
+  Sperre lehnt das Werkzeug „arm“ ab. Die Körperprüfung (`python -m duckpilot.koerper_pruefung so101`) besteht.
+
+### Nicht geprüft
+- Am echten SO-101 (über LeRobot) – Gesten gibt es dort noch nicht, nur einzelne Haltungen.
+
 ## 0.38.46 – 2026-11-12 – Lehren auf Englisch, Modelle für Roboter oben
 
 ### Neu
