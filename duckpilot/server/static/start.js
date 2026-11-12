@@ -15,6 +15,8 @@ const UMRISS = {
   duckpilot: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="27" cy="12" r="6"/><path d="M33 12h7l-7 3"/><path d="M23 17c-6 1-11 6-11 13 0 6 5 9 12 9s13-3 13-10c0-4-2-7-6-9"/><path d="M20 39l-2 6M28 39l2 6M15 45h6M27 45h6"/></svg>',
   'reachy-mini': '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M17 4l3 9M31 4l-3 9"/><rect x="11" y="13" width="26" height="14" rx="7"/><circle cx="19" cy="20" r="2.5"/><circle cx="29" cy="20" r="2.5"/><path d="M19 27l-2 5M29 27l2 5M24 27v5"/><path d="M13 44c0-8 4-12 11-12s11 4 11 12z"/></svg>',
   'open-duck-mini': '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 3l2 6M29 3l-2 6"/><path d="M15 15a9 6.5 0 0 1 18 0v2H15z"/><path d="M33 15.5h6"/><path d="M24 17v5"/><rect x="15" y="22" width="18" height="11" rx="5.5"/><path d="M19 33l-3 6 3 6M29 33l3 6-3 6"/></svg>',
+  // SO-101: Sockel, zwei Glieder, Greifer (seit 0.38.51)
+  so101: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 44h20M12 44v-5h12v5"/><circle cx="18" cy="35" r="3"/><path d="M18 32 14 18l18-6"/><circle cx="14" cy="18" r="2.5"/><path d="M32 12l4 5M32 12l6-1M36 17l3 4M38 11l4 2"/></svg>',
   'ohne-koerper': '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="28" height="20" rx="2"/><path d="M14 34h12M20 28v6"/><rect x="34" y="18" width="10" height="20" rx="2"/></svg>',
   lab: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M18 6h12M20 6v12L9 40h30L28 18V6"/><path d="M14 30h20"/></svg>',
   // Knowlets: ein Paket mit Knoten darin (seit 0.38.5)
@@ -211,7 +213,7 @@ export function initStart({ $, api, el, toast, showView, save, isRemote, getConf
   // Zurück zu Knowlin: Porträt und Name der Verkörperung, die gerade einen Körper hat
   function zurueck() {
     const c = getConfig() || {};
-    const id = { reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini' }[c.modul] || 'duckpilot';
+    const id = { reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', so101: 'so101' }[c.modul] || 'duckpilot';
     return bodyToMind($, { id, modell: '', figur: c.duck_name || 'Quacki' });
   }
 

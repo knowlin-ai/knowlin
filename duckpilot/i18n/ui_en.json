@@ -3364,5 +3364,7 @@
  "Leg den roten Würfel in die linke Kiste.": "Put the red cube in the left box.",
  "den roten Würfel": "the red cube",
  "den blauen Würfel": "the blue cube",
- "den gelben Würfel": "the yellow cube"
+ "den gelben Würfel": "the yellow cube",
+ "offener Roboterarm von TheRobotStudio und Hugging Face": "open robot arm by TheRobotStudio and Hugging Face",
+ "Greifen und Räumen an der eigenen Werkbank im Simulator, mit dem offenen 3D-Modell; echter Arm über LeRobot (ungetestet).": "Grabbing and tidying at its own workbench in the simulator, with the open 3D model; real arm via LeRobot (untested)."
 }

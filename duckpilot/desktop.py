@@ -114,6 +114,7 @@ VERKNUEPFUNGEN = {
                     "knowlin.ico"),
     "open-duck-mini": ("Knowlin - Open Duck Mini.lnk", "-m duckpilot --app --modul open_duck_mini",
                        "Knowlin – direkt zu Open Duck Mini", "knowlin.ico"),
+    "so101": ("Knowlin - SO-101.lnk", "-m duckpilot --app --modul so101", "Knowlin – direkt zu Ari (SO-101)", "knowlin.ico"),
 }
 ALTE_NAMEN = {"duckpilot.lnk": "Knowlin - Microduck.lnk", "Reachy Mini.lnk": "Knowlin - Reachy Mini.lnk",
               "Open Duck Mini.lnk": "Knowlin - Open Duck Mini.lnk"}

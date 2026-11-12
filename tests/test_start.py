@@ -31,7 +31,7 @@ def test_module_ehrlich_fertig_oder_geplant():
     # seit 0.38.1 ist Reachy Mini fertig (im Simulator) – nicht aktiv, also ohne „verbunden“
     reachy = next(m for m in ms if m["id"] == "reachy-mini")
     assert reachy["stand"] == "fertig" and reachy["modul"] == "reachy_mini" and not reachy["aktiv"] and "verbunden" not in reachy
-    rest = [m for m in ms[1:] if m["id"] not in ("reachy-mini", "open-duck-mini", "knowlets")]   # fertig seit 0.38.4/.5
+    rest = [m for m in ms[1:] if m["id"] not in ("reachy-mini", "open-duck-mini", "so101", "knowlets")]   # fertig seit 0.38.4/.5/.51
     kn = next(m for m in ms if m["id"] == "knowlets")
     assert kn["stand"] == "fertig" and kn["ansicht"] == "knowlets" and kn["art"] == "werkzeug" and "modul" not in kn
     assert rest and all(m["stand"] in ("geplant", "anleitung") for m in rest)
@@ -130,3 +130,19 @@ def test_neue_gliederung():
     ids = re.findall(r'\sid="([^"]+)"', HTML)
     doppelt = {i for i in ids if ids.count(i) > 1}
     assert not doppelt, doppelt
+
+
+def test_jede_verkoerperung_hat_eine_kachel():
+    """Fund 12.11.: Ari (SO-101) war nur über Einstellungen → Körper zu finden. Jede eingebaute Verkörperung braucht eine
+    Kachel auf der Startseite und eine Verknüpfung zum Direktstart."""
+    from duckpilot.desktop import VERKNUEPFUNGEN
+    from duckpilot.figuren import FIGUREN
+
+    ms = suite.module("sim")
+    kacheln = {m["modul"]: m for m in ms if m.get("modul")}
+    assert set(FIGUREN) <= set(kacheln)
+    ari = kacheln["so101"]
+    assert ari["art"] == "koerper" and ari["stand"] == "fertig" and ari["koerper_name"] == "SO-101"
+    assert set(suite.KOERPER_MODUL) <= set(VERKNUEPFUNGEN)
+    js = (Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static" / "start.js").read_text(encoding="utf-8")
+    assert all(f"'{k}'" in js or f"{k}:" in js for k in suite.KOERPER_MODUL)       # Umriss je Körper

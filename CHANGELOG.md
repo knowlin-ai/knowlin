@@ -9,6 +9,18 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.51 – 2026-11-12 – Ari auf der Startseite
+
+### Behoben
+- **Ari (SO-101) hat eine eigene Kachel auf der Startseite** – mit „Ari wecken“ und „Verknüpfung“ wie die anderen
+  Verkörperungen (Frage des Maintainers: „Wo finde ich den Arm?“). Bisher war er nur über Einstellungen → Körper zu
+  finden. Neu auch die Verknüpfung „Knowlin - SO-101“ zum Direktstart; ein Test sorgt dafür, dass jede Verkörperung
+  ihre Kachel hat.
+- Zurück von Ari zu Knowlin zeigt den Übergang mit Aris Umriss statt dem der Microduck.
+
+### Nicht geprüft
+- Verknüpfung „Knowlin - SO-101“ unter Windows (wie die anderen Verknüpfungen nur im Test).
+
 ## 0.38.50 – 2026-11-12 – „Kopf“ statt „Geist“, Ari hält den Würfel richtig
 
 ### Geändert

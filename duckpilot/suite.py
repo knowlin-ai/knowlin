@@ -25,6 +25,10 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
      "Pollens Originalmodell, Emotionen und Tänze, zuhören und mitsprechen – im Simulator; echter Reachy über Pollens Daemon (ungetestet)."),
     ("open-duck-mini", "Open Duck Mini", "offener Selbstbau-Vorgänger (Antoine Pirrone)", "fertig", "",
      "Laufen, Kopf und Antennen im Simulator, mit dem offenen 3D-Modell; Ausstattung je Bau. Echte Open Duck geplant."),
+    # seit 0.38.51: Ari bekommt seine Kachel (Fund 12.11.: der Arm war nur über Einstellungen → Körper zu finden)
+    ("so101", "SO-101", "offener Roboterarm von TheRobotStudio und Hugging Face", "fertig", "",
+     "Greifen und Räumen an der eigenen Werkbank im Simulator, mit dem offenen 3D-Modell; echter Arm über LeRobot "
+     "(ungetestet)."),
     ("knowlets", "Knowlets", "Verkörperungen, Tricks und Tänze teilen", "fertig", "",
      "Charakter, Tricks und Tänze als Paket speichern, auf Hugging Face teilen und laden – nur Daten, nie Personen."),
     ("lab", "Knowlin Lab", "Trainingshalle für Module, die Bewegung lernen", "geplant", "Januar",
@@ -44,13 +48,14 @@ KERN: tuple[tuple[str, str, str], ...] = (
 # Jeder Körper hat seine Verkörperung (seit 0.38.3): Name des Körpers auf der Kachel, und ob es überhaupt ein Körper ist
 # (Lab und „Eigenes Modul“ sind Werkzeuge, keine Körper)
 KOERPER_NAME = {"duckpilot": "Microduck", "reachy-mini": "Reachy Mini", "open-duck-mini": "Open Duck Mini v2",
-                "ohne-koerper": "Ohne Körper"}
+                "so101": "SO-101", "ohne-koerper": "Ohne Körper"}
 
 # Werkzeug-Kacheln, die eine Seite in Knowlin öffnen (seit 0.38.5)
 ANSICHT = {"knowlets": "knowlets"}
 
 # Modul-Kachel → Einstellung `modul` (welcher Körper dranhängt); seit 0.38.1 auch Reachy Mini
-KOERPER_MODUL = {"duckpilot": "duckpilot", "reachy-mini": "reachy_mini", "open-duck-mini": "open_duck_mini"}
+KOERPER_MODUL = {"duckpilot": "duckpilot", "reachy-mini": "reachy_mini", "open-duck-mini": "open_duck_mini",
+                 "so101": "so101"}
 
 
 def module(koerper: str = "", aktiv: str = "duckpilot") -> list[dict[str, Any]]:
