@@ -34,10 +34,11 @@ def _polar(r: float, grad: float) -> tuple[float, float]:
 
 
 def startbelegung() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    dinge = [{"name": name, "farbe": farbe, "x": x, "y": y, "z": WUERFEL / 2, "in": None, "start": [x, y]}
-             for name, farbe, (x, y) in (("roter Würfel", "#d94a3d", _polar(0.20, 35)),
-                                         ("blauer Würfel", "#3d6fd9", _polar(0.24, 0)),
-                                         ("gelber Würfel", "#e8c33a", _polar(0.21, -35)))]
+    # `akk`: wie das Ding nach „hält …“ heißt – „hält den roten Würfel“, nicht „hält roter Würfel“
+    dinge = [{"name": name, "akk": akk, "farbe": farbe, "x": x, "y": y, "z": WUERFEL / 2, "in": None, "start": [x, y]}
+             for name, akk, farbe, (x, y) in (("roter Würfel", "den roten Würfel", "#d94a3d", _polar(0.20, 35)),
+                                              ("blauer Würfel", "den blauen Würfel", "#3d6fd9", _polar(0.24, 0)),
+                                              ("gelber Würfel", "den gelben Würfel", "#e8c33a", _polar(0.21, -35)))]
     kisten = [{"name": name, "x": x, "y": y, **KISTE}
               for name, (x, y) in (("linke Kiste", _polar(0.22, 75)), ("rechte Kiste", _polar(0.22, -75)))]
     return dinge, kisten
@@ -70,7 +71,8 @@ class Werkbank:
 
     def greifen_plan(self, name: str) -> tuple[list[tuple[dict[str, float], float, str | None]] | None, str]:
         if self.haelt:
-            return None, f"Ich halte schon {self.haelt} – erst ablegen."
+            h = self.ding(self.haelt)
+            return None, f"Ich halte schon {h['akk'] if h else self.haelt} – erst ablegen."
         d = self.ding(name)
         if d is None:
             return None, f"Kenne „{name}“ nicht – auf der Werkbank: {', '.join(self.namen()['dinge'])}."

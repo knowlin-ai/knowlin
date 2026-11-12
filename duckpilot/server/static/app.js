@@ -517,7 +517,10 @@ function onState(msg) {
   }
   const e = lastEngine;
   let doing = e.aktuell || '';
-  if (st.holding) doing = `${doing ? doing + ', ' : ''}hält ${st.holding}`;
+  if (st.holding) {                                   // an der Werkbank: „hält den roten Würfel“ (Akkusativ aus dem Zustand)
+    const ding = st.werkbank?.dinge?.find((d) => d.name === st.holding);
+    doing = `${doing ? doing + ', ' : ''}hält ${ding?.akk || st.holding}`;
+  }
   doing = doing || (st.powered ? 'wartet auf dich' : '');
   $('doing').textContent = doing;
   $('d-doing').textContent = doing;

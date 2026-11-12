@@ -1,4 +1,4 @@
-"""Knowlins Wertekern (seit 0.38.42, Etappe G1 aus dem Konzept „Knowlins Geist“).
+"""Knowlins Wertekern (seit 0.38.42, Etappe G1 aus dem Konzept „Knowlins Kopf“).
 
 Wunsch des Maintainers: „für die Entwicklung eines eigenen Bewusstseins: Werte und Normen, Rail Guards“. Zwei Ebenen:
 

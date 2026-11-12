@@ -34,6 +34,14 @@ exposes itself as an MCP server. What none of these define is what a body means 
 `lautsprecher`, `pollen_bewegungen`. Runtime flags: `simulator`, `zuruecksetzen`, `physik`, `policies`. The full
 descriptions are in `GET /api/koerper/wortschatz`.
 
+Since 0.38.47 head tools need their word too: head, emotions, dance and choreography only with `kopf`; turning with
+`beine`, `raeder` or `koerperdrehung`. An arm without a head (SO-101) gets the `arm` tool instead.
+
+**Actions instead of movements** (since 0.38.43, `duckpilot/aktionen.py`): the mind states an intention ("greet"); the
+body answers `kann` (can), `ersatz` (substitute) or `nein` (no, with a reason), depending on which implementation fits
+its capabilities (head, arm, sounds). A new body needs no code for this – it reports its capabilities, the catalogue
+chooses.
+
 ## Duties
 
 | | Duty |
@@ -65,7 +73,12 @@ packages itself, and Knowlets never contain code. Template: [`examples/knowlin-k
 
 ## LeRobot
 
-The `lerobot` profile wraps any LeRobot `Robot` (SO-101, LeKiwi, Koch …). It reads capabilities from the action
+**SO-101** (since 0.38.47) has its own profile `so101`: in the simulator with TheRobotStudio's open model (Apache-2.0)
+at its own workbench – poses and gestures in degrees (`duckpilot/arm.py`), picking and placing with its own kinematics
+(`duckpilot/arm_kinematik.py`, `backends/werkbank.py`); on the real arm via LeRobot with type `so101_follower` (not
+yet tested).
+
+The `lerobot` profile wraps any other LeRobot `Robot` (LeKiwi, Koch …). It reads capabilities from the action
 features:
 
 - `*.pos` joints become `arm`, and `gripper.pos` becomes `greifer`.

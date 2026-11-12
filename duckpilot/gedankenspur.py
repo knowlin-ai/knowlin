@@ -1,4 +1,4 @@
-"""Gedankenspur (seit 0.38.44, Etappe G3 aus dem Konzept „Knowlins Geist“): zu jeder eigenen Handlung eine lesbare Zeile
+"""Gedankenspur (seit 0.38.44, Etappe G3 aus dem Konzept „Knowlins Kopf“): zu jeder eigenen Handlung eine lesbare Zeile
 – was, warum, wie und was daraus wurde. So bleibt durchschaubar, warum Knowlin etwas von sich aus tut.
 
 Die Spur liegt nur im Speicher der laufenden App (höchstens `GROESSE` Zeilen) und lässt sich am PC leeren. Zeilen, die

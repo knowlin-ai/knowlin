@@ -1,4 +1,4 @@
-"""Rückblick in Ruhephasen (seit 0.38.45, Etappe G4 aus dem Konzept „Knowlins Geist“).
+"""Rückblick in Ruhephasen (seit 0.38.45, Etappe G4 aus dem Konzept „Knowlins Kopf“).
 
 Wenn länger Ruhe ist, schaut Knowlin auf seine Gedankenspur zurück und leitet daraus kleine **Lehren** ab – etwa „den
 Raum erkunden klappt hier gerade oft nicht“ oder „mag Tricks üben“. Eine Lehre wirkt nur auf die Gewichte der eigenen

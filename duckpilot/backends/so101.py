@@ -1,7 +1,7 @@
-"""SO-101 im Simulator (seit 0.38.47, Etappe G5 aus dem Konzept „Knowlins Geist“).
+"""SO-101 im Simulator (seit 0.38.47, Etappe G5 aus dem Konzept „Knowlins Kopf“).
 
 Ein Arm ohne Kopf, ohne Beine und ohne Stimme: Er steht fest auf seiner eigenen Werkbank (seit 0.38.48, `werkbank.py`) und bewegt
-sechs Gelenke (`duckpilot/arm.py`). Gezeigt wird, dass derselbe Geist mit einem ganz anderen Körper zurechtkommt – der
+sechs Gelenke (`duckpilot/arm.py`). Gezeigt wird, dass derselbe Kopf mit einem ganz anderen Körper zurechtkommt – der
 Aktionskatalog handelt „grüßen“ hier als Winken aus, nicht als Nicken.
 
 Kinematik ohne Physik, wie bei Reachy: Haltungen werden in der angegebenen Zeit linear angefahren. Not-Aus: Motoren aus,

@@ -60,7 +60,8 @@ def test_wuerfel_in_die_kiste_und_zurueck():
         assert (await sim.greifen("roter Würfel")).accepted
         _laufen(sim, 3.5)
         assert sim.state().holding == "roter Würfel"
-        assert not (await sim.greifen("blau")).accepted                # hält schon etwas
+        schon = await sim.greifen("blau")
+        assert not schon.accepted and "halte schon den roten Würfel" in schon.reason   # Akkusativ (Fund 12.11.)
         assert (await sim.ablegen("linke Kiste")).accepted
         _laufen(sim, 4.5)
         rot = sim.werkbank.ding("rot")
@@ -127,3 +128,17 @@ def test_werkzeuge_greifen_und_ablegen():
         eng.notaus()
         assert not (await r.run("greifen", {"ding": "blau"}))["ok"]     # Sperre nach dem Not-Aus
     asyncio.run(go())
+
+
+def test_zustand_sagt_den_wuerfel_richtig():
+    """Fund 12.11.: Unter dem Zustand stand „hält roter Würfel“, und das Sprachmodell las „im Schnabel“ – der Arm hat
+    keinen Schnabel. Jetzt: „hält den roten Würfel im Greifer“; die Ente behält ihren Schnabel."""
+    from duckpilot.api import DuckState
+
+    sim = So101Sim(realtime=False)
+    st = sim.state()
+    st.holding, st.connected = "roter Würfel", True
+    st.werkbank = sim.werkbank.als_dict()
+    assert st.summary().endswith("hält den roten Würfel im Greifer")
+    ente = DuckState(connected=True, holding="Ball")
+    assert ente.summary().endswith("hält Ball im Schnabel")

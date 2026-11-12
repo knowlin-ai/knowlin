@@ -1,7 +1,7 @@
 """Knowlin im Kopf: das Gespräch auf der Startseite, ohne Körper (seit 0.38.8, Quickstart-Entwurf vom 5.11.).
 
 das Bild: Oben auf der Startseite steht „Hallo Mensch“, darunter das Dialogfeld, links davon der Kopf („Mind“)
-als wabernde Form. Wer dort schreibt oder spricht, redet mit Knowlin selbst – dem gemeinsamen Geist aller Verkörperungen –,
+als wabernde Form. Wer dort schreibt oder spricht, redet mit Knowlin selbst – dem gemeinsamen Kopf aller Verkörperungen –,
 nicht mit einer Verkörperung. Der Kopf kennt dasselbe Wissen (Gedächtnis, Umgebung, Alltag, Erlebnisse), hat aber keinen
 Körper. Alles Weitere – Assistenz, Alltag, Wissen, Soft Skills – kommt mit dem Modul „Ohne Körper“ (0.44).
 

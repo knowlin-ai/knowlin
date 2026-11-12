@@ -9,6 +9,24 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.50 – 2026-11-12 – „Kopf“ statt „Geist“, Ari hält den Würfel richtig
+
+### Geändert
+- **„Kopf“ statt „Geist“** (Wunsch des Maintainers: „Geist klingt so nach Gespenst“): Website, README, Handbuch und
+  Körperschnittstelle sprechen jetzt von Knowlins Kopf – „Vier Körper, ein Kopf“. Englisch bleibt „mind“. In der App
+  stand das Wort schon nicht mehr; übrig gebliebene englische Katalogeinträge dazu sind entfernt.
+- Doku und Website zeigen Ari (SO-101) mit Werkbank und den Abschnitt über Werte, Antrieb, Gedankenspur und Rückblick.
+
+### Behoben
+- **„hält den roten Würfel“** statt „hält roter Würfel“ unter dem Zustand von Ari (englisch „holding the red cube“).
+  Das Sprachmodell las bisher „hält roter Würfel im Schnabel“ – an der Werkbank heißt es jetzt „im Greifer“; ebenso
+  „Ich halte schon den roten Würfel – erst ablegen.“
+- Website-Bilder: Die Prüfung auf den grünen Punkt „verbunden“ wartet nicht mehr, bis die 3D-Ansicht stillsteht (lief
+  mit Software-Grafik in eine Zeitüberschreitung).
+
+### Nicht geprüft
+- Am echten SO-101 (wie bisher nur im Simulator).
+
 ## 0.38.49 – 2026-11-12 – Update-Suche nimmt die höchste Version
 
 ### Behoben

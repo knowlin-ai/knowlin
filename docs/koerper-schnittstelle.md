@@ -1,4 +1,4 @@
-# Körperschnittstelle 1.0 – ein Geist, viele Körper
+# Körperschnittstelle 1.0 – ein Kopf, viele Körper
 
 *English: [body-interface.md](body-interface.md)*
 
@@ -19,7 +19,7 @@ Knowlin erfindet die unteren Ebenen nicht neu, sondern setzt auf ihnen auf:
 | Trainingsdaten | LeRobot-Datensätze, Open X-Embodiment | Grundlage für spätere Aufnahmen |
 | KI ↔ Werkzeuge | MCP | Knowlin ist selbst ein MCP-Server |
 
-Was fehlt, ist ein Vertrag für die Frage: *Was bedeutet ein Körper für einen Geist, der bleibt?* Dazu gehören ein
+Was fehlt, ist ein Vertrag für die Frage: *Was bedeutet ein Körper für einen Kopf, der bleibt?* Dazu gehören ein
 **Wortschatz der Fähigkeiten**, den das Gehirn versteht, **Sicherheitspflichten** und ein **gemeinsames Format für
 Wahrnehmung**, damit Gedächtnis und Raumwissen von Körper zu Körper wandern. Genau das regelt diese Schnittstelle.
 
@@ -50,6 +50,13 @@ die Liste.
 
 Das Gehirn prüft Vorbedingungen mit diesen Wörtern. Ohne `beine` bietet es zum Beispiel kein „lauf zur Küche“ an, ohne
 `tiefensensor` kein „erkunde den Raum“. Die Oberfläche blendet entsprechend aus.
+
+Seit 0.38.47 brauchen auch die Kopf-Werkzeuge ihr Wort: Kopf drehen, Gefühle, Tanzen und Choreografie nur mit `kopf`;
+Drehen mit `beine`, `raeder` oder `koerperdrehung`. Ein Arm ohne Kopf (SO-101) bekommt stattdessen das Werkzeug `arm`.
+
+**Aktionen statt Bewegungen** (seit 0.38.43, `duckpilot/aktionen.py`): Das Gehirn sagt eine Absicht („grüßen“), der
+Körper antwortet mit `kann`, `ersatz` oder `nein` – je nachdem, welche Umsetzung zu seinen Fähigkeiten passt (Kopf,
+Arm, Laute). Ein neuer Körper braucht dafür keinen Code: Er meldet seine Fähigkeiten, der Katalog wählt.
 
 ## Das Laufzeit-Objekt
 
@@ -112,7 +119,12 @@ Rollbot, fertig mit Prüfung.
 
 ## LeRobot-Roboter
 
-Das Profil `lerobot` bindet jeden LeRobot-`Robot` an (SO-101, LeKiwi, Koch …). Die Fähigkeiten liest Knowlin aus
+**SO-101** (seit 0.38.47) hat ein eigenes Profil `so101`: im Simulator mit dem offenen Modell von TheRobotStudio
+(Apache-2.0) an einer eigenen Werkbank – Haltungen und Gesten in Grad (`duckpilot/arm.py`), Greifen und Ablegen mit
+eigener Kinematik (`duckpilot/arm_kinematik.py`, `backends/werkbank.py`); am echten Arm über LeRobot mit dem Typ
+`so101_follower` (noch ungeprüft).
+
+Das Profil `lerobot` bindet jeden anderen LeRobot-`Robot` an (LeKiwi, Koch …). Die Fähigkeiten liest Knowlin aus
 `action_features`:
 
 - Gelenke `*.pos` ergeben `arm`, `gripper.pos` ergibt `greifer`.

@@ -1,4 +1,4 @@
-"""Antrieb: vier Bedürfnisse (seit 0.38.44, Etappe G3 aus dem Konzept „Knowlins Geist“).
+"""Antrieb: vier Bedürfnisse (seit 0.38.44, Etappe G3 aus dem Konzept „Knowlins Kopf“).
 
 Neugier, Nähe, Ruhe und Können wachsen mit der Zeit und werden durch passendes Tun gestillt. Sie entscheiden mit,
 **was** Knowlin von sich aus tut – nie, **wie oft**: Das bestimmt allein der Regler „Von sich aus beschäftigen“.

@@ -1,4 +1,4 @@
-"""Die Körperschnittstelle von Knowlin (Version 1.0, seit 0.38.35): ein Geist, viele Körper.
+"""Die Körperschnittstelle von Knowlin (Version 1.0, seit 0.38.35): ein Kopf, viele Körper.
 
 Knowlin trennt das Gehirn (Gedächtnis, Charakter, Gespräch, Raumwissen) vom Körper. Ein Körper ist alles, was das
 Gehirn bewegen kann – ein Simulator, ein echter Roboter, ein Roboter aus einem anderen Ökosystem (LeRobot). Damit ein

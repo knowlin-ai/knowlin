@@ -63,7 +63,7 @@ def strukturiert(beschreibung: str) -> str:
         "license": "https://www.apache.org/licenses/LICENSE-2.0",
         "codeRepository": "https://github.com/knowlin-ai/knowlin", "image": ADRESSE + "bilder/vorschau.png",
         "inLanguage": ["de", "en"], "isAccessibleForFree": True,
-        "keywords": "Microduck, Open Duck Mini, Reachy Mini, Roboter, Simulator, Claude, Sprachsteuerung, Open Source",
+        "keywords": "Microduck, Open Duck Mini, Reachy Mini, SO-101, LeRobot, Roboter, Simulator, Claude, Sprachsteuerung, Open Source",
         "publisher": {"@type": "Organization", "name": "Knowlin", "url": ADRESSE},
     }, ensure_ascii=False)
 

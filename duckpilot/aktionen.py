@@ -1,4 +1,4 @@
-"""Aktionskatalog und Selbstbild (seit 0.38.43, Etappe G2 aus dem Konzept „Knowlins Geist“).
+"""Aktionskatalog und Selbstbild (seit 0.38.43, Etappe G2 aus dem Konzept „Knowlins Kopf“).
 
 Wunsch des Maintainers: „die Aktion ist klar, ob der Körper sie umsetzen kann, wird dann mit der Hardware abgestimmt“
 (Hardware Abstraction Layer). Eine **Aktion** beschreibt, was gemeint ist – nicht, welche Gelenke sich bewegen. Jede

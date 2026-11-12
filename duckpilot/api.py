@@ -228,7 +228,9 @@ class DuckState:
         if self.skill:
             parts.append(f"führt '{self.skill}' aus")
         if self.holding:
-            parts.append(f"hält {self.holding} im Schnabel")
+            # An der Werkbank hält der Greifer des Arms (seit 0.38.48), sonst der Schnabel
+            ding = next((d for d in (self.werkbank or {}).get("dinge", []) if d.get("name") == self.holding), None)
+            parts.append(f"hält {ding.get('akk') or self.holding} im Greifer" if ding else f"hält {self.holding} im Schnabel")
         return ", ".join(parts)
 
 

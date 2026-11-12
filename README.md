@@ -37,8 +37,9 @@
 
 **Knowlin** ist ein gemeinsamer Kopf für mehrere Roboter. Er kennt deine Umgebung, deinen Alltag und eure gemeinsamen
 Erlebnisse – und schlüpft je nach Aufgabe in einen Körper: in die laufende Ente **Microduck**, die selbst gebaute
-**Open Duck Mini** oder den Tisch-Roboter **Reachy Mini**. Jede **Verkörperung** hat ihren eigenen Namen, ihre Stimme
-und ihren Charakter; das Wissen teilen sie.
+**Open Duck Mini**, den Tisch-Roboter **Reachy Mini** oder den Greifarm **SO-101** an seiner Werkbank. Jede
+**Verkörperung** hat ihren eigenen Namen, ihre Stimme und ihren Charakter; das Wissen teilen sie. Welches Sprachmodell
+denkt, wählst du frei – Claude, ein anderes Modell mit eigenem Schlüssel oder ein lokales auf deinem PC.
 
 Ohne Körper ist Knowlin ruhig und sachlich. Wenn es um Bewegung geht – laufen, tanzen, etwas zeigen –, schlägt er den
 passenden Roboter vor und fragt, ob er ihn nutzen soll.
@@ -53,9 +54,10 @@ passenden Roboter vor und fragt, ob er ihn nutzen soll.
   <tr>
     <td width="50%" valign="top">
       <img src="docs/bilder/cockpit.png" alt="Cockpit mit der Microduck im Simulator-Wohnzimmer und dem Gespräch daneben"><br>
-      <strong>Steuern mit Sprache und Claude</strong><br>
-      Freie Sätze, Weckwort oder Taste: Claude versteht, plant Abfolgen und übt neue Bewegungen erst unsichtbar in der
-      Physik. Einfache Befehle gehen auch ohne KI – oder mit einem lokalen Modell auf deiner Grafikkarte.
+      <strong>Steuern mit Sprache</strong><br>
+      Freie Sätze, Weckwort oder Taste: Das Sprachmodell versteht, plant Abfolgen und übt neue Bewegungen erst unsichtbar
+      in der Physik – Claude, Gemini, OpenAI, Mistral oder lokal mit Ollama und LM Studio. Einfache Befehle gehen auch
+      ohne KI.
     </td>
     <td width="50%" valign="top">
       <img src="docs/bilder/synapsen.png" alt="Gedächtnis: die Hirnaktivität als räumliches Netz aus Orten, Dingen, Tageszeiten und Gefühlen mit leuchtenden Verbindungen"><br>
@@ -89,6 +91,21 @@ Plaudern · Simulator mit Wohnzimmer, Dingen zum Spielen und auf Wunsch echter P
 Parcours und Training (kostenlos am PC oder auf Kaggle) · **Knowlets**: Charakter, Tricks und Tänze als Paket teilen –
 nur Daten, nie Wissen über Personen · Oberfläche auf Deutsch und Englisch.
 
+### Ein Kopf mit Werten, nicht nur ein Sprachmodell
+
+Knowlin bleibt derselbe, egal welches Modell gerade denkt und welcher Körper dranhängt:
+
+- **Werte und Grenzen:** Jedes Sprachmodell bekommt dieselben Werte (ehrlich sein, Sicherheit vor Neugier, nicht
+  manipulieren …). Die Grenzen – Not-Aus, Sperre, keine Ortsbewegung von selbst am echten Roboter – stehen im Code, jede
+  ist durch einen Test belegt. Zu sehen unter Charakter → Persönlichkeit.
+- **Absicht statt Bewegung:** Das Modell sagt, was es meint („grüßen“, „sich freuen“); der Körper handelt aus, wie er es
+  zeigt – die Ente nickt, Reachy nutzt Kopf und Antennen, der Arm winkt. Was nicht geht, sagt Knowlin ehrlich.
+- **Selbstbild:** „Wie geht's dir?“ beantwortet er aus den Daten seines Körpers, nicht erfunden.
+- **Antrieb und Gedankenspur:** Neugier, Nähe, Ruhe und Können entscheiden mit, was er von sich aus tut – dezent, nie
+  drängend. Jede eigene Handlung steht mit Grund in der Gedankenspur.
+- **Rückblick:** In Ruhephasen legt er kleine Lehren ab („mag Tricks üben“). Er erzählt sie nicht ungefragt; du kannst
+  jede korrigieren oder löschen.
+
 ## Körper und Module
 
 Die Module tragen Codenamen nach Bauart: **duckpilot** für die laufenden Enten, **deskpilot** für stationäre Roboter auf
@@ -99,7 +116,8 @@ dem Tisch. Jeder Körper zeigt nur, was er kann – was fehlt (Beine, Tiefensens
 | **Quacki** | Microduck | duckpilot | Pollen Robotics und Hugging Face | einfach und mit echter Physik | über `robotd` (Pollens Daemon) |
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone und Community | offenes Modell: laufen, Kopf, Antennen, mit Kamera ausweichen | geplant |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics und Hugging Face | Pollens Modell, Emotionen, Tänze, Spiele | über Pollens Daemon (ungetestet) |
-| – | LeRobot-Roboter (SO-101, LeKiwi …) | lerobot | Hugging Face LeRobot | – | über LeRobot (Arm, Greifer, Räder; ungetestet) |
+| **Ari** | SO-101 (Greifarm) | so101 | TheRobotStudio und Hugging Face | offenes Modell an eigener Werkbank: Gesten, Würfel greifen und in Kisten legen | über LeRobot (ungetestet) |
+| – | weitere LeRobot-Roboter (LeKiwi, Koch …) | lerobot | Hugging Face LeRobot | – | über LeRobot (Arm, Greifer, Räder; ungetestet) |
 
 **Dein eigener Roboter:** Über die [Körperschnittstelle](docs/koerper-schnittstelle.md) bekommt jeder Roboter Knowlin –
 als eigenes Python-Paket, ohne Knowlin zu ändern. Er beschreibt in einem Profil, was er kann, und besteht die
@@ -110,15 +128,18 @@ flowchart LR
   Mensch(["Du – Sprache, Text, Handy"]) --> Kopf
   subgraph Kopf["Knowlin – ein Kopf"]
     direction TB
-    Gehirn["Gehirn<br/>Claude · lokales Modell · einfache Befehle"]
+    Gehirn["Gehirn<br/>Claude · andere Modelle · lokal · einfache Befehle"]
+    Werte["Werte, Selbstbild, Antrieb, Rückblick"]
     Wissen["Gedächtnis und Erfahrungsnetz<br/>Umgebung · Alltag · Erlebnisse"]
     Charakter["Grundcharakter und Stimme"]
   end
   Kopf --> Sicherheit{{"Sicherheit<br/>Not-Aus gewinnt immer"}}
   Sicherheit --> Q["duckpilot<br/>Microduck · Open Duck"]
   Sicherheit --> R["deskpilot<br/>Reachy Mini"]
+  Sicherheit --> A["Arm<br/>SO-101"]
   Q --> Sim[("Simulator<br/>mit Physik")]
   R --> Sim
+  A --> Sim
   Q -. "umschaltbar" .-> Echt[("Echter Roboter")]
   R -. "umschaltbar" .-> Echt
 ```

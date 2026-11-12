@@ -48,6 +48,7 @@ def uebersetze(roh: str, tiefe: int = 0) -> str | None:
 @pytest.mark.parametrize("de, en", [
     ("umschauen", "looking around"),
     ("umschauen, hält Ball", "looking around, holding Ball"),
+    ("hält den roten Würfel", "holding the red cube"),                 # Ari an der Werkbank (Fund 12.11.)
     ("erkunden (60 s)", "explore (60 s)"),
     ("apportieren: Ball (hin)", "fetching: Ball (on the way)"),
     ("begrüßen: Odi", "greeting: Odi"),

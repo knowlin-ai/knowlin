@@ -131,8 +131,9 @@ def punkt_gruen(png: bytes, page) -> bool:
     hinterher – dann kann im Bild noch „Knowlin getrennt“ stehen, obwohl die Seite schon wieder verbunden ist."""
     from PIL import Image
 
-    box = page.locator("#badge-link .dot").bounding_box()
-    if not box:
+    box = page.evaluate("""() => { const d = document.querySelector('#badge-link .dot'); if (!d) return null;
+        const r = d.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; }""")
+    if not box:                                     # ohne Playwrights Warten auf Ruhe – die 3D-Ansicht rechnet ständig
         return False
     r, g, b = Image.open(io.BytesIO(png)).convert("RGB").getpixel((int(box["x"] + box["width"] / 2),
                                                                   int(box["y"] + box["height"] / 2)))
@@ -177,6 +178,33 @@ def szene_reachy(page, base, sprache):
 
 def szene_odi(page, base, sprache):
     _koerper(page, base, "open_duck_mini", sprache, "Tanz ein bisschen" if sprache == "de" else "Dance a little")
+
+
+def szene_ari(page, base, sprache):
+    """SO-101 an seiner Werkbank (seit 0.38.48): aufwecken, den roten Würfel greifen, Blick auf die Werkbank."""
+    A.einstellen(page, {"modul": "so101", "backend": "sim", "sim_physik": False, "sprache": sprache})
+    A.oeffnen(page, base)
+    zu(page, "cockpit", ms=4000)
+    senden = "([n, a]) => window.duckpilot.send({type: 'tool', name: n, args: a})"
+    page.evaluate(senden, ["szene", {"aktion": "zuruecksetzen"}])     # die zweite Sprache beginnt mit leerem Greifer
+    page.evaluate(senden, ["power", {"action": "stand_up"}])
+    page.wait_for_timeout(5000)
+    page.evaluate(senden, ["greifen", {"ding": "roter Würfel"}])
+    page.wait_for_function("() => window.duckpilot.state && window.duckpilot.state.holding", timeout=180000)
+    page.wait_for_timeout(4000)
+    page.evaluate("() => { const s = window.duckpilot.scene; s.paused = false;"
+                  " s.camera.position.set(-1.2, 1.2, -0.0); s.controls.target.set(-1.72, 0.82, -0.25); s.controls.update(); }")
+    page.wait_for_timeout(3000)
+
+
+def szene_werte(page, base, sprache):
+    """Knowlins Kopf (seit 0.38.42–0.38.45): Werte und Grenzen, darunter die Gedankenspur."""
+    A.einstellen(page, {"modul": "so101", "backend": "sim", "sim_physik": False, "sprache": sprache})
+    A.oeffnen(page, base)
+    zu(page, "cockpit", ms=3000)
+    zu(page, "persoenlichkeit", ms=3000)
+    page.evaluate("() => document.getElementById('werte-karte').scrollIntoView({block: 'start'})")
+    page.wait_for_timeout(2500)
 
 
 def szene_synapsen(page, base, sprache):
@@ -267,7 +295,8 @@ def szene_training(page, base, sprache):
     page.wait_for_timeout(8000)
 
 
-SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi,
+SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi, "ari": szene_ari,
+          "werte": szene_werte,
           "synapsen": szene_synapsen, "charakter": szene_charakter, "tanz": szene_tanz, "team": szene_team,
           "akrobatik": szene_akrobatik, "training": szene_training}
 

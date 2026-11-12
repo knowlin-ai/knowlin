@@ -1,6 +1,6 @@
-<title>Knowlin – selbstlernender Begleiter für Microduck, Open Duck Mini und Reachy Mini</title>
+<title>Knowlin – selbstlernender Begleiter für Microduck, Reachy Mini, Open Duck und SO-101</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Selbstlernender Begleiter für kleine Roboter: Microduck, Open Duck Mini und Reachy Mini am PC simulieren, per Sprache und Claude steuern – kostenlos.">
+<meta name="description" content="Selbstlernender Begleiter für kleine Roboter: Microduck, Reachy Mini, Open Duck und den Greifarm SO-101 am PC simulieren, per Sprache steuern – kostenlos.">
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>
@@ -168,7 +168,7 @@ section { padding-block: clamp(72px, 10vw, 136px); }
 .fakten li + li::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--linie); margin-right: 10px; }
 @media (max-width: 520px) { .fakten { flex-direction: column; gap: 4px; } .fakten li + li::before { display: none; } }
 
-/* Die drei Körper als Ziele für den Impuls aus dem Kopf */
+/* Die vier Körper als Ziele für den Impuls aus dem Kopf */
 .anker-reihe { align-self: end; justify-self: center; display: flex; gap: 10px; flex-wrap: nowrap; justify-content: center; margin-bottom: -8px; }
 .anker {
   display: grid; gap: 2px; justify-items: start; min-width: 0; min-height: 56px; padding: 10px 14px 11px;
@@ -464,6 +464,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <button type="button" class="anker" id="anker-microduck" data-anker="microduck" aria-pressed="false">Microduck<small><span class="t" lang="de">läuft und tanzt</span><span class="t" lang="en">walks and dances</span></small></button>
         <button type="button" class="anker" id="anker-reachy" data-anker="reachy" aria-pressed="false">Reachy Mini<small><span class="t" lang="de">schaut und spielt</span><span class="t" lang="en">looks and plays</span></small></button>
         <button type="button" class="anker" id="anker-odi" data-anker="odi" aria-pressed="false">Open Duck Mini<small><span class="t" lang="de">watschelt</span><span class="t" lang="en">waddles</span></small></button>
+        <button type="button" class="anker" id="anker-ari" data-anker="ari" aria-pressed="false">SO-101<small><span class="t" lang="de">greift und räumt</span><span class="t" lang="en">grabs and tidies</span></small></button>
       </div>
     </div>
   </section>
@@ -482,7 +483,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
   <section id="koerper">
     <div class="huelle">
       <div class="kopfzeile">
-        <h2><span class="t" lang="de">Drei Körper, ein Gedächtnis.</span><span class="t" lang="en">Three bodies, one memory.</span></h2>
+        <h2><span class="t" lang="de">Vier Körper, ein Kopf.</span><span class="t" lang="en">Four bodies, one mind.</span></h2>
         <p class="leit">
           <span class="t" lang="de">Jede Verkörperung hat ihren eigenen Namen, ihre Stimme und kann nur, was ihr Körper kann. Was einer erlebt, wissen alle.</span>
           <span class="t" lang="en">Each embodiment has its own name and voice, and only does what its body can do. What one of them experiences, all of them know.</span>
@@ -493,6 +494,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <button type="button" role="tab" id="tab-microduck" aria-selected="true" aria-controls="koerper-buehne" data-koerper="microduck">Microduck</button>
         <button type="button" role="tab" id="tab-reachy" aria-selected="false" aria-controls="koerper-buehne" data-koerper="reachy" tabindex="-1">Reachy Mini</button>
         <button type="button" role="tab" id="tab-odi" aria-selected="false" aria-controls="koerper-buehne" data-koerper="odi" tabindex="-1">Open Duck Mini</button>
+        <button type="button" role="tab" id="tab-ari" aria-selected="false" aria-controls="koerper-buehne" data-koerper="ari" tabindex="-1">SO-101</button>
       </div>
       <div class="buehne" id="koerper-buehne" role="tabpanel" aria-labelledby="tab-microduck">
         <div class="buehne-bild">
@@ -505,8 +507,8 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <div class="steckbrief" aria-live="polite"></div>
       </div>
       <p class="leit" style="margin-top:32px">
-        <span class="t" lang="de">Und mehr: Roboter aus Hugging Faces <a href="https://github.com/huggingface/lerobot" rel="noopener">LeRobot</a> (SO-101, LeKiwi …) sind eingebaut, und dein eigener Roboter bekommt Knowlin über die <a href="https://github.com/knowlin-ai/knowlin/blob/main/docs/koerper-schnittstelle.md" rel="noopener">Körperschnittstelle</a> – als eigenes Paket, mit Sicherheitsprüfung, ohne Knowlin zu ändern.</span>
-        <span class="t" lang="en">And more: robots from Hugging Face's <a href="https://github.com/huggingface/lerobot" rel="noopener">LeRobot</a> (SO-101, LeKiwi …) are built in, and your own robot gets Knowlin through the <a href="https://github.com/knowlin-ai/knowlin/blob/main/docs/body-interface.md" rel="noopener">body interface</a> – as its own package, with safety checks, without changing Knowlin.</span>
+        <span class="t" lang="de">Und mehr: Weitere Roboter aus Hugging Faces <a href="https://github.com/huggingface/lerobot" rel="noopener">LeRobot</a> (LeKiwi, Koch …) sind eingebaut, und dein eigener Roboter bekommt Knowlin über die <a href="https://github.com/knowlin-ai/knowlin/blob/main/docs/koerper-schnittstelle.md" rel="noopener">Körperschnittstelle</a> – als eigenes Paket, mit Sicherheitsprüfung, ohne Knowlin zu ändern.</span>
+        <span class="t" lang="en">And more: more robots from Hugging Face's <a href="https://github.com/huggingface/lerobot" rel="noopener">LeRobot</a> (LeKiwi, Koch …) are built in, and your own robot gets Knowlin through the <a href="https://github.com/knowlin-ai/knowlin/blob/main/docs/body-interface.md" rel="noopener">body interface</a> – as its own package, with safety checks, without changing Knowlin.</span>
       </p>
     </div>
   </section>
@@ -562,10 +564,32 @@ profil = Koerper(
   id=<span class="s">"rollbot"</span>, name=<span class="s">"Rollbot"</span>,
   faehigkeiten={<span class="s">"raeder"</span>, <span class="s">"kamera"</span>},
   fabrik=baue_rollbot)</pre>
-          <figcaption><span class="marke-klein"><span class="t" lang="de">Körperschnittstelle</span><span class="t" lang="en">Body interface</span></span><h3><span class="t" lang="de">Dein Roboter, derselbe Geist.</span><span class="t" lang="en">Your robot, the same mind.</span></h3><p><span class="t" lang="de">Ein kleines Paket mit Profil – mit Sicherheitsprüfung, ohne Knowlin zu ändern. LeRobot-Roboter wie SO-101 und LeKiwi sind schon eingebaut.</span><span class="t" lang="en">A small package with a profile – with safety checks, without changing Knowlin. LeRobot robots like SO-101 and LeKiwi are already built in.</span></p></figcaption>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Körperschnittstelle</span><span class="t" lang="en">Body interface</span></span><h3><span class="t" lang="de">Dein Roboter, derselbe Kopf.</span><span class="t" lang="en">Your robot, the same mind.</span></h3><p><span class="t" lang="de">Ein kleines Paket mit Profil – mit Sicherheitsprüfung, ohne Knowlin zu ändern. Der Greifarm SO-101 ist schon dabei, weitere LeRobot-Roboter auch.</span><span class="t" lang="en">A small package with a profile – with safety checks, without changing Knowlin. The SO-101 gripper arm is already on board, other LeRobot robots too.</span></p></figcaption>
         </figure>
       </div>
       <p class="bildnachweis" data-nachweis="pollen"><span class="t" lang="de">Bilder: Knowlin mit dem 3D-Modell der Microduck – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" rel="noopener license">CC BY-NC-SA 4.0</a>. Die Bilder stehen unter derselben Lizenz.</span><span class="t" lang="en">Images: Knowlin with the Microduck 3D model – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener license">CC BY-NC-SA 4.0</a>. The images are under the same licence.</span></p>
+    </div>
+  </section>
+
+  <section id="werte">
+    <div class="huelle geteilt">
+      <div class="paar">
+        <div class="text">
+          <h2><span class="t" lang="de">Ein Kopf mit Werten, nicht nur ein Sprachmodell.</span><span class="t" lang="en">A mind with values, not just a language model.</span></h2>
+          <p class="leit">
+            <span class="t" lang="de">Knowlin bleibt derselbe, egal welches Modell gerade denkt und welcher Körper dranhängt. Er weiß, was sein Körper kann, und sagt ehrlich, wenn er etwas anders zeigt.</span>
+            <span class="t" lang="en">Knowlin stays the same, whichever model is thinking and whichever body is attached. He knows what his body can do and says honestly when he shows something differently.</span>
+          </p>
+          <ul class="liste">
+            <li><span class="t" lang="de">Dieselben Werte für jedes Modell – die Grenzen stehen im Code, jede ist durch einen Test belegt</span><span class="t" lang="en">The same values for every model – the limits live in the code, each backed by a test</span></li>
+            <li><span class="t" lang="de">Absicht statt Bewegung: „grüßen“ wird bei der Ente ein Nicken, beim Arm ein Winken</span><span class="t" lang="en">Intention, not movement: “greet” becomes a nod for the duck and a wave for the arm</span></li>
+            <li><span class="t" lang="de">Durchschaubar: Die Gedankenspur zeigt, was er von sich aus getan hat und warum</span><span class="t" lang="en">Transparent: the trail of thought shows what he did on his own and why</span></li>
+            <li><span class="t" lang="de">Lernt im Stillen: Lehren aus Ruhephasen kannst du korrigieren oder löschen</span><span class="t" lang="en">Learns quietly: you can correct or delete the lessons from quiet phases</span></li>
+          </ul>
+        </div>
+        <div class="bild"><img data-bild="werte" src="bilder/werte-de-1600.webp" srcset="bilder/werte-de-900.webp 900w, bilder/werte-de-1600.webp 1600w" sizes="(max-width: 860px) 100vw, 600px" width="1600" height="965" loading="lazy"
+          alt="Persönlichkeit: Werte und Grenzen, die für jedes Sprachmodell gelten, darunter die Gedankenspur" data-alt-en="Personality: values and limits that apply to every language model, with the trail of thought below"></div>
+      </div>
     </div>
   </section>
 
@@ -594,7 +618,7 @@ profil = Koerper(
             <span class="t" lang="en">You set Knowlin's basic character – calm or lively, serious or playful. Each embodiment adds its own touch and keeps itself busy when you're not saying anything.</span>
           </p>
           <ul class="liste">
-            <li><span class="t" lang="de">Claude und andere Modelle (OpenAI, Gemini, Mistral) mit eigenem Schlüssel – oder kostenlos und lokal mit Ollama</span><span class="t" lang="en">Claude and other models (OpenAI, Gemini, Mistral) with your own key – or free and local with Ollama</span></li>
+            <li><span class="t" lang="de">Sprachmodell frei wählbar: Claude, Gemini, OpenAI, Mistral mit eigenem Schlüssel – oder kostenlos und lokal mit Ollama oder LM Studio</span><span class="t" lang="en">Choose the language model freely: Claude, Gemini, OpenAI, Mistral with your own key – or free and local with Ollama or LM Studio</span></li>
             <li><span class="t" lang="de">Ohne KI gehen einfache Befehle trotzdem: „lauf vor“, „tanz“, „stopp“</span><span class="t" lang="en">Without any AI, simple commands still work: “walk forward”, “dance”, “stop”</span></li>
             <li><span class="t" lang="de">Sprechen per Taste oder Weckwort, Antworten mit eigener Stimme</span><span class="t" lang="en">Talk with a key or a wake word, answers in its own voice</span></li>
             <li><span class="t" lang="de">Charakter, Tricks und Tänze als Knowlet teilen – auch über Hugging Face</span><span class="t" lang="en">Share character, tricks and dances as a Knowlet – also via Hugging Face</span></li>
@@ -749,6 +773,15 @@ profil = Koerper(
         zeilen: [['Simulator', 'ja', 'with its open 3D model'], ['Real robot', 'bald', 'planned'], ['Senses', null, 'depending on the build']],
         alt: 'Open Duck Mini dancing in the simulator, with the conversation next to it' },
     },
+    ari: {
+      bild: 'ari',
+      de: { name: 'SO-101', von: 'TheRobotStudio · Hugging Face LeRobot', text: 'Ein offener Greifarm mit sechs Gelenken. Steht an seiner eigenen Werkbank, greift Würfel und legt sie in Kisten – und grüßt mit Winken statt Nicken.',
+        zeilen: [['Simulator', 'ja', 'mit offenem 3D-Modell und Werkbank'], ['Echter Roboter', 'bald', 'über LeRobot – noch ungetestet'], ['Sinne', null, 'je nach Aufbau (Kamera optional)']],
+        alt: 'Der SO-101-Arm im Simulator an seiner Werkbank mit Würfeln und Kisten, daneben das Gespräch' },
+      en: { name: 'SO-101', von: 'TheRobotStudio · Hugging Face LeRobot', text: 'An open gripper arm with six joints. Stands at its own workbench, picks up cubes and puts them in boxes – and greets with a wave instead of a nod.',
+        zeilen: [['Simulator', 'ja', 'with its open 3D model and workbench'], ['Real robot', 'bald', 'via LeRobot – not yet tested'], ['Senses', null, 'depending on the setup (camera optional)']],
+        alt: 'The SO-101 arm in the simulator at its workbench with cubes and boxes, with the conversation next to it' },
+    },
   };
 
   const quelle = (name, w) => `bilder/${name}-${sprache()}-${w}.webp`;
@@ -767,13 +800,15 @@ profil = Koerper(
       ['Code auf GitHub', 'Code on GitHub', 'https://github.com/pollen-robotics/reachy_mini'],
       ['App-Katalog', 'App catalog', 'https://huggingface.co/spaces?filter=reachy_mini']],
     odi: [['Projekt auf GitHub', 'Project on GitHub', 'https://github.com/apirrone/Open_Duck_Mini']],
+    ari: [['Projekt auf GitHub', 'Project on GitHub', 'https://github.com/TheRobotStudio/SO-ARM100'],
+      ['LeRobot', 'LeRobot', 'https://github.com/huggingface/lerobot']],
   };
   const RAUS = '<svg class="raus" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9"/></svg>';
 
   let aktiv = 'microduck';
   // Bildnachweis unter der Bühne (seit 0.38.40): Pollens Modelle mit Lizenz, Odi mit seinem offenen Modell
   const NACHWEIS = {
-    microduck: ['Microduck', true], reachy: ['Reachy Mini', true], odi: ['Open Duck Mini v2', false],
+    microduck: ['Microduck', true], reachy: ['Reachy Mini', true], odi: ['Open Duck Mini v2', false], ari: ['SO-101', false],
   };
   function nachweisSetzen() {
     const [modell, pollen] = NACHWEIS[aktiv];
@@ -782,8 +817,9 @@ profil = Koerper(
     el.replaceChildren();
     el.dataset.nachweis = pollen ? 'pollen' : 'offen';
     if (!pollen) {
+      const art = modell === 'SO-101' ? 'des' : 'der';
       el.textContent = en ? `Image: Knowlin with the open 3D model of the ${modell} (Apache-2.0).`
-        : `Bild: Knowlin mit dem offenen 3D-Modell der ${modell} (Apache-2.0).`;
+        : `Bild: Knowlin mit dem offenen 3D-Modell ${art} ${modell} (Apache-2.0).`;
       return;
     }
     const a = document.createElement('a');
@@ -869,8 +905,8 @@ profil = Koerper(
     bildSetzen(buehne.querySelector('img'), KOERPER[aktiv].bild);
     steckbrief();
     netz?.neuZeichnen();
-    document.title = l === 'en' ? 'Knowlin – self-learning companion for Microduck, Open Duck Mini and Reachy Mini'
-      : 'Knowlin – selbstlernender Begleiter für Microduck, Open Duck Mini und Reachy Mini';
+    document.title = l === 'en' ? 'Knowlin – self-learning companion for Microduck, Reachy Mini, Open Duck and SO-101'
+      : 'Knowlin – selbstlernender Begleiter für Microduck, Reachy Mini, Open Duck und SO-101';
   }
   for (const b of document.querySelectorAll('[data-sprache]')) b.addEventListener('click', () => spracheSetzen(b.dataset.sprache));
   spracheSetzen(sprache());
@@ -901,10 +937,10 @@ profil = Koerper(
     const ctx = cv.getContext('2d');
     const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
     const fein = matchMedia('(hover: hover) and (pointer: fine)');
-    const KOERPER = ['microduck', 'reachy', 'odi'];
+    const KOERPER = ['microduck', 'reachy', 'odi', 'ari'];
     const SCHRITT = 72;                         // ms, bis ein Signal ein Neuron weiter ist
     let w = 0, h = 0, dpr = 1, schmal = null;
-    let knoten = [], kanten = [], nachbarn = [], mitte = { x: 0, y: 0, r: 1 }, chips = [], ausgang = [0, 0, 0];
+    let knoten = [], kanten = [], nachbarn = [], mitte = { x: 0, y: 0, r: 1 }, chips = [], ausgang = [0, 0, 0, 0];
     let aktiv = null, ziel = null, leitung = null;
     let sichtbar = true, laeuft = false, zuletzt = 0, naechsteWelle = 0, beruehrt = -1e9, t0 = performance.now();
     let drehung = 0.55;
@@ -979,7 +1015,7 @@ profil = Koerper(
         const oben = 14, platz = unten - oben - 30;
         mitte = { x: w / 2, y: oben + platz / 2, r: Math.min(w * 0.42, platz / 1.45) };
       } else {
-        const links = chips[0].x - 90, rechts = chips[2].x + 90, oben = 70, platz = unten - 60 - oben;
+        const links = chips[0].x - 90, rechts = chips[chips.length - 1].x + 90, oben = 70, platz = unten - 60 - oben;
         mitte = { x: (links + rechts) / 2 + 10, y: oben + platz / 2, r: Math.min((rechts - links) / 2, platz / 1.4) };
       }
       if (neuSchmal !== schmal) { schmal = neuSchmal; erzeugen(schmal ? 480 : 1000); }
@@ -1146,7 +1182,7 @@ profil = Koerper(
       if (!laeuft) return;
       if (jetzt > naechsteWelle && jetzt - beruehrt > 7000) {
         naechsteWelle = jetzt + 4200;
-        welle(ziel ? KOERPER[(KOERPER.indexOf(ziel) + 1) % 3] : 'microduck');
+        welle(ziel ? KOERPER[(KOERPER.indexOf(ziel) + 1) % KOERPER.length] : 'microduck');
       }
       bild(jetzt);
       requestAnimationFrame(schleife);

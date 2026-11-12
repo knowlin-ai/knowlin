@@ -318,6 +318,36 @@ langsamer. Gefühle lassen sich unter Charakter → Persönlichkeit ausschalten.
 **Sicherheit geht immer vor:** Stopp wirkt sofort und ohne Trotz. Gefühle und Albernheiten bewegen
 nur Kopf, Schnabel und Haltung, nie die Beine. Auf dem echten Roboter dreht sie sich nie ungefragt.
 
+## Knowlins Kopf: Werte, Absicht, Antrieb, Rückblick (seit 0.38.42)
+
+Knowlin soll derselbe bleiben, egal welches Sprachmodell gerade denkt und welcher Körper dranhängt. Dafür gibt es fünf
+Bausteine – alle durchschaubar und im Code verankert, nicht nur im Prompt.
+
+- **Werte und Grenzen** (Charakter → Persönlichkeit, ganz unten): Jedes Sprachmodell bekommt dieselben Werte – ehrlich
+  sein, Sicherheit vor Neugier, Privatsphäre achten, nicht manipulieren, begründet ablehnen. Die **Grenzen** stehen im
+  Code und lassen sich durch keine Überredung verschieben: Not-Aus gewinnt, Sperre danach, kein Aufstehen von selbst im
+  Stopp-Fenster, keine Ortsbewegung von selbst am echten Roboter, bezahltes Training nur durch dich, Personen nur nach
+  Einwilligung, Schlüssel nur im Tresor. Jede Grenze ist durch einen Test belegt.
+- **Absicht statt Bewegung** (seit 0.38.43): Das Sprachmodell sagt, was es meint – grüßen, zustimmen, ablehnen, sich
+  freuen, neugierig sein, sich umsehen, auf sich aufmerksam machen, traurig sein, staunen, ausruhen. Der Körper handelt
+  aus, wie er es zeigt: **kann** (wie gemeint), **Ersatz** (anders, z. B. Reachy ohne Beine nur mit dem Kopf, der
+  SO-101 winkt statt zu nicken) oder **nein** mit Grund (Sperre, liegt, gehalten …). Knowlin sagt das ehrlich weiter.
+- **Selbstbild:** „Wie geht's dir?“ und „Was kannst du?“ beantwortet Knowlin aus den Daten seines Körpers – Haltung,
+  Fähigkeiten, Sperre nach dem Not-Aus, Akku, was er hält. Was unsicher ist, sagt er als unsicher.
+- **Antrieb** (seit 0.38.44): Vier Bedürfnisse – Neugier, Nähe, Ruhe, Können – wachsen mit der Zeit und werden durch
+  passendes Tun gestillt. Sie entscheiden mit, **was** er von sich aus tut, nie **wie oft**: Das bestimmt der Regler
+  **„Von sich aus beschäftigen“** (Charakter → Persönlichkeit, von „Nur auf Ansprache“ bis „Lebendig“, je
+  Verkörperung). Nähe bleibt still – kein Satz, kein Drängen. Sichtbar ist der Antrieb nur als Hinweis beim
+  Darüberfahren über die Stimmung („gerade eher neugierig“).
+- **Gedankenspur** (Charakter → Persönlichkeit): Zu jeder eigenen Handlung eine Zeile – Uhrzeit, was, warum (welches
+  Bedürfnis) und ob es ging; dazu Bitten, die er nur anders oder gar nicht umsetzen konnte. Die Spur bleibt nur, solange
+  die App läuft; leeren am PC, Zeilen über Personen nur am PC.
+- **Rückblick** (seit 0.38.45, Gedächtnis → „Im Rückblick gelernt“): Nach zehn Minuten Ruhe schaut er höchstens einmal
+  pro Stunde auf die Gedankenspur zurück und legt kleine Lehren ab – was oft nicht klappt („lieber seltener“), was er
+  gern macht. Sie ändern nur, wie oft er sich etwas selbst aussucht (Faktor 0,3 bis 1,5), schalten nichts frei und
+  betreffen nie Personen. Er erzählt sie nicht ungefragt; du kannst jede mit **Seltener / Wie vorher / Öfter**
+  korrigieren oder löschen, „Jetzt zurückblicken“ stößt ihn von Hand an.
+
 ## Echte Physik am PC
 
 System → Einstellungen → Körper → **Echte Physik**. Dann ist der Körper der Ente nicht mehr nachgebildet,
@@ -1003,8 +1033,13 @@ Seit 0.35 kann ein anderes Modell denken: **Einstellungen → KI-Modell → „A
 - Gleiche Persönlichkeit, gleiches Gedächtnis, **dieselben Werkzeuge und Sicherheitsregeln** – die stecken in duckpilot,
   nicht im Modell. „Stopp“ und die Kurzbefehle laufen ohne Modell. Fällt der Anbieter aus, übernehmen die einfachen
   Befehle.
-- Bilder („Was siehst du?“) kann vorerst nur Claude ansehen. Wie gut ein Modell Bewegungen plant, hängt am Modell;
-  Claude ist dafür gemacht und bleibt Standard.
+- Bilder („Was siehst du?“) kann vorerst nur Claude ansehen. Wie gut ein Modell Bewegungen plant, hängt am Modell.
+- **Frei wählbar** (seit 0.38.43): Unter „KI-Modell“ stehen Claude, „Lokales Modell“ und „Anderes Modell“ gleichrangig;
+  die Felder für Claude erscheinen erst, wenn Claude gewählt ist. „Kurze Befehle ohne Sprachmodell“ und der MCP-Zugang
+  gelten für alle Modelle.
+- **Modelle für Roboter** (seit 0.38.46): Nach „Modelle laden“ stehen Modelle, die für Roboter gemacht sind, ganz oben –
+  bei Google Gemini etwa `gemini-robotics-er-2-preview` (räumliches Denken über Bilder). Mit Knowlins Werkzeugen noch
+  nicht ausprobiert.
 
 ## Andere Programme steuern die Ente (MCP)
 
@@ -1054,6 +1089,10 @@ anzeigen“ klicken. Knowlin schaltet die Fernbedienung ein und zeigt einen QR-C
 eintippen. Den Namen `knowlin.local` sagt Knowlin im Heimnetz an, solange die Fernbedienung an ist (mDNS/Bonjour);
 iPhone, iPad, Mac und Windows finden ihn, manche Android-Geräte nicht – dort die angezeigte Zahlenadresse nehmen. Der
 kurze Code gilt wie der QR-Code 5 Minuten, für ein Gerät, nach 5 Fehlversuchen ist er verbraucht.
+
+**Am Handy (seit 0.38.41):** Das Cockpit füllt den Bildschirm – oben die 3D-Bühne, darunter das Gespräch, unten die
+Leiste mit Steuern · Alltag · Umgebung · Lernen · Mehr und dem Not-Aus. Den **Griff** zwischen Bühne und Gespräch kannst
+du ziehen (22–75 % der Höhe, seit 0.38.43); Doppeltippen setzt auf 40 % zurück, jedes Gerät merkt sich seine Aufteilung.
 
 Ausführlich unter **System → Einstellungen → Handy-Fernbedienung**:
 

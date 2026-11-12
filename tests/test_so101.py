@@ -1,4 +1,4 @@
-"""SO-101 als neuer Körper im Simulator (seit 0.38.47, Etappe G5 aus dem Konzept „Knowlins Geist“): derselbe Geist mit
+"""SO-101 als neuer Körper im Simulator (seit 0.38.47, Etappe G5 aus dem Konzept „Knowlins Kopf“): derselbe Kopf mit
 einem Arm statt einer Ente – der Aktionskatalog grüßt mit Winken, Kopf-Werkzeuge gibt es nicht, der Not-Aus gewinnt."""
 
 import asyncio

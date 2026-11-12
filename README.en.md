@@ -37,8 +37,9 @@
 
 **Knowlin** is one shared mind for several robots. It knows your surroundings, your everyday life and the things you
 have experienced together – and takes on a body depending on the task: the walking **Microduck**, the self-built
-**Open Duck Mini** or the desk robot **Reachy Mini**. Each **embodiment** has its own name, voice and character; the
-knowledge is shared.
+**Open Duck Mini**, the desk robot **Reachy Mini** or the **SO-101** gripper arm at its workbench. Each **embodiment**
+has its own name, voice and character; the knowledge is shared. You choose the language model freely – Claude, another
+model with your own key, or a local one on your PC.
 
 Without a body, Knowlin is calm and matter-of-fact. When something needs movement – walking, dancing, showing you
 something – it suggests the right robot and asks whether to use it.
@@ -57,9 +58,10 @@ something – it suggests the right robot and asks whether to use it.
   <tr>
     <td width="50%" valign="top">
       <img src="docs/bilder/cockpit-en.png" alt="Cockpit with the Microduck in the simulator living room and the conversation next to it"><br>
-      <strong>Voice and Claude</strong><br>
-      Free sentences, wake word or push-to-talk: Claude understands, plans sequences and rehearses new moves invisibly in
-      the physics first. Simple commands also work without AI – or with a local model on your graphics card.
+      <strong>Voice control</strong><br>
+      Free sentences, wake word or push-to-talk: the language model understands, plans sequences and rehearses new moves
+      invisibly in the physics first – Claude, Gemini, OpenAI, Mistral, or local with Ollama and LM Studio. Simple
+      commands also work without AI.
     </td>
     <td width="50%" valign="top">
       <img src="docs/bilder/synapsen-en.png" alt="Memory: brain activity as a spatial network of places, things, times of day and feelings with glowing connections"><br>
@@ -93,6 +95,21 @@ simulator with a living room, things to play with and optional real physics · t
 and training (free on your PC or on Kaggle) · **Knowlets**: share character, tricks and dances as a package – data only,
 never knowledge about people · interface in English and German.
 
+### A mind, not just a language model
+
+Knowlin stays the same, whichever model is thinking and whichever body is attached:
+
+- **Values and limits:** every language model gets the same values (be honest, safety before curiosity, don't
+  manipulate …). The limits – emergency stop, lock, no moving around on its own on the real robot – live in the code,
+  each backed by a test. See Character → Personality.
+- **Intention, not movement:** the model says what it means ("greet", "be happy"); the body works out how to show it –
+  the duck nods, Reachy uses head and antennas, the arm waves. What it can't do, Knowlin says honestly.
+- **Self-image:** "How are you?" is answered from the body's data, not made up.
+- **Drive and trail of thought:** curiosity, closeness, rest and skill help decide what it does on its own – subtle,
+  never pushy. Every action it takes on its own is listed with a reason.
+- **Looking back:** in quiet phases it notes small lessons ("likes practising tricks"). It doesn't bring them up; you
+  can correct or delete each one.
+
 ## Bodies and modules
 
 The modules have code names by kind of body: **duckpilot** for the walking ducks, **deskpilot** for stationary desk
@@ -103,7 +120,8 @@ robots. Every body shows only what it can do – what it lacks (legs, depth sens
 | **Quacki** | Microduck | duckpilot | Pollen Robotics and Hugging Face | simple and with real physics | via `robotd` (Pollen's daemon) |
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone and community | open model: walking, head, antennas, avoids obstacles with its camera | planned |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics and Hugging Face | Pollen's model, emotions, dances, games | via Pollen's daemon (untested) |
-| – | LeRobot robots (SO-101, LeKiwi …) | lerobot | Hugging Face LeRobot | – | via LeRobot (arm, gripper, wheels; untested) |
+| **Ari** | SO-101 (gripper arm) | so101 | TheRobotStudio and Hugging Face | open model at its own workbench: gestures, picking up cubes and putting them in boxes | via LeRobot (untested) |
+| – | more LeRobot robots (LeKiwi, Koch …) | lerobot | Hugging Face LeRobot | – | via LeRobot (arm, gripper, wheels; untested) |
 
 **Your own robot:** With the [body interface](docs/body-interface.md) any robot can get Knowlin – as its own Python
 package, without changing Knowlin. It describes what it can do in a profile and passes the safety checks
@@ -114,15 +132,18 @@ flowchart LR
   Human(["You – voice, text, phone"]) --> Mind
   subgraph Mind["Knowlin – one mind"]
     direction TB
-    Brain["Brain<br/>Claude · local model · simple commands"]
+    Brain["Brain<br/>Claude · other models · local · simple commands"]
+    Values["Values, self-image, drive, looking back"]
     Memory["Memory and experience network<br/>surroundings · everyday life · experiences"]
     Character["Basic character and voice"]
   end
   Mind --> Safety{{"Safety<br/>emergency stop always wins"}}
   Safety --> D["duckpilot<br/>Microduck · Open Duck"]
   Safety --> R["deskpilot<br/>Reachy Mini"]
+  Safety --> A["Arm<br/>SO-101"]
   D --> Sim[("Simulator<br/>with physics")]
   R --> Sim
+  A --> Sim
   D -. "switchable" .-> Real[("Real robot")]
   R -. "switchable" .-> Real
 ```
