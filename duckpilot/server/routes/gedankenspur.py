@@ -35,14 +35,14 @@ def register(app: FastAPI, runtime: Runtime) -> None:
 
     @app.get("/api/rueckblick")
     async def rueckblick() -> JSONResponse:
-        return JSONResponse({"lehren": _mit_namen(runtime.lehrbuch.liste()), "zuletzt": runtime.lehrbuch.zuletzt or None})
+        return JSONResponse({"lehren": _mit_namen(runtime.lehrbuch.liste(runtime.config.sprache)), "zuletzt": runtime.lehrbuch.zuletzt or None})
 
     @app.post("/api/rueckblick/jetzt")
     async def rueckblick_jetzt(request: Request) -> JSONResponse:
         if (nein := _nur_pc(request)) is not None:
             return nein
         neu = runtime.zurueckblicken()
-        return JSONResponse({"ok": True, "neu": len(neu), "lehren": _mit_namen(runtime.lehrbuch.liste())})
+        return JSONResponse({"ok": True, "neu": len(neu), "lehren": _mit_namen(runtime.lehrbuch.liste(runtime.config.sprache))})
 
     @app.post("/api/rueckblick/{lid}")
     async def rueckblick_korrigieren(lid: str, request: Request) -> JSONResponse:

@@ -3359,5 +3359,6 @@
  "Öfter": "More often",
  "Neues im Rückblick gelernt.": "Learned something new in hindsight.",
  "Nichts Neues gelernt.": "Nothing new learned.",
- "Ging nicht – bitte noch einmal.": "Didn't work – please try again."
+ "Ging nicht – bitte noch einmal.": "Didn't work – please try again.",
+ "Modelle, die für Roboter gemacht sind (z. B. Googles „Gemini Robotics-ER“), stehen nach „Modelle laden“ ganz oben.": "Models made for robots (e.g. Google's \"Gemini Robotics-ER\") appear at the top after \"Load models\"."
 }

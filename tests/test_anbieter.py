@@ -42,7 +42,8 @@ def _fake(monkeypatch, antworten, seen):
     def handler(request: httpx.Request) -> httpx.Response:
         seen.append(request)
         if request.url.path.endswith("/models"):
-            return httpx.Response(200, json={"data": [{"id": "gpt-x"}, {"id": "models/gemini-y"}]})
+            return httpx.Response(200, json={"data": [{"id": "gpt-x"}, {"id": "models/gemini-y"},
+                                                       {"id": "models/gemini-robotics-er-2-preview"}]})
         a = antworten.pop(0)
         return a if isinstance(a, httpx.Response) else httpx.Response(200, json=a)
 
@@ -129,7 +130,7 @@ def test_routes_key_status_and_model_list(rt, monkeypatch):
         seen = []
         _fake(monkeypatch, [], seen)
         r = c.post("/api/anbieter/modelle", json={"anbieter": "gemini"}).json()
-        assert r["ok"] and r["modelle"] == ["gemini-y", "gpt-x"]
+        assert r["ok"] and r["modelle"] == ["gemini-robotics-er-2-preview", "gemini-y", "gpt-x"]    # Roboter-Modelle oben
         assert str(seen[-1].url).startswith("https://generativelanguage.googleapis.com/v1beta/openai/models")
         assert c.request("DELETE", "/api/anbieter/schluessel", json={"anbieter": "gemini"}).json()["ok"]
         assert S.get_anbieter_key("gemini") is None
@@ -155,3 +156,4 @@ def test_ki_modell_laedt_auch_unter_einstellungen():
 
     app = (Path(__file__).resolve().parent.parent / "duckpilot/server/static/app.js").read_text(encoding="utf-8")
     assert "if (name === 'stimme' || name === 'settings') voicePage.load();" in app
+

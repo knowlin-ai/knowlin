@@ -9,6 +9,21 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.46 – 2026-11-12 – Lehren auf Englisch, Modelle für Roboter oben
+
+### Neu
+- **Modelle für Roboter (Etappe G5, erster Teil):** Unter „Anderes Modell“ stehen nach „Modelle laden“ Modelle, die eigens
+  für Roboter gemacht sind, ganz oben – bei Google Gemini etwa `gemini-robotics-er-2-preview` (räumliches Denken über
+  Bilder, Werkzeugaufrufe).
+
+### Behoben
+- **Lehren in der Sprache der Oberfläche:** Gespeichert wird nur noch, was gelernt wurde (Art, wie oft, wann); der Text
+  entsteht beim Anzeigen – auf Englisch wie auf Deutsch. Lehren aus 0.38.45 bleiben lesbar.
+
+### Nicht geprüft
+- Gemini Robotics-ER mit Knowlins Werkzeugen – ohne Schlüssel hier nicht ausprobiert; die Werkzeugaufrufe laufen über
+  dieselbe OpenAI-kompatible Adresse wie bei den übrigen Gemini-Modellen.
+
 ## 0.38.45 – 2026-11-12 – Rückblick in Ruhephasen
 
 ### Neu

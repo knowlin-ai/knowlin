@@ -7,7 +7,8 @@ Sperren und der Wertekern gelten unverändert.
 
 Wunsch des Maintainers: „nicht erzählen, aber dokumentieren – so dass man ggf. korrigieren oder löschen kann“. Lehren
 stehen in einer Liste (was, wann, woraus gelernt); jede lässt sich korrigieren („seltener“, „wie vorher“, „öfter“) oder
-löschen. Knowlin erzählt sie nicht ungefragt. Lehren betreffen nie Personen – nur Arten von Beschäftigung.
+löschen. Knowlin erzählt sie nicht ungefragt. Lehren betreffen nie Personen – nur Arten von Beschäftigung; gespeichert wird die Struktur, der Text entsteht je
+Sprache beim Anzeigen (`in_worten`).
 Diese Datei gehört zur Basis und importiert nichts aus Knowlin.
 """
 
@@ -20,14 +21,18 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-# Wie Beschäftigungen in einer Lehre heißen (Arten aus `motion/eigenstaendig.angebot`)
-ART_TEXT = {
-    "umschauen": "sich umschauen", "erkunden": "den Raum erkunden", "ding": "zu Dingen gehen",
-    "anschauen": "Dinge anschauen", "gefuehl": "Gefühle zeigen", "pollen": "kleine Bewegungen von Pollen",
-    "zuwenden": "sich dir zuwenden", "antennen": "mit den Antennen spielen", "sitzen": "sich hinsetzen",
-    "trick": "Tricks üben", "tanzen": "tanzen", "ball": "mit dem Ball spielen", "laufen": "herumlaufen",
-    "aufstehen": "aufstehen", "geste": "Gesten machen",
+# Wie Beschäftigungen in einer Lehre heißen (Arten aus `motion/eigenstaendig.angebot`): (deutsch, englisch)
+ARTEN: dict[str, tuple[str, str]] = {
+    "umschauen": ("sich umschauen", "looking around"), "erkunden": ("den Raum erkunden", "exploring the room"),
+    "ding": ("zu Dingen gehen", "going to things"), "anschauen": ("Dinge anschauen", "looking at things"),
+    "gefuehl": ("Gefühle zeigen", "showing feelings"), "pollen": ("kleine Bewegungen von Pollen", "Pollen's small moves"),
+    "zuwenden": ("sich dir zuwenden", "turning to you"), "antennen": ("mit den Antennen spielen", "playing with the antennas"),
+    "sitzen": ("sich hinsetzen", "sitting down"), "trick": ("Tricks üben", "practising tricks"),
+    "tanzen": ("tanzen", "dancing"), "ball": ("mit dem Ball spielen", "playing with the ball"),
+    "laufen": ("herumlaufen", "walking around"), "aufstehen": ("aufstehen", "standing up"),
+    "geste": ("Gesten machen", "making gestures"),
 }
+ART_TEXT = {k: v[0] for k, v in ARTEN.items()}
 FEHLSCHLAEGE = 2           # so oft „ging nicht“ seit dem letzten Rückblick → „klappt gerade oft nicht“
 GERN = 3                   # so oft gelungen → „mag …“
 MIN_FAKTOR, MAX_FAKTOR = 0.3, 1.5
@@ -42,6 +47,23 @@ def _gross(s: str) -> str:
     return s[:1].upper() + s[1:]
 
 
+def in_worten(lehre: dict[str, Any], sprache: str = "de") -> dict[str, str]:
+    """Was gelernt wurde und woraus – in der Sprache der Oberfläche (gespeichert wird nur die Struktur)."""
+    if "typ" not in lehre:                          # aus 0.38.45: Text war gespeichert
+        return {"was": str(lehre.get("was", "")), "woraus": str(lehre.get("woraus", ""))}
+    en = sprache == "en"
+    name = ARTEN.get(lehre.get("art", ""), (lehre.get("art", ""),) * 2)[1 if en else 0]
+    n = lehre.get("n", 0)
+    if lehre.get("typ") == "selten":
+        von, bis = _uhr(lehre.get("von", 0)), _uhr(lehre.get("bis", 0))
+        return ({"was": _gross(f"{name} often doesn't work here right now – less often"),
+                 "woraus": f"failed {n}× between {von} and {bis}"} if en else
+                {"was": _gross(f"{name} klappt hier gerade oft nicht – lieber seltener"),
+                 "woraus": f"{n}× nicht geklappt zwischen {von} und {bis}"})
+    return ({"was": f"Likes {name}", "woraus": f"did it {n}× on his own, worked every time"} if en else
+            {"was": f"Mag {name}", "woraus": f"{n}× von sich aus gemacht, jedes Mal geklappt"})
+
+
 def ableiten(zeilen: list[dict[str, Any]], seit: float) -> list[dict[str, Any]]:
     """Aus Zeilen der Gedankenspur (`quelle` antrieb, mit `art`) seit `seit` neue Lehren vorschlagen."""
     eigene = [z for z in zeilen if z.get("quelle") == "antrieb" and z.get("art") in ART_TEXT and z["zeit"] > seit]
@@ -51,12 +73,10 @@ def ableiten(zeilen: list[dict[str, Any]], seit: float) -> list[dict[str, Any]]:
     for art, n in fehl.items():
         if n >= FEHLSCHLAEGE:
             zeiten = sorted(z["zeit"] for z in eigene if z["art"] == art and z.get("ergebnis") == "ging nicht")
-            lehren.append({"art": art, "faktor": 0.5, "was": _gross(f"{ART_TEXT[art]} klappt hier gerade oft nicht – lieber seltener"),
-                           "woraus": f"{n}× nicht geklappt zwischen {_uhr(zeiten[0])} und {_uhr(zeiten[-1])}"})
+            lehren.append({"art": art, "typ": "selten", "faktor": 0.5, "n": n, "von": zeiten[0], "bis": zeiten[-1]})
     for art, n in gut.items():
         if n >= GERN and fehl.get(art, 0) == 0:
-            lehren.append({"art": art, "faktor": 1.2, "was": f"Mag {ART_TEXT[art]}",
-                           "woraus": f"{n}× von sich aus gemacht, jedes Mal geklappt"})
+            lehren.append({"art": art, "typ": "gern", "faktor": 1.2, "n": n})
     return lehren
 
 
@@ -97,8 +117,9 @@ class Lehrbuch:
         self._speichern()
         return neu
 
-    def liste(self) -> list[dict[str, Any]]:
-        return sorted(self.lehren, key=lambda x: -x["zeit"])
+    def liste(self, sprache: str = "de") -> list[dict[str, Any]]:
+        """Neueste zuerst, mit `was` und `woraus` in der Sprache der Oberfläche."""
+        return [{**x, **in_worten(x, sprache)} for x in sorted(self.lehren, key=lambda x: -x["zeit"])]
 
     def faktor(self, koerper: str, art: str) -> float:
         for x in self.lehren:

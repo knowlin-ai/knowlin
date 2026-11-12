@@ -6,7 +6,7 @@ import pytest
 
 from duckpilot import remote as R
 from duckpilot.gedankenspur import Gedankenspur
-from duckpilot.rueckblick import MAX_FAKTOR, MIN_FAKTOR, Lehrbuch, ableiten
+from duckpilot.rueckblick import MAX_FAKTOR, MIN_FAKTOR, Lehrbuch, ableiten, in_worten
 
 
 def _spur(*eintraege):
@@ -19,7 +19,7 @@ def _spur(*eintraege):
 def test_lehren_aus_der_spur():
     zeilen = _spur(("erkunden", "ging nicht"), ("erkunden", "ging nicht"), ("trick", "getan"), ("trick", "getan"),
                    ("trick", "getan"), ("umschauen", "getan"))
-    lehren = {x["art"]: x for x in ableiten(zeilen, 0)}
+    lehren = {x["art"]: {**x, **in_worten(x)} for x in ableiten(zeilen, 0)}
     assert set(lehren) == {"erkunden", "trick"}
     assert lehren["erkunden"]["faktor"] < 1 and "Den Raum erkunden klappt hier gerade oft nicht" in lehren["erkunden"]["was"]
     assert lehren["erkunden"]["woraus"].startswith("2× nicht geklappt")
@@ -33,7 +33,7 @@ def test_lehren_ohne_personen_und_nur_aus_eigenem_tun():
         g.merken("wollte Freude zeigen", "gewünscht", quelle="gespraech", ergebnis="nicht getan: Sperre", zeit=1 + i)
     for i in range(3):                                                    # Text der Spur (evtl. mit Namen) wird nie übernommen
         g.merken("dreht sich zu Anna", "Nähe (stark)", art="zuwenden", person=True, zeit=10 + i)
-    lehren = ableiten(g.liste(), 0)
+    lehren = [{**x, **in_worten(x)} for x in ableiten(g.liste(), 0)]
     assert [x["art"] for x in lehren] == ["zuwenden"]
     assert "Anna" not in lehren[0]["was"] + lehren[0]["woraus"] and lehren[0]["was"] == "Mag sich dir zuwenden"
 
@@ -69,3 +69,16 @@ def test_faktor_bleibt_in_grenzen(tmp_path):
 def test_aendern_nur_am_pc():
     for methode, pfad in (("POST", "/api/rueckblick/jetzt"), ("POST", "/api/rueckblick/abc"), ("DELETE", "/api/rueckblick/abc")):
         assert any(m == methode and p.match(pfad) for m, p in R.PC_ONLY), pfad
+
+
+def test_lehren_in_der_sprache_der_oberflaeche(tmp_path):
+    # gespeichert wird die Struktur, der Text entsteht beim Anzeigen – auf Englisch wie auf Deutsch
+    buch = Lehrbuch(tmp_path / "r.json")
+    buch.zurueckblicken(_spur(("erkunden", "ging nicht"), ("erkunden", "ging nicht")), "microduck", jetzt=5000)
+    assert "was" not in buch.lehren[0]
+    de, en = buch.liste("de")[0], buch.liste("en")[0]
+    assert de["was"].startswith("Den Raum erkunden klappt") and en["was"].startswith("Exploring the room often")
+    assert en["woraus"].startswith("failed 2×")
+    alt = {"id": "z", "zeit": 1, "koerper": "m", "art": "trick", "faktor": 1.2, "was": "mag Tricks üben", "woraus": "x"}
+    buch.lehren.append(alt)                                               # Lehre aus 0.38.45 bleibt lesbar
+    assert buch.liste("en")[-1]["was"] == "mag Tricks üben"

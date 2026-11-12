@@ -48,6 +48,15 @@ def adresse(anbieter: str, eigene: str = "") -> str:
     return (eigene or std).rstrip("/") if anbieter in ("lmstudio", "eigen") else std
 
 
+# Modelle, die eigens für Roboter gemacht sind (seit 0.38.46, Etappe G5): z. B. Googles „Gemini Robotics-ER“ – räumliches
+# Denken über Bilder, Werkzeugaufrufe; in der Liste ganz oben. Mit Knowlins Werkzeugen noch nicht am echten Gerät geprüft.
+ROBOTER_MODELLE = re.compile(r"robotics-er", re.I)
+
+
+def fuer_roboter(modell: str) -> bool:
+    return bool(ROBOTER_MODELLE.search(modell or ""))
+
+
 def braucht_schluessel(anbieter: str) -> bool:
     return ANBIETER.get(anbieter, ("", "", True))[2]
 
@@ -122,7 +131,7 @@ class AnbieterBrain:
             return r.json()
 
     async def modelle(self) -> list[str]:
-        """Verfügbare Modelle des Anbieters (GET /models), alphabetisch."""
+        """Verfügbare Modelle des Anbieters (GET /models), alphabetisch – Modelle für Roboter zuerst (`fuer_roboter`)."""
         import httpx
 
         async with httpx.AsyncClient(timeout=httpx.Timeout(15.0, connect=5.0)) as client:
@@ -138,7 +147,7 @@ class AnbieterBrain:
             r.raise_for_status()
             daten = r.json().get("data") or []
         namen = {str(m.get("id", "")).removeprefix("models/") for m in daten if isinstance(m, dict) and m.get("id")}
-        return sorted(namen)
+        return sorted(namen, key=lambda n: (not fuer_roboter(n), n))
 
     async def handle(self, text: str, notify: "Notify | None" = None) -> "Reply":
         from .agent import Reply
