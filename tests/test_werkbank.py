@@ -142,3 +142,42 @@ def test_zustand_sagt_den_wuerfel_richtig():
     assert st.summary().endswith("hält den roten Würfel im Greifer")
     ente = DuckState(connected=True, holding="Ball")
     assert ente.summary().endswith("hält Ball im Schnabel")
+
+
+def test_wuerfel_und_kisten_anklicken():
+    """Fund 12.11.: Beim Klick auf die Werkbank stand „Reachy auf den Boden stellen“, Würfel ließen sich nicht greifen.
+    Jetzt sind Würfel und Kisten anklickbar, das Menü bietet Greifen und Ablegen, und Ari bleibt an seiner Werkbank."""
+    from duckpilot.brain import handeln as H
+
+    sim = So101Sim(realtime=False)
+    werkbank = H.ding_finden("Werkbank", sim)
+    assert H.reachy_aktionen(werkbank, sim) == []                       # kein „auf den Boden stellen“
+    rot = H.ding_finden("roter Würfel", sim)
+    assert rot["art"] == "wuerfel" and rot.get("werkbank")
+    assert [a["id"] for a in H.werkbank_aktionen(rot, sim)] == ["greifen"]
+    links = H.ding_finden("linke Kiste", sim)
+    assert links["art"] == "kiste" and H.werkbank_aktionen(links, sim) == []       # nichts in der Hand
+    assert H.werkbank_werkzeug(rot, "greifen") == ("greifen", {"ding": "roter Würfel"})
+
+    async def go():
+        await sim.init()
+        _laufen(sim, 1.5)
+        assert (await sim.greifen("roter Würfel")).accepted
+        _laufen(sim, 4.0)
+        assert sim.werkbank.haelt == "roter Würfel"
+        ids = [a["id"] for a in H.werkbank_aktionen(rot, sim)]
+        assert ids[0] == "platz" and "hineinlegen:linke Kiste" in ids
+        assert [a["id"] for a in H.werkbank_aktionen(links, sim)] == ["hineinlegen"]
+        assert H.werkbank_aktionen(H.ding_finden("blauer Würfel", sim), sim) == []   # erst ablegen
+        assert H.werkbank_werkzeug(links, "hineinlegen") == ("ablegen", {"ziel": "linke Kiste"})
+        assert H.werkbank_werkzeug(rot, "hineinlegen:rechte Kiste") == ("ablegen", {"ziel": "rechte Kiste"})
+    asyncio.run(go())
+
+
+def test_reachy_darf_weiter_auf_den_boden():
+    from duckpilot.backends.reachy import ReachyMiniSim
+    from duckpilot.brain import handeln as H
+
+    sim = ReachyMiniSim(realtime=False)
+    tisch = H.ding_finden(sim.standflaeche, sim)
+    assert [a["id"] for a in H.reachy_aktionen(tisch, sim)] == [H.REACHY_BODEN[0]]

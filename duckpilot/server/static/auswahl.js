@@ -40,7 +40,7 @@ export function initAuswahl({ $, api, el, scene, send, toast, stageEl }) {
     else if (r && r.text) toast(tr(r.text));                // z. B. „Ball liegt wieder an seinem Platz“ (seit 0.37.14)
   }
 
-  function menu(d, aktionen, x, y) {
+  function menu(d, aktionen, x, y, tipp = 'Oder im Chat: „heb das auf“, „schieß den“ …') {
     const rect = stageEl.getBoundingClientRect();
     pop.replaceChildren();
     const kopf = el('div', 'auswahl-kopf');
@@ -59,7 +59,7 @@ export function initAuswahl({ $, api, el, scene, send, toast, stageEl }) {
       b.addEventListener('click', () => handeln(a.id, d));
       liste.append(b);
     }
-    pop.append(kopf, liste, el('p', 'auswahl-tipp', tr('Oder im Chat: „heb das auf“, „schieß den“ …')));
+    pop.append(kopf, liste, el('p', 'auswahl-tipp', tr(tipp)));
     pop.hidden = false;
     // neben den Klick, aber innerhalb der Bühne
     const w = pop.offsetWidth || 220, h = pop.offsetHeight || 160;
@@ -75,7 +75,7 @@ export function initAuswahl({ $, api, el, scene, send, toast, stageEl }) {
     chip.hidden = false;
     $('auswahl-name').textContent = tr(r.ding.name);
     api('/api/handeln', 'POST', { auswahl: r.ding.name }).catch(() => {});
-    menu(r.ding, r.aktionen, x, y);
+    menu(r.ding, r.aktionen, x, y, r.tipp);
   }
 
   $('auswahl-weg').addEventListener('click', () => leeren());

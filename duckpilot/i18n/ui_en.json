@@ -3366,5 +3366,18 @@
  "den blauen Würfel": "the blue cube",
  "den gelben Würfel": "the yellow cube",
  "Greifen und Räumen an der eigenen Werkbank im Simulator, mit dem offenen 3D-Modell; echter Arm über LeRobot (ungetestet).": "Grabbing and tidying at its own workbench in the simulator, with the open 3D model; real arm via LeRobot (untested).",
- "offener Roboterarm (TheRobotStudio, LeRobot)": "open robot arm (TheRobotStudio, LeRobot)"
+ "offener Roboterarm (TheRobotStudio, LeRobot)": "open robot arm (TheRobotStudio, LeRobot)",
+ "Greifen": "Grab",
+ "Hier hineinlegen": "Put it in here",
+ "An seinen Platz legen": "Put it back in its place",
+ "Zurück an seinen Platz": "Back to its place",
+ "In die linke Kiste": "Into the left box",
+ "In die rechte Kiste": "Into the right box",
+ "Oder im Chat: „leg den roten Würfel in die linke Kiste“ …": "Or in the chat: “put the red cube in the left box” …",
+ "roter Würfel": "red cube",
+ "blauer Würfel": "blue cube",
+ "gelber Würfel": "yellow cube",
+ "linke Kiste": "left box",
+ "rechte Kiste": "right box",
+ "Werkbank": "Workbench"
 }

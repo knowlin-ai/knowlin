@@ -85,7 +85,9 @@ def reachy_aktionen(ding: dict[str, Any], backend: Any) -> list[dict[str, str]]:
     if pruefen is None or ding.get("art") != "möbel":
         return []
     if getattr(backend, "standflaeche", "") == ding.get("name"):
-        return [{"id": REACHY_BODEN[0], "label": REACHY_BODEN[1]}]
+        # nur, wenn der Körper auch auf den Boden darf – Ari bleibt an seiner Werkbank (Fund 12.11.: dort stand
+        # „Reachy auf den Boden stellen“)
+        return [{"id": REACHY_BODEN[0], "label": REACHY_BODEN[1]}] if pruefen("boden") is None else []
     if pruefen(ding["name"]) is None:
         return [{"id": REACHY_STELLEN[0], "label": REACHY_STELLEN[1]}]
     return []
@@ -100,11 +102,62 @@ def reachy_platzieren(backend: Any, ding: str, aktion: str) -> dict[str, Any]:
     return {"ok": True, "text": text} if ok else {"ok": False, "fehler": text}
 
 
+# Werkbank des Arms (seit 0.38.53, Fund des Maintainers: „kann nicht mal die Würfel greifen auf dem Tisch“): Würfel und
+# Kisten lassen sich anklicken wie die Dinge der Ente; das Menü bietet an, was der Arm damit tun kann.
+WERKBANK_TIPP = "Oder im Chat: „leg den roten Würfel in die linke Kiste“ …"
+
+
+def werkbank_ding(name: str, backend: Any) -> dict[str, Any] | None:
+    wb = getattr(backend, "werkbank", None)
+    n = str(name or "").strip().lower()
+    if wb is None or not n:
+        return None
+    for d in wb.dinge:
+        if d["name"].lower() == n:
+            return {"name": d["name"], "art": "wuerfel", "x": d["x"], "y": d["y"], "werkbank": True}
+    for k in wb.kisten:
+        if k["name"].lower() == n:
+            return {"name": k["name"], "art": "kiste", "x": k["x"], "y": k["y"], "werkbank": True}
+    return None
+
+
+def werkbank_aktionen(ding: dict[str, Any], backend: Any) -> list[dict[str, str]]:
+    """Was der Arm mit einem Würfel oder einer Kiste tun kann – abhängig davon, was er gerade hält."""
+    wb = getattr(backend, "werkbank", None)
+    if wb is None:
+        return []
+    if ding["art"] == "kiste":
+        return [{"id": "hineinlegen", "label": "Hier hineinlegen"}] if wb.haelt else []
+    if wb.haelt == ding["name"]:
+        return [{"id": "platz", "label": "An seinen Platz legen"},
+                *({"id": "hineinlegen:" + k["name"], "label": f"In die {k['name']}"} for k in wb.kisten)]
+    if wb.haelt:
+        return []
+    d = wb.ding(ding["name"]) or {}
+    return [{"id": "greifen", "label": "Greifen"}, *([{"id": "platz", "label": "Zurück an seinen Platz"}]
+                                                     if d.get("in") else [])]
+
+
+def werkbank_werkzeug(ding: dict[str, Any], aktion: str) -> tuple[str, dict[str, Any]] | None:
+    if aktion == "greifen" and ding["art"] == "wuerfel":
+        return ("greifen", {"ding": ding["name"]})
+    if aktion == "hineinlegen" and ding["art"] == "kiste":
+        return ("ablegen", {"ziel": ding["name"]})
+    if aktion.startswith("hineinlegen:"):
+        return ("ablegen", {"ziel": aktion.split(":", 1)[1]})
+    if aktion == "platz":
+        return ("ablegen", {"ziel": "platz"})
+    return None
+
+
 def ding_finden(name: str, backend: Any, schwarm: Any = None) -> dict[str, Any] | None:
-    """Name → {name, art, x, y} aus der Welt des Simulators und den weiteren Enten."""
+    """Name → {name, art, x, y} aus der Welt des Simulators, der Werkbank und den weiteren Enten."""
     n = str(name or "").strip().lower()
     if not n:
         return None
+    wd = werkbank_ding(n, backend)
+    if wd is not None:
+        return wd
     if schwarm is not None:
         e = schwarm.ente(n)
         if e is not None:

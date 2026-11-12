@@ -9,9 +9,14 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
-## Unveröffentlicht
+## 0.38.53 – 2026-11-12 – Ari greift per Klick
 
 ### Behoben
+- **Würfel und Kisten an Aris Werkbank lassen sich anklicken** (Maintainer: „kann nicht mal die Würfel greifen auf dem
+  Tisch“ – der Klick traf die Werkbank, und das Menü bot „Reachy auf den Boden stellen“ an). Klick auf einen Würfel:
+  „Greifen“; hält Ari ihn, „An seinen Platz legen“ oder „In die linke/rechte Kiste“; Klick auf eine Kiste: „Hier
+  hineinlegen“. Der Ring zeigt die Auswahl auf der Werkbank, der Tipp im Menü passt zum Arm. „Auf den Boden stellen“
+  gibt es nur noch für Körper, die dort stehen dürfen.
 - **Prüfung bei GitHub wieder grün:** Sie schlug seit 0.38.42 unbemerkt fehl – drei Tests zu den Tanzposen brauchten
   MuJoCo, das dort nicht installiert ist. `sichere_pose` nimmt jetzt die Ampel der Physik und lädt MuJoCo nicht mehr
   selbst; die Tests laufen mit und ohne MuJoCo.

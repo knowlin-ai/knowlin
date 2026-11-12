@@ -114,7 +114,12 @@ export class RealArm {
     if (schluessel !== this.kistenGebaut) {
       this.kistenGebaut = schluessel;
       for (const c of [...this.werkbank.children]) if (c.userData.kiste) this.werkbank.remove(c);
-      for (const k of wb.kisten || []) { const g = kiste(k); g.userData.kiste = true; this.werkbank.add(g); }
+      for (const k of wb.kisten || []) {
+        const g = kiste(k);
+        g.userData.kiste = true;
+        g.traverse((o) => { o.userData.werkstueck = { name: k.name, art: 'kiste' }; });   // anklickbar (seit 0.38.53)
+        this.werkbank.add(g);
+      }
     }
     const a = wb.wuerfel || 0.03;
     for (const d of wb.dinge || []) {
@@ -123,6 +128,7 @@ export class RealArm {
         m = new THREE.Mesh(new THREE.BoxGeometry(a, a, a),
           new THREE.MeshPhysicalMaterial({ color: new THREE.Color(d.farbe), ...FINISH.plastic }));
         m.castShadow = m.receiveShadow = true;
+        m.userData.werkstueck = { name: d.name, art: 'wuerfel' };
         this.wuerfel.set(d.name, m);
         this.werkbank.add(m);
       }

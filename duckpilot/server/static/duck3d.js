@@ -703,6 +703,7 @@ export class Scene3D {
     for (const e of (this.enten || new Map()).values()) {
       e.root.traverse((o) => { if (o.isMesh) { o.userData.ente = e; solid.push(o); } });
     }
+    this.duck?.werkbank?.traverse((o) => { if (o.isMesh) solid.push(o); });   // Würfel, Kisten des Arms
     const hits = ray.intersectObjects(solid, false);
     const floorT = ray.ray.direction.y < -1e-4 ? -ray.ray.origin.y / ray.ray.direction.y : Infinity;
     const out = {};
@@ -715,9 +716,11 @@ export class Scene3D {
       out.hit = { x: h.x, y: -h.z, z: Math.max(0, h.y) };
       const o = hits[0].object;
       const d = o.userData.ding;
-      out.ding = d && d.userData.item ? d.userData.item.kind : o.userData.ente ? 'ente' : 'moebel';
+      const ws = o.userData.werkstueck;
+      out.ding = ws ? ws.art : d && d.userData.item ? d.userData.item.kind : o.userData.ente ? 'ente' : 'moebel';
       // seit 0.37.3: was genau angeklickt wurde – fürs Anwählen und Handeln
-      if (d && d.userData.item) out.name = d.userData.item.name;
+      if (ws) out.name = ws.name;
+      else if (d && d.userData.item) out.name = d.userData.item.name;
       else if (o.userData.ente && o.userData.ente._st) out.name = o.userData.ente._st.name;
       else if (o.userData.moebel) out.name = o.userData.moebel.name;
       if (out.name) out.art = out.ding;
@@ -1074,8 +1077,15 @@ export class Scene3D {
   _auswahlZeichnen(now) {
     const sel = this.auswahl, ring = this.auswahlRing;
     if (!ring) return;
-    let pos = null, r = 0.08;
-    if (sel && sel.art === 'ente') {
+    let pos = null, r = 0.08, hoehe = 0.003;
+    if (sel && (sel.art === 'wuerfel' || sel.art === 'kiste')) {      // auf der Werkbank des Arms (seit 0.38.53)
+      let o = null;
+      this.duck?.werkbank?.traverse((x) => { if (!o && x.userData.werkstueck?.name === sel.name) o = x; });
+      if (o) {
+        const w = o.getWorldPosition(new THREE.Vector3());
+        pos = [w.x, -w.z]; r = sel.art === 'kiste' ? 0.075 : 0.035; hoehe = this.duck.root.position.y + 0.002;
+      }
+    } else if (sel && sel.art === 'ente') {
       const e = [...(this.enten || new Map()).values()].find((x) => x._st && x._st.name === sel.name);
       if (e) { pos = [e._st.x, e._st.y]; r = 0.13; }
     } else if (sel && sel.art === 'moebel') {
@@ -1089,7 +1099,7 @@ export class Scene3D {
     ring.visible = !!pos;
     if (!pos) return;
     const puls = REDUCED ? 1 : 1 + 0.06 * Math.sin(now / 260);
-    ring.position.set(pos[0], 0.003, -pos[1]);
+    ring.position.set(pos[0], hoehe, -pos[1]);
     ring.scale.setScalar(r * puls);
   }
 
