@@ -9,6 +9,26 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.43 – 2026-11-12 – Absicht statt Bewegung, Selbstbild, verständliche Update-Hinweise
+
+### Neu
+- **Aktionskatalog (Etappe G2):** Knowlin kennt Gesten nach ihrer Absicht – grüßen, zustimmen, ablehnen, freuen,
+  neugierig sein, sich umsehen, auf sich aufmerksam machen, traurig sein, staunen, ausruhen. Das Sprachmodell sagt, was
+  es meint (Werkzeug `absicht`); der Körper antwortet mit **kann**, **Ersatz** (z. B. Reachy freut sich ohne Beine mit
+  dem Kopf) oder **nein** mit Grund (liegt, Sperre nach dem Not-Aus, wird gehalten, keine passende Fähigkeit) – und das
+  Modell sagt es ehrlich weiter. Neue Aktionen sind Daten in `duckpilot/aktionen.py`.
+- **Selbstbild:** „Wie geht's dir?“ und „Was kannst du?“ beantwortet Knowlin aus den Daten seines Körpers (Werkzeug
+  `selbstbild`: Haltung, Fähigkeiten, Sperre, Akku, was er hält) und sagt, was unsicher ist.
+
+### Behoben
+- **Update-Hinweise verständlich:** „Letztes Update“ steht in Worten („am 11.11.2026 um 22:41 ohne Fehler
+  installiert“ statt „fertig, Code 0“). Ist ein Release schon da, aber der Installer noch im Bau, heißt es „kommt
+  gleich“ statt „herunterladen“, und Knowlin schaut nach einer Viertelstunde wieder nach statt erst am nächsten Tag.
+
+### Nicht geprüft
+- Wie oft die Sprachmodelle von sich aus `absicht` und `selbstbild` nehmen (geprüft sind die Werkzeuge im Simulator mit
+  Microduck und Reachy Mini).
+
 ## 0.38.42 – 2026-11-12 – Wertekern, Tanzposen, die in der Physik stehen
 
 ### Neu

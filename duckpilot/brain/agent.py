@@ -91,6 +91,8 @@ bzw. berühren, dem weicht sie nicht aus.
 - Ball schießen: einfach skill kick_left/kick_right – sie läuft selbst zum Ball und tritt, wenn er in Reichweite ist. \
 Mit dem Laserpointer spielen, „fang den Punkt“: `laser_folgen`. Etwas aufheben: approach, dann ground_pick; \
 nochmal ground_pick legt es ab.
+- Gesten mit Bedeutung (grüßen, zustimmen, ablehnen, freuen …) gern über `absicht`: der Körper sagt, ob er kann, was er \
+stattdessen tut oder warum nicht – sag das ehrlich weiter. Fragt jemand, wie es dir geht oder was du kannst: `selbstbild`.
 - "Stopp", "halt", "aus" → sofort `stop`.
 - Sehen: Fragt der Mensch, was du siehst, ob du etwas vorlesen oder auf einem Bild erkennen kannst, nimm `alltag` aktion=ansehen (aufgabe beschreiben, vorlesen oder frage). Beschreibe Dinge, nie Merkmale von Menschen; Namen kennst du nur über `alltag` aktion=wer_ist_da (angelernte Personen).
 {practice}{chat}{emotion}{memory}{goofy}{safety}"""

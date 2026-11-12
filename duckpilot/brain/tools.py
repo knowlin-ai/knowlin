@@ -20,6 +20,7 @@ from ..motion import reachy_tanz as RT
 from ..motion import tanz as T
 from ..motion.apportieren import Apportieren
 from ..motion.engine import MotionEngine
+from .tools_absicht import ABSICHT_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge
 from .tools_lab import (  # noqa: F401 – Werkzeuge der Trainingshalle, seit 0.38 eigene Datei
     FREE_TRAINING_TOOL,
     PARCOURS_BUILD_TOOL,
@@ -577,7 +578,7 @@ POLLEN_TOOL = {
 LOGGED_EVENTS = {"fall": "Sturz", "kick_miss": "Kick ins Leere", "pick_miss": "Aufheben ins Leere"}
 
 
-class ToolRunner(LabWerkzeuge, RaumWerkzeuge):
+class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
     def __init__(self, engine: MotionEngine, memory: "Memory | None" = None) -> None:
         self.engine = engine
         self.memory = memory
@@ -622,6 +623,7 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge):
         eig = self.engine.backend.eigenschaften()
         be = self.engine.backend                  # nur anbieten, was dieser Körper wirklich kann (seit 0.38.6 vollständig)
         tools = [t for t in tools if fehlt_dem_koerper(t["name"], be) is None]
+        tools = [*tools, ABSICHT_TOOL, SELBSTBILD_TOOL]      # Aktionskatalog und Selbstbild (seit 0.38.43, G2)
         if "antennen" in eig:
             tools = [*tools, ANTENNEN_TOOL]
         if getattr(be, "koerper_art", "") == "reachy_mini":   # Reachys eigener Tanz (seit 0.38.13): nur seine Bewegungen
@@ -726,6 +728,10 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge):
         try:
             if name in MEMORY_TOOLS:
                 result = await self._run_memory(name, args or {})
+            elif name == "absicht":
+                result = await self._absicht(args or {})
+            elif name == "selbstbild":
+                result = self._selbstbild()
             elif name == "bewegung_ueben":
                 result = await self._practice(args or {})
             elif name == "training_auswerten" and self.trainer is not None:
