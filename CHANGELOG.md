@@ -9,6 +9,15 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## Unveröffentlicht
+
+### Behoben
+- **Prüfung bei GitHub wieder grün:** Sie schlug seit 0.38.42 unbemerkt fehl – drei Tests zu den Tanzposen brauchten
+  MuJoCo, das dort nicht installiert ist. `sichere_pose` nimmt jetzt die Ampel der Physik und lädt MuJoCo nicht mehr
+  selbst; die Tests laufen mit und ohne MuJoCo.
+- `tools/release_nachpruefen.py` meldet auch das Ergebnis der Prüfung bei GitHub für den Release-Stand – eine rote
+  Prüfung macht die Nachprüfung rot.
+
 ## 0.38.52 – 2026-11-12 – Ruhiges 3D-Bild beim Fahren, Griff für die Bühne am Handy sichtbar
 
 ### Behoben

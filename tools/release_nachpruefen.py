@@ -4,7 +4,8 @@
 
 Prüft mit der GitHub-CLI (`gh`): Ist der Installer angehängt, und stimmt seine sha256 nach dem Herunterladen mit der
 Angabe bei GitHub überein? Steht die Version auf PyPI? Was meldet die Update-Probe des Installer-Laufs zum Release
-(Zeilen „B: …“)? Am Ende eine Zeile für Releaseplan und ZWEIG, z. B.
+(Zeilen „B: …“)? Hat die Prüfung bei GitHub (`pruefen.yml`) den Release-Stand bestanden (seit 0.38.53 – sie war
+ab 0.38.42 unbemerkt rot)? Am Ende eine Zeile für Releaseplan und ZWEIG, z. B.
 „✅ Release, Installer sha256 e1604d01…, PyPI 0.38.40, Update 0.38.39 → 0.38.40 bestanden, Start nach dem Installer 5 s“.
 Rückgabewert 0 nur, wenn alles stimmt.
 """
@@ -58,7 +59,18 @@ def probe(repo: str, version: str) -> list[str]:
     return [m.group(1) for m in re.finditer(r"^\S+ (B: (?:installiert|Start|Update).*)$", log, re.M)]
 
 
-def zusammenfassen(sha: str, pypi: bool, zeilen: list[str], version: str) -> tuple[bool, str]:
+def pruefung_bei_github(repo: str, commit: str) -> str:
+    """Ergebnis des Workflows „Prüfen“ für diesen Commit: bestanden, fehlgeschlagen, läuft oder unbekannt."""
+    laeufe = json.loads(gh("api", f"repos/{repo}/actions/workflows/pruefen.yml/runs?head_sha={commit}&per_page=5"))
+    lauf = (laeufe.get("workflow_runs") or [None])[0]
+    if not lauf:
+        return "unbekannt"
+    if lauf.get("status") != "completed":
+        return "läuft"
+    return "bestanden" if lauf.get("conclusion") == "success" else "fehlgeschlagen"
+
+
+def zusammenfassen(sha: str, pypi: bool, zeilen: list[str], version: str, ci: str = "bestanden") -> tuple[bool, str]:
     alt = next((re.search(r"installiert (\S+)", z).group(1) for z in zeilen if "installiert" in z), "?")
     start = next((re.search(r"(\d+) s", z).group(1) for z in zeilen if "Start nach dem Installer" in z), None)
     durch = any("durchgelaufen" in z for z in zeilen)
@@ -67,7 +79,11 @@ def zusammenfassen(sha: str, pypi: bool, zeilen: list[str], version: str) -> tup
              f"Update {alt} → {version} {'bestanden' if durch else 'NICHT bestanden'}"]
     if start:
         teile.append(f"Start nach dem Installer {start} s")
-    return pypi and durch, ", ".join(teile)
+    if ci != "bestanden":
+        teile.append(f"Prüfung bei GitHub {ci}")
+    ok = pypi and durch and ci != "fehlgeschlagen"
+    teile[0] = "✅ Release" if ok else "❌ Release"
+    return ok, ", ".join(teile)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -85,7 +101,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"sha256 GitHub {soll[:16]}…, heruntergeladen {ist[:16]}… – {'gleich' if soll == ist else 'ANDERS'}")
     zeilen = probe(a.repo, a.version)
     print("\n".join(zeilen) or "keine Zeilen der Update-Probe gefunden")
-    ok, zeile = zusammenfassen(ist, pypi_da(a.version), zeilen, a.version)
+    commit = gh("api", f"repos/{a.repo}/commits/v{a.version}", "--jq", ".sha").strip()
+    ci = pruefung_bei_github(a.repo, commit)
+    print(f"Prüfung bei GitHub (pruefen.yml) für {commit[:7]}: {ci}")
+    ok, zeile = zusammenfassen(ist, pypi_da(a.version), zeilen, a.version, ci)
     print(zeile)
     return 0 if ok and soll == ist else 1
 

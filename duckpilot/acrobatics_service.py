@@ -42,14 +42,14 @@ def _clean_pose(raw: Any) -> dict[str, float]:
 def sichere_pose(acro: Any, pose: dict[str, float], mindest: float = 0.35) -> dict[str, float] | None:
     """Die stärkste Fassung einer Haltung, die sicher steht: zwischen Grundstellung (0) und Haltung (1) wird der größte
     Anteil gesucht, bei dem der Schwerpunkt grün über der Stützfläche liegt und die Halteprobe nicht kippt."""
-    from .physics.acrobatics import GREEN_MM
-
+    # „grün“ entscheidet die Physik selbst (Ampel aus `place`) – so braucht diese Funktion kein MuJoCo zum Importieren
+    # (Fund 12.11.: die Prüfung bei GitHub läuft ohne MuJoCo und schlug seit 0.38.42 fehl)
     q0, q1 = acro.pose_from({}), acro.pose_from(_clean_pose(pose))
 
     def steht(a: float) -> bool:
         q = q0 + a * (q1 - q0)
         lage = acro.place(q)
-        return lage["reserve_mm"] >= GREEN_MM and not lage["nicht_nur_fuesse"] and acro.hold(q, 1.0)["steht"]
+        return lage["ampel"] == "gruen" and not lage["nicht_nur_fuesse"] and acro.hold(q, 1.0)["steht"]
 
     if steht(1.0):
         return dict(pose)

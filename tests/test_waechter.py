@@ -35,3 +35,7 @@ def test_release_zeile_aus_der_update_probe():
     assert ok and zeile == ("✅ Release, Installer sha256 e1604d01…, PyPI 0.38.40, Update 0.38.39 → 0.38.40 bestanden, "
                             "Start nach dem Installer 5 s")
     assert not R.zusammenfassen("e1604d01f058", False, zeilen[:1], "0.38.40")[0]
+    # seit 0.38.53: eine rote Prüfung bei GitHub macht das Release rot (sie war ab 0.38.42 unbemerkt fehlgeschlagen)
+    ok, zeile = R.zusammenfassen("e1604d01f058", True, zeilen, "0.38.40", "fehlgeschlagen")
+    assert not ok and zeile.startswith("❌") and "Prüfung bei GitHub fehlgeschlagen" in zeile
+    assert R.zusammenfassen("e1604d01f058", True, zeilen, "0.38.40", "läuft")[0]

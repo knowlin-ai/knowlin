@@ -1,5 +1,7 @@
 """Tanzposen stehen in der Physik (seit 0.38.42, Maintainer: „bei Tanz nimmt Microduck teilweise Posen, die in der
-Physik noch zum Umfallen führen“): zu wackelige Haltungen werden abgeschwächt oder nur angedeutet."""
+Physik noch zum Umfallen führen“): zu wackelige Haltungen werden abgeschwächt oder nur angedeutet.
+
+Läuft auch ohne MuJoCo (Prüfung bei GitHub): die Probe ersetzt die Physik."""
 
 import numpy as np
 
@@ -23,7 +25,8 @@ class Probe:
         return {n: round(float(q[i]), 4) for i, n in enumerate(A.JOINT_NAMES)}
 
     def place(self, q):
-        return {"reserve_mm": 10.0 if abs(q[0]) <= self.grenze else -5.0, "nicht_nur_fuesse": False}
+        gut = abs(q[0]) <= self.grenze
+        return {"reserve_mm": 10.0 if gut else -5.0, "ampel": "gruen" if gut else "rot", "nicht_nur_fuesse": False}
 
     def hold(self, q, seconds=1.0):
         return {"steht": abs(q[0]) <= self.grenze}
