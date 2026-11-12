@@ -7,14 +7,12 @@ alle nacheinander laufen und schreibt einen Bericht:
     python tools/pruefen_alles.py <ordner> [--axe axe.min.js] [--eslint <ordner mit node_modules/.bin/eslint>]
                                            [--schnell] [--ohne website]
 
-1. ruff                      – Stil und Fehler (duckpilot, tests, tools)
-2. eslint                    – Oberfläche (wenn --eslint angegeben)
-3. Sprachkatalog             – keine fehlenden englischen Texte
-4. pytest                    – alle Tests
-5. öffentliche Fassung       – Export mit Geheimnis-Scan, dort alle Tests (ohne und mit MuJoCo)
-6. Paket                     – Rad bauen, in eigene Umgebung installieren, Rauchtest außerhalb des Quellordners
-7. Abnahme (installiert)     – Browser-Abnahme gegen das installierte Paket (nicht mit --schnell)
-8. Website                   – Bau und Prüfung von knowlin.de (nicht mit --schnell)
+1. ruff, eslint, Sprachkatalog
+2. Wächter                   – keine privaten Namen, Schlüssel oder Dateien im Repo (tools/waechter.py)
+3. pytest                    – Pollens Modell in einen eigenen Datenordner laden, dann alle Tests mit echter Physik
+4. Paket                     – Rad bauen, in eigene Umgebung installieren, Rauchtest außerhalb des Quellordners
+5. Abnahme (installiert)     – Browser-Abnahme gegen das installierte Paket (nicht mit --schnell)
+6. Website                   – Bau und Prüfung von knowlin.de (nicht mit --schnell)
 
 Rückgabewert 0 nur, wenn alles bestanden ist. Bericht: `<ordner>/pruefkette.md`.
 
@@ -152,65 +150,36 @@ def main(argv: list[str] | None = None) -> int:
         k.uebersprungen("eslint", "ohne --eslint")
     k.schritt("Sprachkatalog", [py, "tools/i18n_texte.py"], ok_wenn=" 0 fehlen")
 
-    unveraendert = False
+    k.schritt("Wächter (Namen, Schlüssel, private Dateien)", [py, "tools/waechter.py"], ok_wenn="sauber")
+
     stand = stand_lesen()
     code, web = fingerabdruck("code"), fingerabdruck("website")
     code_neu = a.alles or stand.get("code") != code
     web_neu = a.alles or stand.get("website") != web
-    oeffentlich = ordner / "oeffentlich"
-    if not code_neu:
-        k.uebersprungen("pytest, öffentliche Fassung, Paket, Abnahme", "Code unverändert seit dem letzten Bestehen")
-        a.ohne += ["oeffentlich", "paket", "abnahme"]
-        unveraendert = True
+    unveraendert = not code_neu
+    venv_py = None
+    if unveraendert:
+        k.uebersprungen("pytest, Paket, Abnahme", "Code unverändert seit dem letzten Bestehen")
     else:
-        k.schritt("pytest", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider", *par])
-    if "oeffentlich" in a.ohne:
-        if not unveraendert:
-            k.uebersprungen("öffentliche Fassung", "--ohne oeffentlich")
-    elif k.schritt("öffentliche Fassung: Export", [py, "tools/export_public.py", str(oeffentlich)], ok_wenn="Geheimnis-Scan: sauber"):
-        # wie die Prüfung bei GitHub: eigene Umgebung ohne Physik-Zusätze (dort gibt es kein MuJoCo, Physik-Tests
-        # überspringen sich), Pollens Modell von GitHub in einen eigenen Datenordner. Mit MuJoCo und dem nachgeladenen
-        # Modell im normalen Datenordner änderten sich sonst die privaten Tests (erster Lauf der Kette, 9.11.).
-        venv_ci = Path.home() / ".cache" / "knowlin-pruefkette" / "venv"
-        py_ci = str(venv_ci / ("Scripts" if os.name == "nt" else "bin") / "python")
-        if a.alles and not Path(py_ci).exists():
-            k.schritt("öffentliche Fassung: Umgebung anlegen", [py, "-m", "venv", str(venv_ci)])
+        # wie der Lauf „physik“ bei GitHub: Pollens Modell von seiner Quelle in einen eigenen Datenordner, dann alle
+        # Tests mit echter Physik (seit 0.38.42 gibt es keinen privaten Stand mehr mit eingebautem Modell)
         daten = dict(os.environ, XDG_DATA_HOME=str(ordner / "daten"), LOCALAPPDATA=str(ordner / "daten"))
         daten.pop("DUCKPILOT_SETTINGS", None)
-        # die Fassung ohne Physik (eigene Umgebung wie bei GitHub) läuft seit 0.38.41 nur noch mit --alles – GitHub prüft
-        # sie bei jedem Push; hier zählt der Lauf mit echter Physik
-        if a.alles:
-            k.schritt("öffentliche Fassung: Pakete", [py_ci, "-m", "pip", "install", "-q", "-r", "requirements.txt",
-                                                      "pytest"], cwd=oeffentlich, timeout=1200)
-            k.schritt("öffentliche Fassung: Modell laden", [py_ci, "-m", "duckpilot.modell"], cwd=oeffentlich, env=daten,
-                      timeout=900)
-            k.schritt("öffentliche Fassung: Tests", [py_ci, "-m", "pytest", "-q", "-p", "no:cacheprovider"],
-                      cwd=oeffentlich, env=daten)
-        # und einmal mit echter Physik (MuJoCo aus dieser Umgebung) gegen Pollens nachgeladenes Modell – wie der Lauf
-        # „physik“ bei GitHub. Mit dem eingebauten privaten Modell gelang „Auf einem Bein“, mit Pollens nie (9.11.).
-        # das Physik-Modell baut `duckpilot.modell` nur, wenn MuJoCo da ist – in der Umgebung oben fehlt es
-        k.schritt("öffentliche Fassung: Physik-Modell", [py, "-m", "duckpilot.modell"], cwd=oeffentlich, env=daten,
-                  ok_wenn="physik", timeout=900)
-        k.schritt("öffentliche Fassung: Physik", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider", *par],
-                  cwd=oeffentlich,
-                  env=daten)
-
-    venv_py = None
-    if "paket" in a.ohne or not oeffentlich.exists():
-        if not unveraendert:
-            k.uebersprungen("Paket", "--ohne paket oder ohne Export")
-    else:
-        rad = ordner / "rad"
-        venv = ordner / "venv"
-        if (k.schritt("Paket: Rad bauen", [py, "-m", "pip", "wheel", "-q", "--no-deps", "-w", str(rad), "."], cwd=oeffentlich)
-                and k.schritt("Paket: Umgebung", [py, "-m", "venv", "--system-site-packages", str(venv)])):
-            venv_py = str(venv / ("Scripts" if os.name == "nt" else "bin") / "python")
-            raeder = sorted(rad.glob("*.whl"))
-            if k.schritt("Paket: installieren", [venv_py, "-m", "pip", "install", "-q", "--no-deps", str(raeder[-1])]):
-                k.schritt("Paket: Rauchtest", [venv_py, str(oeffentlich / "tools" / "paket_rauchtest.py")], cwd=ordner,
-                          ok_wenn="in Ordnung")
-        for weg in ("build",):
-            shutil.rmtree(oeffentlich / weg, ignore_errors=True)
+        k.schritt("Modell laden", [py, "-m", "duckpilot.modell"], env=daten, ok_wenn="physik", timeout=900)
+        k.schritt("pytest", [py, "-m", "pytest", "-q", "-p", "no:cacheprovider", *par], env=daten)
+        if "paket" in a.ohne:
+            k.uebersprungen("Paket", "--ohne paket")
+        else:
+            rad, venv = ordner / "rad", ordner / "venv"
+            if (k.schritt("Paket: Rad bauen", [py, "-m", "pip", "wheel", "-q", "--no-deps", "-w", str(rad), "."])
+                    and k.schritt("Paket: Umgebung", [py, "-m", "venv", "--system-site-packages", str(venv)])):
+                venv_py = str(venv / ("Scripts" if os.name == "nt" else "bin") / "python")
+                raeder = sorted(rad.glob("*.whl"))
+                if k.schritt("Paket: installieren", [venv_py, "-m", "pip", "install", "-q", "--no-deps", str(raeder[-1])]):
+                    k.schritt("Paket: Rauchtest", [venv_py, str(ROOT / "tools" / "paket_rauchtest.py")], cwd=ordner,
+                              ok_wenn="in Ordnung")
+            for weg in ("build", "knowlin.egg-info"):
+                shutil.rmtree(ROOT / weg, ignore_errors=True)
 
     if unveraendert:
         pass

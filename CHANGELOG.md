@@ -9,6 +9,30 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.42 – 2026-11-12 – Wertekern, Tanzposen, die in der Physik stehen
+
+### Neu
+- **Wertekern (Etappe G1):** Knowlin hat feste Werte – ehrlich sein, Sicherheit vor Neugier, Privatsphäre achten, nicht
+  manipulieren, begründet ablehnen, und sie gelten immer. Jedes Sprachmodell bekommt sie gleich (Claude, lokal, anderes
+  Modell, auch Knowlin auf der Startseite). Unter Charakter → Persönlichkeit zeigt die neue Karte „Werte und Grenzen“
+  die Werte und „Was Knowlin nie tut“ – Grenzen, die im Code stecken und die kein Modell verschieben kann. Jede Grenze
+  ist mit einem Test belegt.
+
+### Behoben
+- **Tanzposen fallen nicht mehr um:** Vor dem Tanz prüft Knowlin jede gespeicherte Haltung in einer unsichtbaren
+  Physik-Welt (Schwerpunkt über der Stützfläche und Halteprobe). Zu wackelige Haltungen werden Richtung Grundstellung
+  abgeschwächt, bis sie stehen; geht das nur fast bis zur Grundstellung, deutet die Ente sie nur an.
+
+### Geändert
+- **Für Mitwirkende:** Knowlin entsteht nur noch in diesem öffentlichen Repo. Vor jedem Push prüft `tools/waechter.py`,
+  dass keine Schlüssel, privaten Namen oder Pollens Modelldateien im Repo landen; die Prüfkette läuft ohne Export mit
+  einem Testlauf inklusive echter Physik. `CLAUDE.md` beschreibt die Arbeitsregeln.
+
+### Nicht geprüft
+- Wie sich die Werte bei Überredungsversuchen mit echten Sprachmodellen bewähren (geprüft ist, dass jedes Modell sie
+  bekommt und die Grenzen im Code greifen).
+- Tanzposen am echten Roboter (geprüft in der Physik am PC).
+
 ## 0.38.41 – 2026-11-12 – Handyansicht mit Platz, LM Studio unter „Lokales Modell“, neutral gegenüber dem Sprachmodell
 
 ### Neu

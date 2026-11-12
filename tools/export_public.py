@@ -44,7 +44,6 @@ PRIVAT = {
     "Konzept-Geist.md",                              # Konzept im Entwurf (seit 11.11.2026), erst nach Abstimmung öffentlich
     ".env",                                          # Schlüssel, falls jemand ihn so hinterlegt hat
     "tools/privat_namen.txt",
-    "CLAUDE.md",                                     # Arbeitsregeln für Claude in Chats – intern
     "docs/befund-architektur-design.md",             # interner Prüfbericht                        # Namen aus Umfeld für den Scan – nie veröffentlichen
 }
 OHNE_ORDNER = {"__pycache__", ".pytest_cache", ".ruff_cache", ".git", ".venv", "venv", "node_modules", ".mypy_cache",

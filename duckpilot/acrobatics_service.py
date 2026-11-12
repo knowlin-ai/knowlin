@@ -39,6 +39,27 @@ def _clean_pose(raw: Any) -> dict[str, float]:
     return out
 
 
+def sichere_pose(acro: Any, pose: dict[str, float], mindest: float = 0.35) -> dict[str, float] | None:
+    """Die stärkste Fassung einer Haltung, die sicher steht: zwischen Grundstellung (0) und Haltung (1) wird der größte
+    Anteil gesucht, bei dem der Schwerpunkt grün über der Stützfläche liegt und die Halteprobe nicht kippt."""
+    from .physics.acrobatics import GREEN_MM
+
+    q0, q1 = acro.pose_from({}), acro.pose_from(_clean_pose(pose))
+
+    def steht(a: float) -> bool:
+        q = q0 + a * (q1 - q0)
+        lage = acro.place(q)
+        return lage["reserve_mm"] >= GREEN_MM and not lage["nicht_nur_fuesse"] and acro.hold(q, 1.0)["steht"]
+
+    if steht(1.0):
+        return dict(pose)
+    lo, hi = 0.0, 1.0
+    for _ in range(6):
+        mitte = (lo + hi) / 2
+        lo, hi = (mitte, hi) if steht(mitte) else (lo, mitte)
+    return acro.as_dict(q0 + lo * (q1 - q0)) if lo >= mindest else None
+
+
 class AcrobaticsService:
     def __init__(self, data_dir: Path) -> None:
         self.path = Path(data_dir) / "akrobatik.json"
@@ -120,6 +141,30 @@ class AcrobaticsService:
                                     "verlauf": mine.get("verlauf", []),
                                     "pose": mine.get("pose")})
         return res
+
+    def tanzposen(self) -> dict[str, dict[str, float]]:
+        """Haltungen für den Tanz (seit 0.38.42, Maintainer: „bei Tanz nimmt Microduck teilweise Posen, die in der Physik
+        noch zum Umfallen führen“). Jede gespeicherte Haltung wird in der unsichtbaren Physik-Welt geprüft: Steht sie
+        nicht sicher (Reserve unter der grünen Grenze oder sie kippt in der Halteprobe), wird sie Richtung Grundstellung
+        abgeschwächt, bis sie steht. Geht das nur fast bis zur Grundstellung, fällt sie aus dem Tanz – dort deutet die
+        Ente sie dann nur an. Ohne MuJoCo bleiben die Haltungen, wie sie sind (dort kann nichts umfallen)."""
+        with self._book_lock:
+            posen = {k: dict(v) for k, v in self.book["posen"].items()}
+        if not posen or not available()[0]:
+            return posen
+        cache = getattr(self, "_tanz_cache", None)
+        if cache is None:
+            cache = self._tanz_cache = {}
+        out: dict[str, dict[str, float]] = {}
+        with self._lock:
+            acro = self._live()
+            for name, pose in posen.items():
+                schluessel = json.dumps(pose, sort_keys=True)
+                if schluessel not in cache:
+                    cache[schluessel] = sichere_pose(acro, pose)
+                if cache[schluessel] is not None:
+                    out[name] = cache[schluessel]
+        return out
 
     def check(self, pose: Any) -> dict[str, Any]:
         with self._lock:

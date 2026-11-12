@@ -229,5 +229,5 @@ Auf GitHub: [knowlin-ai/knowlin](https://github.com/knowlin-ai/knowlin) – Main
 Alle Änderungen je Version: [`CHANGELOG.md`](CHANGELOG.md); Release-Notes: [`docs/releases/`](docs/releases/).
 
 App-Icons der öffentlichen Fassung zeigen das Knowlin-Zeichen (`tools/make_public_art.py`).
-`tools/export_public.py` baut die öffentliche Fassung: ohne Pollens Modell, ohne private Bilder und Notizen,
-mit Geheimnis-Scan.
+Vor jedem Push prüft `tools/waechter.py`, dass keine Schlüssel, privaten Namen oder Pollens Modelldateien im Repo
+landen (Teil von `tools/pruefen_alles.py`).

@@ -30,6 +30,7 @@ from types import SimpleNamespace
 from typing import Any, Awaitable, Callable
 
 from .. import koerper
+from ..werte import prompt as werte_prompt
 from .fallback import WER_BIST_DU, parse, quick_command
 from .tools import ToolRunner, fehlt_dem_koerper
 
@@ -293,7 +294,8 @@ class KopfAgent:
     def _system(self) -> str:
         figs = ", ".join(f"{f['name']} ({f['art']})" for f in self.figuren()) or "noch keine"
         return KOPF_WER.format(name=self.namen()[0] or "Knowlin", figuren=figs, art=art(*self.charakter()),
-                               sprache=SPRACHE_EN if _en(self.sprache) else SPRACHE_DE)
+                               sprache=SPRACHE_EN if _en(self.sprache) else SPRACHE_DE) + \
+            werte_prompt("en" if _en(self.sprache) else "de")    # derselbe Wertekern wie im Körper (seit 0.38.42)
 
     def _context(self, text: str = "") -> str:
         from ..buddy import WEEKDAY_NAMES, now_local

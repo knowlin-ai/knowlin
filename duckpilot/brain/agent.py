@@ -8,6 +8,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable
 
+from ..werte import prompt as werte_prompt
 from . import zusage
 from .fallback import FallbackBrain, quick_command
 from .tools import ToolRunner
@@ -300,7 +301,7 @@ class DuckAgent:
         return SYSTEM_PROMPT.format(wer=wer, gemeinsam=gemeinsam, body=body, safety=safety, memory=memory, goofy=goofy,
                                     emotion=emotion, chat=CHAT_PROMPT if chatty else "", voice=voice,
                                     practice=PRACTICE_PROMPT if getattr(self.runner, "practice", None) else "",
-                                    sprache=sprache)
+                                    sprache=sprache) + werte_prompt(getattr(self.config, "sprache", "de"))
 
     def _context(self, text: str = "") -> str:
         s = self.runner.status()

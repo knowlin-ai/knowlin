@@ -269,7 +269,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
 
         self.choreos = ChoreoBuch(S.settings_path().parent)
         self.runner.choreos = self.choreos
-        self.runner.posen = lambda: dict(getattr(getattr(self, "acro", None), "book", {}).get("posen", {}))
+        # Tanzposen nur so stark, wie sie in der Physik sicher stehen (seit 0.38.42)
+        self.runner.posen = lambda: (self.acro.tanzposen() if getattr(self, "acro", None) is not None else {})
         self.runner.on_musik = lambda datei, ab=0.0: spawn(self.broadcast({"type": "musik", "datei": datei, "ab": ab}))
         self.runner.on_choreo = lambda name: spawn(self.broadcast({"type": "choreo", "name": name}))
         self.runner.schwarm = getattr(self, "schwarm", None)
