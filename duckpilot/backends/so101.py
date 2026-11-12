@@ -173,7 +173,8 @@ class So101Sim(TischPlatz, SimBackend):
             return IntentResult(False, grund)
         self.sitting = False
         self._folgen(plan, "ablegen")
-        return IntentResult(True, f"legt {self.werkbank.haelt} ab ({sum(s for _, s, _ in plan):.1f} s)")
+        h = self.werkbank.ding(self.werkbank.haelt or "") or {}
+        return IntentResult(True, f"legt {h.get('akk') or self.werkbank.haelt} ab ({sum(s for _, s, _ in plan):.1f} s)")
 
     # ── Aufträge: mehrere Griffe nacheinander (seit 0.38.54, `werkbank_auftrag.py`) ──────────
     async def auftrag_starten(self, auftrag: dict[str, Any]) -> IntentResult:

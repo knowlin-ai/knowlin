@@ -17,6 +17,11 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   machst Bewegungen und Abläufe vor, zeigst Dinge und Orte, Knowlin lernt durch Zuschauen (Handy, Webcam, später eine
   Brille). Bisher stand dort „Dasselbe Gehirn ganz ohne Roboter“ – das ist der Chat auf der Startseite heute schon.
 
+### Behoben
+- **Englische Oberfläche:** Was Ari tut, steht unter dem Chat jetzt auch auf Englisch („grabs the red cube“, „Sort
+  by colour 2/5“, „Ari: square 5. Your turn.“), ebenso seine Meldungen an der Werkbank und im Spiel. Dazu „legt den
+  blauen Würfel ab“ statt „legt blauer Würfel ab“.
+
 ## 0.38.54 – 2026-11-12 – Ari räumt auf, sortiert, baut Türme und spielt Tic-Tac-Toe
 
 ### Neu

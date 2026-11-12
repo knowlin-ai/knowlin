@@ -49,6 +49,15 @@ def uebersetze(roh: str, tiefe: int = 0) -> str | None:
     ("umschauen", "looking around"),
     ("umschauen, hält Ball", "looking around, holding Ball"),
     ("hält den roten Würfel", "holding the red cube"),                 # Ari an der Werkbank (Fund 12.11.)
+    ("steht auf (ist schon bereit)", "stands up (already ready)"),     # Spur von Ari (seit 0.38.55 englisch)
+    ("greift den roten Würfel (3.1 s)", "grabs the red cube (3.1 s)"),
+    ("legt den blauen Würfel ab (4.2 s)", "puts the blue cube down (4.2 s)"),
+    ("Nach Farben sortieren: 5 Griffe", "Sort by colour: 5 grabs"),
+    ("Nach Farben sortieren 2/5", "Sort by colour 2/5"),
+    ("Turm bauen – fertig", "Build a tower – done"),
+    ("Aufräumen abgebrochen (Not-Aus)", "Tidy up stopped (Emergency stop)"),
+    ("Ari: Feld 5. Du bist dran.", "Ari: square 5. Your turn."),
+    ("winken (2.3 s)", "wave (2.3 s)"),
     ("erkunden (60 s)", "explore (60 s)"),
     ("apportieren: Ball (hin)", "fetching: Ball (on the way)"),
     ("begrüßen: Odi", "greeting: Odi"),
