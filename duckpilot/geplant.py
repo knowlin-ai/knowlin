@@ -21,7 +21,7 @@ GEPLANT: tuple[tuple[str, str, str], ...] = (
     ("0.41", "Natürlicher sprechen", "Ins Wort fallen, Werkzeuge im Gespräch wie Wetter und Uhrzeit."),
     ("0.42", "Choreografie und VR", "Tänze im Editor bauen, Bewegungen vormachen, der Roboter mit der Quest im Wohnzimmer."),
     ("0.43", "Spiele", "Fußball – auch mit mehreren Enten –, Verstecken und „Ente sagt“."),
-    ("0.44", "Ohne Roboter", "Knowlin als Begleiter am PC und Handy, ganz ohne Roboter."),
+    ("0.44", "Mentor", "Du zeigst, Knowlin lernt: Bewegungen, Abläufe, Dinge und Orte – mit Handy, Webcam oder Brille."),
     ("0.45", "Alltag", "Routinen und Zeitpläne, Kalender-Abo aus einer lokalen Datei."),
     ("0.46", "Aufräumen und Smart Home", "Vor dem Saugroboter aufräumen, Licht und Alexa-Routinen."),
     ("ab Lieferung", "Digitaler Zwilling", "Der echte Roboter live im Simulator – mit Frühwarnung und Probelauf."),

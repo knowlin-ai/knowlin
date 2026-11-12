@@ -9,6 +9,14 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## Unveröffentlicht
+
+### Geändert
+- **Kachel „Mentor“ statt „Ohne Körper“** (Maintainer: „Knowlin ist per Tailscale und Sprachchat sowieso schon
+  übergeordnet da – die Kachel wäre der Human Mentor oder Teacher“): Mit 0.44 ist der Mensch Körper und Lehrer – du
+  machst Bewegungen und Abläufe vor, zeigst Dinge und Orte, Knowlin lernt durch Zuschauen (Handy, Webcam, später eine
+  Brille). Bisher stand dort „Dasselbe Gehirn ganz ohne Roboter“ – das ist der Chat auf der Startseite heute schon.
+
 ## 0.38.54 – 2026-11-12 – Ari räumt auf, sortiert, baut Türme und spielt Tic-Tac-Toe
 
 ### Neu

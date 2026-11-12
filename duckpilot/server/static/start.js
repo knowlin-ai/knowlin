@@ -17,7 +17,8 @@ const UMRISS = {
   'open-duck-mini': '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 3l2 6M29 3l-2 6"/><path d="M15 15a9 6.5 0 0 1 18 0v2H15z"/><path d="M33 15.5h6"/><path d="M24 17v5"/><rect x="15" y="22" width="18" height="11" rx="5.5"/><path d="M19 33l-3 6 3 6M29 33l3 6-3 6"/></svg>',
   // SO-101: Sockel, zwei Glieder, Greifer (seit 0.38.51)
   so101: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 44h20M12 44v-5h12v5"/><circle cx="18" cy="35" r="3"/><path d="M18 32 14 18l18-6"/><circle cx="14" cy="18" r="2.5"/><path d="M32 12l4 5M32 12l6-1M36 17l3 4M38 11l4 2"/></svg>',
-  'ohne-koerper': '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="28" height="20" rx="2"/><path d="M14 34h12M20 28v6"/><rect x="34" y="18" width="10" height="20" rx="2"/></svg>',
+  // Mentor (seit 0.38.55): eine Brille – du bist der Körper, Knowlin lernt durch Zuschauen
+  mentor: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="14" cy="27" r="8"/><circle cx="34" cy="27" r="8"/><path d="M22 26c1.3-1.3 2.7-1.3 4 0M6 25l-2-7M42 25l2-7"/></svg>',
   lab: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M18 6h12M20 6v12L9 40h30L28 18V6"/><path d="M14 30h20"/></svg>',
   // Knowlets: ein Paket mit Knoten darin (seit 0.38.5)
   knowlets: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 40 15v18L24 42 8 33V15z"/><path d="M8 15l16 9 16-9M24 24v18"/></svg>',

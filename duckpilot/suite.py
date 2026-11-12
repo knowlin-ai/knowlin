@@ -51,8 +51,10 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
      "Charakter, Tricks und Tänze als Paket speichern, auf Hugging Face teilen und laden – nur Daten, nie Personen."),
     ("lab", "Knowlin Lab", "Trainingshalle für Module, die Bewegung lernen", "geplant", "Januar",
      "Training, Parcours und Policies als eigener Bereich – heute bei der Microduck unter Lernen."),
-    ("ohne-koerper", "Ohne Körper", "Begleiter am PC und Handy", "geplant", "0.44",
-     "Dasselbe Gehirn ganz ohne Roboter."),
+    # seit 0.38.55 „Mentor“ statt „Ohne Körper“ (Maintainer: Knowlin ist über Tailscale und Sprachchat ohnehin überall –
+    # neu ist, dass der Mensch der Körper und Lehrer ist; Konzept „Mentor – Lernen durch Zuschauen“)
+    ("mentor", "Mentor", "Du zeigst, Knowlin lernt – mit Handy, Webcam oder Brille", "geplant", "0.44",
+     "Mach Bewegungen und Abläufe vor, zeig Dinge und Orte – Knowlin lernt durch Zuschauen."),
     ("eigenes-modul", "Eigenes Modul", "für die Community", "anleitung", "",
      "Körperschnittstelle 1.0: Vorlage und Prüfung – ein weiterer Roboter bekommt Knowlin als eigenes Paket."),
 )
@@ -66,7 +68,7 @@ KERN: tuple[tuple[str, str, str], ...] = (
 # Jeder Körper hat seine Verkörperung (seit 0.38.3): Name des Körpers auf der Kachel, und ob es überhaupt ein Körper ist
 # (Lab und „Eigenes Modul“ sind Werkzeuge, keine Körper)
 KOERPER_NAME = {"duckpilot": "Microduck", "reachy-mini": "Reachy Mini", "open-duck-mini": "Open Duck Mini v2",
-                "so101": "SO-101", "ohne-koerper": "Ohne Körper"}
+                "so101": "SO-101", "mentor": "Mentor"}
 
 # Werkzeug-Kacheln, die eine Seite in Knowlin öffnen (seit 0.38.5)
 ANSICHT = {"knowlets": "knowlets"}

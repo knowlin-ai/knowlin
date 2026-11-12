@@ -10,7 +10,7 @@ Die Module der Suite **Knowlin** – „ein Kopf, viele Körper“ – tragen Co
 die laufenden Enten (Microduck, Open Duck Mini), **deskpilot** für stationäre Roboter auf dem Tisch (Reachy Mini; seit
 0.38.10 so genannt). Beim Start erscheint die
 Startseite: eine Kachel je Modul (Microduck, seit 0.38.1 Reachy Mini, seit 0.38.4 Open Duck Mini; Knowlin Lab und
-„Ohne Körper“ sind schon als „geplant“ zu sehen) und darunter, was für jeden Körper gilt – Charakter, Gedächtnis, Umgebung, Alltag,
+„Mentor“ sind schon als „geplant“ zu sehen) und darunter, was für jeden Körper gilt – Charakter, Gedächtnis, Umgebung, Alltag,
 Einstellungen. Das Knowlin-Zeichen oben links führt jederzeit zurück.
 
 - **Verknüpfungen:** „Knowlin“ (mit dem Knowlin-Zeichen) öffnet die Startseite, „Knowlin - Microduck“ (mit der Ente)

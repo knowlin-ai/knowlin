@@ -3,7 +3,7 @@
 das Bild: Oben auf der Startseite steht „Hallo Mensch“, darunter das Dialogfeld, links davon der Kopf („Mind“)
 als wabernde Form. Wer dort schreibt oder spricht, redet mit Knowlin selbst – dem gemeinsamen Kopf aller Verkörperungen –,
 nicht mit einer Verkörperung. Der Kopf kennt dasselbe Wissen (Gedächtnis, Umgebung, Alltag, Erlebnisse), hat aber keinen
-Körper. Alles Weitere – Assistenz, Alltag, Wissen, Soft Skills – kommt mit dem Modul „Ohne Körper“ (0.44).
+Körper. Alles Weitere – Assistenz, Alltag, Wissen, Soft Skills – kommt mit dem Modul „Mentor“ (0.44, Lernen durch Zuschauen).
 
 Seit 0.38.9 (Antworten vom 5.11.):
 - Knowlin ist von Hause aus viel seriöser – „eine intelligente, selbstlernende Lebensform“, anfangs kryptisch – und wird erst

@@ -2222,8 +2222,6 @@
  "Eigene Gangart und Fähigkeiten je Bau – zuerst im Simulator.": "Its own gait and abilities per build – first in the simulator.",
  "Trainingshalle für Module, die Bewegung lernen": "Training hall for modules that learn movement",
  "Training, Parcours und Policies als eigener Bereich – heute in duckpilot unter Lernen.": "Training, courses and policies as their own area – today in duckpilot under Learning.",
- "Begleiter am PC und Handy": "Companion on PC and phone",
- "Dasselbe Gehirn ganz ohne Roboter.": "The same brain without any robot.",
  "für die Community": "for the community",
  "Anleitung, wie ein weiterer Roboter Knowlin bekommt.": "Guide to giving another robot Knowlin.",
  "Zweites Modul der Suite Knowlin: Pollens Reachy Mini im Simulator.": "Second module of the Knowlin suite: Pollen's Reachy Mini in the simulator.",
@@ -2904,7 +2902,6 @@
  "Natürlicher sprechen": "More natural conversation",
  "Ins Wort fallen, Werkzeuge im Gespräch wie Wetter und Uhrzeit.": "Interrupting, tools in conversation such as weather and time.",
  "Tänze im Editor bauen, Bewegungen vormachen, der Roboter mit der Quest im Wohnzimmer.": "Build dances in the editor, demonstrate moves, the robot in your living room with the Quest.",
- "Knowlin als Begleiter am PC und Handy, ganz ohne Roboter.": "Knowlin as a companion on PC and phone, without any robot.",
  "Routinen und Zeitpläne, Kalender-Abo aus einer lokalen Datei.": "Routines and schedules, a calendar subscription from a local file.",
  "Der echte Roboter live im Simulator – mit Frühwarnung und Probelauf.": "The real robot live in the simulator – with early warning and dry run.",
  "Echte Open Duck": "Real Open Duck",
@@ -3397,5 +3394,9 @@
  "Ari gewinnt diese Runde.": "Ari wins this round.",
  "Aufträge an der Werkbank": "Workbench tasks",
  "Noch keine – sag Ari z. B. „sortier rot nach links und merk dir das als Rot links“.": "None yet – tell Ari e.g. “sort red to the left and remember it as Red left”.",
- "Szene zurückgesetzt": "Scene reset"
+ "Szene zurückgesetzt": "Scene reset",
+ "Mentor": "Mentor",
+ "Du zeigst, Knowlin lernt – mit Handy, Webcam oder Brille": "You show, Knowlin learns – with phone, webcam or glasses",
+ "Du zeigst, Knowlin lernt: Bewegungen, Abläufe, Dinge und Orte – mit Handy, Webcam oder Brille.": "You show, Knowlin learns: movements, routines, things and places – with phone, webcam or glasses.",
+ "Mach Bewegungen und Abläufe vor, zeig Dinge und Orte – Knowlin lernt durch Zuschauen.": "Demonstrate movements and routines, show things and places – Knowlin learns by watching."
 }

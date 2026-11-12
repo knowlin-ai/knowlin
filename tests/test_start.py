@@ -39,7 +39,7 @@ def test_module_ehrlich_fertig_oder_geplant():
     assert not umgeschaltet[0]["aktiv"] and "verbunden" not in umgeschaltet[0]
     assert next(m for m in umgeschaltet if m["id"] == "reachy-mini")["verbunden"] == "Simulator"
     namen = {m["name"] for m in ms}
-    assert {"Reachy Mini", "Open Duck Mini", "Knowlin Lab", "Ohne Körper", "Eigenes Modul"} <= namen
+    assert {"Reachy Mini", "Open Duck Mini", "Knowlin Lab", "Mentor", "Eigenes Modul"} <= namen
     aktuell = tuple(int(x) for x in __version__.split("."))
     for m in ms[1:]:
         if re.fullmatch(r"\d+\.\d+(\.\d+)?", m["version"]):
