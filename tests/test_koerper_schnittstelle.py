@@ -265,7 +265,7 @@ def test_erweiterung_erscheint_als_modul_auf_der_startseite():
     K.erweiterungen_laden([_EP("rollbot", _rollbot)])
     m = {x["id"]: x for x in suite.module(aktiv="rollbot")}
     assert m["rollbot"]["erweiterung"] and m["rollbot"]["aktiv"] and m["rollbot"]["modul"] == "rollbot"
-    assert [x["id"] for x in suite.module()].index("rollbot") == 3     # nach den drei eingebauten Körpern
+    assert [x["id"] for x in suite.module()].index("rollbot") == len(suite.KOERPER_MODUL)   # nach den eingebauten Körpern
 
 
 def test_vorlage_fuer_eigene_koerper_besteht_die_pflichten(monkeypatch):
