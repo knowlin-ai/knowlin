@@ -9,6 +9,13 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.49 – 2026-11-12 – Update-Suche nimmt die höchste Version
+
+### Behoben
+- **Update-Suche und Download-Knopf nehmen die höchste Version**, nicht das zuletzt angelegte Release. Fund 12.11.:
+  0.38.47 wurde nach 0.38.48 angelegt – GitHub nannte daraufhin 0.38.47 „latest“, Knowlin hätte sie angeboten und die
+  Website auf sie verlinkt. Entwürfe und Vorabversionen zählen weiter nicht.
+
 ## 0.38.48 – 2026-11-12 – Werkbank: greifen und in Kisten legen
 
 ### Neu

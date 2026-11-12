@@ -28,7 +28,8 @@ jobs:
       - run: pip install playwright && python -m playwright install --with-deps chromium
       - run: npm install --no-save axe-core@4.10.2
       - name: Neuestes Release (für den Download-Knopf)
-        run: echo "KNOWLIN_RELEASE=$(gh release view --repo "${{ github.repository }}" --json tagName -q .tagName 2>/dev/null)" >> "$GITHUB_ENV"
+        # höchste Version, nicht das zuletzt angelegte Release (seit 0.38.49)
+        run: echo "KNOWLIN_RELEASE=$(gh release list --repo "${{ github.repository }}" --exclude-drafts --exclude-pre-releases --limit 20 --json tagName -q '[.[].tagName] | sort_by(ltrimstr("v") | split(".") | map(tonumber)) | last' 2>/dev/null)" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ github.token }}
       - run: python tools/website_pruefen.py pruefung --axe node_modules/axe-core/axe.min.js

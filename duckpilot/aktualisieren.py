@@ -1,7 +1,7 @@
 """Updates (seit 0.38.32, Frage beim Launch: „Bekommen die Leute eine Update-Info und können aus dem Programm heraus
 aktualisieren?“).
 
-* **Prüfen:** höchstens einmal am Tag eine Anfrage an die GitHub-API (`releases/latest` von knowlin-ai/knowlin) – nur die
+* **Prüfen:** höchstens einmal am Tag eine Anfrage an die GitHub-API (Release-Liste von knowlin-ai/knowlin) – nur die
   übliche Anfrage mit IP-Adresse, keine Daten über dich. Abschaltbar (Einstellung `updates_suchen`), im Offline-Modus nie.
 * **Aktualisieren** je nach Installationsart:
   - *installer* (Knowlin-Setup.exe): neuen Installer aus genau diesem Release laden, Prüfsumme gegen die Angabe von
@@ -31,7 +31,9 @@ from . import __version__
 log = logging.getLogger(__name__)
 
 REPO = "knowlin-ai/knowlin"
-API = f"https://api.github.com/repos/{REPO}/releases/latest"
+# Seit 0.38.49 die Liste statt „latest“: GitHub nennt das zuletzt *angelegte* Release „latest“ – wird eine ältere
+# Version nachgereicht (Fund 12.11.: 0.38.47 nach 0.38.48), zählt sonst die ältere. Es gewinnt die höchste Version.
+API = f"https://api.github.com/repos/{REPO}/releases?per_page=10"
 TAG = re.compile(r"v?(\d+)\.(\d+)\.(\d+)")
 BALD_S = 15 * 60          # Installer noch im Bau: nach einer Viertelstunde wieder nachsehen
 ASSET = re.compile(r"Knowlin-Setup-(\d+\.\d+\.\d+)\.exe")
@@ -96,7 +98,7 @@ def _laden(url: str, limit: int, melden=None) -> bytes:
 
 
 def auswerten(daten: dict[str, Any]) -> dict[str, Any] | None:
-    """Antwort von releases/latest → {version, notizen, seite, installer: {url, groesse, sha256}}; None ohne Version."""
+    """Ein Release der GitHub-API → {version, notizen, seite, installer: {url, groesse, sha256}}; None ohne Version."""
     if daten.get("draft") or daten.get("prerelease"):
         return None
     t = version_tupel(str(daten.get("tag_name") or ""))
@@ -115,6 +117,13 @@ def auswerten(daten: dict[str, Any]) -> dict[str, Any] | None:
         seite = f"https://github.com/{REPO}/releases/latest"
     return {"version": version, "titel": str(daten.get("name") or "")[:120], "seite": seite, "installer": installer,
             "notizen": str(daten.get("body") or "")[:4000]}
+
+
+def neuestes(daten: Any) -> dict[str, Any] | None:
+    """Aus der Release-Liste (oder einem einzelnen Release) das mit der höchsten Version, ohne Entwürfe und Vorab."""
+    kandidaten = [auswerten(d) for d in (daten if isinstance(daten, list) else [daten]) if isinstance(d, dict)]
+    gueltig = [k for k in kandidaten if k is not None]
+    return max(gueltig, key=lambda k: version_tupel(k["version"])) if gueltig else None
 
 
 def update_in_worten(zeile: str) -> str:
@@ -170,7 +179,7 @@ class Aktualisierer:
         if not erzwingen and time.time() - float(s.get("zeit_s") or 0) < TAG_S:
             return self.status()
         try:
-            neu = auswerten(json.loads(self._lesen(API)))
+            neu = neuestes(json.loads(self._lesen(API)))
         except UpdateFehler:
             raise
         except Exception as exc:

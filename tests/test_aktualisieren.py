@@ -249,3 +249,14 @@ def test_letztes_update_in_worten(tmp_path):
     (tmp_path / "updates" / "update.log").write_text("2026-11-11T22:40:01 Installer gestartet\n"
                                                      "2026-11-11T22:41:16 fertig, Code 0\n", encoding="utf-8")
     assert A.Aktualisierer(tmp_path).letztes_update() == "am 11.11.2026 um 22:41 ohne Fehler installiert"
+
+
+def test_hoechste_version_gewinnt_nicht_das_zuletzt_angelegte_release():
+    # Fund 12.11.: 0.38.47 wurde nach 0.38.48 angelegt – GitHub nannte 0.38.47 „latest“
+    from duckpilot.aktualisieren import neuestes
+
+    liste = [{"tag_name": "v0.38.47", "assets": []}, {"tag_name": "v0.38.48", "assets": []},
+             {"tag_name": "v0.39.0", "draft": True}, {"tag_name": "v0.40.0", "prerelease": True}, {"tag_name": "x"}]
+    assert neuestes(liste)["version"] == "0.38.48"
+    assert neuestes({"tag_name": "v0.38.46"})["version"] == "0.38.46"          # einzelnes Release geht weiter
+    assert neuestes([]) is None
