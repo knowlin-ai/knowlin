@@ -49,6 +49,7 @@ import { initCharakter } from './charakter.js';
 import { initPflege } from './pflege.js';
 import { initDesignsystem } from './designsystem.js';
 import { initKameraSpiele } from './kamera_spiele.js';   // Kamera-Spiele mit Reachy (0.38.13)
+import { initMentor } from './mentor_arm.js';             // Vormachen mit Ari (0.38.57)
 import { initOffenlegung } from './offenlegung.js';
 
 document.body.classList.add('booting');
@@ -188,6 +189,7 @@ function handle(msg) {
     case 'reachy': case 'reachy_ton': return reachy.nachricht(msg);
     case 'reachy_app': return reachyApps.nachricht(msg);
     case 'spiel': return kameraSpiele.nachricht(msg);
+    case 'mentor': return mentor.meldung(msg);
   }
 }
 
@@ -790,7 +792,7 @@ function showStopHit() {
   clearTimeout(stopLatch);
   stopLatch = setTimeout(() => b.classList.remove('hit'), 900);
 }
-$('stop').addEventListener('click', () => { showStopHit(); stopSpeaking(); send({ type: 'stop' }); });
+$('stop').addEventListener('click', () => { showStopHit(); stopSpeaking(); mentor.aus(); send({ type: 'stop' }); });
 $('opt-follow').addEventListener('change', (e) => { scene.follow = e.target.checked; });
 $('opt-sensor').addEventListener('change', (e) => { scene.showSensor = e.target.checked; });
 $('opt-trail').addEventListener('change', (e) => { scene.showTrail = e.target.checked; });
@@ -1126,7 +1128,7 @@ const typing = () => {
   return el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') && el.type !== 'checkbox' && el.type !== 'radio';
 };
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { showStopHit(); send({ type: 'stop' }); stopSpeaking(); return; }
+  if (e.key === 'Escape') { showStopHit(); mentor.aus(); send({ type: 'stop' }); stopSpeaking(); return; }
   if (typing() || view !== 'cockpit') return;
   if (e.code === 'Space') {
     if (!e.repeat && listener && listener.supported) { stopSpeaking(); listener.start(); }
@@ -1234,6 +1236,7 @@ const knowlets = initKnowlets({ $, api, el, toast, isRemote: () => fern.remote }
 const sicherung = initSicherung({ $, api, el, toast, isRemote: () => fern.remote, showView: (v) => showView(v) });
 const augen = initAugen({ $, api, el, toast, getScene: () => scene, getConfig: () => config, isRemote: () => fern.remote });
 const kameraSpiele = initKameraSpiele({ $, api, toast, scene, isRemote: () => fern.remote });
+const mentor = initMentor({ $, api, send, toast, isRemote: () => fern.remote });
 const fern = initFern({ $, api, el, toast, isApp: () => !!config.app_mode, openQuit: () => beenden.open() });
 initOffenlegung();
 const beenden = initBeenden({ $, api, el, toast, isRemote: () => fern.remote });

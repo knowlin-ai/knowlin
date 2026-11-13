@@ -986,6 +986,28 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                 "fernbedienung": bool(self.remote.enabled), "hintergrund": self.keep_open,
                 "online": self.aktualisierer.status() if getattr(self.config, "updates_suchen", True) else None}
 
+    async def _mentor_hand(self, msg: dict[str, Any]) -> None:
+        """Vormachen: Handpunkte → Ziel der Greiferspitze (`mentor.py`) → `backend.nachmachen`. Höchstens 20 je Sekunde;
+        eine Absage (Motoren aus, Hindernis, Auftrag) geht als kurze Meldung zurück, nicht öfter als alle 2 s."""
+        from ..mentor import Nachmacher, hand_aus
+
+        nachmachen = getattr(self.backend, "nachmachen", None)
+        hand = hand_aus(msg)
+        if nachmachen is None or hand is None:
+            return
+        jetzt = time.monotonic()
+        if jetzt - getattr(self, "_mentor_zuletzt", 0.0) < 0.05:
+            return
+        self._mentor_zuletzt = jetzt
+        if getattr(self, "_mentor", None) is None:
+            self._mentor = Nachmacher()
+        self.alltag.touch()
+        self.engine.kontakt("Vormachen")
+        r = await nachmachen(self._mentor.weiter(hand, jetzt))
+        if not r.accepted and jetzt - getattr(self, "_mentor_absage", 0.0) > 2.0:
+            self._mentor_absage = jetzt
+            await self.broadcast({"type": "mentor", "ok": False, "grund": r.reason})
+
     async def handle_client_message(self, msg: dict[str, Any], remote: bool = False) -> None:
         kind = msg.get("type")
         R.REMOTE_TURN.set(remote)          # gilt für alles, was diese Nachricht auslöst (auch Claudes Werkzeuge)
@@ -1022,6 +1044,10 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             if isinstance(result, dict):
                 result.pop("_bild", None)
             await self.broadcast({"type": "action", "tool": msg.get("name"), "input": msg.get("args"), "result": result})
+        elif kind == "mentor_hand":                # Vormachen (seit 0.38.57): 21 Handpunkte, nie ein Bild
+            await self._mentor_hand(msg)
+        elif kind == "mentor_ende":
+            self._mentor = None
         elif kind == "stop":
             self.alltag.emergency_stop()
             await self.engine.not_aus("Not-Aus")

@@ -15,11 +15,13 @@ import math
 from typing import Any
 
 from .. import arm as A
+from .. import arm_kinematik as K
 from ..api import DuckState, Head, IntentResult, Perception, Pose, Twist
 from ..werkbank_auftrag import planen, pruefen
+from . import werkbank_weg as W
 from .sim import SimBackend
 from .tischplatz import TischPlatz
-from .werkbank import OFFEN_LAESST_FALLEN, SOCKEL_VOR_KANTE, WERKBANK, Werkbank
+from .werkbank import OFFEN_LAESST_FALLEN, SOCKEL_VOR_KANTE, WERKBANK, WUERFEL, Werkbank
 from .werkbank_spiel import TicTacToe
 from .world import Box
 
@@ -251,6 +253,52 @@ class So101Sim(TischPlatz, SimBackend):
             return IntentResult(False, r.reason)
         self.auftrag["spiel_feld"] = nr_ari
         return IntentResult(True, f"{text} Ari überlegt …")
+
+    # ── Vormachen (seit 0.38.57, erster Schritt zum Mentor): Ari folgt deiner Hand ────────────────────────────────
+    NACHMACHEN_S = 0.15       # so schnell folgt er einem neuen Ziel (die Hand kommt mit etwa 15 Bildern je Sekunde)
+    GREIF_NAEHE = 0.02        # m: so nah muss die Spitze an einem Würfel sein, wenn sich der Greifer schließt
+
+    async def nachmachen(self, ziel: dict[str, float]) -> IntentResult:
+        """Spitze nach `ziel` (x, y, z in m im Rahmen des Sockels, greifer in Grad) – senkrecht von oben, mit derselben
+        Wegprüfung wie der Planer. Schließt sich der Greifer nah an einem Würfel, hält er ihn; öffnet er sich, fällt er."""
+        if not self.powered:
+            return IntentResult(False, "Motoren sind aus – erst aufwecken")
+        if self.auftrag is not None:
+            return IntentResult(False, "Ich bin mitten in einem Auftrag – erst beenden, dann mach ich dir nach")
+        sp = self.werkbank.spiel
+        if sp is not None and sp.dran is not None:
+            return IntentResult(False, "Wir spielen gerade – erst das Spiel beenden")
+        try:
+            x, y, z, greifer = (float(ziel[k]) for k in ("x", "y", "z", "greifer"))
+        except (KeyError, TypeError, ValueError):
+            return IntentResult(False, "Ziel unvollständig")
+        g = K.greifhaltung(round(x, 3), round(y, 3), round(z, 3), greifer)
+        if g is None:
+            return IntentResult(False, "Da komme ich nicht hin")
+        wb = self.werkbank
+        nah = self._wuerfel_bei(x, y, z)
+        hin = W.hindernisse(wb.dinge, wb.kisten, WUERFEL, {n for n in (wb.haelt, nah) if n})
+        if (hit := W.weg(self.gelenke, g, hin, wb.haelt is not None, WUERFEL)) is not None:
+            return IntentResult(False, f"Da würde ich an {hit} stoßen")
+        fassen = (wb.haelt is None and nah and greifer <= OFFEN_LAESST_FALLEN / 2
+                  and self.gelenke["gripper"] > OFFEN_LAESST_FALLEN / 2)
+        self._folge = []
+        self.geste_name = "vormachen"
+        self._anfahren(g, self.NACHMACHEN_S)
+        self._bei_ankunft = f"fassen:{nah}" if fassen else None    # gefasst wird, wenn der Greifer zu ist
+        return IntentResult(True, "macht nach")
+
+    def _wuerfel_bei(self, x: float, y: float, z: float) -> str | None:
+        """Der greifbare Würfel, dessen Mitte der Spitze am nächsten ist (innerhalb `GREIF_NAEHE`, ganz oben im Stapel)."""
+        frei = {d.get("auf") for d in self.werkbank.dinge if d.get("auf")}
+        beste, abstand = None, self.GREIF_NAEHE
+        for d in self.werkbank.dinge:
+            if d.get("fest") or d.get("feld") or d["name"] in frei or d["name"] == self.werkbank.haelt:
+                continue
+            a = math.dist((x, y, z), (d["x"], d["y"], d["z"]))
+            if a <= abstand:
+                beste, abstand = d["name"], a
+        return beste
 
     def beschaeftigt(self) -> bool:
         """Für die Eigeninitiative: Der Arm arbeitet gerade (Auftrag oder Bewegung)."""

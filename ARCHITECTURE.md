@@ -27,7 +27,7 @@ Körper   backends/sim.py (einfach)  backends/physics.py (MuJoCo + Pollens Polic
          backends/reachy*.py (Reachy Mini: Simulator, Pollens Daemon)  backends/open_duck.py (Open Duck Mini v2)
          backends/begleiter.py (weitere Enten im Simulator)  backends/lerobot.py (LeRobot-Roboter, seit 0.38.35)
          backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
-         arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)  arm_huelle.py (Fühlpunkte auf Greifer und Backe, erzeugt von tools/arm_huelle_erzeugen.py – Basis, seit 0.38.55)
+         arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)  arm_huelle.py (Fühlpunkte auf Greifer und Backe, erzeugt von tools/arm_huelle_erzeugen.py – Basis, seit 0.38.55)  mentor.py (Vormachen: Handpunkte → Ziel der Greiferspitze – Basis, seit 0.38.57)
          backends/werkbank.py (Werkbank des SO-101: Würfel, Kisten, Greifen und Ablegen, seit 0.38.48)
          werkbank_auftrag.py (Aufträge als Daten: Regeln, Prüfung, eigene merken – Basis, seit 0.38.54)
          backends/werkbank_spiel.py (Tic-Tac-Toe an der Werkbank, seit 0.38.54)  backends/werkbank_weg.py (freier Weg: tastet jede Bewegung mit der Hülle ab, seit 0.38.55)

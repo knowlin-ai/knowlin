@@ -100,6 +100,7 @@
         <span class="chip" id="badge-brain">Claude</span>
         <span class="chip chip--cam" id="badge-cam" hidden title="Die Webcam ist an – für die Augen der Verkörperung im Simulator">● Webcam</span>
         <span class="chip chip--cam" id="badge-spiel-cam" hidden title="Die Webcam ist an – für ein Kamera-Spiel, ausgewertet nur im Browser">● Webcam · Spiel</span>
+        <span class="chip chip--cam" id="badge-mentor-cam" hidden title="Die Webcam ist an – fürs Vormachen, ausgewertet nur im Browser, es gehen nur Handpunkte an Knowlin">● Webcam · Vormachen</span>
         <span class="chip" id="badge-link"><i class="dot dot--critical"></i><span>getrennt</span></span>
       </div>
       <div class="tasks" id="tasks" hidden>
@@ -271,6 +272,20 @@
             <ol class="hud-queue" id="queue"></ol>
             <p class="hud-reflex" id="reflex" hidden></p>
           </div>
+          <!-- Vormachen (seit 0.38.57): Ari folgt deiner Hand; nur am PC, Webcam nur solange offen (mentor_arm.js) -->
+          <section class="hud hud-mentor pc-only" id="mentor-panel" aria-labelledby="mentor-titel" hidden>
+            <div class="mentor-kopf">
+              <h3 id="mentor-titel">Vormachen</h3>
+              <span class="mentor-kamera" id="mentor-kamera" hidden>● Webcam</span>
+              <button type="button" class="btn btn--ghost btn--sm" id="mentor-zu">Beenden</button>
+            </div>
+            <div class="mentor-bild">
+              <video id="mentor-video" muted playsinline aria-label="Dein Bild aus der Webcam, gespiegelt – es verlässt diesen PC nicht"></video>
+              <canvas id="mentor-punkte" width="320" height="240" aria-hidden="true"></canvas>
+            </div>
+            <p class="mentor-text" id="mentor-text" role="status" aria-live="polite"></p>
+            <button type="button" class="btn btn--primary btn--sm" id="mentor-laden" hidden>Handerkennung laden</button>
+          </section>
           <div class="hud hud-tele">
             <div class="gauge braucht-beine" title="Wie schnell sie gerade vorwärts (rechts vom Strich) oder rückwärts läuft – gemessen, nicht bestellt">
               <span class="gauge-label">Vorwärts</span>
@@ -458,6 +473,7 @@
             <button class="chip" data-tool="auftrag" data-args='{"auftrag":"turm"}'><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="15" width="8" height="6" rx="1"/><rect x="8" y="9" width="8" height="6" rx="1"/><rect x="8" y="3" width="8" height="6" rx="1"/></svg>Turm bauen</button>
             <button class="chip" data-tool="auftrag" data-args='{"auftrag":"aufraeumen"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 20l2-9h6l2 9M10 11V4h4v7"/></svg>Aufräumen</button>
             <button class="chip" data-tool="tictactoe" data-args='{"aktion":"start"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>Tic-Tac-Toe</button>
+            <button class="chip pc-only" id="vormachen-btn" type="button" aria-controls="mentor-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V6a2 2 0 0 1 4 0v5M11 10V4a2 2 0 0 1 4 0v6M15 10V6a2 2 0 0 1 4 0v8a7 7 0 0 1-14 0v-3a2 2 0 0 1 4 0"/><circle cx="19" cy="4" r="2"/></svg>Vormachen</button>
             <button class="chip nur-ttt" data-tool="tictactoe" data-args='{"aktion":"ende"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Spiel beenden</button>
           </div>
           <div class="quick braucht-beine" role="group" aria-label="Schnellbefehle">

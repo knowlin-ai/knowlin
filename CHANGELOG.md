@@ -9,6 +9,21 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## Unveröffentlicht
+
+### Neu
+- **Vormachen mit Ari – erster Schritt zum Mentor** (Maintainer: „dann bin ich sozusagen die Körperschnittstelle“):
+  Knopf „Vormachen“ im Cockpit (nur am PC) öffnet ein kleines Kamerafenster. Ari folgt deiner Hand über der
+  Werkbank wie in einem Spiegel – links/rechts, hoch/runter, näher zur Kamera = weiter vor; Daumen und Zeigefinger
+  zusammen schließen den Greifer (greift den Würfel darunter), auseinander öffnen ihn. Erkannt wird im Browser mit
+  der vorhandenen Handerkennung (MediaPipe, seit 0.38.14 für Reachys Spiele, Laden auf Klick); an Knowlin gehen nur
+  21 Handpunkte, nie ein Bild. Jeder Weg wird geprüft wie sonst (kein Durchfahren von Würfeln), Not-Aus schließt
+  Fenster und Webcam, Aufträge und Spiele gehen vor. Oben steht „● Webcam · Vormachen“, solange sie läuft.
+
+### Nicht geprüft
+- Vormachen mit echter Webcam und Hand: im Prüfaufbau nur mit simulierter Kamera (Fenster, Hinweis, Beenden) und
+  Tests der Umrechnung und des Greifens.
+
 ## 0.38.56 – 2026-11-13 – Ari mit eigenen Tricks, freiem Ablegen und Knowlins Stimme
 
 ### Neu

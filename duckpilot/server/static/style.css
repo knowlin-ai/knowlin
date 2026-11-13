@@ -249,6 +249,21 @@ button.pad-mark.is-ziehen { cursor: grabbing; transition: none; color: var(--ink
   padding: var(--spacing-04) var(--spacing-05) var(--spacing-05);
   display: grid; gap: var(--spacing-03);
 }
+/* Vormachen (seit 0.38.57): an der Stelle der Anzeigetafel – der Arm hat keine */
+.hud-mentor {
+  left: 40px; bottom: 56px; width: 304px;
+  background: var(--surface-glass); -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass); border-radius: var(--r-sheet); box-shadow: var(--e-2);
+  padding: var(--spacing-04) var(--spacing-05) var(--spacing-05);
+  display: grid; gap: var(--spacing-03); pointer-events: auto;
+}
+.hud-mentor[hidden] { display: none; }
+.mentor-kopf { display: flex; align-items: center; gap: var(--spacing-03); }
+.mentor-kopf h3 { margin: 0; font-size: var(--t-body); flex: 1; }
+.mentor-kamera { font-size: var(--t-caption); color: var(--danger); }
+.mentor-bild { position: relative; aspect-ratio: 4 / 3; border-radius: var(--r-card); overflow: hidden; background: var(--surface-sunken); }
+.mentor-bild video, .mentor-bild canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mentor-bild video { transform: scaleX(-1); }
+.mentor-text { margin: 0; font-size: var(--t-caption); color: var(--ink-2); }
 .gauge { display: grid; grid-template-columns: 64px 1fr 84px; align-items: center; gap: var(--spacing-03); font-size: var(--t-caption); letter-spacing: var(--ls-micro); }
 .gauge-label { color: var(--ink-3); }
 /* feste Breite: Ziffern gleich breit, nie umbrechen – sonst springt die Anzeige mit jedem Wert */
