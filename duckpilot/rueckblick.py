@@ -33,6 +33,10 @@ ARTEN: dict[str, tuple[str, str]] = {
     "geste": ("Gesten machen", "making gestures"), "armgeste": ("den Arm bewegen", "moving the arm"),
 }
 ART_TEXT = {k: v[0] for k, v in ARTEN.items()}
+# Was ein Körper dafür haben muss (seit 0.38.57): Ohne Arm keine Lehre über den Arm – Quacki hatte „Mag den Arm bewegen“,
+# weil Aris Zeilen in der Gedankenspur mitgezählt wurden. Jetzt trägt jede Zeile ihren Körper, und was nicht passt, fällt weg.
+BRAUCHT = {"armgeste": "arm", "antennen": "antennen", "laufen": "beine", "aufstehen": "beine", "sitzen": "beine",
+           "ball": "beine", "erkunden": "beine", "ding": "beine"}
 FEHLSCHLAEGE = 2           # so oft „ging nicht“ seit dem letzten Rückblick → „klappt gerade oft nicht“
 GERN = 3                   # so oft gelungen → „mag …“
 MIN_FAKTOR, MAX_FAKTOR = 0.3, 1.5
@@ -64,9 +68,11 @@ def in_worten(lehre: dict[str, Any], sprache: str = "de") -> dict[str, str]:
             {"was": f"Mag {name}", "woraus": f"{n}× von sich aus gemacht, jedes Mal geklappt"})
 
 
-def ableiten(zeilen: list[dict[str, Any]], seit: float) -> list[dict[str, Any]]:
-    """Aus Zeilen der Gedankenspur (`quelle` antrieb, mit `art`) seit `seit` neue Lehren vorschlagen."""
-    eigene = [z for z in zeilen if z.get("quelle") == "antrieb" and z.get("art") in ART_TEXT and z["zeit"] > seit]
+def ableiten(zeilen: list[dict[str, Any]], seit: float, koerper: str | None = None) -> list[dict[str, Any]]:
+    """Aus Zeilen der Gedankenspur (`quelle` antrieb, mit `art`) seit `seit` neue Lehren vorschlagen – mit `koerper` nur
+    aus dessen eigenen Zeilen (Zeilen ohne Körper stammen von vor 0.38.57 und zählen dann nicht)."""
+    eigene = [z for z in zeilen if z.get("quelle") == "antrieb" and z.get("art") in ART_TEXT and z["zeit"] > seit
+              and (koerper is None or z.get("koerper") == koerper)]
     fehl = Counter(z["art"] for z in eigene if z.get("ergebnis") == "ging nicht")
     gut = Counter(z["art"] for z in eigene if z.get("ergebnis") == "getan")
     lehren = []
@@ -99,12 +105,18 @@ class Lehrbuch:
                        encoding="utf-8")
         tmp.replace(self.pfad)
 
-    def zurueckblicken(self, zeilen: list[dict[str, Any]], koerper: str, jetzt: float | None = None) -> list[dict]:
+    def zurueckblicken(self, zeilen: list[dict[str, Any]], koerper: str, eigenschaften: Any = None,
+                       jetzt: float | None = None) -> list[dict]:
         """Neue Lehren ablegen; eine schon vorhandene zur selben Art wird aufgefrischt statt verdoppelt –
-        außer der Mensch hat sie korrigiert: Dann bleibt seine Fassung."""
+        außer der Mensch hat sie korrigiert: Dann bleibt seine Fassung. Mit `eigenschaften` fallen Lehren dieses Körpers
+        weg, die er gar nicht ausführen kann (Arm ohne Arm)."""
         jetzt = time.time() if jetzt is None else jetzt
+        if eigenschaften is not None:
+            eig = set(eigenschaften)
+            self.lehren = [x for x in self.lehren
+                           if x["koerper"] != koerper or BRAUCHT.get(x["art"]) in (None, *eig)]
         neu = []
-        for vorschlag in ableiten(zeilen, self.zuletzt):
+        for vorschlag in ableiten(zeilen, self.zuletzt, koerper):
             alt = next((x for x in self.lehren if x["koerper"] == koerper and x["art"] == vorschlag["art"]), None)
             if alt is not None:
                 if not alt.get("korrigiert"):

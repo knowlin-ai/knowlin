@@ -20,6 +20,13 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   21 Handpunkte, nie ein Bild. Jeder Weg wird geprüft wie sonst (kein Durchfahren von Würfeln), Not-Aus schließt
   Fenster und Webcam, Aufträge und Spiele gehen vor. Oben steht „● Webcam · Vormachen“, solange sie läuft.
 
+### Behoben
+- **Rückblick je Körper** (Fund des Maintainers): Quacki hatte „Mag den Arm bewegen“ gelernt – die Gedankenspur
+  merkte sich nicht, welcher Körper etwas tat, und der Rückblick zählte Aris Armbewegungen mit. Jetzt trägt jede Zeile
+  ihren Körper, gezählt wird nur, was dieser Körper selbst getan hat, und Lehren, die er gar nicht ausführen kann
+  (Arm ohne Arm, Laufen ohne Beine), fallen beim nächsten Rückblick weg.
+- **Gedächtnis:** Die Karten stießen ohne Abstand aneinander; jetzt mit Luft dazwischen.
+
 ### Nicht geprüft
 - Vormachen mit echter Webcam und Hand: im Prüfaufbau nur mit simulierter Kamera (Fenster, Hinweis, Beenden) und
   Tests der Umrechnung und des Greifens.

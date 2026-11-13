@@ -2,6 +2,9 @@
 dass man ggf. korrigieren oder löschen kann“. Lehren wirken nur auf Gewichte, betreffen nie Personen, Knowlin sagt
 nichts dazu."""
 
+import tempfile
+from pathlib import Path
+
 import pytest
 
 from duckpilot import remote as R
@@ -12,7 +15,8 @@ from duckpilot.rueckblick import MAX_FAKTOR, MIN_FAKTOR, Lehrbuch, ableiten, in_
 def _spur(*eintraege):
     g = Gedankenspur()
     for i, (art, ergebnis) in enumerate(eintraege):
-        g.merken(f"{art} von sich aus", "Neugier (etwas)", art=art, ergebnis=ergebnis, zeit=1000 + i * 60)
+        g.merken(f"{art} von sich aus", "Neugier (etwas)", art=art, ergebnis=ergebnis, zeit=1000 + i * 60,
+                 koerper="microduck")
     return g.liste()
 
 
@@ -82,3 +86,20 @@ def test_lehren_in_der_sprache_der_oberflaeche(tmp_path):
     alt = {"id": "z", "zeit": 1, "koerper": "m", "art": "trick", "faktor": 1.2, "was": "mag Tricks üben", "woraus": "x"}
     buch.lehren.append(alt)                                               # Lehre aus 0.38.45 bleibt lesbar
     assert buch.liste("en")[-1]["was"] == "mag Tricks üben"
+
+
+def test_nur_eigene_zeilen_und_nur_was_der_koerper_kann():
+    """Fund des Maintainers (13.11.): Quacki hatte „Mag den Arm bewegen“ – Aris Zeilen wurden mitgezählt."""
+    g = Gedankenspur()
+    for i in range(4):
+        g.merken("bewegt von sich aus den Arm", "Können", art="armgeste", zeit=1000 + i * 60, koerper="so101")
+    for i in range(3):
+        g.merken("übt einen Trick", "Können", art="trick", zeit=2000 + i * 60, koerper="microduck")
+    assert [x["art"] for x in ableiten(g.liste(), 0, "microduck")] == ["trick"]
+    assert [x["art"] for x in ableiten(g.liste(), 0, "so101")] == ["armgeste"]
+    assert ableiten([{**z, "koerper": None} for z in g.liste()], 0, "microduck") == []   # alte Zeilen ohne Körper
+    buch = Lehrbuch(Path(tempfile.mkdtemp()) / "rueckblick.json")
+    buch.lehren.append({"id": "alt", "zeit": 1, "koerper": "microduck", "art": "armgeste", "typ": "gern", "faktor": 1.2,
+                        "n": 12, "korrigiert": None})
+    buch.zurueckblicken(g.liste(), "microduck", {"beine", "kopf", "schnabel"}, jetzt=5000)
+    assert sorted(x["art"] for x in buch.lehren) == ["trick"]               # die falsche Armlehre ist weg

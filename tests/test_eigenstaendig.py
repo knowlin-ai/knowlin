@@ -489,7 +489,8 @@ def test_rueckblick_in_der_ruhephase_still_und_wirksam(rt, tmp_path, monkeypatch
     async def go():
         gesendet = await _wach(rt)
         for _ in range(2):
-            rt.gedanken.merken("erkundet den Raum", "Neugier (stark)", art="erkunden", ergebnis="ging nicht")
+            rt.gedanken.merken("erkundet den Raum", "Neugier (stark)", art="erkunden", ergebnis="ging nicht",
+                               koerper=rt.config.modul)
         vorher = len(gesendet)
         jetzt = rt.engine.kontakt_at + 601
         frueh = rt._rueckblick_faellig(rt.engine.kontakt_at + 60)

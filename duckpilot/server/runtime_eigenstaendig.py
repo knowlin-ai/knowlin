@@ -59,7 +59,7 @@ class EigenstaendigTeil:
     def zurueckblicken(self) -> list[dict[str, Any]]:
         """Rückblick jetzt (Ruhephase oder Knopf am PC): Lehren aus der Gedankenspur ablegen – Knowlin sagt nichts dazu."""
         self._rueckblick_mono = time.monotonic()
-        return self.lehrbuch.zurueckblicken(self.gedanken.liste(), self.config.modul)
+        return self.lehrbuch.zurueckblicken(self.gedanken.liste(), self.config.modul, self.backend.eigenschaften())
 
     @property
     def gedanken(self):
@@ -186,13 +186,16 @@ class EigenstaendigTeil:
         if eng.notaus_gesperrt():                              # Not-Aus kam dazwischen: nichts davon bleibt
             eng.eigenstaendig_unterbrechen("Not-Aus")
             self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="vom Not-Aus beendet", person=person,
-                                 art=wahl.art)
+                                 art=wahl.art,
+                                 koerper=self.config.modul)
             return None
         if not ok:
-            self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="ging nicht", person=person, art=wahl.art)
+            self.gedanken.merken(wahl.nachricht, warum, wie=wahl.werkzeug, ergebnis="ging nicht", person=person, art=wahl.art,
+                                 koerper=self.config.modul)
             return {"ok": False, "art": wahl.art}
         nachricht = ok if isinstance(ok, str) else wahl.nachricht    # z. B. statt der Geste umgeschaut
-        self.gedanken.merken(nachricht, warum, wie=wahl.werkzeug, person=person, art=wahl.art)
+        self.gedanken.merken(nachricht, warum, wie=wahl.werkzeug, person=person, art=wahl.art,
+                                 koerper=self.config.modul)
         self.antrieb.gestillt(wahl.art)
         uhr.zuletzt = wahl.art
         if not (wahl.art == "geste" and ok is True):     # die Geste meldet sich selbst im Ticker (mit eigenstaendig)

@@ -2435,6 +2435,8 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
 
 
 /* Was Knowlin über deine Welt weiß (G1, 0.38.27): Themen je Art, Gefühlston als Zeichen + Wort */
+/* Gedächtnis: Karten mit Abstand untereinander (seit 0.38.57 – vorher stießen die runden Ecken aneinander) */
+.view-memory .page-inner > .card + .card, .view-memory .page-inner > .card + .dash { margin-top: var(--spacing-05); }
 .welt-card { display: grid; gap: var(--spacing-04); }
 .welt-card[hidden] { display: none; }
 .welt-card h3 { margin: 0; }
