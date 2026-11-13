@@ -53,7 +53,7 @@ def test_trainingsfeld_oberflaeche():
     assert "felder.geometry.setDrawRange(0, felder.userData.ende[sichtbarAnzahl - 1])" in js   # spart: kein leeres Feld
     assert "schatten.visible = false" in js and "beiBau(fn)" in js            # erst Enten, dann Schatten; Hinweis
     assert "neuStart(d)" in js and "Math.log(" in js                           # Sturz → zurück an den Start, Quote passt
-    assert "function sparen()" in js and "prefers-reduced-motion" in js and "IntersectionObserver" in js
+    assert "function sparen(neu = stufe + 1)" in js and "prefers-reduced-motion" in js and "IntersectionObserver" in js
     tr = (STATIC / "training.js").read_text(encoding="utf-8")
     assert "feld.setModell(figur())" in tr and "Vorschau – hier lernt nichts" in tr and "Gemessene Quote" in tr
     app = (STATIC / "app.js").read_text(encoding="utf-8")
