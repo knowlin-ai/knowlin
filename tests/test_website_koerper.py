@@ -29,3 +29,11 @@ def test_vorschaubild_nennt_alle_fertigen_koerper():
     fertig = [m for m in MODULE if m[3] == "fertig" and m[0] in KOERPER_MODUL]
     namen = _vorschau().koerper()
     assert len(namen) == len(fertig) and "SO-101" in namen and "Mentor" not in namen
+
+
+def test_lernen_mit_festem_blick():
+    """„Nimm mal lieber das Bild bei Lernen“ (13.11.): Website-Bild des Trainingsfelds mit festem Blick und vollem Feld."""
+    js = (ROOT / "duckpilot" / "server" / "static" / "trainingsfeld.js").read_text(encoding="utf-8")
+    assert "canvas.dataset.blick" in js and "canvas.feldZeichnen = () =>" in js and "sparen(0)" in js
+    werkzeug = (ROOT / "tools" / "website_bilder.py").read_text(encoding="utf-8")
+    assert 'TRAINING_BLICK = "' in werkzeug and "c.feldZeichnen()" in werkzeug

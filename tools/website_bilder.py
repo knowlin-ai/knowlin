@@ -278,6 +278,9 @@ def szene_akrobatik(page, base, sprache):
     page.wait_for_timeout(3000)
 
 
+TRAINING_BLICK = "3.6,2.6,5.2,-0.6,0,-0.6"    # Kamera x,y,z und Blickziel x,y,z im Trainingsfeld (Meter)
+
+
 def szene_training(page, base, sprache):
     A.einstellen(page, {"modul": "duckpilot", "sprache": sprache})
     A.oeffnen(page, base)
@@ -293,6 +296,11 @@ def szene_training(page, base, sprache):
     page.wait_for_function("() => /^original/.test(document.getElementById('tr-feld-canvas')?.dataset.figur || '')",
                            timeout=420000)
     page.wait_for_timeout(8000)
+    # seit 0.38.56 („nimm mal lieber das Bild bei Lernen“): fester Blick schräg von oben übers volle Feld – Rampen vorn,
+    # Matten rechts – statt des Moments der gleitenden Keynote-Kamera, die headless weit draußen und flach stand
+    page.evaluate(f"() => {{ const c = document.getElementById('tr-feld-canvas'); c.dataset.blick = '{TRAINING_BLICK}';"
+                  " c.feldZeichnen(); }")
+    page.wait_for_timeout(1500)
 
 
 SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi, "ari": szene_ari,

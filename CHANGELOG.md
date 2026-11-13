@@ -29,6 +29,8 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   beim Teilen und README-Banner zeigten noch drei Körper ohne Ari und die alte Startseite, Bildtexte sprachen von
   „drei Verkörperungen“. Alle Aufnahmen der Website und der README neu; Banner und Vorschaubild entstehen jetzt aus
   der Startseite und der Liste der Körper (`tools/vorschau_bilder.py`), ein Test hält die Texte auf dem Stand.
+  Das Bild bei „Lernen“ zeigt das Trainingsfeld jetzt schräg von oben und voll besetzt (Wunsch des Maintainers) statt
+  eines zufälligen Moments der gleitenden Kamera weit draußen.
 
 ### Geändert
 - **Knowlin spricht für Ari** (Entscheidung des Maintainers: „Knowlin kann für ihn sprechen“): Ein Körper ohne

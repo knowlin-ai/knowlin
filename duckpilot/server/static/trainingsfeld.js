@@ -312,8 +312,8 @@ export function trainingsfeld(canvas) {
   let sichtbarAnzahl = ANZAHL;
   // Sparen auf schwacher Grafik: Bilder dauern im Mittel länger als 45 ms → weniger Bildpunkte, dann nur die vordere
   // Hälfte, dann ein Viertel der Enten (die Zahlen zählen weiter alle)
-  function sparen() {
-    stufe++;
+  function sparen(neu = stufe + 1) {
+    stufe = neu;
     sichtbarAnzahl = stufe >= 3 ? Math.ceil(ANZAHL / 4) : stufe >= 2 ? Math.ceil(ANZAHL / 2) : ANZAHL;
     for (const m of [ente && ente.netz, schatten]) if (m) m.count = sichtbarAnzahl;
     const felder = halle.userData.felder;                // kein leeres Übungsfeld: nur so viele Felder wie Enten
@@ -401,6 +401,13 @@ export function trainingsfeld(canvas) {
   // Auftakt wie im Video von NVIDIA zur Microduck: erst nah an einer Ente, dann zieht die Kamera auf das ganze Feld auf
   const blick = new THREE.Vector3(), ziel = new THREE.Vector3();
   function kameraStellen(zeit) {
+    // feste Kamera für Website und Doku (seit 0.38.56, „nimm lieber das Bild bei Lernen“): "x,y,z,zielX,zielY,zielZ"
+    const fest = (canvas.dataset.blick || '').split(',').map(Number);
+    if (fest.length === 6 && fest.every(Number.isFinite)) {
+      kamera.position.set(fest[0], fest[1], fest[2]);
+      kamera.lookAt(fest[3], fest[4], fest[5]);
+      return;
+    }
     const t = ruhig ? 0 : zeit / 1000;
     const a = 0.42 + Math.sin(t / 14) * 0.22;
     const schmal = kamera.aspect < 1.4;
@@ -481,6 +488,11 @@ export function trainingsfeld(canvas) {
   }
 
   canvas.feldInfo = () => ({ ...renderer.info.render, anzahl: ANZAHL, bilder: ente ? 1 : 0 });   // für Prüfungen
+  // Website-Bilder (seit 0.38.56): alle Enten, feste Kamera aus data-blick, jetzt zeichnen – headless steht die Schleife
+  canvas.feldZeichnen = () => {
+    if (stufe) { sparen(0); canvas.dataset.sparen = 'nie'; }
+    groesse(); kameraStellen(performance.now() - t0); renderer.render(scene, kamera);
+  };
   let modellSchluessel = '';
   canvas.dataset.figur = 'einfach';                        // für den Abnahmetest: welche Figur steht im Feld
   return {
