@@ -1,8 +1,8 @@
 # Contributing to Knowlin / duckpilot
 
 Thanks for helping! **Knowlin** is one mind for many small robots – shared knowledge, one character per body. duckpilot is
-its module for the Microduck (Pollen Robotics / Hugging Face); Reachy Mini and the Open Duck Mini v2 run as further
-bodies. Simulator with real physics, voice, personality, memory and a phone controller. It is a free, non-commercial
+its module for the Microduck (Pollen Robotics / Hugging Face); Reachy Mini, the Open Duck Mini v2 and the SO-101
+gripper arm (TheRobotStudio / Hugging Face) run as further bodies. Simulator with real physics, voice, personality, memory and a phone controller. It is a free, non-commercial
 hobby project (Apache-2.0).
 
 *Deutsch:* Beiträge gern auf Deutsch oder Englisch. Code-Kommentare und Oberfläche sind deutsch, die englische

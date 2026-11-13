@@ -39,7 +39,7 @@ KOPF = """<!doctype html>
 <meta property="og:image" content="{basis}bilder/vorschau.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Knowlin – ein Kopf, viele Körper: die Startseite mit Knowlins Netz und drei Roboter-Körpern">
+<meta property="og:image:alt" content="Knowlin – ein Kopf, viele Körper: die Startseite mit Knowlins Netz und vier Roboter-Körpern: Microduck, Reachy Mini, Open Duck Mini und SO-101">
 <meta property="og:site_name" content="Knowlin">
 <meta property="og:locale" content="de_DE">
 <meta property="og:locale:alternate" content="en_US">

@@ -8,9 +8,9 @@ geändert hat im [CHANGELOG](../CHANGELOG.md).
 
 Die Module der Suite **Knowlin** – „ein Kopf, viele Körper“ – tragen Codenamen nach ihrer Bauart: **duckpilot** für
 die laufenden Enten (Microduck, Open Duck Mini), **deskpilot** für stationäre Roboter auf dem Tisch (Reachy Mini; seit
-0.38.10 so genannt). Beim Start erscheint die
-Startseite: eine Kachel je Modul (Microduck, seit 0.38.1 Reachy Mini, seit 0.38.4 Open Duck Mini; Knowlin Lab und
-„Mentor“ sind schon als „geplant“ zu sehen) und darunter, was für jeden Körper gilt – Charakter, Gedächtnis, Umgebung, Alltag,
+0.38.10 so genannt), **so101** für den Greifarm SO-101 an seiner Werkbank (seit 0.38.47). Beim Start erscheint die
+Startseite: eine Kachel je Modul (Microduck, seit 0.38.1 Reachy Mini, seit 0.38.4 Open Duck Mini, seit 0.38.51 SO-101;
+Knowlin Lab und „Mentor“ sind schon als „geplant“ zu sehen) und darunter, was für jeden Körper gilt – Charakter, Gedächtnis, Umgebung, Alltag,
 Einstellungen. Das Knowlin-Zeichen oben links führt jederzeit zurück.
 
 - **Verknüpfungen:** „Knowlin“ (mit dem Knowlin-Zeichen) öffnet die Startseite, „Knowlin - Microduck“ (mit der Ente)
@@ -25,7 +25,7 @@ Einstellungen. Das Knowlin-Zeichen oben links führt jederzeit zurück.
 ### Verkörperungen (seit 0.38.3)
 
 Knowlin ist die übergeordnete Anwendung. Jeder Körper hat seine eigene **Verkörperung** – Quacki die Microduck, Reachy den
-Reachy Mini, Odi die Open Duck Mini – mit eigenem Namen, Aussehen, eigener Stimme, Sprechweise, Verhalten und eigenen
+Reachy Mini, Odi die Open Duck Mini, Ari den Greifarm SO-101 – mit eigenem Namen, Aussehen, eigener Stimme, Sprechweise, Verhalten und eigenen
 Tricks. Den **Charakter** wählst du seit 0.38.10 übergeordnet bei Knowlin (Einstellungen → Knowlin: seit 0.38.11 ein
 Feld mit Quadranten ruhig–lebhaft und seriös–verspielt, die Verkörperungen als Punkte darum herum; dazu Gefühle zeigen); jede Verkörperung ist eine leichte Ausprägung darum herum und hat dazu die
 **Eigenschaften ihrer Gestalt** (Charakter → Persönlichkeit), z. B. Schnabelklappern bei der Microduck oder

@@ -3,7 +3,7 @@
 *Deutsch: [koerper-schnittstelle.md](koerper-schnittstelle.md)*
 
 Knowlin separates the **mind** (memory, experience graph, character, conversation, spatial knowledge) from its
-**bodies**. A body is anything the mind can move: a simulator, a Microduck, a Reachy Mini, a LeRobot robot, or your own
+**bodies**. A body is anything the mind can move: a simulator, a Microduck, a Reachy Mini, an SO-101 arm, a LeRobot robot, or your own
 build. The body interface defines how a body introduces itself and what it must guarantee, so a new robot can get
 Knowlin without touching the core.
 

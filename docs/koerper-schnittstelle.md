@@ -3,7 +3,7 @@
 *English: [body-interface.md](body-interface.md)*
 
 Knowlin trennt das **Gehirn** von seinen **Körpern**. Zum Gehirn gehören Gedächtnis, Erfahrungsnetz, Charakter, Gespräch
-und Raumwissen. Ein Körper ist alles, was das Gehirn bewegen kann: ein Simulator, eine Microduck, ein Reachy Mini, ein
+und Raumwissen. Ein Körper ist alles, was das Gehirn bewegen kann: ein Simulator, eine Microduck, ein Reachy Mini, ein SO-101-Arm, ein
 Roboter aus dem LeRobot-Ökosystem oder dein eigener Bau. Die Körperschnittstelle legt fest, wie ein Körper sich vorstellt
 und welche Pflichten er hat. So kann ein neuer Roboter Knowlin bekommen, ohne dass jemand den Kern anfasst.
 

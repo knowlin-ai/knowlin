@@ -301,6 +301,24 @@ SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy
           "akrobatik": szene_akrobatik, "training": szene_training}
 
 
+def pollen_modelle_verlinken(ordner: Path) -> bool:
+    """Pollens gebaute Modelle aus dem eigenen Datenordner (Knowlin lädt sie beim ersten Start) in den leeren Datenordner
+    der Aufnahmen verlinken – erst nach dem Startbild (seit 0.38.56): Die Startseite rendert sonst Porträts aus ihnen,
+    und Startbild, README-Banner und Vorschaubild sollen ohne Pollens Material auskommen (kein Bildnachweis nötig)."""
+    from duckpilot.settings import data_dir
+
+    # Knowlin sucht sie neben der Einstellungsdatei (`modell.store()`: settings_path().parent) – hier also im Arbeitsordner
+    quelle, ziel = data_dir() / "pollen-modell", ordner / "pollen-modell"
+    if not (quelle / "ansicht.dpm").exists():
+        print(f"Hinweis: Pollens Modelle fehlen in {quelle} – Microduck und Reachy erscheinen als einfache Gestalt. "
+              "Einmal Knowlin starten (lädt sie) oder: python -m duckpilot.modell", flush=True)
+        return False
+    if not ziel.exists():
+        ziel.parent.mkdir(parents=True, exist_ok=True)
+        ziel.symlink_to(quelle, target_is_directory=True)
+    return True
+
+
 def server_starten(ordner: Path, port: int) -> subprocess.Popen:
     """Server aus diesem Stand (mit Pollens Ansichtsmodellen), mit leerem Datenordner und eigenen Einstellungen."""
     env = dict(os.environ, DUCKPILOT_SETTINGS=str(ordner / "settings.json"), DUCKPILOT_OFFLINE="1",
@@ -372,29 +390,33 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with sync_playwright() as p:
             b = p.chromium.launch()
-            for sprache in a.sprachen.split(","):
-                for name in namen:
-                    page = b.new_page(viewport={"width": BREITE, "height": HOEHE})
-                    A.oeffnen(page, base)
-                    # weitere Enten bleiben sonst aus der Team-Szene stehen und laufen durch die nächsten Bilder
-                    A.einstellen(page, {"sprache": sprache, "weitere_enten": 0})
-                    fn = SZENEN[name]
-                    fn(page, base, sprache, ordner) if name == "tanz" else fn(page, base, sprache)
-                    # unter Last (Pollens volles Modell, Software-Grafik) reißt die Verbindung beim Aufnehmen manchmal
-                    # kurz ab – dann stünde „Knowlin getrennt“ im Bild: nachsehen und notfalls neu aufnehmen
-                    gut = "() => !!document.querySelector('#badge-link .dot.dot--good')"
-                    for _ in range(6):
-                        verbunden(page)
-                        # zwei gezeichnete Bilder abwarten: bei langsamer Software-Grafik hinkt das Bild dem DOM hinterher
-                        page.evaluate("() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))")
-                        page.wait_for_timeout(1500)
-                        vorher = page.evaluate(gut)
-                        png = page.screenshot(timeout=180000)
-                        if vorher and page.evaluate(gut) and punkt_gruen(png, page):
-                            break
-                    speichern(png, name, sprache, ziel)
-                    print(f"{name} ({sprache}) → {ziel}", flush=True)
-                    page.close()
+            # erst die Startbilder (ohne Pollens Modelle), dann alle übrigen mit ihnen
+            reihe = [(n, s) for n in namen if n == "start" for s in a.sprachen.split(",")] + \
+                [(n, s) for s in a.sprachen.split(",") for n in namen if n != "start"]
+            for name, sprache in reihe:
+                if name != "start":
+                    pollen_modelle_verlinken(ordner)
+                page = b.new_page(viewport={"width": BREITE, "height": HOEHE})
+                A.oeffnen(page, base)
+                # weitere Enten bleiben sonst aus der Team-Szene stehen und laufen durch die nächsten Bilder
+                A.einstellen(page, {"sprache": sprache, "weitere_enten": 0})
+                fn = SZENEN[name]
+                fn(page, base, sprache, ordner) if name == "tanz" else fn(page, base, sprache)
+                # unter Last (Pollens volles Modell, Software-Grafik) reißt die Verbindung beim Aufnehmen manchmal
+                # kurz ab – dann stünde „Knowlin getrennt“ im Bild: nachsehen und notfalls neu aufnehmen
+                gut = "() => !!document.querySelector('#badge-link .dot.dot--good')"
+                for _ in range(6):
+                    verbunden(page)
+                    # zwei gezeichnete Bilder abwarten: bei langsamer Software-Grafik hinkt das Bild dem DOM hinterher
+                    page.evaluate("() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))")
+                    page.wait_for_timeout(1500)
+                    vorher = page.evaluate(gut)
+                    png = page.screenshot(timeout=180000)
+                    if vorher and page.evaluate(gut) and punkt_gruen(png, page):
+                        break
+                speichern(png, name, sprache, ziel)
+                print(f"{name} ({sprache}) → {ziel}", flush=True)
+                page.close()
             b.close()
     finally:
         proc.terminate()

@@ -25,6 +25,11 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 - Hält Ari einen Würfel schon, legt ein Auftrag „leg ihn …“ ihn gleich ans Ziel, statt ihn erst zurückzulegen und
   neu zu greifen.
 
+- **Website, README und Doku auf vier Körpern** (Fund des Maintainers: „die Website stimmt nicht mehr“): Vorschaubild
+  beim Teilen und README-Banner zeigten noch drei Körper ohne Ari und die alte Startseite, Bildtexte sprachen von
+  „drei Verkörperungen“. Alle Aufnahmen der Website und der README neu; Banner und Vorschaubild entstehen jetzt aus
+  der Startseite und der Liste der Körper (`tools/vorschau_bilder.py`), ein Test hält die Texte auf dem Stand.
+
 ### Geändert
 - **Knowlin spricht für Ari** (Entscheidung des Maintainers: „Knowlin kann für ihn sprechen“): Ein Körper ohne
   Lautsprecher und Stimmbank hat keine eigene Stimme. Seine Antworten liest Knowlin mit seiner eigenen Stimme vom PC

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/bilder/banner.png" alt="Knowlin – one mind, many bodies: the start page with Knowlin's neural network and the three embodiments" width="100%">
+  <img src="docs/bilder/banner.png" alt="Knowlin – one mind, many bodies: the start page with Knowlin's neural network and the four embodiments: Microduck, Reachy Mini, Open Duck Mini and SO-101" width="100%">
 </p>
 
 <h1 align="center">Knowlin</h1>
