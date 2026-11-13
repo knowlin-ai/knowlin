@@ -59,4 +59,5 @@ def test_browser_spielt_bei_knowlin_und_reachy_keine_entenlaute():
     ereignisse = (STATIC / "ereignisse.js").read_text(encoding="utf-8")   # seit 0.38.17 eigenes Modul
     teil = ereignisse[ereignisse.index("if (ev.type === 'sound') {"):][:400]
     assert "keine-ente" in teil and "im-kopf" in teil
-    assert "if (!imKopf || m.source === 'alltag') vorlesen(m);" in js                # Entenstimme nur im Körper
+    assert "if (!imKopf || m.source === 'alltag') vorlesen(m, stumm ? { kopf: true } : {});" in js   # Entenstimme nur im Körper
+    assert "!config.eigenschaften.some((e) => e === 'lautsprecher' || e === 'stimmbank')" in js     # ohne Stimme: Knowlin (0.38.55)

@@ -79,7 +79,7 @@ def test_bewegungen_auf_englisch(de, en):
 
 def test_herkunft_der_antwort_wird_uebersetzt():
     js = (ROOT / "duckpilot" / "server" / "static" / "app.js").read_text(encoding="utf-8")
-    assert "addLine('duck', m.text, uebersetzeText(meta) || meta" in js
+    assert "const metaText = (uebersetzeText(meta) || meta)" in js and "addLine('duck', m.text, metaText" in js
 
 
 def test_erfahrungsnetz_zeigt_eigene_namen_auf_englisch():
