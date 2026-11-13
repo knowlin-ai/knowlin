@@ -9,7 +9,7 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
-## Unveröffentlicht
+## 0.38.56 – 2026-11-13 – Ari mit eigenen Tricks, freiem Ablegen und Knowlins Stimme
 
 ### Neu
 - **Ari legt überall ab, wo Platz ist** (Maintainer: „wieso kann ich einen Würfel nicht einfach ablegen im Radius
@@ -24,7 +24,6 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   an der Werkbank samt eigener und Tic-Tac-Toe.
 - Hält Ari einen Würfel schon, legt ein Auftrag „leg ihn …“ ihn gleich ans Ziel, statt ihn erst zurückzulegen und
   neu zu greifen.
-
 - **Website, README und Doku auf vier Körpern** (Fund des Maintainers: „die Website stimmt nicht mehr“): Vorschaubild
   beim Teilen und README-Banner zeigten noch drei Körper ohne Ari und die alte Startseite, Bildtexte sprachen von
   „drei Verkörperungen“. Alle Aufnahmen der Website und der README neu; Banner und Vorschaubild entstehen jetzt aus
