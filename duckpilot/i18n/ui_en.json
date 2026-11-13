@@ -3450,5 +3450,21 @@
  "Dabei würde ich an * stoßen – mach mir bitte erst Platz.": "I would bump into * on the way – please make some room first.",
  "die linke Kiste": "the left box",
  "die rechte Kiste": "the right box",
- "die Werkbank": "the workbench"
+ "die Werkbank": "the workbench",
+ "Gesten": "Gestures",
+ "Mit Arm, Handgelenk und Greifer – ohne Kopf, aber mit viel Ausdruck.": "With arm, wrist and gripper – no head, but plenty of expression.",
+ "Mehrere Griffe nacheinander; der Not-Aus beendet jeden sofort. Eigene merkt er sich, wenn du im Chat sagst „… merk dir das als …“ – teilen und laden lassen sie sich als Knowlet.": "Several grips in a row; the emergency stop ends any of them at once. He remembers your own when you say “… remember it as …” in the chat – share and load them as a Knowlet.",
+ "Ja (nicken)": "Yes (nod)",
+ "Nein (Greifer schütteln)": "No (shake the gripper)",
+ "Zeigen": "Point",
+ "Alle Würfel zurück an ihren Platz": "All cubes back to their places",
+ "Warme Farben in die linke Kiste, kalte in die rechte": "Warm colours into the left box, cool ones into the right",
+ "Drei Würfel aufeinander, unten der blaue": "Three cubes on top of each other, the blue one at the bottom",
+ "Du gegen Ari – Feld anklicken": "You against Ari – click a square",
+ "eigener Auftrag": "your own task",
+ "Hier ablegen": "Put it down here",
+ "Da komme ich nicht hin – das ist zu weit weg (ich lege bis # cm vor dem Sockel ab).": "I can't reach that – it's too far away (I put things down up to # cm in front of my base).",
+ "So nah am Sockel lege ich nichts ab – da stieße ich an mich selbst.": "I don't put anything down this close to my base – I'd bump into myself.",
+ "Dort ist kein Platz frei – such mir eine andere Stelle aus.": "There's no free space there – pick another spot for me.",
+ "Kenne „*“ nicht – Ziele: *, „Platz“ oder eine Stelle wie „vorne links“.": "I don't know “*” – targets: *, “place” or a spot like “front left”."
 }

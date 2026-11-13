@@ -14,7 +14,7 @@ export const KOERPER = {
   open_duck_mini: { klasse: 'open-duck', name: 'Open Duck Mini v2', ente: true },
   so101: { klasse: 'so101', name: 'SO-101', ente: false },             // Arm (seit 0.38.47, G5)
 };
-const OHNE = ['beine', 'tiefensensor', 'schnabel', 'antennen', 'kamera', 'kopf'];
+const OHNE = ['beine', 'tiefensensor', 'schnabel', 'antennen', 'kamera', 'kopf', 'arm'];
 // Unterseiten, die es nur bei der Microduck gibt (Pollens Policies, Hub-Tricks, weitere Microducks)
 const NUR_MICRODUCK = ['tricks/team', 'tricks/hub', 'akrobatik', 'parcours', 'training'];
 // Unterseiten, die es nur bei Reachy Mini gibt (Kamera-Spiele, seit 0.38.13)

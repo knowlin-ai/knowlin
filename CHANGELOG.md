@@ -9,6 +9,22 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## Unveröffentlicht
+
+### Neu
+- **Ari legt überall ab, wo Platz ist** (Maintainer: „wieso kann ich einen Würfel nicht einfach ablegen im Radius
+  des Arms?“): Hält er etwas, zeigt ein Klick auf die Werkbank „Hier ablegen“; im Chat geht „leg ihn vorne links ab“,
+  „… hinten“, „… in die Mitte“ (aus deiner Sicht, auch ohne Sprachmodell). Ist die Stelle belegt, nimmt er die
+  nächste freie daneben; zu weit weg oder zu nah am Sockel sagt er.
+
+### Behoben
+- **Ari hat eigene Tricks** (Maintainer: „wieso hat Ari noch fremde Tricks?“): Die Seite „Tricks“ zeigte bei ihm die
+  Gefühle der Microduck („stolpern“, Hinweis auf Pollens Microduck-Arena) – die braucht einen Kopf, er hat keinen.
+  Jetzt stehen dort seine Gesten (Winken, Freuen, Ja, Nein mit dem Greifer, Neugierig, Umsehen …) und seine Aufträge
+  an der Werkbank samt eigener und Tic-Tac-Toe.
+- Hält Ari einen Würfel schon, legt ein Auftrag „leg ihn …“ ihn gleich ans Ziel, statt ihn erst zurückzulegen und
+  neu zu greifen.
+
 ## 0.38.55 – 2026-11-13 – Ari stößt nirgends mehr an, Kachel „Mentor“, englische Spur
 
 ### Geändert

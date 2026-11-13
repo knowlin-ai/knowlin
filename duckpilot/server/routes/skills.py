@@ -53,6 +53,18 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             return JSONResponse({"ok": False, "grund": str(exc)}, status_code=400)
         return JSONResponse(res)
 
+    @app.get("/api/arm")
+    async def arm_tricks() -> JSONResponse:
+        """Aris Tricks (seit 0.38.55): seine Gesten und Aufträge an der Werkbank – statt der Gefühle mit Kopf."""
+        from ... import arm as A
+        from ...werkbank_auftrag import AUFTRAEGE, alle
+
+        return JSONResponse({
+            "gesten": [{"name": g, "titel": t, "dauer": round(A.dauer(g), 1)} for g, t in A.TITEL.items() if g in A.GESTEN],
+            "auftraege": [{"name": k, "titel": v["titel"], "beschreibung": v.get("beschreibung", ""), "eigen": k not in AUFTRAEGE}
+                          for k, v in alle().items()],
+        })
+
     @app.get("/api/emotions")
     async def get_emotions() -> JSONResponse:
         return JSONResponse(runtime.emotions_catalog())

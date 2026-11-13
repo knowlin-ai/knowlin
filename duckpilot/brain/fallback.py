@@ -444,6 +444,7 @@ def spiel_befehl(low: str, wb: Any) -> dict[str, Any] | None:
 
 def werkbank_befehl(low: str, wb: Any) -> dict[str, Any] | None:
     """Kurze Befehle für den Arm → Argumente fürs Werkzeug „auftrag“ (None: kein Werkbank-Befehl)."""
+    low = low.lower()
     for en, de in (("red", "rot"), ("blue", "blau"), ("yellow", "gelb"), ("green", "grün"), ("orange", "orang")):
         low = re.sub(rf"\b{en}\b", de, low)
     if re.search(r"\bsortier|\bsort\b", low):
@@ -453,17 +454,24 @@ def werkbank_befehl(low: str, wb: Any) -> dict[str, Any] | None:
     if re.search(r"räum\w* .*auf|\baufräum|\baufraeum|tidy up|clean up", low):
         return {"auftrag": "aufraeumen"}
     farben = [w for w in re.findall(r"\w+", low) if any(w.startswith(d["name"].split()[0][:-2].lower()) for d in wb.dinge)]
-    if not re.search(r"\b(leg|stell|pack|tu|setz|put|place)\w*\b", low) or not farben:
+    if not re.search(r"\b(leg|stell|pack|tu|setz|put|place)\w*\b", low):
         return None
-    ding = next(d["name"] for d in wb.dinge if farben[0].startswith(d["name"].split()[0][:-2].lower()))
-    if "link" in low or "left" in low:
+    if not farben and not (wb.haelt and re.search(r"\b(ihn|es|den|das|it)\b", low)):
+        return None
+    ding = next(d["name"] for d in wb.dinge if farben[0].startswith(d["name"].split()[0][:-2].lower())) if farben \
+        else wb.haelt
+    from ..werkbank_auftrag import stelle_aus
+    kiste = re.search(r"kiste|\bbox\b", low)
+    if kiste and ("link" in low or "left" in low):
         ziel = "linke Kiste"
-    elif "recht" in low or "right" in low:
+    elif kiste and ("recht" in low or "right" in low):
         ziel = "rechte Kiste"
     elif re.search(r"\bauf (den|dem|die)\b|\bon top of\b|\bonto\b", low) and len(farben) > 1:
         ziel = "auf " + next(d["name"] for d in wb.dinge if farben[1].startswith(d["name"].split()[0][:-2].lower()))
     elif re.search(r"zurück|zurueck|platz|\bback\b", low):
         ziel = "platz"
+    elif stelle_aus(low) is not None:                     # „leg ihn vorne links ab“ (seit 0.38.55)
+        ziel = " ".join(w for w in re.findall(r"\w+", low) if stelle_aus(w))
     else:
         return None
     return {"schritte": [{"ding": ding, "ziel": ziel}]}

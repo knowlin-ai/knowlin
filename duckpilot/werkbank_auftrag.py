@@ -127,6 +127,34 @@ def _obenauf_zuerst(dinge: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
+# Freie Stellen auf der Werkbank (seit 0.38.55, Maintainer: „wieso kann ich einen Würfel nicht einfach ablegen im Radius
+# des Arms?“) – aus deiner Sicht, du sitzt Ari gegenüber: vorn ist bei dir, links ist deine linke Seite
+STELLE_X = {"hinten": 0.17, "mitte": 0.22, "vorne": 0.27}   # alle Ecken in Reichweite (≤ 30 cm)
+STELLE_Y = {"links": -0.12, "mitte": 0.0, "rechts": 0.12}
+_STELLE_WORT = {"vorn": "vorne", "vorne": "vorne", "front": "vorne", "hinten": "hinten", "back": "hinten",
+                "mitte": "mitte", "mittig": "mitte", "middle": "mitte", "center": "mitte", "centre": "mitte",
+                "links": "links", "left": "links", "rechts": "rechts", "right": "rechts"}
+
+
+def stelle_aus(ziel: str) -> tuple[float, float] | None:
+    """„vorne links“, „in der Mitte“, „stelle:0.25,-0.1“ (Meter im Sockelrahmen) → (x, y) – sonst None."""
+    n = str(ziel or "").strip().lower()
+    if n.startswith("stelle:"):
+        try:
+            x, y = (float(v) for v in n[7:].split(","))
+        except ValueError:
+            return None
+        return x, y
+    if "kiste" in n or "box" in n:
+        return None
+    worte = [_STELLE_WORT[w] for w in re.findall(r"\w+", n) if w in _STELLE_WORT]
+    if not worte:
+        return None
+    vorn = next((w for w in worte if w in ("vorne", "hinten")), "mitte")
+    seite = next((w for w in worte if w in ("links", "rechts")), "mitte")
+    return STELLE_X[vorn], STELLE_Y[seite]
+
+
 def planen(auftrag: dict[str, Any], wb: Any) -> tuple[list[tuple[str, str]], str]:
     """Schritte („greifen“, Ding) / („ablegen“, Ziel) für den jetzigen Stand – oder leere Liste mit Grund."""
     regel = auftrag["regel"]
@@ -162,4 +190,7 @@ def planen(auftrag: dict[str, Any], wb: Any) -> tuple[list[tuple[str, str]], str
             schritte += [("greifen", d["name"]), ("ablegen", "auf " + oben)]
             oben = d["name"]
         return schritte, ""
-    return [x for s in auftrag["schritte"] for x in (("greifen", s["ding"]), ("ablegen", s["ziel"]))], ""
+    paare = [x for s in auftrag["schritte"] for x in (("greifen", s["ding"]), ("ablegen", s["ziel"]))]
+    if wb.haelt and paare and paare[0] == ("greifen", wb.haelt):       # hält es schon: gleich ans Ziel (seit 0.38.55)
+        return paare[1:], ""
+    return schritte + paare, ""

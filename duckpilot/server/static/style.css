@@ -2043,7 +2043,7 @@ body:not(.im-kopf).ohne-schnabel .braucht-schnabel, body:not(.im-kopf).ohne-ante
 body:not(.koerper-microduck) .nur-microduck, body.koerper-microduck .ohne-microduck,
 body:not(.koerper-reachy) .nur-reachy, body.keine-ente .nur-ente, body:not(.koerper-so101) .nur-so101,
 body:not(.spielt-ttt) .nur-ttt,
-body:not(.im-kopf).ohne-kopf .braucht-kopf { display: none; }
+body:not(.im-kopf).ohne-kopf .braucht-kopf, body:not(.im-kopf).ohne-arm .braucht-arm { display: none; }
 /* Sicht-Kachel mit Tiefensensor oder Kamera; Hilfetexte nur für Körper ohne Beine bzw. ohne Tiefensensor (0.38.14) –
    ohne Beine, Tiefensensor und Kamera (der Arm) bliebe von der Anzeige nur ein leeres Glas mit „?“ (seit 0.38.55) */
 body:not(.im-kopf).ohne-tiefensensor.ohne-kamera .braucht-sicht,

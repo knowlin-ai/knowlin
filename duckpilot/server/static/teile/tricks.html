@@ -6,7 +6,7 @@
               <h2>Tricks</h2>
               <p>Gefühle und Bewegungen zum Antippen – sofort zu sehen.</p>
               <!-- Hinweis auf weitere Pakete (seit 0.38.34, „ich hatte manche Erweiterungen nicht aktiviert“) -->
-              <p class="field-help">Mehr Tricks – etwa „Got a Talent“ aus Pollens Microduck-Arena oder Gangarten – gibt es als Erweiterung:
+              <p class="field-help nur-microduck">Mehr Tricks – etwa „Got a Talent“ aus Pollens Microduck-Arena oder Gangarten – gibt es als Erweiterung:
                 <button type="button" class="link-btn" id="tricks-zu-erweiterungen">unter System → Erweiterungen einschalten</button>.</p>
             </header>
             <!-- Live-Vorschau neben den Tricks (seit 0.38.33, „wo sind die Tricks mit der Vorschau?“) – wie beim Tanzen -->
@@ -62,11 +62,26 @@
               <div class="emo-grid grid grid--tiles-sm" id="emo-pollen"></div>
             </div>
 
-            <div class="section-head">
+            <!-- Arm (seit 0.38.55, „wieso hat Ari noch fremde Tricks?“): seine Gesten und Aufträge statt Gefühlen mit Kopf -->
+            <div class="braucht-arm">
+              <div class="section-head">
+                <h3>Gesten</h3>
+                <p>Mit Arm, Handgelenk und Greifer – ohne Kopf, aber mit viel Ausdruck.</p>
+              </div>
+              <div class="emo-grid grid grid--tiles-sm" id="arm-gesten"></div>
+              <div class="section-head">
+                <h3>Aufträge an der Werkbank</h3>
+                <p>Mehrere Griffe nacheinander; der Not-Aus beendet jeden sofort. Eigene merkt er sich, wenn du im Chat sagst
+                  „… merk dir das als …“ – teilen und laden lassen sie sich als Knowlet.</p>
+              </div>
+              <div class="emo-grid grid grid--tiles-sm" id="arm-auftraege"></div>
+            </div>
+
+            <div class="section-head braucht-kopf">
               <h3>Eigene Gesten</h3>
               <p>Gefühle und Goofy-Einlagen im Stil von Pollens Emotionen. Claude denkt sich auch neue aus.</p>
             </div>
-            <div class="emo-grid grid grid--tiles-sm emo-own" id="emo-own"></div>
+            <div class="emo-grid grid grid--tiles-sm emo-own braucht-kopf" id="emo-own"></div>
 
             <div class="section-head nur-ente">
               <h3>Im Leerlauf</h3>

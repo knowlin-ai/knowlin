@@ -68,7 +68,10 @@ export function initAuswahl({ $, api, el, scene, send, toast, stageEl }) {
   }
 
   async function waehle(p, x, y) {
-    const r = await api(`/api/handeln?ding=${encodeURIComponent(p.name)}`).catch(() => null);
+    // mit dem Treffpunkt: ein Klick auf Aris Werkbank heißt „hier ablegen“ (seit 0.38.55)
+    const wo = p.hit ? `&x=${p.hit.x.toFixed(3)}&y=${p.hit.y.toFixed(3)}` : '';
+    const r = await api(`/api/handeln?ding=${encodeURIComponent(p.name)}${wo}`).catch(() => null);
+    if (r && r.hinweis) toast(tr(r.hinweis));             // Werkbank: warum dort nichts hinkommt (seit 0.38.55)
     if (!r || !r.ok || !r.aktionen.length) { leeren(); return; }
     sel = { name: r.ding.name, art: p.art === 'ente' ? 'ente' : r.ding.art === 'möbel' ? 'moebel' : r.ding.art };
     scene.setAuswahl(sel);

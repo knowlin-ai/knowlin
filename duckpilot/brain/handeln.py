@@ -9,6 +9,7 @@ Werkzeuge bringen Vorbedingung, Ergebnisprüfung und Plan B selbst mit (z. B. Ap
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 # Art → [(Handlung, Beschriftung)]
@@ -124,6 +125,19 @@ def werkbank_ding(name: str, backend: Any) -> dict[str, Any] | None:
     return None
 
 
+def werkbank_stelle(backend: Any, wx: float, wy: float) -> dict[str, Any] | None:
+    """Klick auf die Werkbank (Weltkoordinaten) → Stelle im Rahmen des Sockels (seit 0.38.55, freies Ablegen)."""
+    wb = getattr(backend, "werkbank", None)
+    if wb is None or not hasattr(wb, "stelle_frei"):
+        return None
+    dx, dy = wx - float(getattr(backend, "x", 0.0)), wy - float(getattr(backend, "y", 0.0))
+    yaw = float(getattr(backend, "yaw", 0.0))
+    x, y = math.cos(yaw) * dx + math.sin(yaw) * dy, -math.sin(yaw) * dx + math.cos(yaw) * dy
+    frei = wb.freie_stelle(x, y, wb.haelt)
+    return {"name": "Werkbank", "art": "stelle", "x": round(x, 4), "y": round(y, 4), "werkbank": True,
+            "frei": frei is not None, "hinweis": None if frei is not None else wb.stelle_grund(x, y)}
+
+
 def werkbank_aktionen(ding: dict[str, Any], backend: Any) -> list[dict[str, str]]:
     """Was der Arm mit einem Würfel oder einer Kiste tun kann – abhängig davon, was er gerade hält."""
     wb = getattr(backend, "werkbank", None)
@@ -133,6 +147,8 @@ def werkbank_aktionen(ding: dict[str, Any], backend: Any) -> list[dict[str, str]
         return [{"id": "hineinlegen", "label": "Hier hineinlegen"}] if wb.haelt else []
     if ding["art"] == "feld":
         return [{"id": "setzen", "label": "Hierhin setzen"}]
+    if ding["art"] == "stelle":                    # freie Stelle auf der Werkbank (seit 0.38.55)
+        return [{"id": f"stelle:{ding['x']:.3f},{ding['y']:.3f}", "label": "Hier ablegen"}] if wb.haelt and ding.get("frei") else []
     if wb.haelt == ding["name"]:
         return [{"id": "platz", "label": "An seinen Platz legen"},
                 *({"id": "hineinlegen:" + k["name"], "label": f"In die {k['name']}"} for k in wb.kisten)]
@@ -151,6 +167,8 @@ def werkbank_werkzeug(ding: dict[str, Any], aktion: str) -> tuple[str, dict[str,
         return ("greifen", {"ding": ding["name"]})
     if aktion == "hineinlegen" and ding["art"] == "kiste":
         return ("ablegen", {"ziel": ding["name"]})
+    if aktion.startswith("stelle:"):
+        return ("ablegen", {"ziel": aktion})
     if aktion.startswith("hineinlegen:"):
         return ("ablegen", {"ziel": aktion.split(":", 1)[1]})
     if aktion == "platz":

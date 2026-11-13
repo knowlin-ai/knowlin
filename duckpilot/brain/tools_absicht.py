@@ -48,8 +48,10 @@ GREIFEN_TOOL = {
 }
 ABLEGEN_TOOL = {
     "name": "ablegen",
-    "description": "Was der Greifer hält, ablegen: in eine Kiste ({kisten}), „Platz“ = zurück an seinen Platz, oder auf "
-                   "einen anderen Würfel („auf blauer Würfel“, stapeln – höchstens drei hoch).",
+    "description": "Was der Greifer hält, ablegen: in eine Kiste ({kisten}), „Platz“ = zurück an seinen Platz, auf "
+                   "einen anderen Würfel („auf blauer Würfel“, stapeln – höchstens drei hoch) oder an eine freie Stelle "
+                   "der Werkbank aus Sicht des Menschen („vorne links“, „hinten“, „Mitte“, „rechts“). Ist die Stelle "
+                   "belegt, nimmt er die nächste freie.",
     "input_schema": {"type": "object", "properties": {"ziel": {"type": "string"}}, "required": ["ziel"]},
 }
 

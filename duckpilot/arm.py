@@ -83,5 +83,12 @@ def begrenzen(gelenke: dict[str, Any]) -> tuple[dict[str, float], list[str]]:
     return out, unbekannt
 
 
+# Was die Tricks-Seite zeigt (seit 0.38.55, Maintainer: „wieso hat Ari noch fremde Tricks?“) – Haltungen wie „ruhe“
+# und „bereit“ stehen schon als Knöpfe im Cockpit
+TITEL = {"winken": "Winken", "freuen": "Freuen", "nicken": "Ja (nicken)", "kopfschuetteln": "Nein (Greifer schütteln)",
+         "neugierig": "Neugierig", "aufmerksam": "Aufmerksam", "umsehen": "Umsehen", "staunen": "Staunen",
+         "zeigen": "Zeigen", "traurig": "Traurig"}
+
+
 def dauer(geste: str) -> float:
     return sum(s for _, s in GESTEN.get(geste, []))

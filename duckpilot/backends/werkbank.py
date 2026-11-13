@@ -22,6 +22,7 @@ from typing import Any
 
 from .. import arm_kinematik as K
 from ..arm import POSEN
+from ..werkbank_auftrag import stelle_aus
 from . import werkbank_weg as W
 
 WERKBANK = {"name": "Werkbank", "x": -1.6, "y": 0.25, "sx": 0.6, "sy": 0.8, "h": 0.75, "color": "#a07e5a"}
@@ -41,6 +42,7 @@ DREHUNGEN = (0.0, 90.0, -90.0, 45.0, -45.0, 135.0, -135.0)
 WEITEN = (GREIFER_AUF, 45.0, 40.0, 30.0)  # so weit öffnet er, wenn daneben wenig Platz ist (Loslassen: ab 40°)
 # Ruhehaltungen nach dem Ablegen: „bereit“, und wenn dort etwas steht (ein Turm), darüber – der Greifer schaut von oben
 PARKEN = (dict(POSEN["bereit"]), {**POSEN["bereit"], "shoulder_lift": -60, "elbow_flex": 40, "wrist_flex": 70})
+RADIUS = (0.12, 0.30)            # m: so nah und so weit legt er auf der Werkbank ab (freie Stellen, seit 0.38.55)
 
 
 def _farbwort(name: str) -> str:
@@ -138,8 +140,14 @@ class Werkbank:
             text = k["name"]
         elif str(ziel or "").strip().lower() in ("", "zurück", "zurueck", "platz", "werkbank", "tisch"):
             (x, y), z, text = d["start"], WUERFEL / 2, "seinen Platz"
+        elif (stelle := stelle_aus(ziel)) is not None:            # freie Stelle (seit 0.38.55)
+            frei = self.freie_stelle(*stelle, ohne=d["name"])
+            if frei is None:
+                return None, self.stelle_grund(*stelle)
+            (x, y), z, text = frei, WUERFEL / 2, "die Stelle"
         else:
-            return None, f"Kenne „{ziel}“ nicht – Ziele: {', '.join(self.namen()['kisten'])} oder „Platz“."
+            return None, (f"Kenne „{ziel}“ nicht – Ziele: {', '.join(self.namen()['kisten'])}, „Platz“ oder eine Stelle "
+                          "wie „vorne links“.")
         schritte = [(x, y, TRAGEN, GREIFER_ZU, 1.2, None), (x, y, z, GREIFER_ZU, 0.6, None),
                     (x, y, z, GREIFER_AUF, 0.4, f"loslassen:{k['name'] if k else ('auf:' + unten['name']) if unten else ''}"),
                     (x, y, TRAGEN, GREIFER_AUF, 0.6, None)]
@@ -227,6 +235,38 @@ class Werkbank:
                 traegt = False
             vorher = g
         return out, None
+
+    def stelle_frei(self, x: float, y: float, ohne: str | None = None) -> bool:
+        """Ist bei (x, y) Platz für einen Würfel – auf der Werkbank, in Reichweite, nicht an Kiste, Würfel oder Feld?"""
+        if not (RADIUS[0] <= math.hypot(x, y) <= RADIUS[1]):
+            return False
+        if not (0.06 <= x <= WERKBANK["sx"] - SOCKEL_VOR_KANTE - WUERFEL and abs(y) <= WERKBANK["sy"] / 2 - WUERFEL):
+            return False
+        for k in self.kisten:
+            if abs(x - k["x"]) < k["s"] / 2 + 0.025 and abs(y - k["y"]) < k["s"] / 2 + 0.025:
+                return False
+        if any(not d.get("in") and d["name"] != ohne and math.hypot(x - d["x"], y - d["y"]) < 0.045 for d in self.dinge):
+            return False
+        return not any(math.hypot(x - f["x"], y - f["y"]) < 0.035 for f in self.felder)
+
+    @staticmethod
+    def stelle_grund(x: float, y: float) -> str:
+        """Warum dort nichts hinkommt: zu weit, zu nah am Sockel – oder belegt."""
+        r = math.hypot(x, y)
+        if r > RADIUS[1] + 0.05:
+            return f"Da komme ich nicht hin – das ist zu weit weg (ich lege bis {RADIUS[1] * 100:.0f} cm vor dem Sockel ab)."
+        if r < RADIUS[0] - 0.05:
+            return "So nah am Sockel lege ich nichts ab – da stieße ich an mich selbst."
+        return "Dort ist kein Platz frei – such mir eine andere Stelle aus."
+
+    def freie_stelle(self, x: float, y: float, ohne: str | None = None) -> tuple[float, float] | None:
+        """Die freie Stelle, die (x, y) am nächsten liegt (bis 8 cm daneben) – oder None."""
+        for r in (0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08):
+            for grad in (range(0, 360, 30) if r else (0,)):
+                px, py = x + r * math.cos(math.radians(grad)), y + r * math.sin(math.radians(grad))
+                if self.stelle_frei(px, py, ohne):
+                    return round(px, 4), round(py, 4)
+        return None
 
     def _platz_in(self, k: dict[str, Any]) -> tuple[float, float]:
         """Freier Platz in der Kiste: bis zu vier Würfel nebeneinander."""

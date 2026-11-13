@@ -16,13 +16,17 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         return H.ding_finden(name, runtime.backend, getattr(runtime, "schwarm", None))
 
     @app.get("/api/handeln")
-    async def handeln_info(ding: str = "") -> JSONResponse:
+    async def handeln_info(ding: str = "", x: float | None = None, y: float | None = None) -> JSONResponse:
         d = finden(ding)
+        # Klick auf die Werkbank selbst (seit 0.38.55): dort ablegen, wo geklickt wurde
+        if (d is None or not d.get("werkbank")) and ding.strip().lower() == "werkbank" and x is not None and y is not None:
+            d = H.werkbank_stelle(runtime.backend, x, y) or d
         if d is None:
             return JSONResponse({"ok": False, "fehler": "unbekanntes Ding"}, status_code=404)
         if d.get("werkbank"):                    # Würfel und Kisten des Arms (seit 0.38.53)
+            hinweis = d.get("hinweis") if getattr(runtime.backend, "werkbank", None) and runtime.backend.werkbank.haelt else None
             return JSONResponse({"ok": True, "ding": d, "aktionen": H.werkbank_aktionen(d, runtime.backend),
-                                 "tipp": H.WERKBANK_TIPP})
+                                 "tipp": H.WERKBANK_TIPP, "hinweis": hinweis})
         return JSONResponse({"ok": True, "ding": d, "aktionen": H.aktionen(d["art"], runtime.backend) + H.reachy_aktionen(d, runtime.backend)})
 
     @app.post("/api/handeln")
@@ -38,6 +42,8 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             await runtime.broadcast({"type": "action", "tool": "szene", "input": body, "result": r})
             return JSONResponse(r, status_code=200 if r["ok"] else 409)
         d = finden(args["ding"])
+        if args["aktion"].startswith("stelle:") and getattr(runtime.backend, "werkbank", None) is not None:
+            d = {"name": "Werkbank", "art": "stelle", "werkbank": True}
         if d is not None and d.get("werkbank"):  # Arm an der Werkbank: greifen und ablegen (seit 0.38.53)
             wz = H.werkbank_werkzeug(d, args["aktion"])
             if wz is None:

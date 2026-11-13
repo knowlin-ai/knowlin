@@ -26,6 +26,28 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   }
   catalog().then(setIdleRepertoire);   // Leerlauf-Gesten kennen den Katalog
   $('tricks-zu-erweiterungen')?.addEventListener('click', () => showView('tricks', 'pakete'));
+  // Arm (seit 0.38.55): seine Gesten und Aufträge – jedes Mal neu, eigene Aufträge können dazugekommen sein
+  function armKachel(titel, text, werkzeug, args, dauer = 2) {
+    const b = el('button', 'emo');
+    b.type = 'button';
+    const t = el('b', null, titel);
+    t.insertAdjacentHTML('beforeend', PLAY_ICON);
+    b.append(t, el('span', null, text));
+    b.addEventListener('click', () => {
+      send({ type: 'tool', name: werkzeug, args });
+      b.classList.add('playing');
+      setTimeout(() => b.classList.remove('playing'), Math.max(800, dauer * 1000));
+    });
+    return b;
+  }
+  async function armLaden() {
+    const r = await api('/api/arm').catch(() => null);
+    if (!r) return;
+    $('arm-gesten').replaceChildren(...r.gesten.map((g) => armKachel(g.titel, `${String(g.dauer).replace('.', ',')} s`,
+      'arm', { geste: g.name }, g.dauer)));
+    $('arm-auftraege').replaceChildren(...r.auftraege.map((a) => armKachel(a.titel, a.eigen ? 'eigener Auftrag' : a.beschreibung,
+      'auftrag', { auftrag: a.name })), armKachel('Tic-Tac-Toe', 'Du gegen Ari – Feld anklicken', 'tictactoe', { aktion: 'start' }));
+  }
   let emotionsLoaded = false;
   async function loadTricks(p = 'tricks') {
     if (!emotionsLoaded) {
@@ -54,6 +76,7 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
       $('emo-own').replaceChildren(...list.filter((e) => e.art === 'eigen').map(mk));
       $('emo-idle').replaceChildren(...list.filter((e) => e.art === 'charakter').map(mk));
     }
+    if ((getConfig().eigenschaften || []).includes('arm')) armLaden();
     skillPacks().refresh();
     if (getConfig().modul === 'reachy_mini') reachy().laden();
     if (p === 'hub' && !$('hub-list').children.length) searchHub();
