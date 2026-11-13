@@ -25,6 +25,12 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 - Hält Ari einen Würfel schon, legt ein Auftrag „leg ihn …“ ihn gleich ans Ziel, statt ihn erst zurückzulegen und
   neu zu greifen.
 
+### Geändert
+- **Knowlin spricht für Ari** (Entscheidung des Maintainers: „Knowlin kann für ihn sprechen“): Ein Körper ohne
+  Lautsprecher und Stimmbank hat keine eigene Stimme. Seine Antworten liest Knowlin mit seiner eigenen Stimme vom PC
+  vor, unter der Antwort steht „Knowlin spricht“, und unter Charakter → Stimme stellst du dann Knowlins Stimme ein.
+  Bisher klang es, als spräche der Arm.
+
 ## 0.38.55 – 2026-11-13 – Ari stößt nirgends mehr an, Kachel „Mentor“, englische Spur
 
 ### Geändert

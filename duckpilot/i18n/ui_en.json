@@ -3466,5 +3466,7 @@
  "Da komme ich nicht hin – das ist zu weit weg (ich lege bis # cm vor dem Sockel ab).": "I can't reach that – it's too far away (I put things down up to # cm in front of my base).",
  "So nah am Sockel lege ich nichts ab – da stieße ich an mich selbst.": "I don't put anything down this close to my base – I'd bump into myself.",
  "Dort ist kein Platz frei – such mir eine andere Stelle aus.": "There's no free space there – pick another spot for me.",
- "Kenne „*“ nicht – Ziele: *, „Platz“ oder eine Stelle wie „vorne links“.": "I don't know “*” – targets: *, “place” or a spot like “front left”."
+ "Kenne „*“ nicht – Ziele: *, „Platz“ oder eine Stelle wie „vorne links“.": "I don't know “*” – targets: *, “place” or a spot like “front left”.",
+ "Knowlin spricht": "Knowlin speaks",
+ "* hat keine eigene Stimme – * spricht für ihn. Hier stellst du *s Stimme ein; sie gilt auch ohne Körper.": "* has no voice of his own – * speaks for him. Here you set *'s voice; it also applies without a body."
 }

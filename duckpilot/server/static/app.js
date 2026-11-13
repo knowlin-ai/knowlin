@@ -713,9 +713,12 @@ function onChat(m) {
     : m.source === 'anbieter' ? `anderes Modell, ${m.seconds} s`
     : m.source === 'system' ? 'Knowlin'
     : m.source === 'reflex' ? 'sofort, ohne Sprachmodell' : m.source === 'alltag' ? 'Alltagsbuddy' : m.source === 'spiel' ? 'beim Spielen' : 'einfache Befehle';
-  addLine('duck', m.text, uebersetzeText(meta) || meta, config.duck_name);
+  // Körper ohne eigene Stimme (der Arm): Knowlin spricht für ihn – so steht es auch dran (seit 0.38.55)
+  const stumm = !imKopf && config.eigenschaften && !config.eigenschaften.some((e) => e === 'lautsprecher' || e === 'stimmbank');
+  const metaText = (uebersetzeText(meta) || meta) + (stumm && ttsOn && m.source !== 'system' ? ` · ${uebersetzeText('Knowlin spricht') || 'Knowlin spricht'}` : '');
+  addLine('duck', m.text, metaText, config.duck_name);
   if (m.error && m.source !== 'claude') addLine('err', m.error);
-  if (!imKopf || m.source === 'alltag') vorlesen(m);   // bei Knowlin keine Entenstimme – nur Erinnerungen
+  if (!imKopf || m.source === 'alltag') vorlesen(m, stumm ? { kopf: true } : {});   // bei Knowlin keine Entenstimme
 }
 // Eine Antwort vorlesen (Verkörperung oder Kopf, seit 0.38.8 auch für den Kopf); `extra` meldet Anfang und Ende
 function vorlesen(m, extra = {}) {

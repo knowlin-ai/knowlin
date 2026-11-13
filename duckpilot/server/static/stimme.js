@@ -50,7 +50,10 @@ export function initVoicePage(h) {
 
   const visible = () => !$('view-stimme').hidden;
   // Im Kopf geöffnet (seit 0.38.10): dieselbe Seite stellt Knowlins eigene Stimme ein – ohne einen Körper zu wecken
-  const kopf = () => !!(h.imKopf && h.imKopf());
+  // Körper ohne eigene Stimme (der Arm, seit 0.38.55): Knowlin spricht für ihn – hier stellst du dann Knowlins Stimme ein
+  const stumm = () => !(h.imKopf && h.imKopf()) && Array.isArray(cfg.eigenschaften)
+    && !cfg.eigenschaften.some((e) => e === 'lautsprecher' || e === 'stimmbank');
+  const kopf = () => !!(h.imKopf && h.imKopf()) || stumm();
   const KOPF_KEYS = { stimme_motor: 'kopf_stimme_motor', stimme_piper: 'kopf_stimme_piper', stimme_qwen: 'kopf_stimme_qwen' };
   const werte = () => {
     const w = (info && info.werte) || {};
@@ -101,7 +104,8 @@ export function initVoicePage(h) {
     const ich = kopf() ? null : (info.figuren || []).find((f) => f.aktiv);
     const ente = !kopf() && (!ich || ich.ente);
     // Die Stimme gehört der Verkörperung in ihrem Körper (seit 0.38.6): jede Verkörperung hat ihre eigene
-    $('stimme-sub').textContent = kopf() ? t('stimme.untertitel_kopf', { name: kopfName() }, 'Stimme von {name} – gilt ohne Körper. Die Verkörperungen haben ihre eigenen.')
+    $('stimme-sub').textContent = stumm() ? tr(`${cfg.duck_name || 'Ari'} hat keine eigene Stimme – ${kopfName()} spricht für ihn. Hier stellst du ${kopfName()}s Stimme ein; sie gilt auch ohne Körper.`)
+      : kopf() ? t('stimme.untertitel_kopf', { name: kopfName() }, 'Stimme von {name} – gilt ohne Körper. Die Verkörperungen haben ihre eigenen.')
       : ich ? tr(`Stimme von ${name} (${tr(ich.koerper)}) – gilt nur für diese Verkörperung. Die anderen behalten ihre.`)
         : tr(`Wie ${name} klingt.`);
     // Kopf oder anderer Körper: Probetext und Entwurf passen nicht mehr – neu vorbelegen

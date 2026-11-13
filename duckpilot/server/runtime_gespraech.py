@@ -143,6 +143,7 @@ class GespraechTeil:
     def _speech(self, text: str, feeling: str = "ausgeglichen", ernst: bool = False,
                 kopf: bool = False) -> dict[str, Any] | None:
         """Die Abfolge zum Sprechen (Sätze und Entenlaute) – oder None, wenn Vorlesen aus ist."""
+        kopf = kopf or not self._koerper_hat_stimme()      # Körper ohne Stimme: Knowlin spricht für ihn (0.38.55)
         text = self._ohne_ente(text, kopf=kopf)
         if not self.config.tts:
             return None
@@ -153,6 +154,14 @@ class GespraechTeil:
         except Exception:
             log.exception("Sprechen vorbereiten")
             return None
+
+    def _koerper_hat_stimme(self) -> bool:
+        from ..koerper import eigene_stimme
+
+        try:
+            return eigene_stimme(self.backend.eigenschaften())
+        except Exception:                                   # noqa: BLE001 – im Zweifel spricht der Körper wie bisher
+            return True
 
     def camera_address(self) -> str | None:
         from ..care import guess

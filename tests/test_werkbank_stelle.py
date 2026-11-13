@@ -100,3 +100,18 @@ def test_tricks_seite_des_arms():
     assert 'emo-own braucht-kopf" id="emo-own"' in html                         # Gefühle mit Kopf nicht beim Arm
     assert "'arm']" in (STATIC / "modul.js").read_text(encoding="utf-8")
     assert ".ohne-arm .braucht-arm" in (STATIC / "style.css").read_text(encoding="utf-8")
+
+
+def test_knowlin_spricht_fuer_koerper_ohne_stimme():
+    """Entscheidung des Maintainers (13.11.): „Knowlin kann für ihn sprechen“ – Ari hat keine Stimme, Knowlin leiht ihm seine."""
+    from duckpilot.backends.reachy import ReachyMiniSim
+    from duckpilot.backends.sim import SimBackend
+    from duckpilot.koerper import eigene_stimme
+
+    assert not eigene_stimme(So101Sim(realtime=False).eigenschaften())
+    assert eigene_stimme(SimBackend(realtime=False).eigenschaften())             # Microduck: Stimmbank
+    assert eigene_stimme(ReachyMiniSim(realtime=False).eigenschaften())              # Reachy: Lautsprecher
+    gespraech = (STATIC.parent / "runtime_gespraech.py").read_text(encoding="utf-8")
+    assert "kopf = kopf or not self._koerper_hat_stimme()" in gespraech
+    assert "Knowlin spricht" in (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "const kopf = () => !!(h.imKopf && h.imKopf()) || stumm();" in (STATIC / "stimme.js").read_text(encoding="utf-8")

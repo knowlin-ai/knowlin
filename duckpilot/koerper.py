@@ -53,6 +53,15 @@ FAEHIGKEITEN: dict[str, str] = {
     "lautsprecher": "Lautsprecher am Körper.",
     "pollen_bewegungen": "Pollens Bewegungsbibliothek (Emotionen und Tänze des Reachy Mini).",
 }
+# Eine eigene Stimme hat ein Körper mit Lautsprecher oder Stimmbank. Ohne (der Arm) spricht Knowlin für ihn – mit
+# seiner eigenen Stimme vom PC (seit 0.38.55, Entscheidung des Maintainers: „Knowlin kann für ihn sprechen“).
+STIMME = frozenset({"lautsprecher", "stimmbank"})
+
+
+def eigene_stimme(eigenschaften: frozenset[str] | set[str]) -> bool:
+    return bool(set(eigenschaften) & STIMME)
+
+
 # Kurz in Worten, für Sätze an die KI („Dein Körper kann: laufen, sehen …“)
 KURZ: dict[str, str] = {
     "beine": "laufen", "raeder": "fahren", "kopf": "Kopf und Blick bewegen", "koerperdrehung": "sich auf der Stelle drehen",
