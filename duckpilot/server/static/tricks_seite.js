@@ -2,6 +2,7 @@
 // (seit 0.38.17 aus app.js ausgelagert)
 import { setIdleRepertoire } from './personality.js';
 import { vorschauKachel } from './skills.js';
+import { initTricksSuche } from './tricks_suche.js';
 
 export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, skillPacks, reachy }) {
   const PLAY_ICON = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7-4.5z"/></svg>';
@@ -26,6 +27,7 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   }
   catalog().then(setIdleRepertoire);   // Leerlauf-Gesten kennen den Katalog
   $('tricks-zu-erweiterungen')?.addEventListener('click', () => showView('tricks', 'pakete'));
+  initTricksSuche({ $ });   // Suche über alle Kacheln (seit 0.38.61)
   // Arm (seit 0.38.55): seine Gesten und Aufträge – jedes Mal neu, eigene Aufträge können dazugekommen sein
   function armKachel(titel, text, werkzeug, args, dauer = 2) {
     const b = el('button', 'emo');

@@ -146,3 +146,25 @@ def test_leerlauf_geste_in_der_gewaehlten_sprache():
         i18n.setze_sprache(alt)
     src = (Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "runtime.py").read_text(encoding="utf-8")
     assert 'event = {**event, "message": _leerlauf_text(str(event["geste"]))' in src
+
+
+def test_originalgehaeuse_liegt_bei_knowlin():
+    """Seit 0.38.61 (Maintainer: „Haben wir für die neuen Roboter keine original 3D Modelle?“ – „Ja“): Gehäuse und Füße
+    aus den offenen Gehäusedaten der Stack-chan-Community (Apache-2.0), gebacken in `static/model/stackchan.dpm`, mit
+    Lizenzhinweis; die Figur lädt sie und steht bis dahin in denselben Maßen gezeichnet da."""
+    import json
+    import struct
+
+    from duckpilot.modell import stackchan as M
+
+    b = (STATIC / "model" / "stackchan.dpm").read_bytes()
+    assert b[:4] == b"DPM2"
+    n = struct.unpack("<I", b[4:8])[0]
+    head = json.loads(b[8:8 + n])
+    assert head["art"] == "stackchan" and "Apache-2.0" in head["licence"]
+    assert [m["name"] for m in head["meshes"]] == ["fuss", "schale"]
+    assert head["source"]["commit"] == M.QUELLE["commit"][:7] and head["dreh_hoehe"] == M.DREH_HOEHE
+    lizenz = (STATIC / "model" / "LIZENZ-stackchan.md").read_text(encoding="utf-8")
+    assert "Apache License 2.0" in lizenz and "Stack-chan-Community" in lizenz and M.QUELLE["commit"] in lizenz
+    js = (STATIC / "stackchan3d.js").read_text(encoding="utf-8")
+    assert "/static/model/stackchan.dpm" in js and f"DREH_Y = {M.DREH_HOEHE}" in js

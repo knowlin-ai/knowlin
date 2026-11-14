@@ -1922,6 +1922,11 @@ body.ctl-open .view-cockpit .stage > :not(canvas) { display: none; }
 @media (forced-colors: active) { .ctl-icon, .ctl-taste, .ctl-stick, .ctl-talk { border: 1px solid CanvasText; } }
 
 
+/* Suche auf der Seite „Tricks“ (seit 0.38.61) */
+.tricks-suche { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-03); margin-top: var(--spacing-04); }
+.tricks-suche .input { flex: 1 1 280px; max-width: 420px; }
+.such-aus { display: none !important; }
+
 /* Erste Schritte (0.36) */
 .wizard { width: min(560px, calc(100vw - 32px)); }
 .wizard-step { margin: 0 0 var(--spacing-02); color: var(--ink-3); font-size: var(--t-caption); }

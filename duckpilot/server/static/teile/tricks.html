@@ -5,6 +5,11 @@
             <header class="page-head">
               <h2>Tricks</h2>
               <p>Gefühle und Bewegungen zum Antippen – sofort zu sehen.</p>
+              <!-- Suche über alle Quellen (seit 0.38.61, tricks_suche.js) -->
+              <div class="tricks-suche" role="search">
+                <input class="input" type="search" id="tricks-suche" placeholder="Tricks suchen, z. B. „tanz“ oder „freude“" aria-label="Tricks und Fähigkeiten durchsuchen" autocomplete="off" spellcheck="false">
+                <span class="field-help" id="tricks-suche-info" role="status" aria-live="polite"></span>
+              </div>
               <!-- Hinweis auf weitere Pakete (seit 0.38.34, „ich hatte manche Erweiterungen nicht aktiviert“) -->
               <p class="field-help nur-microduck">Mehr Tricks – etwa „Got a Talent“ aus Pollens Microduck-Arena oder Gangarten – gibt es als Erweiterung:
                 <button type="button" class="link-btn" id="tricks-zu-erweiterungen">unter System → Erweiterungen einschalten</button>.</p>
@@ -12,6 +17,7 @@
             <!-- Live-Vorschau neben den Tricks (seit 0.38.33, „wo sind die Tricks mit der Vorschau?“) – wie beim Tanzen -->
             <div class="tricks-layout">
             <div class="tricks-links">
+            <p class="empty" id="tricks-suche-leer" hidden>Nichts gefunden – probier ein anderes Wort oder schalte unter System → Erweiterungen weitere Quellen ein.</p>
             <div id="pack-sections" class="nur-microduck"></div>
 
             <div class="nur-reachy">

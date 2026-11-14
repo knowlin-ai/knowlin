@@ -1,21 +1,29 @@
-// Stack-chan in der 3D-Ansicht (seit 0.38.58). Gezeichnet nach Fotos des offenen Projekts, ohne dessen Dateien:
-// heller Würfel als Kopf mit schwarzem Bildschirm vorn (das Gesicht), darunter das Servo-Gehäuse auf einem kleinen Fuß.
+// Stack-chan in der 3D-Ansicht (seit 0.38.58). Seit 0.38.61 mit Gehäuse und Füßen aus den offenen Gehäusedaten der
+// Stack-chan-Community (Apache-2.0, `static/model/stackchan.dpm`, duckpilot/modell/stackchan.py) und in deren Maßen:
+// Füße fest, darüber dreht und nickt der ganze Kopf – Schale und M5Stack-Kasten mit dem Bildschirm vorn (den zeichnet
+// Knowlin selbst, er gehört nicht zu den Gehäusedaten). Bis das Modell geladen ist (oder ohne es) steht eine einfache
+// gezeichnete Fassung in denselben Maßen.
 // Gleiche Schnittstelle wie die übrigen Figuren: root, body, headRoll, beakTip, povNode, update(st, dt).
 // Das Gesicht kommt als `st.gesicht` {ausdruck, mund, wach, zustand}; Blinzeln und Blick zeichnet die Figur selbst.
 // Koordinaten wie in duck3d.js: Simulator x = vorn, y = links, z = oben → three.js X = x, Y = z, Z = -y.
 import * as THREE from './vendor/three.module.min.js';
+import { FINISH, loadModel } from './duckmodel.js';
 import { allesVerschmelzen, rundKasten, stoff, teil } from './formen3d.js';
 
-const F = { schale: 0xf2f1ee, fuss: 0xd9d8d4, servo: 0x2a2b2e, rahmen: 0x1b1c1f };
-const KOPF = 0.06;            // Kopfwürfel, Kantenlänge
-const DREH_Y = 0.052;         // Drehachse des Kopfes über dem Fuß
-const BILD = 0.046;           // sichtbare Bildschirmfläche
-const PX = 160;               // Auflösung der Gesichts-Textur
+export const STACKCHAN_URL = '/static/model/stackchan.dpm';
+const F = { schale: 0xf2f1ee, m5: 0x2b2d31, glas: 0x0c0d0f, knopf: 0x8a8d93 };
+const DREH_Y = 0.0405;        // Kopfgelenk über dem Boden (wie DREH_HOEHE beim Backen)
+const KOPF = 0.054;           // Breite und Höhe von Schale und M5Stack
+const KOPF_Y = -0.0035;       // Mitte des Kopfes unter dem Gelenk
+const M5_X = 0.023, M5_T = 0.018;            // M5Stack-Kasten vor der Schale: Mitte, Tiefe
+const BILD_B = 0.0408, BILD_H = 0.0306;      // sichtbarer Bildschirm (2 Zoll, 4:3)
+const BILD_X = M5_X + M5_T / 2 + 0.0004, BILD_Y = KOPF_Y + 0.004;
+const PX = 160;               // Breite der Gesichts-Textur (Höhe 3/4)
 
 // Gesicht auf die Zeichenfläche: schwarzer Grund, weiße Augen und Mund wie das Standardgesicht des Projekts.
 // a = Ausdruck, m = Mund offen 0…1, auf = Augen offen 0…1, bx/by = Blick (−1…1)
 export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by = 0 }) {
-  const w = PX, h = PX;
+  const w = PX, h = PX * 0.75;
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = ctx.strokeStyle = '#fff';
@@ -76,14 +84,14 @@ export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by =
 export class StackChan {
   constructor() {
     this.root = new THREE.Group();
-    const schale = stoff(F.schale, 'shell'), servo = stoff(F.servo, 'servo');
-    // Fuß und Servo-Gehäuse: dreht sich nicht (der Kopf dreht über dem oberen Servo)
+    const schale = stoff(F.schale, 'shell');
     this.body = new THREE.Group();
     this.root.add(this.body);
-    teil(this.body, rundKasten(0.056, 0.008, 0.056, 0.006, 3), stoff(F.fuss, 'plastic'), 0, 0.004, 0);
-    teil(this.body, rundKasten(0.046, 0.036, 0.046, 0.008, 3), schale, 0, 0.026, 0);
-    teil(this.body, new THREE.CylinderGeometry(0.009, 0.009, 0.006, 20), servo, 0, 0.047, 0);
-    // Kopf: drehen (Hochachse), nicken (Querachse); der Würfel sitzt über der Achse
+    // Ersatz, bis das Originalgehäuse geladen ist: zwei Füße, Schale hinter dem M5Stack
+    this.ersatzFuss = new THREE.Group();
+    this.body.add(this.ersatzFuss);
+    for (const s of [-1, 1]) teil(this.ersatzFuss, rundKasten(0.037, 0.008, 0.023, 0.004, 3), schale, 0.0045, 0.004, s * 0.0125);
+    // Kopf: drehen (Hochachse), nicken (Querachse) um dasselbe Gelenk
     this.headYaw = new THREE.Group();
     this.headYaw.position.y = DREH_Y;
     this.body.add(this.headYaw);
@@ -91,26 +99,35 @@ export class StackChan {
     this.headYaw.add(this.headPitch);
     this.headRoll = new THREE.Group();
     this.headPitch.add(this.headRoll);
-    teil(this.headRoll, rundKasten(KOPF * 0.8, KOPF, KOPF, 0.009, 4), schale, 0, KOPF / 2, 0);
-    teil(this.headRoll, rundKasten(0.004, BILD + 0.006, BILD + 0.006, 0.002, 2), stoff(F.rahmen, 'dark'),
-      KOPF * 0.4 - 0.0015, KOPF / 2, 0);
+    this.ersatzSchale = new THREE.Group();
+    this.headRoll.add(this.ersatzSchale);
+    teil(this.ersatzSchale, rundKasten(0.0425, KOPF, KOPF, 0.008, 3), schale, -0.00725, KOPF_Y, 0);
+    // M5Stack-Kasten mit Glas und drei Knöpfen unter dem Bildschirm
+    const m5 = new THREE.Group();
+    this.headRoll.add(m5);
+    teil(m5, rundKasten(M5_T, KOPF, KOPF, 0.004, 3), stoff(F.m5, 'dark'), M5_X, KOPF_Y, 0);
+    teil(m5, rundKasten(0.001, BILD_H + 0.006, BILD_B + 0.006, 0.0015, 2), stoff(F.glas, 'glass'), BILD_X - 0.0008, BILD_Y, 0);
+    for (const z of [-0.014, 0, 0.014]) {
+      teil(m5, rundKasten(0.0012, 0.003, 0.008, 0.001, 2), stoff(F.knopf, 'plastic'), M5_X + M5_T / 2, KOPF_Y - 0.021, z);
+    }
     // Bildschirm: eigene Zeichenfläche, wird nur neu gezeichnet, wenn sich das Gesicht ändert
     this.leinwand = document.createElement('canvas');
-    this.leinwand.width = this.leinwand.height = PX;
+    this.leinwand.width = PX;
+    this.leinwand.height = PX * 0.75;
     this.ctx = this.leinwand.getContext('2d');
     this.textur = new THREE.CanvasTexture(this.leinwand);
     this.textur.colorSpace = THREE.SRGBColorSpace;
-    const bild = new THREE.Mesh(new THREE.PlaneGeometry(BILD, BILD), new THREE.MeshBasicMaterial({ map: this.textur }));
-    bild.position.set(KOPF * 0.4 + 0.0006, KOPF / 2, 0);
+    const bild = new THREE.Mesh(new THREE.PlaneGeometry(BILD_B, BILD_H), new THREE.MeshBasicMaterial({ map: this.textur }));
+    bild.position.set(BILD_X, BILD_Y, 0);
     bild.rotation.y = Math.PI / 2;                     // zeigt nach vorn (+X)
     bild.userData.einzeln = true;                      // eigene Textur – nicht zusammenfassen
     this.headRoll.add(bild);
-    // Blickpunkt vor dem Gesicht und Kamera (Stack-chan: Kamera unter dem Bildschirm)
+    // Blickpunkt vor dem Gesicht und Kamera (M5Stack CoreS3: Kamera über dem Bildschirm)
     this.beakTip = new THREE.Object3D();
-    this.beakTip.position.set(KOPF * 0.6, KOPF / 2, 0);
+    this.beakTip.position.set(BILD_X + 0.012, BILD_Y, 0);
     this.headRoll.add(this.beakTip);
     this.povNode = new THREE.Object3D();
-    this.povNode.position.set(KOPF * 0.42, KOPF * 0.12, 0);
+    this.povNode.position.set(BILD_X, KOPF_Y + 0.023, 0);
     this.headRoll.add(this.povNode);
     this._lage = { yaw: 0, pitch: 0 };
     this._mund = 0;
@@ -118,6 +135,26 @@ export class StackChan {
     this._blinzeln = 3;
     this._letztes = '';
     allesVerschmelzen(this.root);
+    this.geladen = this._original().catch(() => false);
+  }
+
+  // Originalgehäuse laden (MJCF-Rahmen: z oben → three.js y oben); der Ersatz verschwindet, wenn es da ist
+  async _original() {
+    const model = await loadModel(STACKCHAN_URL);
+    const mat = new THREE.MeshPhysicalMaterial({ color: F.schale, ...FINISH.shell });
+    for (const m of model.head.meshes) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(model.positions.slice(m.v[0] * 3, (m.v[0] + m.v[1]) * 3), 3));
+      g.setAttribute('normal', new THREE.BufferAttribute(model.normals.slice(m.v[0] * 3, (m.v[0] + m.v[1]) * 3), 3, true));
+      g.setIndex(new THREE.BufferAttribute(model.indices.slice(m.i[0], m.i[0] + m.i[1]), 1));
+      g.computeBoundingSphere();
+      const mesh = new THREE.Mesh(g, mat);
+      mesh.castShadow = mesh.receiveShadow = true;
+      mesh.rotation.x = -Math.PI / 2;
+      (m.name === 'fuss' ? this.body : this.headRoll).add(mesh);
+    }
+    this.ersatzFuss.visible = this.ersatzSchale.visible = false;
+    return true;
   }
 
   update(st, dt) {

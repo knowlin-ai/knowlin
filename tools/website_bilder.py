@@ -203,9 +203,10 @@ def szene_stackchan(page, base, sprache):
     satz = "Hallo Stacki, wie geht's dir?" if sprache == "de" else "Hi Stacki, how are you?"
     _koerper(page, base, "stackchan", sprache, satz)
     try:                                  # unter Last kommt die Antwort spät – abwarten, nur wenn sie ausbleibt: noch einmal
-        page.wait_for_function("() => { const l = [...document.querySelectorAll('#log .msg')];"
-                               " return l.some((m) => m.classList.contains('msg-user'))"
-                               " && l[l.length - 1].classList.contains('msg-duck'); }", timeout=30000)
+        page.wait_for_function("() => { const l = [...document.querySelectorAll('#log .msg')];"   # Antwort nach der Frage
+                               " const i = l.map((m) => m.classList.contains('msg-user')).lastIndexOf(true);"
+                               " return i >= 0 && l.slice(i + 1).some((m) => m.classList.contains('msg-duck')); }",
+                               timeout=30000)
     except Exception:  # noqa: BLE001
         sagen(page, "#say-text", satz, 5.0)
     senden = "([n, a]) => window.duckpilot.send({type: 'tool', name: n, args: a})"
@@ -213,11 +214,11 @@ def szene_stackchan(page, base, sprache):
     page.wait_for_timeout(600)
     # das fröhliche Gesicht fest fürs Bild (unter der Last der Aufnahme kommt der Zustand sonst manchmal zu spät an)
     page.evaluate("""() => { const s = window.duckpilot.scene; s.follow = false; if (s.intro) s.intro.done = true;
-        s.camera.position.set(0.36, 0.56, -0.58); s.controls.target.set(0.56, 0.46, -0.22); s.controls.update();
+        s.camera.position.set(0.336, 0.52, -0.331); s.controls.target.set(0.56, 0.45, -0.22); s.controls.update();   // echte Größe (0.38.61)
         const d = s.duck, alt = d.update;
-        d.update = (st, dt) => alt.call(d, { ...st, gesicht: { ...(st.gesicht || {}), ausdruck: 'froh', wach: true } }, dt);
+        d.update = (st, dt) => alt.call(d, { ...st, gesicht: { ...(st.gesicht || {}), ausdruck: 'froh', mund: 0, wach: true } }, dt);
         for (let i = 0; i < 12; i++) s._frame(); s.paused = true; d.update = alt;
-        document.getElementById('ticker').replaceChildren(); }""")
+        const tk = document.getElementById('ticker'); tk.replaceChildren(); tk.style.visibility = 'hidden'; }""")
     page.wait_for_timeout(500)
 
 
