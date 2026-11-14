@@ -1,6 +1,6 @@
 // Zeiger in der 3D-Ansicht – zwei Arten mit demselben Ablauf:
-//  • Laser: Maus oder Finger ist der Laserpointer, die Ente läuft dem roten Punkt nach (laser_folgen).
-//  • Folg mir: Maus oder Finger führt eine Menschen-Verkörperung über den Boden, die Ente läuft hinterher (mir_folgen).
+//  • Laser: Maus oder Finger ist der Laserpointer, der Körper läuft dem roten Punkt nach (laser_folgen).
+//  • Folg mir: Maus oder Finger führt eine Menschen-Verkörperung über den Boden, der Körper läuft hinterher (mir_folgen).
 // Am echten Roboter startet der Knopf nur das Folgen – den Punkt macht der echte Pointer, den Menschen sieht die Kamera.
 // Es ist immer höchstens einer an.
 
@@ -9,13 +9,13 @@ const KINDS = {
     btn: 'laser-btn', tool: 'laser_folgen', seconds: 300, msg: 'laser', ends: 'Laserpunkt folgen', stageClass: 'stage--laser',
     show: (scene, p) => scene.setLaser(p), floorOnly: false,
     onSim: 'Laser an – zeig mit der Maus oder dem Finger auf den Boden',
-    onRobot: 'Sie sucht jetzt den Punkt deines Laserpointers', off: 'Laser aus', fail: 'Laser folgen geht gerade nicht',
+    onRobot: 'Dein Roboter sucht jetzt den Punkt deines Laserpointers', off: 'Laser aus', fail: 'Laser folgen geht gerade nicht',
   },
   mensch: {
     btn: 'follow-btn', tool: 'mir_folgen', seconds: 600, msg: 'mensch', ends: 'Mensch folgen', stageClass: 'stage--laser',
     show: (scene, p) => scene.setPerson(p), floorOnly: true,
-    onSim: 'Folg mir – die Maus führt den Punkt, die Ente läuft hinterher',
-    onRobot: 'Sie folgt dir jetzt – geh langsam voraus', off: 'Folgen aus', fail: 'Folgen geht gerade nicht',
+    onSim: 'Folg mir – die Maus führt den Punkt, dein Roboter läuft hinterher',
+    onRobot: 'Dein Roboter folgt dir jetzt – geh langsam voraus', off: 'Folgen aus', fail: 'Folgen geht gerade nicht',
   },
 };
 

@@ -407,7 +407,9 @@ input[type=checkbox] { width: 16px; height: 16px; margin: 0; }
 
 /* schmale Bühne neben dem Gespräch: der Zustand rückt unter die Werkzeuge, statt hinter ihnen zu liegen */
 @media (min-width: 1056px) and (max-width: 1311.98px) {
-  .view-cockpit .hud-state { top: calc(var(--spacing-07) + var(--control-h-sm) + var(--spacing-05)); }
+  .view-cockpit .hud-state { top: calc(var(--spacing-07) + var(--control-h-sm) + var(--spacing-05));
+    /* nie bis unter die Meldungen rechts (Fund 14.11.: Bellos lange Choreografie-Zeile lag bei 1100 px darunter) */
+    max-width: calc(100% - var(--talk-w) - var(--spacing-08) - 240px - 40px - var(--spacing-05)); }
   /* Meldungen oben rechts unter den Werkzeugen statt unten neben der Anzeige (dort war kein Platz) */
   .view-cockpit .ticker { top: calc(var(--spacing-07) + var(--control-h-sm) + var(--spacing-05)); bottom: auto; width: 240px; }
 }

@@ -26,6 +26,10 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   Albernheiten (Schwanz jagen, am Boden picken, Selbstgespräch, Hinternwackeln) standen auch im Englischen auf Deutsch,
   „jagt ihren eigenen Schwanz“ passte nur zur Ente, und Körper ohne Schnabel (Stacki, Bello) putzten sich das Gefieder
   oder pickten am Boden. Jetzt übersetzt, neutral formuliert, und Gesten mit Schnabel nur bei Körpern mit Schnabel.
+- **Laser und „Folg mir“ ohne „die Ente“**: Hinweise und Meldungen sprechen von „deinem Roboter“, weil die Knöpfe bei
+  jedem Körper mit Beinen erscheinen (Abnahme mit Bello); die englische Meldung zu „Folg mir“ am echten Roboter fehlte.
+- **Cockpit bei 1100 px Breite:** Eine lange Zustandszeile (Bellos Choreografie) lief unter die Meldungen rechts; die
+  Anzeige endet jetzt vor ihnen.
 
 ### Sicherheit
 - Bittle X erfüllt die Pflichten der Körperschnittstelle (`python -m duckpilot.koerper_pruefung bittle`): Not-Aus
