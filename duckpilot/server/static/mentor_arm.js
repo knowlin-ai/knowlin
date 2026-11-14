@@ -7,6 +7,7 @@
 //   zusammen → Greifer zu. Ari prüft jeden Weg wie sonst; Not-Aus, Hindernisse und Reichweite gelten.
 
 import { HandErkenner, VERBINDUNGEN } from './hand.js';
+import { initAriLernen } from './ari_lernen.js';
 
 export const TAKT_MS = 66;        // so oft gehen Handpunkte an Knowlin (≈ 15 je Sekunde)
 
@@ -24,6 +25,7 @@ export function initMentor(h) {
   const text = $('mentor-text');
   const laden = $('mentor-laden');
   const erkenner = new HandErkenner();
+  const lernen = initAriLernen(h);                          // Lernen durch Vormachen (seit 0.38.64)
   let stream = null;
   let takt = null;
   let poll = null;
@@ -107,6 +109,7 @@ export function initMentor(h) {
   function aus() {
     if (panel.hidden) return;
     kameraAus();
+    lernen.aus();
     send({ type: 'mentor_ende' });
     panel.hidden = true;
   }
@@ -129,6 +132,7 @@ export function initMentor(h) {
   $('vormachen-btn').addEventListener('click', () => {
     if (!panel.hidden) { aus(); return; }
     panel.hidden = false;
+    lernen.zeigen();
     starten();
   });
 

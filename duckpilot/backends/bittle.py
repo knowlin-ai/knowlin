@@ -36,6 +36,19 @@ TRICKS: dict[str, tuple[str, float, str]] = {
     "umschauen": ("Umschauen", 3.0, "dreht den Kopf nach links und rechts"),
     "handstand": ("Handstand", 3.4, "auf die Vorderbeine – nur im Simulator"),
     "salto": ("Rückwärtssalto", 2.4, "ein Salto rückwärts – nur im Simulator"),
+    # Seit 0.38.64 (Maintainer: „mach männchen“ ging nicht; Abgleich mit Petois OpenCat-Fähigkeiten, MIT):
+    "maennchen": ("Männchen", 3.4, "setzt sich auf und hebt beide Vorderpfoten"),  # Petoi „hu“
+    "high_five": ("High five", 2.8, "sitzt und hält dir die Pfote hoch hin"),  # Petoi „fiv“
+    "jubeln": ("Jubeln", 3.2, "sitzt aufrecht und winkt mit beiden Pfoten"),  # Petoi „chr“
+    "nicken": ("Nicken", 2.2, "nickt ein paarmal mit dem Kopf"),  # Petoi „nd“
+    "schnueffeln": ("Schnüffeln", 3.4, "schnüffelt mit gesenktem Kopf hin und her"),  # Petoi „snf“
+    "kratzen": ("Kratzen", 3.0, "sitzt und kratzt sich mit dem Hinterbein"),  # Petoi „scrh“
+    "graben": ("Graben", 3.4, "buddelt mit den Vorderpfoten"),  # Petoi „dg“
+    "kicken": ("Auskeilen", 2.4, "tritt mit einem Hinterbein nach hinten"),  # Petoi „kc“
+    "springen": ("Springen", 2.0, "geht in die Hocke und hüpft hoch"),  # Petoi „jmp“
+    "tisch": ("Tisch", 3.0, "steht mit ganz geraden Beinen still wie ein Tisch"),  # Petoi „tbl“
+    "schlafen": ("Schlafen", 5.0, "legt sich hin und lässt den Kopf sinken"),  # Petoi „zz“
+    "frontsalto": ("Vorwärtssalto", 2.4, "ein Salto vorwärts – nur im Simulator"),  # Petoi „ff“
 }
 OHNE = "Bello ist ein Hund ohne Schnabel – aufheben, Purzelbaum und Pollens Tricks gehen nicht; seine eigenen Tricks schon"
 

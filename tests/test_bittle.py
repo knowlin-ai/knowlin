@@ -153,3 +153,34 @@ def test_skill_werkzeug_beschreibt_bellos_tricks():
     skill = tools["skill"]
     assert "pfote" in skill["input_schema"]["properties"]["name"]["enum"]
     assert "Pfote geben" in skill["description"] and "vom Hub" not in skill["description"]
+
+
+def test_maennchen_und_kein_entenprompt_fuer_andere_koerper():
+    """Fund des Maintainers (15.11.): „mach männchen“ bei Bello – das lokale Modell antwortete „Hmpf, ein Männchen? Ich
+    zeig dir mein tolles Entenmännchen!“. Ursachen: kein Männchen-Trick, und Hund, Schreibtischkopf und Arm bekamen die
+    Entenregeln (Albern-Modus, Entenlaute, Schnabel, Ball, Wohnzimmer). Jetzt: Männchen per Zuruf ohne KI, und der
+    Text für die KI richtet sich nach der Körperschnittstelle."""
+    from duckpilot.backends.so101 import So101Sim
+    from duckpilot.backends.stackchan import StackChanSim
+    from duckpilot.brain.agent import AgentConfig, DuckAgent
+    from duckpilot.brain.fallback import parse, quick_command
+    from duckpilot.brain.tools import ToolRunner
+    from duckpilot.motion.engine import MotionEngine
+
+    sim = BittleSim(realtime=False)
+    k = frozenset(sim.skills())
+    assert "maennchen" in k and parse("mach männchen", k) == [("skill", {"name": "maennchen"})]
+    assert quick_command("Mach Männchen!", k)
+    for koerper_sim in (BittleSim(realtime=False), StackChanSim(realtime=False), So101Sim(realtime=False)):
+        eng = MotionEngine(koerper_sim)
+        eng.config.goofy = True
+        agent = DuckAgent(ToolRunner(eng), AgentConfig(api_key=None))
+        text = agent._system()
+        assert "KEINE Ente" in text, type(koerper_sim).__name__
+        for ente in ("GOOFY-MODUS IST AN", "liebenswerte Ente", "*quak*", "Schnabel klappern", "ground_pick",
+                     "Entenlaute nur über"):
+            assert ente not in text, (type(koerper_sim).__name__, ente)
+    eng = MotionEngine(So101Sim(realtime=False))
+    assert "Werkbank" in DuckAgent(ToolRunner(eng), AgentConfig(api_key=None))._system()
+    assert "kick_left" not in DuckAgent(ToolRunner(MotionEngine(BittleSim(realtime=False))),
+                                         AgentConfig(api_key=None))._system()

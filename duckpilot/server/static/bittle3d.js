@@ -24,6 +24,9 @@ const welle = (p, mal) => 0.5 - 0.5 * Math.cos(2 * Math.PI * mal * p);
 // Je Trick und Fortschritt p (0…1): Schulter s und Knie k je Bein [vl, vr, hl, hr], Rumpfhöhe y, Neigung n
 // (+ = vorn hoch), Kippen r (zur Seite), Kopf kd (drehen) und kp (heben), e = wie weit die Pose gilt (0 = Stand, 1 = Pose).
 const SITZEN = { s: [-SITZ, -SITZ, 0.9 - SITZ, 0.9 - SITZ], k: [0, 0, -1.9, -1.9], y: OBEN + UNTEN - 0.052 * Math.sin(SITZ) + 0.006, n: SITZ };
+const STEHEN = { s: [0.45, 0.45, -0.45, -0.45], k: [-0.85, -0.85, 0.85, 0.85], y: 0.083, n: 0 };
+// Männchen: Rumpf steil (n = 1), Hinterbeine wie beim Sitzen unter dem Körper, Vorderpfoten angewinkelt vor der Brust
+const MAENNCHEN = { s: [0.3, 0.3, -0.1, -0.1], k: [-1.5, -1.5, -1.9, -1.9], y: 0.057 + 0.052 * Math.sin(1.0), n: 1.0 };
 const TRICKS = {
   pfote: (p) => { const w = 0.25 * Math.sin(2 * Math.PI * 3 * p);
     return { ...SITZEN, s: [1.45 + w, -SITZ, 0.9 - SITZ, 0.9 - SITZ], k: [-0.5, 0, -1.9, -1.9], e: huelle(p) }; },
@@ -42,6 +45,29 @@ const TRICKS = {
   // Salto: Rumpf dreht einmal ganz herum (n bis 2π) und fliegt dabei hoch; Beine angezogen; wirkt direkt, nicht geglättet
   salto: (p) => { const q = glatt((p - 0.18) / 0.62);
     return { s: [1.1, 1.1, -1.1, -1.1], k: [-1.9, -1.9, 1.9, 1.9], y: 0.083 + 0.12 * Math.sin(Math.PI * q), n: (2 * Math.PI * q) % (2 * Math.PI),
+      e: huelle(p, 0.15, 0.85), direkt: p > 0.15 && p < 0.85 }; },
+  // Seit 0.38.64 nach Petois OpenCat-Fähigkeiten (Kürzel dahinter). Weltwinkel eines Beins = s + n.
+  maennchen: (p) => ({ ...MAENNCHEN, kp: -0.8, e: huelle(p, 0.25, 0.8) }),                                        // hu
+  high_five: (p) => ({ ...SITZEN, s: [1.95, -SITZ, 0.9 - SITZ, 0.9 - SITZ], k: [-0.2, 0, -1.9, -1.9], kp: 0.25, e: huelle(p, 0.25, 0.8) }), // fiv
+  jubeln: (p) => { const a = Math.sin(2 * Math.PI * 4 * p);                                                        // chr
+    return { ...MAENNCHEN, s: [0.5 + 0.55 * a, 0.5 - 0.55 * a, MAENNCHEN.s[2], MAENNCHEN.s[3]], k: [-0.6, -0.6, -1.9, -1.9], kp: -0.6, e: huelle(p, 0.2, 0.82) }; },
+  nicken: (p) => ({ ...STEHEN, kp: 0.35 * Math.sin(2 * Math.PI * 3 * p), e: huelle(p, 0.1, 0.9) }),                // nd
+  schnueffeln: (p) => ({ s: [0.65, 0.65, -0.25, -0.25], k: [-1.3, -1.3, 0.85, 0.85], y: 0.07, n: -0.2,           // snf
+    kp: -0.25, kd: 0.5 * Math.sin(2 * Math.PI * 2 * p), e: huelle(p, 0.15, 0.85) }),
+  kratzen: (p) => ({ ...SITZEN, s: [-SITZ, -SITZ, 1.55 + 0.25 * Math.sin(2 * Math.PI * 8 * p), 0.9 - SITZ],           // scrh
+    k: [0, 0, -1.2, -1.9], kd: 0.35, e: huelle(p, 0.2, 0.82) }),
+  graben: (p) => { const a = Math.sin(2 * Math.PI * 5 * p);                                                         // dg
+    return { s: [0.9 + 0.5 * a, 0.9 - 0.5 * a, -0.15, -0.15], k: [-1.6 - 0.4 * a, -1.6 + 0.4 * a, 0.85, 0.85], y: 0.07, n: -0.3, kp: 0.1, e: huelle(p, 0.15, 0.85) }; },
+  kicken: (p) => { const u = welle(p, 2);                                                                           // kc
+    return { ...STEHEN, s: [0.45, 0.45, -0.45, -0.45 - 1.0 * u], k: [-0.85, -0.85, 0.85, 0.85 - 0.8 * u], n: -0.12 * u, e: huelle(p, 0.1, 0.9) }; },
+  springen: (p) => { const c = glatt(p / 0.35) * (1 - glatt((p - 0.35) / 0.08)), j = Math.sin(Math.PI * Math.max(0, Math.min(1, (p - 0.4) / 0.3)));  // jmp
+    return { s: [0.45 + 0.5 * c, 0.45 + 0.5 * c, -0.45 - 0.5 * c, -0.45 - 0.5 * c], k: [-0.85 - 0.9 * c, -0.85 - 0.9 * c, 0.85 + 0.9 * c, 0.85 + 0.9 * c],
+      y: 0.083 - 0.025 * c + 0.05 * j, n: 0, e: huelle(p, 0.08, 0.9), direkt: p > 0.38 && p < 0.72 }; },
+  tisch: (p) => ({ s: [0, 0, 0, 0], k: [0, 0, 0, 0], y: OBEN + UNTEN + 0.006, n: 0, kp: 0, e: huelle(p, 0.2, 0.85) }),  // tbl
+  schlafen: (p) => ({ s: [1.25, 1.25, -1.25, -1.25], k: [-2.4, -2.4, 2.4, 2.4], y: 0.03 + 0.002 * Math.sin(2 * Math.PI * 3 * p), n: 0,  // zz
+    kp: -0.45, kd: 0, e: huelle(p, 0.15, 0.9) }),
+  frontsalto: (p) => { const q = glatt((p - 0.18) / 0.62);                                                         // ff
+    return { s: [1.1, 1.1, -1.1, -1.1], k: [-1.9, -1.9, 1.9, 1.9], y: 0.083 + 0.12 * Math.sin(Math.PI * q), n: -((2 * Math.PI * q) % (2 * Math.PI)),
       e: huelle(p, 0.15, 0.85), direkt: p > 0.15 && p < 0.85 }; },
 };
 

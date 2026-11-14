@@ -236,8 +236,8 @@ function onInit(msg) {
   config = msg.config;
   // Der Verlauf geht über alle Körper weiter – sichtbar getrennt, wenn eine andere Verkörperung übernimmt (0.38.10)
   if (vorher && vorher !== `${config.modul}|${config.backend}` && $('log').querySelector('.msg')) {
-    const art = { duckpilot: 'Microduck', reachy_mini: 'Reachy Mini', open_duck_mini: 'Open Duck Mini v2', so101: 'SO-101' }[config.modul] || '';
-    const t = `Jetzt in ${config.duck_name} · ${art} · ${config.backend === 'sim' ? 'Simulator' : 'echter Roboter'}`;
+    const art = { duckpilot: 'Microduck', reachy_mini: 'Reachy Mini', open_duck_mini: 'Open Duck Mini v2', so101: 'SO-101', stackchan: 'Stack-chan', bittle: 'Bittle X' }[config.modul];
+    const t = `Jetzt in ${[config.duck_name, art, config.backend === 'sim' ? 'Simulator' : 'echter Roboter'].filter(Boolean).join(' · ')}`;
     $('log').append(el('p', 'msg-trenner', uebersetzeText(t) || t));
   }
   setKlang(config.klang_hoehe, config.klang_farbe);   // Klangsignatur der Ente

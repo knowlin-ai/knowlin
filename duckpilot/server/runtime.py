@@ -997,6 +997,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         hand = hand_aus(msg)
         if nachmachen is None or hand is None:
             return
+        if getattr(getattr(self, "ari_schule", None), "taetigkeit", None) == "ausprobieren":
+            return                                 # Ari probiert gerade selbst (arm_schule.py)
         jetzt = time.monotonic()
         if jetzt - getattr(self, "_mentor_zuletzt", 0.0) < 0.05:
             return
@@ -1005,7 +1007,10 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             self._mentor = Nachmacher()
         self.alltag.touch()
         self.engine.kontakt("Vormachen")
-        r = await nachmachen(self._mentor.weiter(hand, jetzt))
+        ziel = self._mentor.weiter(hand, jetzt)
+        r = await nachmachen(ziel)
+        if r.accepted:
+            self._mentor_ziel = (jetzt, ziel)      # für die Aufnahme beim Lernen durch Vormachen (arm_schule.py)
         if not r.accepted and jetzt - getattr(self, "_mentor_absage", 0.0) > 2.0:
             self._mentor_absage = jetzt
             await self.broadcast({"type": "mentor", "ok": False, "grund": r.reason})

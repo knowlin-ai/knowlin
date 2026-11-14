@@ -308,7 +308,19 @@ HUNDETRICKS = (
     (re.compile(r"\bstell\w* dich tot\b|\btot stellen\b|^peng\b|\bplay dead\b"), "tot_stellen"),
     (re.compile(r"\bbox(e|en|t)\b|\bboxing\b"), "boxen"),
     (re.compile(r"\bhandstand\b"), "handstand"),
+    (re.compile(r"vorw(ä|ae)rts ?salto|\bfront ?flip\b"), "frontsalto"),
     (re.compile(r"\bsalto\b|\bback ?flip\b"), "salto"),
+    # seit 0.38.64 (Petoi OpenCat): „mach Männchen“ ging vorher an die KI – und die machte ein „Entenmännchen“
+    (re.compile(r"m(ä|ae)nnchen|\bsit up\b|\bbeg\b"), "maennchen"),
+    (re.compile(r"\bhigh ?five\b|\bgib mir f(ü|ue)nf\b|\bschlag ein\b"), "high_five"),
+    (re.compile(r"\bjubel|\bcheer"), "jubeln"),
+    (re.compile(r"\bnick\w*\b|\bnod\b"), "nicken"),
+    (re.compile(r"schn(ü|ue)ffel|\bsniff"), "schnueffeln"),
+    (re.compile(r"\bkratz|\bscratch"), "kratzen"),
+    (re.compile(r"\bgrab(en|\b)|\bbuddel|\bdig\b"), "graben"),
+    (re.compile(r"auskeil|\bkick back\b"), "kicken"),
+    (re.compile(r"\bspring\w*\b|\bh(ü|ue)pf\w*\b|^jump\b"), "springen"),
+    (re.compile(r"\bsei (ein )?tisch\b|\bwie ein tisch\b|\bbe a table\b"), "tisch"),
 )
 
 

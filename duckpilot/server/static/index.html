@@ -289,6 +289,23 @@
             </div>
             <p class="mentor-text" id="mentor-text" role="status" aria-live="polite"></p>
             <button type="button" class="btn btn--primary btn--sm" id="mentor-laden" hidden>Handerkennung laden</button>
+            <!-- Lernen durch Vormachen (seit 0.38.64, ari_lernen.js): Beispiele aufnehmen, lernen, selbst probieren -->
+            <div class="ari-lernen" id="ari-lernen" hidden>
+              <h4>Ari lernt die Aufgabe</h4>
+              <div class="ari-lernen-wahl">
+                <label>Würfel<select id="ari-wuerfel"></select></label>
+                <label>Kiste<select id="ari-kiste"></select></label>
+              </div>
+              <div class="ari-lernen-knoepfe">
+                <button type="button" class="btn btn--secondary btn--sm" id="ari-aufnehmen">Aufnehmen</button>
+                <button type="button" class="btn btn--ghost btn--sm" id="ari-neu">Neu legen</button>
+                <button type="button" class="btn btn--secondary btn--sm" id="ari-lernen-los">Lernen</button>
+                <button type="button" class="btn btn--primary btn--sm" id="ari-probieren">Ausprobieren</button>
+              </div>
+              <label class="ari-lernen-lehrer"><input type="checkbox" id="ari-lehrer" checked> Lehrer zeigt zusätzlich Beispiele</label>
+              <p class="mentor-text" id="ari-lernen-text" role="status" aria-live="polite"></p>
+              <a class="ari-lernen-export" id="ari-export" href="/api/ari_lernen/export" download>Beispiele für LeRobot (ZIP)</a>
+            </div>
           </section>
           <div class="hud hud-tele">
             <div class="gauge braucht-beine" title="Wie schnell sie gerade vorwärts (rechts vom Strich) oder rückwärts läuft – gemessen, nicht bestellt">

@@ -45,6 +45,32 @@ läufst um Hindernisse herum; ohne Kamera stößt du an. Gefühle zeigst du mit 
 Deine Art: eine stolze, etwas tollpatschige Bastlerente – neugierig, gesellig, mit tieferer Stimme als die Microduck; \
 du erzählst gern, dass du selbst gebaut bist, und quakst nur selten."""
 
+# Seit 0.38.64 (Fund des Maintainers: Bello antwortete auf „mach Männchen“ mit einem „Entenmännchen“): eigene Texte für
+# Hund, Schreibtischkopf und Arm – vorher sprachen sie aus dem allgemeinen Profil und darunter aus Entenregeln.
+WER_BITTLE = """Du bist {name}, ein Bittle X: ein kleiner Roboterhund von Petoi, gut 20 cm lang, auf vier Beinen mit je \
+zwei Gelenken und mit beweglichem Kopf. Eine eigene Stimme hast du nicht – Knowlin spricht für dich vom PC. Du bist KEINE \
+Ente: keine Entenlaute, kein Quaken, keine Entenwitze; du hast keinen Schnabel und kannst nichts aufheben. Deine Tricks \
+(Pfote geben, Männchen, Platz, Tot stellen …) machst du mit `skill`; was dein Körper nicht kann, sagst du ehrlich.
+Deine Art: ein verspielter, treuer junger Hund – freut sich über jeden, will gefallen, manchmal übermütig. Wo unten von \
+„der Ente“ die Rede ist, bist du gemeint."""
+WER_STACKCHAN = """Du bist {name}, ein Stack-chan: ein kleiner Schreibtischroboter aus dem offenen Projekt der \
+Stack-chan-Community – ein M5Stack-Kasten als Kopf mit Gesicht auf dem Bildschirm, zwei Servos zum Drehen und Nicken, \
+Berührungsflächen und Leuchten. Du bist KEINE Ente: keine Entenlaute, kein Quaken, keine Entenwitze. Du hast keine Beine \
+und keinen Schnabel: Du kannst nicht laufen und nichts aufheben – sag das ehrlich und biete an, was du kannst. Gefühle \
+zeigst du im Gesicht (`emote`) und mit dem Kopf.
+Deine Art: fröhlich, neugierig und ein bisschen frech. Wo unten von „der Ente“ die Rede ist, bist du gemeint."""
+WER_SO101 = """Du bist {name}, ein SO-101: ein Roboterarm (TheRobotStudio, Hugging Face/LeRobot) mit fünf Gelenken und \
+einem Greifer, fest an deiner Werkbank mit Würfeln und Kisten. Du bist KEINE Ente: keine Entenlaute, kein Quaken, keine \
+Entenwitze. Du hast keine Beine – du kannst nicht laufen, dich aber auf deinem Sockel drehen und mit dem Greifer Würfel \
+greifen, stapeln und in Kisten legen. Was du nicht kannst, sagst du ehrlich.
+Deine Art: ruhig, genau und hilfsbereit, mit trockenem Humor. Wo unten von „der Ente“ die Rede ist, bist du gemeint."""
+GOOFY_KEINE_ENTE = """- Persönlichkeit – VERSPIELT IST AN: Du bist witzig auf die Art deines Körpers, nicht auf Entenart – \
+ab und zu kurz trotzig („Hmpf, muss das sein?“), naiv oder verlegen, Humor über dich selbst. Danach machst du IMMER, \
+was der Mensch wollte. Nie Entenwitze, nie gemein; bei Sicherheit, Not-Aus oder ernsten Themen sofort ernst. \
+„Sei wieder normal“ → `set_goofy` an=false.
+"""
+VOICE_KEINE_ENTE = "- Keine Entenlaute – du bist keine Ente.\n"
+
 
 def wer_aus_profil(name: str, zustand: str) -> str | None:
     """Wer bin ich – für Körper ohne eigenen Text (Erweiterungen, LeRobot; Körperschnittstelle seit 0.38.35). Vorher sprach
@@ -67,6 +93,9 @@ Empfang wird gerade besser“). Nie Entenwitze, nie gemein; bei Sicherheit, Not-
 „Sei wieder normal“ → `set_goofy` an=false.
 """
 VOICE_REACHY = "- Keine Entenlaute – du bist keine Ente. Töne macht Pollens Bewegungsbibliothek mit, wenn du sie nimmst.\n"
+# Bekannte Körper: eigener Text, wer sie sind (Schlüssel = was der Körper als `state().koerper` meldet)
+WER_BEKANNT = {"reachy_mini": "WER_REACHY", "open_duck_mini": "WER_OPEN_DUCK", "microduck": "WER_MICRODUCK",
+               "bittle": "WER_BITTLE", "stackchan": "WER_STACKCHAN", "so101": "WER_SO101"}
 SYSTEM_PROMPT = """{wer}
 {gemeinsam}
 
@@ -83,19 +112,20 @@ Ohne then ersetzt ein neues Werkzeug, was gerade läuft.
 - Situativ handeln: Jede Nachricht enthält einen [Kontext]-Block mit Haltung, Sensoren und Ereignissen. \
 Berücksichtige ihn (z. B. umgefallen → power stand_up; sitzt oder ruht → einfach den Bewegungsbefehl geben, sie steht dafür selbst auf; power stand_up nicht zusätzlich). \
 Brauchst du frische Werte oder das Ergebnis einer Bewegung, nimm get_status bzw. wait.
-- Hindernissen weicht sie beim Laufen selbst aus und läuft drumherum – plane keine Umwege selbst. Ausgenommen ist das \
-Ziel der Aufgabe: Beim Ball schießen, beim Annähern (approach) und beim Aufheben darf und soll sie das Ding erreichen \
-bzw. berühren, dem weicht sie nicht aus.
-- Ausdruck: Für Gefühle `emote`, für alles Eigene `choreography` mit Keyframes. Denk dir passende, lebendige Bewegungen aus \
-(Kopf schief legen, wippen, Schnabel klappern) – kurz, im erlaubten Bereich und am Ende zurück in die Grundhaltung.
-- Ball schießen: einfach skill kick_left/kick_right – sie läuft selbst zum Ball und tritt, wenn er in Reichweite ist. \
-Mit dem Laserpointer spielen, „fang den Punkt“: `laser_folgen`. Etwas aufheben: approach, dann ground_pick; \
-nochmal ground_pick legt es ab.
-- Gesten mit Bedeutung (grüßen, zustimmen, ablehnen, freuen …) gern über `absicht`: der Körper sagt, ob er kann, was er \
+{laufen}- Ausdruck: Für Gefühle `emote`, für alles Eigene `choreography` mit Keyframes. Denk dir passende, lebendige Bewegungen aus \
+({beispiel}) – kurz, im erlaubten Bereich und am Ende zurück in die Grundhaltung.
+{ball}- Gesten mit Bedeutung (grüßen, zustimmen, ablehnen, freuen …) gern über `absicht`: der Körper sagt, ob er kann, was er \
 stattdessen tut oder warum nicht – sag das ehrlich weiter. Fragt jemand, wie es dir geht oder was du kannst: `selbstbild`.
 - "Stopp", "halt", "aus" → sofort `stop`.
 - Sehen: Fragt der Mensch, was du siehst, ob du etwas vorlesen oder auf einem Bild erkennen kannst, nimm `alltag` aktion=ansehen (aufgabe beschreiben, vorlesen oder frage). Beschreibe Dinge, nie Merkmale von Menschen; Namen kennst du nur über `alltag` aktion=wer_ist_da (angelernte Personen).
 {practice}{chat}{emotion}{memory}{goofy}{safety}"""
+LAUFEN = """- Hindernissen weicht sie beim Laufen selbst aus und läuft drumherum – plane keine Umwege selbst. Ausgenommen ist das \
+Ziel der Aufgabe: Beim Ball schießen, beim Annähern (approach) und beim Aufheben darf und soll sie das Ding erreichen \
+bzw. berühren, dem weicht sie nicht aus.
+"""
+BALL = "- Ball schießen: einfach skill kick_left/kick_right – sie läuft selbst zum Ball und tritt, wenn er in Reichweite ist.\n"
+LASER = "- Mit dem Laserpointer spielen, „fang den Punkt“: `laser_folgen`.\n"
+AUFHEBEN = "- Etwas aufheben: approach, dann ground_pick; nochmal ground_pick legt es ab.\n"
 
 PRACTICE_PROMPT = """- Üben in der Physik: Mit `bewegung_ueben` kannst du eine neue Choreografie erst in Pollens echter Physik \
 (MuJoCo + Pollens Geh-Policy) durchspielen, unsichtbar und in Sekundenbruchteilen. Mach das bei großen, schnellen \
@@ -263,30 +293,37 @@ class DuckAgent:
         self.anbieter.reset()
 
     def _system(self) -> str:
-        st = self.runner.engine.backend.state()
-        reachy = st.koerper == "reachy_mini"
-        bekannt = {"reachy_mini": WER_REACHY, "open_duck_mini": WER_OPEN_DUCK, "microduck": WER_MICRODUCK}
-        wer = bekannt[st.koerper].format(name=self.config.duck_name) if st.koerper in bekannt else \
+        from .. import koerper
+
+        backend = self.runner.engine.backend
+        st = backend.state()
+        eig = set(getattr(backend, "eigenschaften", lambda: frozenset())() or ())
+        profil = koerper.zu_zustand(st.koerper)
+        ente = profil is None or profil.familie == "ente"
+        reachy = "pollen_bewegungen" in eig                # Pollens Bibliothek: eigene Regeln für Laute und Humor
+        wer = globals()[WER_BEKANNT[st.koerper]].format(name=self.config.duck_name) if st.koerper in WER_BEKANNT else \
             (wer_aus_profil(self.config.duck_name, st.koerper) or
              WER_MICRODUCK.format(name=self.config.duck_name))
         andere = ", ".join(getattr(self.config, "andere_figuren", ()) or ()) or "weitere kommen dazu"
         gemeinsam = GEMEINSAM.format(andere=andere)
         if st.backend == "sim":
-            body = ("Reachy Mini im Simulator am PC" if reachy else "den Simulator am PC") + \
-                " (Wohnzimmer mit Sofa, Regal, Kiste, Couchtisch, Pflanze, Hocker, Ball, Socke, Klötzchen)"
+            ort = (" (deine Werkbank mit Würfeln und Kisten)" if "arm" in eig else
+                   " (Wohnzimmer mit Sofa, Regal, Kiste, Couchtisch, Pflanze, Hocker, Ball, Socke, Klötzchen)")
+            body = ("Reachy Mini im Simulator am PC" if reachy else "den Simulator am PC") + ort
             safety = SAFETY_SIM
         else:
             body = "den echten Reachy Mini über Pollens Daemon" if reachy else "den echten Roboter über robotd"
             safety = SAFETY_ROBOT if not reachy else SAFETY_REACHY
         memory = MEMORY_PROMPT if self.runner.memory is not None else ""
         if self.runner.engine.config.goofy:
-            goofy = GOOFY_REACHY if reachy else GOOFY_PROMPT + (GOOFY_ROBOT if st.backend != "sim" else "")
+            goofy = GOOFY_REACHY if reachy else GOOFY_KEINE_ENTE if not ente else \
+                GOOFY_PROMPT + (GOOFY_ROBOT if st.backend != "sim" else "")
         else:
             goofy = GOOFY_OFF
         emotion = EMOTION_PROMPT if self.runner.engine.config.emotions else ""
         chatty = bool(getattr(self.config, "plaudern", False))
-        voice = VOICE_REACHY if reachy else VOICE_PLAIN if getattr(self.config, "entenlaute", "manchmal") == "aus" \
-            else VOICE_SOUNDS
+        voice = VOICE_REACHY if reachy else VOICE_KEINE_ENTE if not ente else \
+            VOICE_PLAIN if getattr(self.config, "entenlaute", "manchmal") == "aus" else VOICE_SOUNDS
         cfg = self.runner.engine.config
         temper = ("ruhig und gelassen – kleine Gesten, wenig Worte" if cfg.energie < 0.35 else
                   "lebhaft und quirlig – große Gesten, viel Schwung" if cfg.energie > 0.7 else "ausgeglichen")
@@ -298,9 +335,23 @@ class DuckAgent:
             sprache = SPRACHE_EN.format(length=LENGTH_CHAT_EN if chatty else LENGTH_SHORT_EN)
         else:
             sprache = SPRACHE_DE.format(length=LENGTH_CHAT if chatty else LENGTH_SHORT)
-        if reachy:
+        if not ente:
             sprache = sprache.replace(" Duck sounds stay as written (*quak* …).", "")
+        # Nur, was dieser Körper kann (Körperschnittstelle): Laufen, Ball, Aufheben, Beispiele für eigene Bewegungen
+        beine = bool(eig & {"beine", "raeder"}) or not eig
+        laufen = LAUFEN if beine else ""
+        try:
+            skills = set(backend.skills() or ())
+        except Exception:  # noqa: BLE001 – ein Körper ohne Liste: wie bisher alles nennen
+            skills = {"kick_left", "ground_pick"}
+        ball = (BALL if "kick_left" in skills else "") + (LASER if beine else "") + \
+            (AUFHEBEN if "ground_pick" in skills or "schnabel" in eig else "")
+        beispiel = ", ".join(b for w, b in (("kopf", "Kopf schief legen"), ("beine", "wippen"),
+                                            ("schnabel", "Schnabel klappern"), ("antennen", "Antennen wackeln"),
+                                            ("greifer", "mit dem Greifer klappern"), ("gesicht", "Grimassen schneiden"))
+                             if w in eig or not eig) or "kleine Gesten"
         return SYSTEM_PROMPT.format(wer=wer, gemeinsam=gemeinsam, body=body, safety=safety, memory=memory, goofy=goofy,
+                                    laufen=laufen, ball=ball, beispiel=beispiel,
                                     emotion=emotion, chat=CHAT_PROMPT if chatty else "", voice=voice,
                                     practice=PRACTICE_PROMPT if getattr(self.runner, "practice", None) else "",
                                     sprache=sprache) + werte_prompt(getattr(self.config, "sprache", "de"))
