@@ -7,6 +7,7 @@ import { loadModel, RealDuck } from './duckmodel.js';
 import { studio } from './licht3d.js';
 import { loadReachy, RealReachy } from './reachymodell.js';
 import { StackChan } from './stackchan3d.js';
+import { Bittle } from './bittle3d.js';
 
 const GRAD = Math.PI / 180;
 // Arm in der Haltung „staunen“ (duckpilot/arm.py): aufgerichtet, Greifer offen, Reihenfolge wie arm.GELENKE
@@ -20,6 +21,7 @@ const KOERPER = {
   'open-duck-mini': { bau: async () => new RealDuck(await loadModel('/static/model/open_duck_mini.dpm')), von: 0.42, dreh: 25 },
   so101: { bau: async () => new RealArm(await ladeArm()), von: 0.25, dreh: 70, gelenke: ARM_STAUNEN },
   stackchan: { bau: async () => new StackChan(), von: 0, dreh: 25, gesicht: { ausdruck: 'froh', wach: true } },
+  bittle: { bau: async () => new Bittle(), von: 0, dreh: 35 },
 };
 
 export const RENDERBAR = Object.keys(KOERPER);

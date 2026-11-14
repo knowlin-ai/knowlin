@@ -192,7 +192,7 @@ section { padding-block: clamp(72px, 10vw, 136px); }
 /* Handy: alle Körper nebeneinander – Schrift wächst mit der Breite, Namen bleiben im Rahmen (Fund 12.11.: „Microduck“
    ragte über den Rand, „Open Duck Mini“ brach dreizeilig um) */
 @media (max-width: 560px) {
-  /* seit 0.38.58 fünf Körper: zwei Reihen (drei und zwei), sonst ragt „Microduck“ über den Rand */
+  /* seit 0.38.58 mehr als vier Körper: zwei Reihen zu je drei, sonst ragt „Microduck“ über den Rand */
   .anker-reihe { gap: 6px; flex-wrap: wrap; }
   .anker { flex: 1 1 calc((100% - 12px) / 3); }
   .anker { min-height: 48px; padding: 8px 6px; justify-items: center; align-content: center; text-align: center;
@@ -487,6 +487,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <button type="button" class="anker" id="anker-odi" data-anker="odi" aria-pressed="false">Open Duck Mini<small><span class="t" lang="de">watschelt</span><span class="t" lang="en">waddles</span></small></button>
         <button type="button" class="anker" id="anker-ari" data-anker="ari" aria-pressed="false">SO-101<small><span class="t" lang="de">greift und räumt</span><span class="t" lang="en">grabs and tidies</span></small></button>
         <button type="button" class="anker" id="anker-stackchan" data-anker="stackchan" aria-pressed="false">Stack-chan<small><span class="t" lang="de">schaut und lächelt</span><span class="t" lang="en">looks and smiles</span></small></button>
+        <button type="button" class="anker" id="anker-bittle" data-anker="bittle" aria-pressed="false">Bittle X<small><span class="t" lang="de">trabt und sitzt</span><span class="t" lang="en">trots and sits</span></small></button>
       </div>
     </div>
   </section>
@@ -494,7 +495,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
     <div class="fenster">
         <div class="titel" aria-hidden="true"><i></i><i></i><i></i></div>
         <img data-bild="start" src="bilder/start-de-1600.webp" srcset="bilder/start-de-900.webp 900w, bilder/start-de-1600.webp 1600w" sizes="(max-width: 1120px) 100vw, 1080px" width="1600" height="965"
-             alt="Knowlins Startseite: links das Netz seiner Gedanken, daneben das Gespräch, darunter die fünf Verkörperungen zum Aufwecken und der Mentor" data-alt-en="Knowlin's start page: its network of thoughts on the left, the conversation next to it, the five embodiments below, ready to wake, and the Mentor">
+             alt="Knowlins Startseite: links das Netz seiner Gedanken, daneben das Gespräch, darunter die sechs Verkörperungen zum Aufwecken und der Mentor" data-alt-en="Knowlin's start page: its network of thoughts on the left, the conversation next to it, the six embodiments below, ready to wake, and the Mentor">
       </div>
     <p class="unterschrift">
       <span class="t" lang="de">Knowlin selbst – ganz ohne Roboter: Gespräch, Gedächtnis und Alltag am PC. Von hier aus weckst du eine Verkörperung.</span>
@@ -535,7 +536,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
   <section id="koerper">
     <div class="huelle">
       <div class="kopfzeile">
-        <h2><span class="t" lang="de">Fünf Körper, ein Kopf.</span><span class="t" lang="en">Five bodies, one mind.</span></h2>
+        <h2><span class="t" lang="de">Sechs Körper, ein Kopf.</span><span class="t" lang="en">Six bodies, one mind.</span></h2>
         <p class="leit">
           <span class="t" lang="de">Jede Verkörperung hat ihren eigenen Namen, ihre Stimme und kann nur, was ihr Körper kann. Was einer erlebt, wissen alle.</span>
           <span class="t" lang="en">Each embodiment has its own name and voice, and only does what its body can do. What one of them experiences, all of them know.</span>
@@ -548,6 +549,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <button type="button" role="tab" id="tab-odi" aria-selected="false" aria-controls="koerper-buehne" data-koerper="odi" tabindex="-1">Open Duck Mini</button>
         <button type="button" role="tab" id="tab-ari" aria-selected="false" aria-controls="koerper-buehne" data-koerper="ari" tabindex="-1">SO-101</button>
         <button type="button" role="tab" id="tab-stackchan" aria-selected="false" aria-controls="koerper-buehne" data-koerper="stackchan" tabindex="-1">Stack-chan</button>
+        <button type="button" role="tab" id="tab-bittle" aria-selected="false" aria-controls="koerper-buehne" data-koerper="bittle" tabindex="-1">Bittle X</button>
       </div>
       <div class="buehne" id="koerper-buehne" role="tabpanel" aria-labelledby="tab-microduck">
         <div class="buehne-bild">
@@ -844,6 +846,15 @@ profil = Koerper(
         zeilen: [['Simulator', 'ja', 'on the coffee table'], ['Real robot', 'bald', 'planned'], ['Senses', null, 'camera, microphones, speaker']],
         alt: 'Stack-chan in the simulator on the coffee table with a happy face, with the conversation next to it' },
     },
+    bittle: {
+      bild: 'bittle',
+      de: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'Ein kleiner Roboterhund mit vier Beinen und neun Gelenken. Trabt durchs Zimmer, setzt sich auf „Sitz!“ und schaut sich um. Sprechen kann er nicht – Knowlin spricht für ihn.',
+        zeilen: [['Simulator', 'ja', 'im Wohnzimmer'], ['Echter Roboter', 'bald', 'geplant (Petois serielles Protokoll)'], ['Sinne', null, 'Lagesensor, Mikrofon für Sprachbefehle']],
+        alt: 'Bittle X im Simulator im Wohnzimmer, daneben das Gespräch' },
+      en: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'A small robot dog with four legs and nine joints. Trots around the room, sits on “Sit!” and looks around. It can’t speak – Knowlin speaks for it.',
+        zeilen: [['Simulator', 'ja', 'in the living room'], ['Real robot', 'bald', 'planned (Petoi’s serial protocol)'], ['Senses', null, 'motion sensor, microphone for voice commands']],
+        alt: 'Bittle X in the simulator in the living room, with the conversation next to it' },
+    },
   };
 
   const quelle = (name, w) => `bilder/${name}-${sprache()}-${w}.webp`;
@@ -866,6 +877,8 @@ profil = Koerper(
       ['LeRobot', 'LeRobot', 'https://github.com/huggingface/lerobot']],
     stackchan: [['Projekt auf GitHub', 'Project on GitHub', 'https://github.com/stack-chan/stack-chan'],
       ['Bausatz von M5Stack', 'Kit by M5Stack', 'https://docs.m5stack.com/en/products/sku/K151']],
+    bittle: [['Herstellerseite', 'Manufacturer page', 'https://www.petoi.com/pages/bittle-open-source-bionic-robot-dog'],
+      ['OpenCat auf GitHub', 'OpenCat on GitHub', 'https://github.com/PetoiCamp/OpenCat']],
   };
   const RAUS = '<svg class="raus" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9"/></svg>';
 
@@ -873,7 +886,7 @@ profil = Koerper(
   // Bildnachweis unter der Bühne (seit 0.38.40): Pollens Modelle mit Lizenz, Odi mit seinem offenen Modell
   const NACHWEIS = {
     microduck: ['Microduck', true], reachy: ['Reachy Mini', true], odi: ['Open Duck Mini v2', false], ari: ['SO-101', false],
-    stackchan: ['Stack-chan', false],
+    stackchan: ['Stack-chan', false], bittle: ['Bittle X', false],
   };
   function nachweisSetzen() {
     const [modell, pollen] = NACHWEIS[aktiv];
@@ -881,9 +894,10 @@ profil = Koerper(
     const el = document.getElementById('buehne-nachweis');
     el.replaceChildren();
     el.dataset.nachweis = pollen ? 'pollen' : 'offen';
-    if (aktiv === 'stackchan') {                 // gezeichnet von Knowlin, ohne Dateien des Projekts (seit 0.38.58)
-      el.textContent = en ? 'Image: Knowlin with Stack-chan, drawn by Knowlin after photos of the open project (Apache-2.0).'
-        : 'Bild: Knowlin mit Stack-chan, von Knowlin gezeichnet nach Fotos des offenen Projekts (Apache-2.0).';
+    const GEZEICHNET = { stackchan: 'Apache-2.0', bittle: 'MIT' };   // von Knowlin gezeichnet, ohne Projektdateien
+    if (GEZEICHNET[aktiv]) {
+      el.textContent = en ? `Image: Knowlin with ${modell}, drawn by Knowlin after photos of the open project (${GEZEICHNET[aktiv]}).`
+        : `Bild: Knowlin mit ${modell}, von Knowlin gezeichnet nach Fotos des offenen Projekts (${GEZEICHNET[aktiv]}).`;
       return;
     }
     if (!pollen) {
@@ -1008,7 +1022,7 @@ profil = Koerper(
     const ctx = cv.getContext('2d');
     const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
     const fein = matchMedia('(hover: hover) and (pointer: fine)');
-    const KOERPER = ['microduck', 'reachy', 'odi', 'ari', 'stackchan'];
+    const KOERPER = ['microduck', 'reachy', 'odi', 'ari', 'stackchan', 'bittle'];
     const SCHRITT = 72;                         // ms, bis ein Signal ein Neuron weiter ist
     let w = 0, h = 0, dpr = 1, schmal = null;
     let knoten = [], kanten = [], nachbarn = [], mitte = { x: 0, y: 0, r: 1 }, chips = [];

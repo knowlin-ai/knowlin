@@ -329,7 +329,7 @@
           <div class="view-tools">
             <div class="stage-mode" role="radiogroup" aria-label="Blickwinkel">
               <label title="Kamera kreist um die Verkörperung"><input type="radio" name="stage-mode" value="beobachten" checked><span>Beobachten</span></label>
-              <label title="Durch die Augen der Verkörperung – ziehen zum Umschauen"><input type="radio" name="stage-mode" value="entenblick"><span class="nur-ente">Entenblick</span><span class="nur-reachy">Reachys Blick</span><span class="nur-so101">Greiferblick</span><span class="nur-stackchan">Stackis Blick</span></label>
+              <label title="Durch die Augen der Verkörperung – ziehen zum Umschauen"><input type="radio" name="stage-mode" value="entenblick"><span class="nur-ente">Entenblick</span><span class="nur-reachy">Reachys Blick</span><span class="nur-so101">Greiferblick</span><span class="nur-stackchan">Stackis Blick</span><span class="nur-bittle">Bellos Blick</span></label>
             </div>
             <button class="view-menu-btn stab-btn braucht-beine" id="stab-btn" type="button" aria-pressed="false"
               title="Kopf-Stabilisator: der Kopf gleicht Wackeln und Drehen des Körpers aus – wie bei einem Huhn">
@@ -440,6 +440,7 @@
               <p class="nur-reachy">Sprich mit Reachy – er hört zu, denkt nach und antwortet mit Kopf und Antennen.</p>
               <p class="nur-so101">Sprich mit Ari – er hört zu, denkt nach und antwortet mit seinem Arm.</p>
               <p class="nur-stackchan">Sprich mit Stacki – er hört zu, denkt nach und antwortet mit Kopf und Gesicht.</p>
+              <p class="nur-bittle">Sag Bello, was er tun soll – Knowlin spricht für ihn.</p>
               <ul>
                 <li class="nur-microduck">Lauf zum Ball und schieß ihn.</li>
                 <li class="nur-reachy">Dreh dich zum Ball und wackel mit den Antennen.</li>
@@ -453,6 +454,9 @@
                 <li class="nur-stackchan">Zeig mir, wie du dich freust.</li>
                 <li class="nur-stackchan">Schau dich mal um und erzähl, was du siehst.</li>
                 <li class="nur-stackchan">Erzähl mir einen Witz.</li>
+                <li class="nur-bittle">Lauf zum Ball.</li>
+                <li class="nur-bittle">Sitz!</li>
+                <li class="nur-bittle">Dreh dich einmal im Kreis.</li>
                 <li class="nur-ente">Zeig mir, wie du lachst.</li>
                 <li class="braucht-beine">Das hier ist die Küche.</li>
               </ul>
@@ -1034,13 +1038,14 @@
                   <label><input type="radio" name="modul" value="open_duck_mini" data-set="modul"><span>Open Duck Mini</span></label>
                   <label><input type="radio" name="modul" value="so101" data-set="modul"><span>SO-101</span></label>
                   <label><input type="radio" name="modul" value="stackchan" data-set="modul"><span>Stack-chan</span></label>
+                  <label><input type="radio" name="modul" value="bittle" data-set="modul"><span>Bittle X</span></label>
                 </div>
               </div>
               <div class="field">
                 <span class="field-label">Was gesteuert wird</span>
                 <div class="seg" role="radiogroup" aria-label="Körper">
                   <label><input type="radio" name="backend" value="sim" data-set="backend"><span>Simulator</span></label>
-                  <label class="ohne-open-duck ohne-stackchan"><input type="radio" name="backend" value="robotd" data-set="backend"><span>Echter Roboter</span></label>
+                  <label class="ohne-open-duck ohne-stackchan ohne-bittle"><input type="radio" name="backend" value="robotd" data-set="backend"><span>Echter Roboter</span></label>
                 </div>
                 <p class="field-help nur-open-duck">Die Open Duck läuft hier im Simulator. Die Anbindung an eine selbst gebaute Open Duck
                   (Runtime auf dem Raspberry Pi) ist geplant – Hilfe willkommen.</p>

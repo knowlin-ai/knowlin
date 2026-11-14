@@ -26,7 +26,7 @@ Bewegung motion/engine.py (20 Hz, Sicherheit, Warteschlange)  motion/behaviors.p
 Körper   backends/sim.py (einfach)  backends/physics.py (MuJoCo + Pollens Policies)  backends/robotd.py (echt)
          backends/reachy*.py (Reachy Mini: Simulator, Pollens Daemon)  backends/open_duck.py (Open Duck Mini v2)
          backends/begleiter.py (weitere Enten im Simulator)  backends/lerobot.py (LeRobot-Roboter, seit 0.38.35)
-         backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/stackchan.py (Stack-chan im Simulator, seit 0.38.58)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
+         backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/stackchan.py (Stack-chan im Simulator, seit 0.38.58)  backends/bittle.py (Bittle X, seit 0.38.59)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
          arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)  arm_huelle.py (Fühlpunkte auf Greifer und Backe, erzeugt von tools/arm_huelle_erzeugen.py – Basis, seit 0.38.55)  mentor.py (Vormachen: Handpunkte → Ziel der Greiferspitze – Basis, seit 0.38.57)
          backends/werkbank.py (Werkbank des SO-101: Würfel, Kisten, Greifen und Ablegen, seit 0.38.48)
          werkbank_auftrag.py (Aufträge als Daten: Regeln, Prüfung, eigene merken – Basis, seit 0.38.54)
@@ -245,6 +245,10 @@ Wechsel des #-Teils lädt die Seite nicht); die 3D-Ansicht wird angehalten, weil
   (Tischroboter auf dem Couchtisch), gezeichnet in `static/stackchan3d.js` ohne Dateien des Projekts. Neues Wort
   `gesicht`: `state().gesicht` {ausdruck, mund, wach, zustand}; das Werkzeug `emote` ruft dazu `gefuehl_zeigen` am
   Körper auf, wenn es die Methode gibt. Echter Stack-chan noch nicht angebunden.
+- **Bittle X** (seit 0.38.59): Petois Roboterhund (OpenCat, MIT) – vier Beine, Kopf dreht nur seitlich (±70°), Mikrofon,
+  keine eigene Stimme (Knowlin spricht für ihn), kein Schnabel, kein Tiefensensor. Simulator `backends/bittle.py` (erbt
+  den einfachen Simulator: laufen, drehen, sitzen, fallen, aufstehen), gezeichnet in `static/bittle3d.js` (Trab aus
+  `gait_phase`, Sitzen, stromlos liegend). Echter Bittle später über Petois serielles Protokoll.
 - **Werkbank** (seit 0.38.48): Der SO-101 steht immer an seiner eigenen Werkbank (Box „Werkbank“ in seiner Welt),
   davor drei Würfel und zwei offene Kisten im Sockelrahmen. `greifen`/`ablegen` rechnen mit `arm_kinematik.greifhaltung`
   (von oben, gedämpfte kleinste Quadrate); außer Reichweite → ehrliches Nein. Geht der Greifer auf oder kommt der

@@ -221,6 +221,25 @@ def szene_stackchan(page, base, sprache):
     page.wait_for_timeout(500)
 
 
+def szene_bittle(page, base, sprache):
+    """Bittle X (seit 0.38.59): Bello trabt ein Stück durchs Wohnzimmer – mitten im Schritt angehalten, nah herangeholt."""
+    satz = "Bello, lauf ein Stück vorwärts" if sprache == "de" else "Bello, walk forward a bit"
+    _koerper(page, base, "bittle", sprache, satz)
+    try:
+        page.wait_for_function("() => { const t = (window.duckpilot.state || {}).twist || {}; return Math.hypot(t.vx || 0,"
+                               " t.vy || 0) > 0.01; }", timeout=30000)
+    except Exception:  # noqa: BLE001
+        senden = "([n, a]) => window.duckpilot.send({type: 'tool', name: n, args: a})"
+        page.evaluate(senden, ["move", {"vx": 0.15, "seconds": 3}])
+        page.wait_for_timeout(1200)
+    page.evaluate("""() => { const s = window.duckpilot.scene; s.follow = false; if (s.intro) s.intro.done = true;
+        const r = s.duck.root.position;
+        s.camera.position.set(r.x + 0.22, 0.2, r.z + 0.34); s.controls.target.set(r.x + 0.02, 0.06, r.z); s.controls.update();
+        for (let i = 0; i < 4; i++) s._frame(); s.paused = true;
+        document.getElementById('ticker').replaceChildren(); }""")
+    page.wait_for_timeout(500)
+
+
 def szene_werte(page, base, sprache):
     """Knowlins Kopf (seit 0.38.42–0.38.45): Werte und Grenzen, darunter die Gedankenspur."""
     A.einstellen(page, {"modul": "so101", "backend": "sim", "sim_physik": False, "sprache": sprache})
@@ -328,7 +347,7 @@ def szene_training(page, base, sprache):
 
 
 SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi, "ari": szene_ari,
-          "stackchan": szene_stackchan,
+          "stackchan": szene_stackchan, "bittle": szene_bittle,
           "werte": szene_werte,
           "synapsen": szene_synapsen, "charakter": szene_charakter, "tanz": szene_tanz, "team": szene_team,
           "akrobatik": szene_akrobatik, "training": szene_training}

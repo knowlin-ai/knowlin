@@ -9,8 +9,8 @@ geändert hat im [CHANGELOG](../CHANGELOG.md).
 Die Module der Suite **Knowlin** – „ein Kopf, viele Körper“ – tragen Codenamen nach ihrer Bauart: **duckpilot** für
 die laufenden Enten (Microduck, Open Duck Mini), **deskpilot** für stationäre Roboter auf dem Tisch (Reachy Mini; seit
 0.38.10 so genannt), **so101** für den Greifarm SO-101 an seiner Werkbank (seit 0.38.47), **stackchan** für den Schreibtisch-Roboter
-Stack-chan (seit 0.38.58). Beim Start erscheint die Startseite: eine Kachel je Modul (Microduck, seit 0.38.1 Reachy Mini,
-seit 0.38.4 Open Duck Mini, seit 0.38.51 SO-101, seit 0.38.58 Stack-chan;
+Stack-chan (seit 0.38.58), **bittle** für den Roboterhund Bittle X (seit 0.38.59). Beim Start erscheint die Startseite: eine Kachel je Modul (Microduck, seit 0.38.1 Reachy Mini,
+seit 0.38.4 Open Duck Mini, seit 0.38.51 SO-101, seit 0.38.58 Stack-chan, seit 0.38.59 Bittle X;
 Knowlin Lab und „Mentor“ sind schon als „geplant“ zu sehen) und darunter, was für jeden Körper gilt – Charakter, Gedächtnis, Umgebung, Alltag,
 Einstellungen. Das Knowlin-Zeichen oben links führt jederzeit zurück.
 
@@ -26,7 +26,7 @@ Einstellungen. Das Knowlin-Zeichen oben links führt jederzeit zurück.
 ### Verkörperungen (seit 0.38.3)
 
 Knowlin ist die übergeordnete Anwendung. Jeder Körper hat seine eigene **Verkörperung** – Quacki die Microduck, Reachy den
-Reachy Mini, Odi die Open Duck Mini, Ari den Greifarm SO-101, Stacki den Stack-chan – mit eigenem Namen, Aussehen, eigener Stimme, Sprechweise, Verhalten und eigenen
+Reachy Mini, Odi die Open Duck Mini, Ari den Greifarm SO-101, Stacki den Stack-chan, Bello den Bittle X – mit eigenem Namen, Aussehen, eigener Stimme, Sprechweise, Verhalten und eigenen
 Tricks. Den **Charakter** wählst du seit 0.38.10 übergeordnet bei Knowlin (Einstellungen → Knowlin: seit 0.38.11 ein
 Feld mit Quadranten ruhig–lebhaft und seriös–verspielt, die Verkörperungen als Punkte darum herum; dazu Gefühle zeigen); jede Verkörperung ist eine leichte Ausprägung darum herum und hat dazu die
 **Eigenschaften ihrer Gestalt** (Charakter → Persönlichkeit), z. B. Schnabelklappern bei der Microduck oder
@@ -121,6 +121,20 @@ Verkörperung heißt **Stacki** – quirlig, mit heller Stimme. Öffnen über di
   blinzelt ab und zu. Schnellbefehle: Aufwachen, Schlafen, Hallo sagen, Freuen, Umschauen, Mitwippen.
 - **Not-Aus:** wie bei jedem Körper sofort stromlos – der Kopf sinkt, die Augen gehen zu.
 - **Echter Stack-chan:** noch nicht angebunden. Gezeichnet ist er nach Fotos, ohne Dateien des Projekts.
+
+### Bittle X (seit 0.38.59)
+
+Petois offener Roboterhund (Software OpenCat, MIT-Lizenz): etwa 19 cm lang, neun Gelenke – je Bein Schulter und Knie,
+dazu der Hals. Seine Verkörperung heißt **Bello** – verspielt wie ein junger Hund. Öffnen über die Kachel „Bittle X“.
+
+- **Im Simulator:** Bello läuft im Trab, dreht sich, setzt sich auf „Sitz!“ und schaut sich um (der Kopf dreht nur
+  seitlich, bis ±70°). Ein harter Stoß wirft ihn um; er steht wie jeder Körper erst nach dem Stopp-Fenster und nie
+  hochgehoben wieder auf.
+- **Ohne Schnabel und eigene Stimme:** Aufheben, Purzelbaum, Entenlaute und Erkunden mit Tiefensensor gibt es nicht.
+  Knowlin spricht für ihn – mit seiner eigenen Stimme vom PC.
+- **Not-Aus:** sofort stromlos, Bello legt sich flach hin.
+- **Echter Bittle X:** noch nicht angebunden; geplant über Petois serielles Protokoll (USB oder Bluetooth). Gezeichnet
+  ist er nach Fotos, ohne Dateien von Petoi. Den Greifarm des Bittle X gibt es noch nicht.
 
 ### Weitere Körper: LeRobot und dein eigener Roboter (seit 0.38.35)
 

@@ -9,6 +9,21 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## Unveröffentlicht
+
+### Neu
+- **Bittle X als sechster Körper** (Maintainer: „Ok mach“ – nach Stack-chan der Roboterhund von Petoi): im Simulator
+  mit Trab, Drehen, Sitzen, Umfallen und Aufstehen nach den üblichen Regeln; der Kopf dreht seitlich. Verkörperung
+  **Bello**, verspielt („Goofy“); keine eigene Stimme, Knowlin spricht für ihn. Eigene Kachel mit Porträt, Verknüpfung
+  „Knowlin - Bittle X“. Gezeichnet nach Fotos, ohne Dateien von Petoi.
+
+### Sicherheit
+- Bittle X erfüllt die Pflichten der Körperschnittstelle (`python -m duckpilot.koerper_pruefung bittle`): Not-Aus
+  stromlos, Stopp hält an, stromlos bewegt sich nichts, Fortbewegung und Kopf in den Grenzen.
+
+### Nicht geprüft
+- Echter Bittle X: noch nicht angebunden, nur Simulator. Den Greifarm gibt es noch nicht.
+
 ## 0.38.58 – 2026-11-14 – Stack-chan als fünfter Körper
 
 ### Neu

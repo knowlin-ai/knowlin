@@ -90,6 +90,13 @@ def baue_stackchan(cfg):
     return StackChanSim()
 
 
+def baue_bittle(cfg):
+    """Bittle X (seit 0.38.59): Petois Roboterhund – vorerst nur im Simulator."""
+    from .bittle import BittleSim
+
+    return BittleSim()
+
+
 def physics_problem() -> str:
     """Leer, wenn der Physik-Simulator starten kann; sonst der Grund."""
     import importlib.util

@@ -14,6 +14,7 @@ export const KOERPER = {
   open_duck_mini: { klasse: 'open-duck', name: 'Open Duck Mini v2', ente: true },
   so101: { klasse: 'so101', name: 'SO-101', ente: false },             // Arm (seit 0.38.47, G5)
   stackchan: { klasse: 'stackchan', name: 'Stack-chan', ente: false },  // Kopf mit Gesicht (seit 0.38.58)
+  bittle: { klasse: 'bittle', name: 'Bittle X', ente: false },          // Roboterhund (seit 0.38.59)
 };
 const OHNE = ['beine', 'tiefensensor', 'schnabel', 'antennen', 'kamera', 'kopf', 'arm'];
 // Unterseiten, die es nur bei der Microduck gibt (Pollens Policies, Hub-Tricks, weitere Microducks)

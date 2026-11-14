@@ -176,6 +176,11 @@ EINGEBAUT: tuple[Koerper, ...] = (
             frozenset({"kopf", "gesicht", "kamera", "mikrofon", "lautsprecher"}),
             "duckpilot.backends:baue_stackchan", quelle="https://github.com/stack-chan/stack-chan", lizenz="Apache-2.0",
             eingebaut=True),
+    # Bittle X (seit 0.38.59): Petois offener Roboterhund (OpenCat, MIT) – vier Beine, Kopf dreht seitlich, Mikrofon für
+    # Sprachbefehle, keine eigene Stimme. Erst einmal nur im Simulator; echt später über Petois serielles Protokoll.
+    Koerper("bittle", "Bittle X", "Petoi", "vierbeiner", frozenset({"beine", "kopf", "mikrofon"}),
+            "duckpilot.backends:baue_bittle", skills=("sit_toggle",), quelle="https://github.com/PetoiCamp/OpenCat",
+            lizenz="MIT", eingebaut=True),
     Koerper("lerobot", "LeRobot-Roboter", "Hugging Face LeRobot (SO-101, LeKiwi, Koch …)", "arm",
             frozenset({"arm", "greifer", "raeder", "kamera"}),
             "duckpilot.backends.lerobot:baue_lerobot", zustand="lerobot",

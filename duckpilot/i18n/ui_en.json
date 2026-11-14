@@ -3497,5 +3497,13 @@
  "Erzähl mir einen Witz.": "Tell me a joke.",
  "offener Schreibtisch-Roboter (Community, M5Stack)": "open desktop robot (community, M5Stack)",
  "Ein Kopf mit Gesicht: dreht und nickt, zeigt Gefühle mit Augen und Mund und spricht – im Simulator; echter Stack-chan geplant.": "A head with a face: turns and nods, shows feelings with eyes and mouth, and talks – in the simulator; real Stack-chan planned.",
- "Stack-chan": "Stack-chan"
+ "Stack-chan": "Stack-chan",
+ "Bellos Blick": "Bello's view",
+ "Sag Bello, was er tun soll – Knowlin spricht für ihn.": "Tell Bello what to do – Knowlin speaks for him.",
+ "Lauf zum Ball.": "Walk to the ball.",
+ "Sitz!": "Sit!",
+ "Dreh dich einmal im Kreis.": "Turn around once.",
+ "Bittle X": "Bittle X",
+ "offener Roboterhund (Petoi, OpenCat)": "open robot dog (Petoi, OpenCat)",
+ "Ein Hund auf vier Beinen: läuft, dreht sich, sitzt und schaut sich um – im Simulator; echter Bittle über Petois serielles Protokoll geplant.": "A dog on four legs: walks, turns, sits and looks around – in the simulator; real Bittle via Petoi's serial protocol planned."
 }

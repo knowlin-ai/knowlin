@@ -16,7 +16,7 @@ from typing import Any
 
 FIGUREN_BILDER = Path(__file__).resolve().parent / "server" / "static" / "figuren"
 BILD_DATEI = {"duckpilot": "microduck.png", "reachy-mini": "reachy-mini.png", "open-duck-mini": "open-duck-mini.png",
-              "so101": "so101.png", "stackchan": "stackchan.png"}
+              "so101": "so101.png", "stackchan": "stackchan.png", "bittle": "bittle.png"}
 
 
 def eigenes_portraet(kid: str) -> Path:
@@ -51,6 +51,10 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
     ("stackchan", "Stack-chan", "offener Schreibtisch-Roboter (Community, M5Stack)", "fertig", "",
      "Ein Kopf mit Gesicht: dreht und nickt, zeigt Gefühle mit Augen und Mund und spricht – im Simulator; echter "
      "Stack-chan geplant."),
+    # seit 0.38.59: Bittle X, ein Roboterhund (Maintainer: „Ok mach“ – erst StackChan, dann Bittle X)
+    ("bittle", "Bittle X", "offener Roboterhund (Petoi, OpenCat)", "fertig", "",
+     "Ein Hund auf vier Beinen: läuft, dreht sich, sitzt und schaut sich um – im Simulator; echter Bittle über Petois "
+     "serielles Protokoll geplant."),
     ("knowlets", "Knowlets", "Verkörperungen, Tricks und Tänze teilen", "fertig", "",
      "Charakter, Tricks und Tänze als Paket speichern, auf Hugging Face teilen und laden – nur Daten, nie Personen."),
     ("lab", "Knowlin Lab", "Trainingshalle für Module, die Bewegung lernen", "geplant", "Januar",
@@ -72,14 +76,14 @@ KERN: tuple[tuple[str, str, str], ...] = (
 # Jeder Körper hat seine Verkörperung (seit 0.38.3): Name des Körpers auf der Kachel, und ob es überhaupt ein Körper ist
 # (Lab und „Eigenes Modul“ sind Werkzeuge, keine Körper)
 KOERPER_NAME = {"duckpilot": "Microduck", "reachy-mini": "Reachy Mini", "open-duck-mini": "Open Duck Mini v2",
-                "so101": "SO-101", "stackchan": "Stack-chan", "mentor": "Mentor"}
+                "so101": "SO-101", "stackchan": "Stack-chan", "bittle": "Bittle X", "mentor": "Mentor"}
 
 # Werkzeug-Kacheln, die eine Seite in Knowlin öffnen (seit 0.38.5)
 ANSICHT = {"knowlets": "knowlets"}
 
 # Modul-Kachel → Einstellung `modul` (welcher Körper dranhängt); seit 0.38.1 auch Reachy Mini
 KOERPER_MODUL = {"duckpilot": "duckpilot", "reachy-mini": "reachy_mini", "open-duck-mini": "open_duck_mini",
-                 "so101": "so101", "stackchan": "stackchan"}
+                 "so101": "so101", "stackchan": "stackchan", "bittle": "bittle"}
 
 
 def module(koerper: str = "", aktiv: str = "duckpilot") -> list[dict[str, Any]]:

@@ -201,7 +201,8 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
         oeffnen(page, base)                                     # einstellen() braucht die eigene Herkunft
     for sprache in ("de", "en"):
         for modul, name in (("duckpilot", "Microduck"), ("reachy_mini", "Reachy Mini"), ("open_duck_mini", "Open Duck"),
-                            ("so101", "SO-101"), ("stackchan", "Stack-chan")):   # Arm seit 0.38.47, Stack-chan 0.38.58
+                            ("so101", "SO-101"), ("stackchan", "Stack-chan"),
+                            ("bittle", "Bittle X")):   # Arm 0.38.47, Stack-chan .58, Bittle .59
             einstellen(page, {"modul": modul, "backend": "sim", "sim_physik": False, "sprache": sprache})
             oeffnen(page, base)                                 # Startseite; showView einer Körperseite weckt den Körper
             reihen = [("Körper", KOERPER_ANSICHTEN)] + ([("Knowlin", KOPF_ANSICHTEN)] if modul == "duckpilot" else [])
@@ -220,18 +221,18 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
                     ruhig(page)
                     if v == "cockpit" and wo == "Körper":
                         klasse = {"duckpilot": "microduck", "reachy_mini": "reachy", "open_duck_mini": "open-duck",
-                                  "so101": "so101", "stackchan": "stackchan"}[modul]
+                                  "so101": "so101", "stackchan": "stackchan", "bittle": "bittle"}[modul]
                         b.pruefe(f"Inhalte: Körper {name} ist geladen ({sprache})",
                                  page.evaluate("k => document.body.classList.contains('koerper-' + k)", klasse))
                         if sprache == "de":                       # jeder Körper, nicht nur Quacki und Reachy
                             ueberdeckungen(page, b, name)
                     if sprache == "de":
                         stoesse += [f"{v}/{teil or ''}: {s}" for s in page.evaluate(ANEINANDER_JS)]
-                    keine_ente = modul in ("reachy_mini", "so101", "stackchan") and wo == "Körper"
+                    keine_ente = modul in ("reachy_mini", "so101", "stackchan", "bittle") and wo == "Körper"
                     funde += [f"{v}/{teil or ''}: {z[:80]}" for z in _verbotene_woerter(page.evaluate(SICHTBARER_TEXT),
                                                                                        keine_ente)]
                 titel = f"Inhalte {name if wo == 'Körper' else 'Knowlin (Kopf)'} ({sprache}): kein „duckpilot“" + \
-                    (", keine Enten-Wörter" if modul in ("reachy_mini", "so101", "stackchan") and wo == "Körper" else "")
+                    (", keine Enten-Wörter" if modul in ("reachy_mini", "so101", "stackchan", "bittle") and wo == "Körper" else "")
                 b.pruefe(titel, not funde, " · ".join(funde[:6]) + (f" (+{len(funde) - 6})" if len(funde) > 6 else ""))
                 if sprache == "de":
                     b.pruefe(f"Ansichten {name if wo == 'Körper' else 'Knowlin (Kopf)'}: keine Karten ohne Abstand",

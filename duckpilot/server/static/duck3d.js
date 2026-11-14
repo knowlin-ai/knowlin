@@ -14,6 +14,7 @@ import { sockeHaengen, sockeLegen, sockenForm } from './dinge3d.js';
 import { loadReachy, RealReachy } from './reachymodell.js';
 import { ladeArm, RealArm } from './arm3d.js';
 import { StackChan } from './stackchan3d.js';
+import { Bittle } from './bittle3d.js';
 import { Lage, Stabilisator } from './glaetten3d.js';
 import { EffectComposer } from './vendor/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
@@ -1009,6 +1010,7 @@ export class Scene3D {
       if (this.realArm) want = this.realArm;
     }
     if (this.koerper === 'stackchan') want = this.stack || (this.stack = new StackChan());   // gezeichnet (0.38.58)
+    if (this.koerper === 'bittle') want = this.hund || (this.hund = new Bittle());          // gezeichnet (0.38.59)
     if (want === this.duck) return;
     this.scene.remove(this.duck.root);
     this.duck = want;

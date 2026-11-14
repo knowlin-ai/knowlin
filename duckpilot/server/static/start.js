@@ -19,6 +19,8 @@ const UMRISS = {
   so101: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 44h20M12 44v-5h12v5"/><circle cx="18" cy="35" r="3"/><path d="M18 32 14 18l18-6"/><circle cx="14" cy="18" r="2.5"/><path d="M32 12l4 5M32 12l6-1M36 17l3 4M38 11l4 2"/></svg>',
   // Stack-chan: Kopf mit Bildschirmgesicht auf dem Servo-Gehäuse (seit 0.38.58)
   stackchan: '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="11" y="6" width="26" height="24" rx="5"/><circle cx="19" cy="16" r="2"/><circle cx="29" cy="16" r="2"/><path d="M20 23h8"/><path d="M21 30v4h6v-4M14 34h20v6H14zM12 44h24"/></svg>',
+  // Bittle X: ein kleiner Hund auf vier Beinen (seit 0.38.59)
+  bittle: '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="20" width="24" height="9" rx="3"/><rect x="33" y="13" width="9" height="9" rx="2.5"/><path d="M35 13l-1-4M40 13l1-4"/><path d="M14 29l-2 7 2 5M20 29l2 7-2 5M27 29l-2 7 2 5M32 29l2 7-2 5"/></svg>',
   // Mentor (seit 0.38.55): eine Brille – du bist der Körper, Knowlin lernt durch Zuschauen
   mentor: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="14" cy="27" r="8"/><circle cx="34" cy="27" r="8"/><path d="M22 26c1.3-1.3 2.7-1.3 4 0M6 25l-2-7M42 25l2-7"/></svg>',
   lab: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M18 6h12M20 6v12L9 40h30L28 18V6"/><path d="M14 30h20"/></svg>',
@@ -31,7 +33,7 @@ const UMRISS = {
 // Startseite fehlende Porträts selbst aus den geladenen Modellen (`portraet3d.js`) und legt sie am PC ab – bis dahin
 // steht der Umriss da.
 const BILD = (id) => `/api/portraet/${id}.png`;
-const RENDERBAR = new Set(['duckpilot', 'reachy-mini', 'open-duck-mini', 'so101', 'stackchan']);
+const RENDERBAR = new Set(['duckpilot', 'reachy-mini', 'open-duck-mini', 'so101', 'stackchan', 'bittle']);
 const ohneBild = new Set();             // Körper ohne Porträt (aus /api/module) – gar nicht erst anfragen
 const kisten = new Map();               // id → Porträt-Boxen auf der Seite (zum Nachreichen)
 
@@ -249,7 +251,7 @@ export function initStart({ $, api, el, toast, showView, save, isRemote, getConf
   // Zurück zu Knowlin: Porträt und Name der Verkörperung, die gerade einen Körper hat
   function zurueck() {
     const c = getConfig() || {};
-    const id = { reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', so101: 'so101', stackchan: 'stackchan' }[c.modul] || 'duckpilot';
+    const id = { reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', so101: 'so101', stackchan: 'stackchan', bittle: 'bittle' }[c.modul] || 'duckpilot';
     return bodyToMind($, { id, modell: '', figur: c.duck_name || 'Quacki' });
   }
 

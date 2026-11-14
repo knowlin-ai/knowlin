@@ -63,6 +63,12 @@ FIGUREN: dict[str, dict[str, Any]] = {
         "entenhaft": 0.0, "entenlaute": "aus", "klang_hoehe": 2.0, "klang_farbe": 0.4, "stimme_piper": "kerstin",
         "stimme_qwen": "", "weitere_enten": 0,
     }},
+    # Bittle X (seit 0.38.59): ein Hund – verspielt, treu, ohne eigene Stimme (Knowlin spricht für ihn)
+    "bittle": {"name": "Bello", "art": "Bittle X", "ente": False, "gruss": "gruss.bittle", "start": {
+        "duck_name": "Bello", "wake_word": "bello", "energie": 0.6, "humor": 0.8,   # goofy wie ein junger Hund
+        "entenhaft": 0.0, "entenlaute": "aus", "klang_hoehe": 0.0, "klang_farbe": 0.0, "stimme_piper": "thorsten",
+        "stimme_qwen": "", "weitere_enten": 0,
+    }},
 }
 
 
@@ -91,6 +97,13 @@ GESTALT: dict[str, list[dict[str, Any]]] = {
          "standard": True},
         {"id": "bastlerstolz", "name": "Bastlerstolz", "text": "erzählt gern, dass sie selbst gebaut ist", "standard": True},
         {"id": "antennen", "name": "Antennenspiel", "text": "zeigt Stimmungen gern mit den Antennen", "standard": False},
+    ],
+    "bittle": [
+        {"id": "schwanzwedeln", "name": "Freudiges Wackeln", "text": "wackelt vor Freude mit dem ganzen Hinterteil",
+         "standard": True},
+        {"id": "schnueffeln", "name": "Neugieriges Schnüffeln", "text": "schaut mit gesenktem Kopf neugierig nach Dingen",
+         "standard": True},
+        {"id": "pfote", "name": "Pfote geben", "text": "hebt zur Begrüßung gern eine Vorderpfote", "standard": False},
     ],
     "stackchan": [
         {"id": "mimik", "name": "Mimik", "text": "zeigt Gefühle gern deutlich im Gesicht", "standard": True},
