@@ -822,6 +822,32 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     page.keyboard.press("Escape")
     page.wait_for_timeout(300)
 
+    # 13c2 · Erster Start (seit 0.38.60): alle Körper zur Wahl, „Erst mal ohne“ zuerst, am Ende wacht der gewählte auf
+    oeffnen(page, base)
+    page.evaluate("() => document.getElementById('wizard-open').click()")
+    page.wait_for_timeout(500)
+    page.click("#wizard-next")
+    page.wait_for_selector("#wizard-koerper [data-wiz-koerper]", timeout=10000)
+    wahl = page.evaluate("() => [...document.querySelectorAll('#wizard-koerper [data-wiz-koerper]')].map((b) => b.dataset.wizKoerper)")
+    erstes_hirn = page.evaluate("() => document.querySelector('[data-wiz-brain]').dataset.wizBrain")
+    b.foto(page, "12b-erster-start", "Erste Schritte: Wen weckst du zuerst?")
+    page.click("[data-wiz-koerper=bittle]")
+    page.click("[data-wiz-brain=ohne]")
+    knopf = (page.text_content("#wizard-next") or "").strip()
+    page.click("#wizard-next")
+    try:
+        page.wait_for_function("() => (window.duckpilot.state || {}).koerper === 'bittle'", timeout=30000)
+        page.wait_for_timeout(1500)
+    except Exception:  # noqa: BLE001
+        pass
+    modul = json.loads((ordner / "settings.json").read_text(encoding="utf-8")).get("modul")
+    im_cockpit = page.evaluate("() => !document.body.classList.contains('im-kopf')"
+                            " && document.getElementById('view-cockpit').offsetParent !== null")
+    b.pruefe("Erster Start: sechs Körper zur Wahl, „Erst mal ohne“ zuerst, „Bello wecken“ weckt ihn im Cockpit",
+             len(wahl) >= 6 and "bittle" in wahl and erstes_hirn == "ohne" and knopf == "Bello wecken"
+             and modul == "bittle" and im_cockpit, f"{wahl} · {erstes_hirn} · {knopf} · {modul} · Cockpit: {im_cockpit}")
+    einstellen(page, {"modul": "duckpilot", "backend": "sim"})
+
     # 13d · Seit 0.38.19: Farbe der Microduck, Trainingsfeld mit vielen Enten
     oeffnen(page, base)
     einstellen(page, {"farbe": "lavender"})

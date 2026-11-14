@@ -156,10 +156,11 @@ flowchart LR
 2. Doppelklicken. Python ist dabei, Administratorrechte braucht es nicht. Zeigt Windows „Der Computer wurde durch
    Windows geschützt“, auf **Weitere Informationen → Trotzdem ausführen** klicken – der Installer ist noch nicht
    signiert.
-3. Knowlin startet über **Knowlin** im Startmenü oder auf dem Desktop. Der Assistent **Erste Schritte** führt durch
-   Sprache, Körper, Gehirn und die Sicherheitsregeln. Für Claude den Anthropic-API-Schlüssel einfügen
-   (platform.claude.com → Settings → API keys). Er landet im Tresor des Betriebssystems, nie in einer Datei. Ohne
-   Schlüssel funktionieren einfache Befehle („lauf vor“, „tanz“, „stopp“).
+3. Knowlin startet über **Knowlin** im Startmenü oder auf dem Desktop. Der Assistent **Erste Schritte** fragt nach der
+   Sprache, wen du zuerst weckst (alle sechs Körper laufen sofort im Simulator) und womit Knowlin denkt: erst mal ohne
+   Modell (einfache Befehle wie „lauf vor“, „tanz“, „stopp“), mit einem lokalen Modell oder mit einem Cloud-Modell
+   (Claude, OpenAI, Gemini, Mistral, OpenRouter) und deinem eigenen Schlüssel. Der Schlüssel landet im Tresor des
+   Betriebssystems, nie in einer Datei. Am Ende wacht der gewählte Körper im Cockpit auf, mit Sätzen zum Anklicken.
 
 Updates: den neuen Installer einfach drüber installieren – Gedächtnis und Einstellungen bleiben. Deinstallieren über
 Windows-Einstellungen → Apps.

@@ -656,7 +656,7 @@ requestAnimationFrame(frame);
 // ── Ereignisse ─────────────────────────────────────────────────────────
 // ── Gespräch ───────────────────────────────────────────────────────────
 function addLine(kind, text, meta, wer) {
-  $('hello')?.remove();
+  if (kind === 'user') $('hello')?.remove();   // Beispiele bleiben, bis du selbst etwas sagst (seit 0.38.60)
   const log = $('log');
   const p = document.createElement('p');
   if (wer) p.append(el('span', 'msg-wer', wer));   // wer spricht (seit 0.38.10: der Verlauf geht über alle Körper)
@@ -1248,7 +1248,7 @@ initAussehen({ $, scene });
 raum = initRaum({ $, api, el, scene, toast, zumCockpit: () => showView('cockpit'), lagebild: (k) => map.setKarte(k) });
 const auswahl = initAuswahl({ $, api, el, scene, send, toast, stageEl });
 const koerperwahl = initKoerperwahl({ $, api, save, showView: (v, p) => showView(v, p), isRemote: () => fern.remote });
-const ersteSchritte = initErsteSchritte({ $, api, toast, isRemote: () => fern.remote, showView: (v) => showView(v) });
+const ersteSchritte = initErsteSchritte({ $, api, toast, isRemote: () => fern.remote, showView: (v) => showView(v), wecken: (m) => start.figurWecken(m) });
 let fernAnnounced = false;
 function onConnection(msg) {
   fern.setRemote(msg.fern, msg.geraet);

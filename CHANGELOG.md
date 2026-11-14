@@ -9,6 +9,25 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.60 – 2026-11-14 – Erster Start mit allen Körpern
+
+### Geändert
+- **Erste Schritte neu** (Maintainer: „Weiter“ auf den Vorschlag, den ersten Start zu überarbeiten – er kannte nur die
+  Microduck, bot Claude zuerst an und endete ohne Erfolgserlebnis): Schritt 2 fragt „Wen weckst du zuerst?“ und zeigt
+  alle fertigen Körper mit Verkörperung (Quacki, Reachy, Odi, Ari, Stacki, Bello); die echte Microduck steht als
+  Zusatz darunter, mit Checkliste und Verbindungstest wie bisher. Schritt 3 bietet „Erst mal ohne“ zuerst an, dann das
+  lokale Modell, dann ein Cloud-Modell – Claude, OpenAI, Gemini, Mistral und OpenRouter gleichrangig, mit Schlüssel und
+  (außer bei Claude) gleich der Modellwahl. Der letzte Knopf heißt nach der Wahl, z. B. „Bello wecken“, und weckt den
+  Körper gleich im Cockpit. „Echte Physik“ wählt man jetzt unter Einstellungen → Körper.
+- **Sätze zum Anklicken bleiben**, bis du selbst etwas sagst – vorher verschwanden sie mit dem Gruß der Verkörperung.
+
+### Sicherheit
+- Unverändert: Not-Aus, Sturzregel und die Checkliste für die echte Microduck stehen im Assistenten; geweckt wird nur
+  im Simulator. Schlüssel gehen in den Tresor, nie in eine Datei.
+
+### Nicht geprüft
+- Modellwahl im Assistenten mit echten Schlüsseln (geprüft ist der Weg ohne Netz).
+
 ## 0.38.59 – 2026-11-14 – Bittle X als sechster Körper
 
 ### Neu

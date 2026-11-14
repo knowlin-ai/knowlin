@@ -172,3 +172,25 @@ def test_portraets_rendert_die_startseite_selbst(tmp_settings, vault, tmp_path, 
     assert remote.pc_only("POST", "/api/portraet/so101") and not remote.pc_only("GET", "/api/portraet/so101.png")
     js = (Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static" / "portraet3d.js").read_text(encoding="utf-8")
     assert all(f"'{k}'" in js or f"{k}:" in js for k in suite.BILD_DATEI)        # jeder Körper lässt sich rendern
+
+
+def test_erster_start_alle_koerper_und_modelle_gleichrangig():
+    """Seit 0.38.60 (Maintainer: „Weiter“ auf den Vorschlag, den ersten Start zu überarbeiten): Der Assistent fragt,
+    wen man zuerst weckt (alle fertigen Körper aus /api/module, nicht nur die Microduck), bietet „Erst mal ohne“ zuerst
+    an, nennt Claude gleichrangig neben den anderen Cloud-Modellen und weckt am Ende den gewählten Körper."""
+    i = HTML.index('<dialog class="quit-dialog wizard')
+    dlg = HTML[i:HTML.index("</dialog>", i)]
+    assert 'id="wizard-koerper"' in dlg and "Deine Microduck" not in dlg
+    gehirne = re.findall(r'data-wiz-brain="(\w+)"', dlg)
+    assert gehirne == ["ohne", "lokal", "cloud"]
+    anbieter = re.findall(r'<option value="(\w+)">', dlg[dlg.index('id="wizard-anbieter"'):])
+    assert anbieter[:5] == ["claude", "openai", "gemini", "mistral", "openrouter"]
+    js = (STATIC / "erste.js").read_text(encoding="utf-8")
+    assert "/api/module" in js and "wecken(wer.modul)" in js and "/api/anbieter/schluessel" in js
+    assert "wecken: (m) => start.figurWecken(m)" in APP
+
+
+def test_beispiele_bleiben_bis_zum_eigenen_satz():
+    """Seit 0.38.60: Der Gruß der Verkörperung beim Aufwachen ließ die Sätze zum Anklicken verschwinden – sie bleiben
+    jetzt, bis man selbst etwas sagt."""
+    assert "if (kind === 'user') $('hello')?.remove();" in APP

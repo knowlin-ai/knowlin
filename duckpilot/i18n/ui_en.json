@@ -3506,5 +3506,19 @@
  "Dreh dich einmal im Kreis.": "Turn around once.",
  "Bittle X": "Bittle X",
  "offener Roboterhund (Petoi, OpenCat)": "open robot dog (Petoi, OpenCat)",
- "Ein Hund auf vier Beinen: läuft, dreht sich, sitzt und schaut sich um – im Simulator; echter Bittle über Petois serielles Protokoll geplant.": "A dog on four legs: walks, turns, sits and looks around – in the simulator; real Bittle via Petoi's serial protocol planned."
+ "Ein Hund auf vier Beinen: läuft, dreht sich, sitzt und schaut sich um – im Simulator; echter Bittle über Petois serielles Protokoll geplant.": "A dog on four legs: walks, turns, sits and looks around – in the simulator; real Bittle via Petoi's serial protocol planned.",
+ "Wen weckst du zuerst?": "Who do you wake up first?",
+ "Alle laufen sofort im Simulator. Die anderen weckst du später auf der Startseite – Knowlin bleibt derselbe Kopf.": "All of them run in the simulator right away. You wake the others later on the start page – Knowlin stays the same mind.",
+ "Ich habe eine echte Microduck": "I have a real Microduck",
+ "Ohne KI-Modell versteht Knowlin einfache Sätze. Mit einem Modell plant er frei – du kannst jederzeit wechseln.": "Without an AI model Knowlin understands simple sentences. With a model it plans freely – you can switch at any time.",
+ "Sofort los, ohne Konto: „lauf vor“, „tanz“, „sitz“, „stopp“.": "Start right away, no account: “walk forward”, “dance”, “sit”, “stop”.",
+ "Cloud-Modell": "Cloud model",
+ "Claude, OpenAI, Gemini, Mistral oder OpenRouter mit deinem eigenen Schlüssel.": "Claude, OpenAI, Gemini, Mistral or OpenRouter with your own key.",
+ "Claude (Anthropic)": "Claude (Anthropic)",
+ "Den Schlüssel legst du im Konto beim Anbieter an. Er landet im Tresor des PCs, nie in einer Datei.": "You create the key in your account with the provider. It goes into this PC’s vault, never into a file.",
+ "wartet die Verkörperung ein paar Sekunden, dann steht sie selbst auf. „Stopp“ lässt sie liegen.": "the embodiment waits a few seconds, then gets up by itself. “Stop” leaves it lying.",
+ "Gleich ausprobieren:": "Try it right away:",
+ "Rechts im Gespräch stehen Sätze zum Anklicken – oder sag selbst etwas.": "On the right, in the conversation, there are sentences to click – or say something yourself.",
+ "* ist wach – rechts im Gespräch stehen Sätze zum Anklicken.": "* is awake – on the right, in the conversation, there are sentences to click.",
+ "Modell später unter Einstellungen → KI-Modell wählen.": "Choose the model later under Settings → AI model."
 }
