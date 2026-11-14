@@ -9,7 +9,7 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
-## Unveröffentlicht
+## 0.38.57 – 2026-11-14 – Vormachen mit Ari, Rückblick je Körper, „Lernt von dir, mit dir, für dich.“
 
 ### Neu
 - **Vormachen mit Ari – erster Schritt zum Mentor** (Maintainer: „dann bin ich sozusagen die Körperschnittstelle“):
