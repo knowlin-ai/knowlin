@@ -9,6 +9,19 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.63 – 2026-11-15 – Not-Aus wartet auf nichts
+
+### Sicherheit
+- **Der Not-Aus wartet nie hinter einem langsamen Werkzeug** (Fund 14.11. beim Nachmessen der Schnellknöpfe): Die
+  Oberfläche schickt alles über eine Verbindung, und der Server arbeitete die Nachrichten strikt nacheinander ab – ein
+  Not-Aus hinter einem Werkzeug, das wartet (Kamera, Arm, Aufstehen am echten Roboter), hätte mitgewartet. Jetzt läuft
+  er sofort neben allem, was gerade arbeitet; Befehle, die davor bestellt und noch nicht dran waren, verfallen. Gilt für
+  Knopf, Esc, Controller und Handy gleich. Regressionstest mit einem absichtlich langsamen Werkzeug (scheitert mit dem
+  alten Stand).
+
+### Nicht geprüft
+- Am echten Roboter (gleicher Weg wie im Simulator, aber nicht an Hardware gemessen).
+
 ## 0.38.62 – 2026-11-14 – Stacki wie das Original: Berührung, Schlaf, LEDs
 
 ### Neu

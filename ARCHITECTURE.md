@@ -71,6 +71,9 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 
 ## Regeln, die überall gelten
 
+- **Not-Aus wartet auf nichts** (seit 0.38.63): Die Oberfläche schickt alles über eine WebSocket-Verbindung; der
+  Server arbeitet die Nachrichten je Verbindung der Reihe nach ab (`routes/verbindung.py`), nur `stop` läuft sofort
+  daneben, und was davor bestellt und noch nicht dran war, verfällt. Test: `test_not_aus_wartet_nicht_auf_ein_langsames_werkzeug`.
 - **Sicherheit vor allem:** Not-Aus gewinnt immer und macht seit 0.38.24 **sofort stromlos** (`MotionEngine.not_aus` →
   `backend.relax()`: robotd `robot.relax`, Reachy `motors/set_mode/disabled`, Simulatoren und Gäste-Enten ebenso;
   Claudes `stop`-Werkzeug und interne Stopps halten nur an). Nach einem Not-Aus steht oder setzt sich eine Weile nichts
