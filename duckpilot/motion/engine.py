@@ -454,19 +454,22 @@ class MotionEngine:
     def idle_gesture(self, st: DuckState | None = None, persona: str | None = None) -> str | None:
         """Eine Geste aus dem Repertoire des Charakters zeigen. Gibt ihren Namen zurück."""
         from .behaviors import ANTICS, EMOTIONS, Choreography, concat
-        from .character import GESTURES, MESSAGES, QUATSCH, REPERTOIRE, sits_ok
+        from .character import GESTURES, MESSAGES, NUR_MIT_SCHNABEL, QUATSCH, REPERTOIRE, sits_ok
 
         st = st or self.last_state
         from .reachy_gesten import ist_reachy
 
         if ist_reachy(self.backend):
             return self._reachy_leerlauf()
-        if "kopf" not in self.backend.eigenschaften():         # ohne Kopf (SO-101) keine Kopf- und Entengesten
+        eig = self.backend.eigenschaften()
+        if "kopf" not in eig:                                   # ohne Kopf (SO-101) keine Kopf- und Entengesten
             return None
         rep = REPERTOIRE.get(persona or self.persona) or {}
         legs_ok = st.backend == "sim" and not st.sitting        # am echten Roboter nie ungefragt losdrehen
         options: list[tuple[str, list[dict[str, Any]], bool, str]] = []
         for gname, weight in rep.get("gesten", []):
+            if gname in NUR_MIT_SCHNABEL and "schnabel" not in eig:   # Stacki und Bello putzen kein Gefieder
+                continue
             if gname in GESTURES:
                 spec, legs, msg = EMOTIONS.get(gname, GESTURES[gname]), False, MESSAGES.get(gname, gname)
             elif gname in ANTICS:

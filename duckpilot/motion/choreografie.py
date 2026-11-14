@@ -405,7 +405,7 @@ for _name, _e in POLLEN.items():
 
 # Albernheiten für den Leerlauf. "dreht" = braucht die Beine (nur auf der Stelle).
 ANTICS: dict[str, dict[str, Any]] = {
-    "schwanz_jagen": {"beine": True, "nachricht": "jagt ihren eigenen Schwanz", "spec": [
+    "schwanz_jagen": {"beine": True, "nachricht": "jagt den eigenen Schwanz", "spec": [
         {"t": 0.0, "kopf": {"drehen": -45, "nicken": 15, "neigen": -10}, "ton": "inquire"},
         {"t": 0.3, "fahren": {"drehrate_grad": -57}, "kopf": {"drehen": -55, "nicken": 18, "neigen": -12}},
         {"t": 1.5, "ton": "chirp", "schnabel": 0.8},

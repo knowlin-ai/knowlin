@@ -224,7 +224,12 @@ def szene_stackchan(page, base, sprache):
 def szene_bittle(page, base, sprache):
     """Bittle X (seit 0.38.59): Bello mitten im Trab, schräg von vorn – wie bei Stacki ein paar Bilder von Hand rechnen
     (Trabschritt fest vorgegeben, damit keine Leerlauf-Geste dazwischenkommt), dann die 3D-Ansicht anhalten."""
-    _koerper(page, base, "bittle", sprache, "Hallo Bello, wie geht's dir?" if sprache == "de" else "Hi Bello, how are you?")
+    # ohne Leerlauf-Gesten: sonst jagt Bello mitten in der Aufnahme den eigenen Schwanz und die Anzeige sagt „dreht sich“
+    A.einstellen(page, {"modul": "bittle", "backend": "sim", "sim_physik": False, "sprache": sprache, "idle_life": False})
+    A.oeffnen(page, base)
+    zu(page, "cockpit", ms=4000)
+    sagen(page, "#say-text", "Hallo Bello, wie geht's dir?" if sprache == "de" else "Hi Bello, how are you?", 5.0)
+    verbunden(page)
     page.evaluate("""() => { const s = window.duckpilot.scene; s.follow = false; if (s.intro) s.intro.done = true;
         const d = s.duck, alt = d.update, st0 = window.duckpilot.state || {};
         const trab = { ...st0, powered: true, sitting: false, fallen: false, twist: { vx: 0.15, vy: 0, vyaw: 0 },
@@ -239,6 +244,7 @@ def szene_bittle(page, base, sprache):
         for (let i = 0; i < 6; i++) s._frame(); s.paused = true; d.update = alt;
         document.getElementById('ticker').replaceChildren(); }""")
     page.wait_for_timeout(500)
+    A.einstellen(page, {"idle_life": True})          # die folgenden Szenen wieder mit Leerlauf
 
 
 def szene_werte(page, base, sprache):

@@ -58,3 +58,35 @@ def test_oberflaeche_verdrahtet():
     assert "new Bittle()" in (STATIC / "duck3d.js").read_text(encoding="utf-8")
     html = (STATIC / "index.html").read_text(encoding="utf-8")
     assert 'value="bittle" data-set="modul"' in html and ".nur-bittle" in (STATIC / "style.css").read_text(encoding="utf-8")
+
+
+def test_leerlauf_passt_zum_hund():
+    """Fund 14.11. beim englischen Website-Bild von Bello: Unten stand auf Deutsch „jagt ihren eigenen Schwanz“ (die
+    Albernheiten hatten keine Übersetzung, „ihren“ passte nur zur Ente), und ein Hund ohne Schnabel darf sich kein
+    Gefieder putzen."""
+    import json
+    import random
+
+    from duckpilot import i18n
+    from duckpilot.motion.behaviors import ANTICS
+    from duckpilot.motion.character import MESSAGES, NUR_MIT_SCHNABEL, REPERTOIRE
+    from duckpilot.motion.engine import MotionEngine
+    from duckpilot.server.runtime import _leerlauf_text
+
+    en = json.loads((Path(__file__).resolve().parents[1] / "duckpilot" / "i18n" / "en.json").read_text(encoding="utf-8"))
+    assert not [n for n in set(MESSAGES) | set(ANTICS) if f"leerlauf.{n}" not in en]
+    assert "ihren" not in ANTICS["schwanz_jagen"]["nachricht"]
+    alt = i18n.sprache()
+    try:
+        i18n.setze_sprache("en")
+        assert _leerlauf_text("schwanz_jagen") == "chases its own tail"
+    finally:
+        i18n.setze_sprache(alt)
+    sim = BittleSim()
+    asyncio.run(sim.connect())
+    eng = MotionEngine(sim)
+    eng.rng = random.Random(3)
+    personas = [p for p, r in REPERTOIRE.items() if any(g in NUR_MIT_SCHNABEL for g, _ in r.get("gesten", []))]
+    assert personas
+    gezeigt = {eng.idle_gesture(persona=p) for p in personas for _ in range(40)}
+    assert not gezeigt & NUR_MIT_SCHNABEL and gezeigt - {None}

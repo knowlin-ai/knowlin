@@ -101,6 +101,10 @@ MESSAGES = {
     "aufgeregt": "ist aufgeregt", "lachen": "lacht vor sich hin", "stolpern": "stolpert über nichts",
 }
 
+# Gesten, die nur mit Schnabel Sinn ergeben (Fund 14.11. beim Website-Bild von Bello: der Hund „putzte sich das
+# Gefieder“) – Körper ohne das Körperwort „schnabel“ lassen sie aus.
+NUR_MIT_SCHNABEL = frozenset({"gefieder_putzen", "boden_picken"})
+
 # ── Gesten des Leerlaufs (Grad, Millimeter – wie Choreografien). Die Laute dazu rendert
 #    tools/render_gestures.py auf genau diese Takte.
 GESTURES: dict[str, list[dict[str, Any]]] = {

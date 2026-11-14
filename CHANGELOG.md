@@ -21,6 +21,12 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 - **knowlin.de, README und Doku zeigen sechs Körper**: Reiter, Steckbrief und Anker für Bittle X, neue Aufnahmen,
   Banner und Vorschaubild; die Tastatur-Prüfung der Website erwartet Bittle X als letzten Reiter.
 
+### Behoben
+- **Leerlauf-Gesten passen zum Körper und zur Sprache** (Fund 14.11. beim englischen Website-Bild von Bello): Die vier
+  Albernheiten (Schwanz jagen, am Boden picken, Selbstgespräch, Hinternwackeln) standen auch im Englischen auf Deutsch,
+  „jagt ihren eigenen Schwanz“ passte nur zur Ente, und Körper ohne Schnabel (Stacki, Bello) putzten sich das Gefieder
+  oder pickten am Boden. Jetzt übersetzt, neutral formuliert, und Gesten mit Schnabel nur bei Körpern mit Schnabel.
+
 ### Sicherheit
 - Bittle X erfüllt die Pflichten der Körperschnittstelle (`python -m duckpilot.koerper_pruefung bittle`): Not-Aus
   stromlos, Stopp hält an, stromlos bewegt sich nichts, Fortbewegung und Kopf in den Grenzen.
