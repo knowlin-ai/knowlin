@@ -1,5 +1,6 @@
 """Alltagsbuddy: Zeiten verstehen, Planer, Kalenderimport, einfache Befehle, Alarme und Ruhe/Aktiv."""
 
+import asyncio
 import time
 from datetime import datetime, timedelta
 
@@ -408,3 +409,31 @@ def test_api_validation_and_ics(client):
     # aus: keine Befehle
     client.post("/api/skills", json={"id": "alltag", "an": False}, headers=H)
     assert client.post("/api/alltag/befehl", json={"aktion": "uhrzeit"}, headers=H).status_code == 400
+
+
+def test_not_aus_wartet_nicht_auf_ein_langsames_werkzeug(client):
+    """Fund 14.11.: Die Oberfläche schickt alles über eine Verbindung, und der Server arbeitete die Nachrichten
+    nacheinander ab – ein Not-Aus hinter einem langsamen Werkzeug (Kamera, Arm) hätte gewartet. Jetzt läuft er sofort
+    neben dem Werkzeug, und was danach noch in der Schlange stand, verfällt."""
+    rt = client.runtime
+    gestartet, ausgefuehrt = [], []
+    orig = rt.runner.run
+
+    async def langsam(name, args):
+        gestartet.append(name)
+        if name == "look_around":
+            await asyncio.sleep(3.0)                      # ein Werkzeug, das wartet
+        ausgefuehrt.append(name)
+        return await orig(name, args) if name != "look_around" else {"ok": True}
+
+    rt.runner.run = langsam
+    with client.websocket_connect("/ws", headers=WS) as ws:
+        ws.send_json({"type": "tool", "name": "look_around", "args": {}})
+        assert _wait(lambda: gestartet == ["look_around"])
+        ws.send_json({"type": "tool", "name": "emote", "args": {"emotion": "freude"}})   # steht in der Schlange
+        t0 = time.monotonic()
+        ws.send_json({"type": "stop"})
+        assert _wait(lambda: rt.alltag.estop_at > 0, 2.0)
+        assert time.monotonic() - t0 < 1.0               # nicht erst nach dem langsamen Werkzeug
+        time.sleep(3.5)
+        assert "emote" not in ausgefuehrt                # vor dem Not-Aus bestellt, noch nicht dran: verfällt

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import time
@@ -66,17 +67,41 @@ def register(app: FastAPI, runtime: Runtime) -> None:
                           runtime.erfahrung.message(remote=device is not None)):
                 await runtime.send_to(ws, json.dumps(first, ensure_ascii=False, default=_json_default))
             runtime.clients.add(ws)
-            while True:
-                raw = await ws.receive_text()
+            fern = device is not None
+
+            async def ausfuehren(msg: dict) -> None:
                 try:
-                    msg = json.loads(raw)
-                except ValueError:
-                    continue
-                if isinstance(msg, dict):
+                    await runtime.handle_client_message(msg, remote=fern)
+                except Exception:                # eine kaputte Nachricht darf die Verbindung nicht kappen
+                    log.exception("Nachricht %s", str(msg.get("type"))[:40])
+
+            # Nachrichten der Reihe nach – aber der Not-Aus wartet auf nichts (Fund 14.11.: während „Aufwachen“ wirkte
+            # er erst nach 11 bis 22 s, weil er hinter dem laufenden Werkzeug in derselben Schlange stand). Er läuft
+            # sofort neben allem, was gerade arbeitet, und was davor bestellt und noch nicht dran war, verfällt.
+            schlange: asyncio.Queue[dict] = asyncio.Queue()
+
+            async def arbeiter() -> None:
+                while True:
+                    await ausfuehren(await schlange.get())
+
+            arbeit = asyncio.create_task(arbeiter())
+            try:
+                while True:
+                    raw = await ws.receive_text()
                     try:
-                        await runtime.handle_client_message(msg, remote=device is not None)
-                    except Exception:            # eine kaputte Nachricht darf die Verbindung nicht kappen
-                        log.exception("Nachricht %s", str(msg.get("type"))[:40])
+                        msg = json.loads(raw)
+                    except ValueError:
+                        continue
+                    if not isinstance(msg, dict):
+                        continue
+                    if msg.get("type") == "stop":
+                        while not schlange.empty():
+                            schlange.get_nowait()
+                        await ausfuehren(msg)
+                    else:
+                        schlange.put_nowait(msg)
+            finally:
+                arbeit.cancel()
         except WebSocketDisconnect:
             pass
         finally:
