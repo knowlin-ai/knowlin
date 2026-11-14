@@ -1931,7 +1931,7 @@ body.ctl-open .view-cockpit .stage > :not(canvas) { display: none; }
 .wizard-robot { display: grid; gap: var(--spacing-04); }
 /* seit 0.38.60: sechs Körper zur Wahl in zwei Spalten, Schlüssel mit Anbieterwahl */
 .wizard .wizard-koerper { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (max-width: 520px) { .wizard .wizard-koerper { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 671.98px) { .wizard .wizard-koerper { grid-template-columns: minmax(0, 1fr); } }
 .wizard-key { display: grid; gap: var(--spacing-03); }
 /* Verbindungstest (seit 0.38.16): je Befund Zeichen + Text, die Farbe ergänzt nur */
 .wizard-robot-knoepfe { display: flex; flex-wrap: wrap; gap: var(--spacing-03); }
