@@ -823,6 +823,7 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     page.wait_for_timeout(300)
 
     # 13c2 · Erster Start (seit 0.38.60): alle Körper zur Wahl, „Erst mal ohne“ zuerst, am Ende wacht der gewählte auf
+    einstellen(page, {"modul": "duckpilot", "backend": "sim"})   # vorher die Microduck – Bello kommt nur über den Assistenten
     oeffnen(page, base)
     page.evaluate("() => document.getElementById('wizard-open').click()")
     page.wait_for_timeout(500)
@@ -833,6 +834,10 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.foto(page, "12b-erster-start", "Erste Schritte: Wen weckst du zuerst?")
     page.click("[data-wiz-koerper=bittle]")
     page.click("[data-wiz-brain=ohne]")
+    try:                                                # speichert erst, dann Schritt 4
+        page.wait_for_function("() => !document.querySelector('[data-wiz=\"4\"]').hidden", timeout=10000)
+    except Exception:  # noqa: BLE001
+        pass
     knopf = (page.text_content("#wizard-next") or "").strip()
     page.click("#wizard-next")
     try:
