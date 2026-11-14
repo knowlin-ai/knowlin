@@ -8,8 +8,9 @@ geändert hat im [CHANGELOG](../CHANGELOG.md).
 
 Die Module der Suite **Knowlin** – „ein Kopf, viele Körper“ – tragen Codenamen nach ihrer Bauart: **duckpilot** für
 die laufenden Enten (Microduck, Open Duck Mini), **deskpilot** für stationäre Roboter auf dem Tisch (Reachy Mini; seit
-0.38.10 so genannt), **so101** für den Greifarm SO-101 an seiner Werkbank (seit 0.38.47). Beim Start erscheint die
-Startseite: eine Kachel je Modul (Microduck, seit 0.38.1 Reachy Mini, seit 0.38.4 Open Duck Mini, seit 0.38.51 SO-101;
+0.38.10 so genannt), **so101** für den Greifarm SO-101 an seiner Werkbank (seit 0.38.47), **stackchan** für den Schreibtisch-Roboter
+Stack-chan (seit 0.38.58). Beim Start erscheint die Startseite: eine Kachel je Modul (Microduck, seit 0.38.1 Reachy Mini,
+seit 0.38.4 Open Duck Mini, seit 0.38.51 SO-101, seit 0.38.58 Stack-chan;
 Knowlin Lab und „Mentor“ sind schon als „geplant“ zu sehen) und darunter, was für jeden Körper gilt – Charakter, Gedächtnis, Umgebung, Alltag,
 Einstellungen. Das Knowlin-Zeichen oben links führt jederzeit zurück.
 
@@ -25,7 +26,7 @@ Einstellungen. Das Knowlin-Zeichen oben links führt jederzeit zurück.
 ### Verkörperungen (seit 0.38.3)
 
 Knowlin ist die übergeordnete Anwendung. Jeder Körper hat seine eigene **Verkörperung** – Quacki die Microduck, Reachy den
-Reachy Mini, Odi die Open Duck Mini, Ari den Greifarm SO-101 – mit eigenem Namen, Aussehen, eigener Stimme, Sprechweise, Verhalten und eigenen
+Reachy Mini, Odi die Open Duck Mini, Ari den Greifarm SO-101, Stacki den Stack-chan – mit eigenem Namen, Aussehen, eigener Stimme, Sprechweise, Verhalten und eigenen
 Tricks. Den **Charakter** wählst du seit 0.38.10 übergeordnet bei Knowlin (Einstellungen → Knowlin: seit 0.38.11 ein
 Feld mit Quadranten ruhig–lebhaft und seriös–verspielt, die Verkörperungen als Punkte darum herum; dazu Gefühle zeigen); jede Verkörperung ist eine leichte Ausprägung darum herum und hat dazu die
 **Eigenschaften ihrer Gestalt** (Charakter → Persönlichkeit), z. B. Schnabelklappern bei der Microduck oder
@@ -106,6 +107,20 @@ mit eigener Stimme und eigenem Charakter. Öffnen über die Kachel auf der Start
 - **Kamera-Spiele (seit 0.38.13):** Steuern → Spiele: „Rotes Licht, grünes Licht“ und „Hand folgen“. Die Webcam läuft
   nur während eines Spiels, ausgewertet wird nur im Browser (64 × 48 graue Punkte – wie viel und wo sich etwas bewegt);
   kein Bild verlässt den PC, keine Gesichts- oder Personenerkennung. Not-Aus beendet Spiel und Webcam sofort.
+
+### Stack-chan (seit 0.38.58)
+
+Ein kleiner Schreibtisch-Roboter aus der Community (Apache-2.0, heute auch als Bausatz von M5Stack): ein Würfel mit
+Bildschirm als Kopf, darunter zwei Servos zum Drehen und Nicken, dazu Kamera, Mikrofone und Lautsprecher. Seine
+Verkörperung heißt **Stacki** – quirlig, mit heller Stimme. Öffnen über die Kachel „Stack-chan“ auf der Startseite.
+
+- **Im Simulator:** Stacki steht auf dem Couchtisch, dreht den Kopf (bis ±80°) und nickt (bis ±23°). Laufen, Greifen
+  und Entenlaute gibt es nicht – die Knöpfe verschwinden, und er sagt es ehrlich.
+- **Gesicht:** Augen und Mund auf dem Bildschirm zeigen Gefühle (froh, traurig, überrascht, wütend, müde, neugierig,
+  verlegen), der Mund bewegt sich beim Sprechen, beim Zuhören schaut er aufmerksam, beim Nachdenken nach oben. Er
+  blinzelt ab und zu. Schnellbefehle: Aufwachen, Schlafen, Hallo sagen, Freuen, Umschauen, Mitwippen.
+- **Not-Aus:** wie bei jedem Körper sofort stromlos – der Kopf sinkt, die Augen gehen zu.
+- **Echter Stack-chan:** noch nicht angebunden. Gezeichnet ist er nach Fotos, ohne Dateien des Projekts.
 
 ### Weitere Körper: LeRobot und dein eigener Roboter (seit 0.38.35)
 

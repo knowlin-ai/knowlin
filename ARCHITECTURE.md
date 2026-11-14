@@ -26,7 +26,7 @@ Bewegung motion/engine.py (20 Hz, Sicherheit, Warteschlange)  motion/behaviors.p
 Körper   backends/sim.py (einfach)  backends/physics.py (MuJoCo + Pollens Policies)  backends/robotd.py (echt)
          backends/reachy*.py (Reachy Mini: Simulator, Pollens Daemon)  backends/open_duck.py (Open Duck Mini v2)
          backends/begleiter.py (weitere Enten im Simulator)  backends/lerobot.py (LeRobot-Roboter, seit 0.38.35)
-         backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
+         backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/stackchan.py (Stack-chan im Simulator, seit 0.38.58)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
          arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)  arm_huelle.py (Fühlpunkte auf Greifer und Backe, erzeugt von tools/arm_huelle_erzeugen.py – Basis, seit 0.38.55)  mentor.py (Vormachen: Handpunkte → Ziel der Greiferspitze – Basis, seit 0.38.57)
          backends/werkbank.py (Werkbank des SO-101: Würfel, Kisten, Greifen und Ablegen, seit 0.38.48)
          werkbank_auftrag.py (Aufträge als Daten: Regeln, Prüfung, eigene merken – Basis, seit 0.38.54)
@@ -240,6 +240,11 @@ Wechsel des #-Teils lädt die Seite nicht); die 3D-Ansicht wird angehalten, weil
   gebacken in `static/model/so101.dpm`, `tools/bake_so101.py`), Simulator `backends/so101.py` (Kinematik, steht auf dem
   Couchtisch), Werkzeug `arm`, Armgesten im Aktionskatalog. Kopf-Werkzeuge (head, emote, dance, choreo) brauchen seitdem
   „kopf“, `turn` braucht Beine, Räder oder Körperdrehung. Ohne Kopf keine Leerlaufgesten.
+- **Stack-chan** (seit 0.38.58): Schreibtisch-Roboter der Community (Apache-2.0) – Kopf mit Bildschirmgesicht, zwei Servos
+  (drehen ±80°, nicken ±23°), Kamera, Mikrofone, Lautsprecher; keine Beine, kein Arm. Simulator `backends/stackchan.py`
+  (Tischroboter auf dem Couchtisch), gezeichnet in `static/stackchan3d.js` ohne Dateien des Projekts. Neues Wort
+  `gesicht`: `state().gesicht` {ausdruck, mund, wach, zustand}; das Werkzeug `emote` ruft dazu `gefuehl_zeigen` am
+  Körper auf, wenn es die Methode gibt. Echter Stack-chan noch nicht angebunden.
 - **Werkbank** (seit 0.38.48): Der SO-101 steht immer an seiner eigenen Werkbank (Box „Werkbank“ in seiner Welt),
   davor drei Würfel und zwei offene Kisten im Sockelrahmen. `greifen`/`ablegen` rechnen mit `arm_kinematik.greifhaltung`
   (von oben, gedämpfte kleinste Quadrate); außer Reichweite → ehrliches Nein. Geht der Greifer auf oder kommt der

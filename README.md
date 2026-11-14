@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/bilder/banner.png" alt="Knowlin – ein Kopf, viele Körper: die Startseite mit dem neuronalen Netz von Knowlin und den vier Verkörperungen: Microduck, Reachy Mini, Open Duck Mini und SO-101" width="100%">
+  <img src="docs/bilder/banner.png" alt="Knowlin – ein Kopf, viele Körper: die Startseite mit dem neuronalen Netz von Knowlin und den fünf Verkörperungen: Microduck, Reachy Mini, Open Duck Mini, SO-101 und Stack-chan" width="100%">
 </p>
 
 <h1 align="center">Knowlin</h1>
@@ -37,7 +37,8 @@
 
 **Knowlin** ist ein gemeinsamer Kopf für mehrere Roboter. Er kennt deine Umgebung, deinen Alltag und eure gemeinsamen
 Erlebnisse – und schlüpft je nach Aufgabe in einen Körper: in die laufende Ente **Microduck**, die selbst gebaute
-**Open Duck Mini**, den Tisch-Roboter **Reachy Mini** oder den Greifarm **SO-101** an seiner Werkbank. Jede
+**Open Duck Mini**, den Tisch-Roboter **Reachy Mini**, den Greifarm **SO-101** an seiner Werkbank oder den kleinen
+**Stack-chan** mit Bildschirmgesicht. Jede
 **Verkörperung** hat ihren eigenen Namen, ihre Stimme und ihren Charakter; das Wissen teilen sie. Welches Sprachmodell
 denkt, wählst du frei – Claude, ein anderes Modell mit eigenem Schlüssel oder ein lokales auf deinem PC.
 
@@ -117,6 +118,7 @@ dem Tisch. Jeder Körper zeigt nur, was er kann – was fehlt (Beine, Tiefensens
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone und Community | offenes Modell: laufen, Kopf, Antennen, mit Kamera ausweichen | geplant |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics und Hugging Face | Pollens Modell, Emotionen, Tänze, Spiele | über Pollens Daemon (ungetestet) |
 | **Ari** | SO-101 (Greifarm) | so101 | TheRobotStudio und Hugging Face | offenes Modell an eigener Werkbank: Gesten, sortieren, Türme bauen, aufräumen, Tic-Tac-Toe | über LeRobot (ungetestet) |
+| **Stacki** | Stack-chan (Schreibtisch-Roboter) | stackchan | Stack-chan-Community und M5Stack | gezeichnet: Kopf drehen und nicken, Gefühle im Bildschirmgesicht, spricht | geplant |
 | – | weitere LeRobot-Roboter (LeKiwi, Koch …) | lerobot | Hugging Face LeRobot | – | über LeRobot (Arm, Greifer, Räder; ungetestet) |
 
 **Dein eigener Roboter:** Über die [Körperschnittstelle](docs/koerper-schnittstelle.md) bekommt jeder Roboter Knowlin –
@@ -135,7 +137,7 @@ flowchart LR
   end
   Kopf --> Sicherheit{{"Sicherheit<br/>Not-Aus gewinnt immer"}}
   Sicherheit --> Q["duckpilot<br/>Microduck · Open Duck"]
-  Sicherheit --> R["deskpilot<br/>Reachy Mini"]
+  Sicherheit --> R["deskpilot<br/>Reachy Mini · Stack-chan"]
   Sicherheit --> A["Arm<br/>SO-101"]
   Q --> Sim[("Simulator<br/>mit Physik")]
   R --> Sim

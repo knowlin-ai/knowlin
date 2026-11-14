@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/bilder/banner.png" alt="Knowlin – one mind, many bodies: the start page with Knowlin's neural network and the four embodiments: Microduck, Reachy Mini, Open Duck Mini and SO-101" width="100%">
+  <img src="docs/bilder/banner.png" alt="Knowlin – one mind, many bodies: the start page with Knowlin's neural network and the five embodiments: Microduck, Reachy Mini, Open Duck Mini, SO-101 and Stack-chan" width="100%">
 </p>
 
 <h1 align="center">Knowlin</h1>
@@ -37,7 +37,8 @@
 
 **Knowlin** is one shared mind for several robots. It knows your surroundings, your everyday life and the things you
 have experienced together – and takes on a body depending on the task: the walking **Microduck**, the self-built
-**Open Duck Mini**, the desk robot **Reachy Mini** or the **SO-101** gripper arm at its workbench. Each **embodiment**
+**Open Duck Mini**, the desk robot **Reachy Mini**, the **SO-101** gripper arm at its workbench or the small
+**Stack-chan** with a face on its screen. Each **embodiment**
 has its own name, voice and character; the knowledge is shared. You choose the language model freely – Claude, another
 model with your own key, or a local one on your PC.
 
@@ -121,6 +122,7 @@ robots. Every body shows only what it can do – what it lacks (legs, depth sens
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone and community | open model: walking, head, antennas, avoids obstacles with its camera | planned |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics and Hugging Face | Pollen's model, emotions, dances, games | via Pollen's daemon (untested) |
 | **Ari** | SO-101 (gripper arm) | so101 | TheRobotStudio and Hugging Face | open model at its own workbench: gestures, sorting, building towers, tidying up, tic-tac-toe | via LeRobot (untested) |
+| **Stacki** | Stack-chan (desktop robot) | stackchan | Stack-chan community and M5Stack | drawn: turns and nods its head, feelings on its screen face, talks | planned |
 | – | more LeRobot robots (LeKiwi, Koch …) | lerobot | Hugging Face LeRobot | – | via LeRobot (arm, gripper, wheels; untested) |
 
 **Your own robot:** With the [body interface](docs/body-interface.md) any robot can get Knowlin – as its own Python
@@ -139,7 +141,7 @@ flowchart LR
   end
   Mind --> Safety{{"Safety<br/>emergency stop always wins"}}
   Safety --> D["duckpilot<br/>Microduck · Open Duck"]
-  Safety --> R["deskpilot<br/>Reachy Mini"]
+  Safety --> R["deskpilot<br/>Reachy Mini · Stack-chan"]
   Safety --> A["Arm<br/>SO-101"]
   D --> Sim[("Simulator<br/>with physics")]
   R --> Sim

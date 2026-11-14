@@ -39,7 +39,7 @@ KOPF = """<!doctype html>
 <meta property="og:image" content="{basis}bilder/vorschau.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Knowlin – ein Kopf, viele Körper: die Startseite mit Knowlins Netz und vier Roboter-Körpern: Microduck, Reachy Mini, Open Duck Mini und SO-101">
+<meta property="og:image:alt" content="Knowlin – ein Kopf, viele Körper: die Startseite mit Knowlins Netz und fünf Roboter-Körpern: Microduck, Reachy Mini, Open Duck Mini, SO-101 und Stack-chan">
 <meta property="og:site_name" content="Knowlin">
 <meta property="og:locale" content="de_DE">
 <meta property="og:locale:alternate" content="en_US">
@@ -63,7 +63,7 @@ def strukturiert(beschreibung: str) -> str:
         "license": "https://www.apache.org/licenses/LICENSE-2.0",
         "codeRepository": "https://github.com/knowlin-ai/knowlin", "image": ADRESSE + "bilder/vorschau.png",
         "inLanguage": ["de", "en"], "isAccessibleForFree": True,
-        "keywords": "Microduck, Open Duck Mini, Reachy Mini, SO-101, LeRobot, Roboter, Simulator, Claude, Sprachsteuerung, Open Source",
+        "keywords": "Microduck, Open Duck Mini, Reachy Mini, SO-101, Stack-chan, LeRobot, Roboter, Simulator, Claude, Sprachsteuerung, Open Source",
         "publisher": {"@type": "Organization", "name": "Knowlin", "url": ADRESSE},
     }, ensure_ascii=False)
 

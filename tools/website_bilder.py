@@ -197,6 +197,17 @@ def szene_ari(page, base, sprache):
     page.wait_for_timeout(3000)
 
 
+def szene_stackchan(page, base, sprache):
+    """Stack-chan (seit 0.38.58): auf dem Couchtisch, nah herangeholt, mit fröhlichem Gesicht."""
+    _koerper(page, base, "stackchan", sprache, "Hallo Stacki, wie geht's dir?" if sprache == "de" else "Hi Stacki, how are you?")
+    senden = "([n, a]) => window.duckpilot.send({type: 'tool', name: n, args: a})"
+    page.evaluate("() => { const s = window.duckpilot.scene; s.paused = false;"
+                  " s.camera.position.set(0.26, 0.6, -0.72); s.controls.target.set(0.55, 0.45, -0.25); s.controls.update(); }")
+    page.wait_for_timeout(2500)
+    page.evaluate(senden, ["emote", {"emotion": "freude"}])
+    page.wait_for_timeout(1200)
+
+
 def szene_werte(page, base, sprache):
     """Knowlins Kopf (seit 0.38.42–0.38.45): Werte und Grenzen, darunter die Gedankenspur."""
     A.einstellen(page, {"modul": "so101", "backend": "sim", "sim_physik": False, "sprache": sprache})
@@ -304,6 +315,7 @@ def szene_training(page, base, sprache):
 
 
 SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi, "ari": szene_ari,
+          "stackchan": szene_stackchan,
           "werte": szene_werte,
           "synapsen": szene_synapsen, "charakter": szene_charakter, "tanz": szene_tanz, "team": szene_team,
           "akrobatik": szene_akrobatik, "training": szene_training}

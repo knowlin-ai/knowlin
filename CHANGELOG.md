@@ -9,6 +9,23 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## Unveröffentlicht
+
+### Neu
+- **Stack-chan als fünfter Körper** (Maintainer: „Ok mach“ auf den Vorschlag, den günstigsten Roboter mit Gesicht
+  aufzunehmen): der offene Schreibtisch-Roboter der Community (Apache-2.0, auch von M5Stack) im Simulator – ein Kopf
+  mit Bildschirmgesicht, der dreht und nickt, Gefühle mit Augen und Mund zeigt und beim Sprechen den Mund bewegt.
+  Seine Verkörperung heißt Stacki. Eigene Kachel auf der Startseite mit Porträt, Schnellbefehle, Verknüpfung „Knowlin
+  - Stack-chan“. Neues Wort `gesicht` in der Körperschnittstelle; das Werkzeug für Gefühle zeigt sie bei ihm im
+  Gesicht. Gezeichnet nach Fotos, ohne Dateien des Projekts.
+
+### Sicherheit
+- Stack-chan erfüllt die Pflichten der Körperschnittstelle (`python -m duckpilot.koerper_pruefung stackchan`): Not-Aus
+  macht ihn stromlos, Kopf bleibt in seinen Grenzen, Unbekanntes wird abgelehnt.
+
+### Nicht geprüft
+- Echter Stack-chan: noch nicht angebunden, nur Simulator.
+
 ## 0.38.57 – 2026-11-14 – Vormachen mit Ari, Rückblick je Körper, „Lernt von dir, mit dir, für dich.“
 
 ### Neu

@@ -30,7 +30,7 @@ exposes itself as an MCP server. What none of these define is what a body means 
 - `skills`, `echt` / `simulator`, `quelle` (https), `lizenz`.
 
 **Vocabulary:** `beine` (legs), `raeder` (wheels), `kopf` (head), `koerperdrehung` (body turn), `schnabel` (beak), `arm`,
-`greifer` (gripper), `antennen`, `augen_leds`, `stimmbank` (own sounds), `tiefensensor` (depth), `kamera`, `mikrofon`,
+`greifer` (gripper), `antennen`, `augen_leds`, `gesicht` (face on a screen, since 0.38.58), `stimmbank` (own sounds), `tiefensensor` (depth), `kamera`, `mikrofon`,
 `lautsprecher`, `pollen_bewegungen`. Runtime flags: `simulator`, `zuruecksetzen`, `physik`, `policies`. The full
 descriptions are in `GET /api/koerper/wortschatz`.
 

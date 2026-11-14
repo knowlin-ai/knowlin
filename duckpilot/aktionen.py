@@ -61,7 +61,7 @@ AKTIONEN: dict[str, dict[str, Any]] = {
 }
 
 # Was in jeder Lage geht, ohne den Körper zu belasten: nur der Kopf (z. B. hochgehoben)
-NUR_KOPF = {"kopf", "stimmbank", "antennen"}
+NUR_KOPF = {"kopf", "stimmbank", "antennen", "gesicht"}
 
 
 def aushandeln(aktion: str, faehigkeiten: set[str], lage: dict[str, bool]) -> dict[str, Any]:

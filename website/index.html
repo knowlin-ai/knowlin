@@ -168,7 +168,7 @@ section { padding-block: clamp(72px, 10vw, 136px); }
 .fakten li + li::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--linie); margin-right: 10px; }
 @media (max-width: 520px) { .fakten { flex-direction: column; gap: 4px; } .fakten li + li::before { display: none; } }
 
-/* Die vier Körper als Ziele für den Impuls aus dem Kopf */
+/* Die Körper als Ziele für den Impuls aus dem Kopf */
 .anker-reihe { align-self: end; justify-self: center; display: flex; gap: 10px; flex-wrap: nowrap; justify-content: center; margin-bottom: -8px; }
 .anker {
   display: grid; gap: 2px; justify-items: start; min-width: 0; min-height: 56px; padding: 10px 14px 11px;
@@ -189,7 +189,7 @@ section { padding-block: clamp(72px, 10vw, 136px); }
   .anker-reihe { order: 1; margin: 230px 0 8px; justify-self: stretch; }
   .anker { flex: 1 1 0; min-width: 0; }
 }
-/* Handy: vier Körper nebeneinander – Schrift wächst mit der Breite, Namen bleiben im Rahmen (Fund 12.11.: „Microduck“
+/* Handy: alle Körper nebeneinander – Schrift wächst mit der Breite, Namen bleiben im Rahmen (Fund 12.11.: „Microduck“
    ragte über den Rand, „Open Duck Mini“ brach dreizeilig um) */
 @media (max-width: 560px) {
   .anker-reihe { gap: 6px; }
@@ -484,6 +484,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <button type="button" class="anker" id="anker-reachy" data-anker="reachy" aria-pressed="false">Reachy Mini<small><span class="t" lang="de">schaut und spielt</span><span class="t" lang="en">looks and plays</span></small></button>
         <button type="button" class="anker" id="anker-odi" data-anker="odi" aria-pressed="false">Open Duck Mini<small><span class="t" lang="de">watschelt</span><span class="t" lang="en">waddles</span></small></button>
         <button type="button" class="anker" id="anker-ari" data-anker="ari" aria-pressed="false">SO-101<small><span class="t" lang="de">greift und räumt</span><span class="t" lang="en">grabs and tidies</span></small></button>
+        <button type="button" class="anker" id="anker-stackchan" data-anker="stackchan" aria-pressed="false">Stack-chan<small><span class="t" lang="de">schaut und lächelt</span><span class="t" lang="en">looks and smiles</span></small></button>
       </div>
     </div>
   </section>
@@ -491,7 +492,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
     <div class="fenster">
         <div class="titel" aria-hidden="true"><i></i><i></i><i></i></div>
         <img data-bild="start" src="bilder/start-de-1600.webp" srcset="bilder/start-de-900.webp 900w, bilder/start-de-1600.webp 1600w" sizes="(max-width: 1120px) 100vw, 1080px" width="1600" height="965"
-             alt="Knowlins Startseite: links das Netz seiner Gedanken, daneben das Gespräch, darunter die vier Verkörperungen zum Aufwecken und der Mentor" data-alt-en="Knowlin's start page: its network of thoughts on the left, the conversation next to it, the four embodiments below, ready to wake, and the Mentor">
+             alt="Knowlins Startseite: links das Netz seiner Gedanken, daneben das Gespräch, darunter die fünf Verkörperungen zum Aufwecken und der Mentor" data-alt-en="Knowlin's start page: its network of thoughts on the left, the conversation next to it, the five embodiments below, ready to wake, and the Mentor">
       </div>
     <p class="unterschrift">
       <span class="t" lang="de">Knowlin selbst – ganz ohne Roboter: Gespräch, Gedächtnis und Alltag am PC. Von hier aus weckst du eine Verkörperung.</span>
@@ -532,7 +533,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
   <section id="koerper">
     <div class="huelle">
       <div class="kopfzeile">
-        <h2><span class="t" lang="de">Vier Körper, ein Kopf.</span><span class="t" lang="en">Four bodies, one mind.</span></h2>
+        <h2><span class="t" lang="de">Fünf Körper, ein Kopf.</span><span class="t" lang="en">Five bodies, one mind.</span></h2>
         <p class="leit">
           <span class="t" lang="de">Jede Verkörperung hat ihren eigenen Namen, ihre Stimme und kann nur, was ihr Körper kann. Was einer erlebt, wissen alle.</span>
           <span class="t" lang="en">Each embodiment has its own name and voice, and only does what its body can do. What one of them experiences, all of them know.</span>
@@ -544,6 +545,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <button type="button" role="tab" id="tab-reachy" aria-selected="false" aria-controls="koerper-buehne" data-koerper="reachy" tabindex="-1">Reachy Mini</button>
         <button type="button" role="tab" id="tab-odi" aria-selected="false" aria-controls="koerper-buehne" data-koerper="odi" tabindex="-1">Open Duck Mini</button>
         <button type="button" role="tab" id="tab-ari" aria-selected="false" aria-controls="koerper-buehne" data-koerper="ari" tabindex="-1">SO-101</button>
+        <button type="button" role="tab" id="tab-stackchan" aria-selected="false" aria-controls="koerper-buehne" data-koerper="stackchan" tabindex="-1">Stack-chan</button>
       </div>
       <div class="buehne" id="koerper-buehne" role="tabpanel" aria-labelledby="tab-microduck">
         <div class="buehne-bild">
@@ -569,7 +571,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <p class="leit"><span class="t" lang="de">Alles läuft heute schon – im Simulator auf deinem PC, mit echter Physik, ohne Konto und ohne Kosten. Wenn dein Roboter kommt, kann er es auch.</span><span class="t" lang="en">All of this works today – in the simulator on your PC, with real physics, no account, no cost. When your robot arrives, it can do it too.</span></p>
       </div>
       <ul class="zahlen">
-        <li><b>4</b><span><span class="t" lang="de">Körper – und deiner</span><span class="t" lang="en">bodies – and yours</span></span></li>
+        <li><b>5</b><span><span class="t" lang="de">Körper – und deiner</span><span class="t" lang="en">bodies – and yours</span></span></li>
         <li><b>1</b><span><span class="t" lang="de">Gedächtnis für alle</span><span class="t" lang="en">memory for all</span></span></li>
         <li><b>8</b><span><span class="t" lang="de">Enten tanzen mit</span><span class="t" lang="en">ducks dance along</span></span></li>
         <li><b>0 €</b><span><span class="t" lang="de">lokal und offen</span><span class="t" lang="en">local and open</span></span></li>
@@ -831,6 +833,15 @@ profil = Koerper(
         zeilen: [['Simulator', 'ja', 'with its open 3D model and workbench'], ['Real robot', 'bald', 'via LeRobot – not yet tested'], ['Senses', null, 'depending on the setup (camera optional)']],
         alt: 'The SO-101 arm in the simulator at its workbench with cubes and boxes, with the conversation next to it' },
     },
+    stackchan: {
+      bild: 'stackchan',
+      de: { name: 'Stack-chan', von: 'Stack-chan-Community · M5Stack', text: 'Ein kleiner Schreibtisch-Roboter mit Bildschirmgesicht. Dreht und nickt mit dem Kopf, zeigt Gefühle mit Augen und Mund, bewegt beim Sprechen den Mund – der günstigste Körper mit Wesenszug.',
+        zeilen: [['Simulator', 'ja', 'auf dem Couchtisch'], ['Echter Roboter', 'bald', 'geplant'], ['Sinne', null, 'Kamera, Mikrofone, Lautsprecher']],
+        alt: 'Stack-chan im Simulator auf dem Couchtisch mit fröhlichem Gesicht, daneben das Gespräch' },
+      en: { name: 'Stack-chan', von: 'Stack-chan community · M5Stack', text: 'A small desktop robot with a face on a screen. Turns and nods its head, shows feelings with eyes and mouth, moves its mouth while talking – the most affordable body with a nature of its own.',
+        zeilen: [['Simulator', 'ja', 'on the coffee table'], ['Real robot', 'bald', 'planned'], ['Senses', null, 'camera, microphones, speaker']],
+        alt: 'Stack-chan in the simulator on the coffee table with a happy face, with the conversation next to it' },
+    },
   };
 
   const quelle = (name, w) => `bilder/${name}-${sprache()}-${w}.webp`;
@@ -851,6 +862,8 @@ profil = Koerper(
     odi: [['Projekt auf GitHub', 'Project on GitHub', 'https://github.com/apirrone/Open_Duck_Mini']],
     ari: [['Projekt auf GitHub', 'Project on GitHub', 'https://github.com/TheRobotStudio/SO-ARM100'],
       ['LeRobot', 'LeRobot', 'https://github.com/huggingface/lerobot']],
+    stackchan: [['Projekt auf GitHub', 'Project on GitHub', 'https://github.com/stack-chan/stack-chan'],
+      ['Bausatz von M5Stack', 'Kit by M5Stack', 'https://docs.m5stack.com/en/products/sku/K151']],
   };
   const RAUS = '<svg class="raus" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9"/></svg>';
 
@@ -858,6 +871,7 @@ profil = Koerper(
   // Bildnachweis unter der Bühne (seit 0.38.40): Pollens Modelle mit Lizenz, Odi mit seinem offenen Modell
   const NACHWEIS = {
     microduck: ['Microduck', true], reachy: ['Reachy Mini', true], odi: ['Open Duck Mini v2', false], ari: ['SO-101', false],
+    stackchan: ['Stack-chan', false],
   };
   function nachweisSetzen() {
     const [modell, pollen] = NACHWEIS[aktiv];
@@ -865,6 +879,11 @@ profil = Koerper(
     const el = document.getElementById('buehne-nachweis');
     el.replaceChildren();
     el.dataset.nachweis = pollen ? 'pollen' : 'offen';
+    if (aktiv === 'stackchan') {                 // gezeichnet von Knowlin, ohne Dateien des Projekts (seit 0.38.58)
+      el.textContent = en ? 'Image: Knowlin with Stack-chan, drawn by Knowlin after photos of the open project (Apache-2.0).'
+        : 'Bild: Knowlin mit Stack-chan, von Knowlin gezeichnet nach Fotos des offenen Projekts (Apache-2.0).';
+      return;
+    }
     if (!pollen) {
       const art = modell === 'SO-101' ? 'des' : 'der';
       el.textContent = en ? `Image: Knowlin with the open 3D model of the ${modell} (Apache-2.0).`
@@ -987,10 +1006,10 @@ profil = Koerper(
     const ctx = cv.getContext('2d');
     const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
     const fein = matchMedia('(hover: hover) and (pointer: fine)');
-    const KOERPER = ['microduck', 'reachy', 'odi', 'ari'];
+    const KOERPER = ['microduck', 'reachy', 'odi', 'ari', 'stackchan'];
     const SCHRITT = 72;                         // ms, bis ein Signal ein Neuron weiter ist
     let w = 0, h = 0, dpr = 1, schmal = null;
-    let knoten = [], kanten = [], nachbarn = [], mitte = { x: 0, y: 0, r: 1 }, chips = [], ausgang = [0, 0, 0, 0];
+    let knoten = [], kanten = [], nachbarn = [], mitte = { x: 0, y: 0, r: 1 }, chips = [];
     let aktiv = null, ziel = null, leitung = null;
     let sichtbar = true, laeuft = false, zuletzt = 0, naechsteWelle = 0, beruehrt = -1e9, t0 = performance.now();
     let drehung = 0.55;
