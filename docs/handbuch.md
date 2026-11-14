@@ -183,7 +183,7 @@ nichts bis etwa 2 m. Darüber stehen Stimmung und was sie gerade tut.
 | **Kopf ruhig** | Knopf oben rechts (oder „Kopf-Stabilisator an“): Der Kopf gleicht Wackeln und Drehen des Körpers aus wie bei Huhn und Taube – beim Drehen hält der Blick, dann ein kurzer Ruck nach vorn. In echter Physik und am Roboter stellt duckpilot Kopf und Hals dafür direkt und gleicht Gieren und Rollen aus (Nicken nicht – das Servo kommt beim schnellen Schritt-Nicken nicht mit); gemessen in MuJoCo: Gieren −54 %, Rollen −13 %. Seit 0.18 mit Vorhalt gegen den Verzug der Gelenke und Ausgleich des Vor und Zurück pro Schritt (Hals und Kopf nicken gemeinsam): Drehzittern der Kopfkamera −60 %, Vor/Zurück −35 %. Seit 0.33 auch im Menü des Handy-Controllers |
 | **Ruhe / Aktiv** | Schalter oben rechts (Sonne/Mond), oder „Ruhemodus“ / „Wach auf“. In Ruhe sitzt sie mit abgeschalteten Motoren; Ansprechen, Steuern oder ein fälliger Termin weckt sie |
 | **Fahren von Hand** | `W` `S` vor/zurück, `A` `D` drehen, `Q` `E` seitwärts, oder ein Gamepad (linker Stick fahren, rechter Stick Kopf) |
-| **Stopp** | `Esc`, Not-Aus-Taster unten in der Leiste (immer sichtbar) oder „Stopp“ sagen – wirkt sofort, ohne auf Claude zu warten, und schaltet die Motoren aus (seit 0.38.24): die Ente sackt zusammen, Reachys Kopf sinkt ab, weitere Enten im Zimmer ebenso. Danach steht oder setzt sich mindestens 2 Minuten nichts von selbst; unter Einstellungen → Not-Aus länger (5 oder 10 min) und wahlweise „still, bis ich sie anspreche“ |
+| **Stopp** | `Esc`, Not-Aus-Taster unten in der Leiste (immer sichtbar) oder „Stopp“ sagen – wirkt sofort, ohne auf Claude zu warten, und schaltet die Motoren aus (seit 0.38.24): die Ente sackt zusammen, Reachys Kopf sinkt ab, weitere Enten im Zimmer ebenso. Danach steht oder setzt sich eine Weile nichts von selbst – wie lange, legst du unter Einstellungen → Not-Aus fest, dort auch wahlweise „still, bis ich sie anspreche“ |
 
 Beispiele, die Claude versteht:
 
@@ -1059,7 +1059,7 @@ Seit 0.35 kann ein anderes Modell denken: **Einstellungen → KI-Modell → „A
 ## Andere Programme steuern die Ente (MCP)
 
 duckpilot ist auch ein **MCP-Server** (Model Context Protocol): Claude Desktop, Claude Code oder eigene Agenten können
-die Ente über duckpilot bewegen – mit denselben Sicherheitsregeln wie überall (Not-Aus gewinnt, 2 Minuten Sperre,
+die Ente über duckpilot bewegen – mit denselben Sicherheitsregeln wie überall (Not-Aus gewinnt, Sperre danach,
 Aufstehen nach einem Sturz erst nach dem Stopp-Fenster, hochgehoben nie).
 
 - **Einschalten:** System → Einstellungen → Claude → „Andere Programme dürfen steuern (MCP)“, dann „Neuen Schlüssel
@@ -1340,8 +1340,8 @@ Unten auf der Alltag-Seite, alles standardmäßig **aus**:
   (Name, Häkchen, 5 Webcam-Bilder mit leicht gedrehtem Kopf). Gespeichert werden nur Zahlenmerkmale
   (Gesichts-Embeddings von YuNet/SFace aus dem OpenCV Zoo, lokal mit onnxruntime), **nie Bilder**;
   Fremde bleiben „unbekannt“ und werden nie gespeichert. Erkennt sie jemanden, sagt sie „Hallo …“ und
-  winkt – höchstens alle 30 Minuten je Person, nicht in Ruhe und nicht in den zwei Minuten nach einem
-  Not-Aus. „Wer ist da?“ fragt sie auch direkt. Einzeln oder alle **löschen** jederzeit. Einrichtung:
+  winkt – höchstens alle 30 Minuten je Person, nicht in Ruhe und nicht während der
+  Sperre nach einem Not-Aus. „Wer ist da?“ fragt sie auch direkt. Einzeln oder alle **löschen** jederzeit. Einrichtung:
   zwei kleine Pakete (≈ 60 MB) und einmal die zwei Modelle (≈ 39 MB).
 - **Nur am PC:** Sehen, Personen und Begrüßen ein- oder ausschalten, die Augen wählen, Personen anlernen
   und löschen. Begrüßungen mit Namen erscheinen nur in den Fenstern am PC, und „Wer ist da?“ beantwortet

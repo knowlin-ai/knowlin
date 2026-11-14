@@ -329,6 +329,14 @@ footer a { color: inherit; text-decoration: underline; text-decoration-color: va
 .liste li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; }
 .liste li::before { content: ""; width: 6px; height: 6px; margin-top: 0.62em; border-radius: 50%; background: var(--akzent); justify-self: center; }
 
+/* ── Die Idee (seit 0.38.57): von dir, mit dir, für dich – drei Wege, nebeneinander, keine Reihenfolge ── */
+.lernen { margin: 44px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.lernen li { display: grid; gap: 10px; align-content: start; padding-top: 22px; border-top: 1px solid var(--linie); }
+.lernen h3 { font-size: clamp(1.5rem, 2.6vw, 2rem); line-height: 1.1; letter-spacing: -0.02em; }
+.lernen p { color: var(--tinte-2); }
+.nachsatz { margin-top: 40px; }
+@media (max-width: 860px) { .lernen { grid-template-columns: 1fr; } }
+
 /* ── Sicherheit: ein Datenblatt ── */
 .sicher { background: var(--flaeche); border-block: 1px solid var(--linie); }
 .blatt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 44px; border-top: 1px solid var(--linie); }
@@ -428,6 +436,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
   <div class="huelle">
     <a class="marke" href="#start" aria-label="Knowlin – Startseite"><img src="bilder/zeichen-64.webp" alt="" width="30" height="30">Knowlin</a>
     <nav class="navi" aria-label="Seite">
+      <a href="#idee"><span class="t" lang="de">Idee</span><span class="t" lang="en">Idea</span></a>
       <a href="#koerper"><span class="t" lang="de">Körper</span><span class="t" lang="en">Bodies</span></a>
       <a href="#funktionen"><span class="t" lang="de">Funktionen</span><span class="t" lang="en">Features</span></a>
       <a href="#sicherheit"><span class="t" lang="de">Sicherheit</span><span class="t" lang="en">Safety</span></a>
@@ -489,6 +498,36 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
       <span class="t" lang="en">Knowlin itself – no robot needed: conversation, memory and everyday help on your PC. From here you wake an embodiment.</span>
     </p>
   </div>
+
+  <section id="idee" aria-labelledby="idee-titel">
+    <div class="huelle">
+      <div class="kopfzeile">
+        <h2 id="idee-titel"><span class="t" lang="de">Lernt von dir, mit dir, für dich.</span><span class="t" lang="en">Learns from you, with you, for you.</span></h2>
+        <p class="leit">
+          <span class="t" lang="de">Knowlin ist der Kopf für Assistenten mit Wesenszug: mit Armen, Beinen, Kopf, Stimme, Gefühlen und Charakter – als Roboter bei dir zu Hause oder als Begleiter am PC. Er denkt in Aufgaben, nicht in Befehlen. Jeder Körper setzt sie so um, wie es seinem Wesen entspricht, und sagt ehrlich, was er nicht kann. Charakter und Wissen bleiben, auch wenn Körper oder Sprachmodell wechseln.</span>
+          <span class="t" lang="en">Knowlin is the mind for assistants with a nature of their own: arms, legs, a head, a voice, feelings and character – as a robot in your home or as a companion on your PC. It thinks in tasks, not commands. Each body carries them out the way its nature allows and says honestly what it can't do. Character and knowledge stay, even when the body or the language model changes.</span>
+        </p>
+      </div>
+      <ul class="lernen">
+        <li>
+          <h3><span class="t" lang="de">Von dir</span><span class="t" lang="en">From you</span></h3>
+          <p><span class="t" lang="de">Er hört zu, wenn du etwas erklärst, schaut zu, wie du es machst, und merkt sich, was dir wichtig ist. Vormachen geht auch, muss aber nicht sein.</span><span class="t" lang="en">It listens when you explain something, watches how you do it and remembers what matters to you. Showing it works too, but you don't have to.</span></p>
+        </li>
+        <li>
+          <h3><span class="t" lang="de">Mit dir</span><span class="t" lang="en">With you</span></h3>
+          <p><span class="t" lang="de">Er probiert, du korrigierst. Aus dem, was ihr gemeinsam erlebt, wird eure Geschichte – im Gedächtnis, das nur auf deinem PC liegt.</span><span class="t" lang="en">It tries, you correct. What you experience together becomes your shared story – in a memory that lives only on your PC.</span></p>
+        </li>
+        <li>
+          <h3><span class="t" lang="de">Für dich</span><span class="t" lang="en">For you</span></h3>
+          <p><span class="t" lang="de">Er lernt, was dir hilft, und richtet seine Absichten danach. Was er gelernt hat, kannst du ansehen, korrigieren und löschen.</span><span class="t" lang="en">It learns what helps you and shapes its intentions around that. You can see, correct and delete what it has learned.</span></p>
+        </li>
+      </ul>
+      <p class="leit nachsatz">
+        <span class="t" lang="de">Nur eines lernt er nicht um: seine Werte und Sicherheitsgrenzen. Die stehen im Code – kein Sprachmodell und keine Überredung verschiebt sie.</span>
+        <span class="t" lang="en">There is one thing it never relearns: its values and safety limits. They live in the code – no language model and no persuasion moves them.</span>
+      </p>
+    </div>
+  </section>
 
   <section id="koerper">
     <div class="huelle">
@@ -658,8 +697,8 @@ profil = Koerper(
           <p><span class="t" lang="de">Not-Aus gewinnt immer – Taste, roter Knopf oder „Stopp“ in jeder Sprache, auch ohne KI.</span><span class="t" lang="en">The emergency stop always wins – key, red button or “stop” in any language, even without AI.</span></p>
         </div>
         <div>
-          <span class="wert">120<small>s</small></span>
-          <p><span class="t" lang="de">Sperre nach dem Not-Aus. In dieser Zeit steht nichts von selbst auf und nichts startet.</span><span class="t" lang="en">Lock after an emergency stop. Nothing gets up or starts by itself during that time.</span></p>
+          <span class="wert"><span class="t" lang="de">einstellbar</span><span class="t" lang="en">adjustable</span></span>
+          <p><span class="t" lang="de">Sperre nach dem Not-Aus – wie lange, legst du fest. So lange steht nichts von selbst auf und nichts startet.</span><span class="t" lang="en">Lock after an emergency stop – you decide how long. Until then nothing gets up or starts by itself.</span></p>
         </div>
         <div>
           <span class="wert"><span class="t" lang="de">nie</span><span class="t" lang="en">never</span></span>

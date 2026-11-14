@@ -13,7 +13,7 @@ Oberfläche kommt aus `duckpilot/i18n/ui_en.json`.
 A contribution that weakens any of these will not be merged:
 
 - **Emergency stop wins.** “Stop” (any language) and the stop button halt everything at once, with or without an AI model.
-- **120 s lock** after an emergency stop – nothing stands up or starts by itself.
+- **Lock** after an emergency stop – nothing stands up or starts by itself for as long as the user has set.
 - **Getting up after a fall** only after the stop window and never while the robot is picked up.
 - **Paid training** (cloud GPUs) only with two clicks.
 - **Secrets** only in the system vault (keyring) – never in files, logs, reports or the repository.

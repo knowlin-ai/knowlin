@@ -193,7 +193,7 @@ Spracherkennung „Lokal“, dazu einmal `.venv/bin/pip install faster-whisper`)
 
 | | |
 |---|---|
-| **Not-Aus gewinnt** | <kbd>Esc</kbd>, der rote Knopf oder „Stopp“ halten sofort alles an – mit oder ohne KI. Danach steht oder setzt sich eine Weile nichts von selbst – Standard zwei Minuten, einstellbar von 15 Sekunden bis 10 Minuten. |
+| **Not-Aus gewinnt** | <kbd>Esc</kbd>, der rote Knopf oder „Stopp“ halten sofort alles an – mit oder ohne KI. Danach steht oder setzt sich eine Weile nichts von selbst – wie lange, legst du in den Einstellungen fest. |
 | **Schlüssel** | nur im Tresor des Betriebssystems, nie in Dateien, Protokollen oder Berichten. |
 | **Personen und Kamera** | Gesichter und Namen nur am PC, nur angelernt und mit Einwilligung. Kamera-Spiele werten das Bild nur im Browser aus – kein Bild verlässt den PC. |
 | **Daten** | Karte, Sichtungen und Gedächtnis bleiben auf diesem PC und gehen nie in ein Knowlet. |

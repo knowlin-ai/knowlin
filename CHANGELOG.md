@@ -27,6 +27,14 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   (Arm ohne Arm, Laufen ohne Beine), fallen beim nächsten Rückblick weg.
 - **Gedächtnis:** Die Karten stießen ohne Abstand aneinander; jetzt mit Luft dazwischen.
 
+### Geändert
+- **Website: neuer Abschnitt „Lernt von dir, mit dir, für dich.“** Knowlin ist der Kopf für Assistenten mit
+  Wesenszug – mit Armen, Beinen, Kopf, Stimme, Gefühlen und Charakter, als Roboter oder als Begleiter am PC. Er denkt
+  in Aufgaben statt in Befehlen, jeder Körper setzt sie nach seinem Wesen um; Werte und Grenzen lernt er nie um. Neuer
+  Punkt „Idee“ in der Navigation.
+- **Sperre nach dem Not-Aus** (Maintainer: „sag einfach, dass man es definieren kann“): Website, README, Handbuch,
+  CONTRIBUTING und SECURITY nennen keine feste Zeit mehr, sondern dass du sie einstellst. Die Regel selbst bleibt.
+
 ### Nicht geprüft
 - Vormachen mit echter Webcam und Hand: im Prüfaufbau nur mit simulierter Kamera (Fenster, Hinweis, Beenden) und
   Tests der Umrechnung und des Greifens.

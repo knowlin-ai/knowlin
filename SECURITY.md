@@ -12,7 +12,7 @@ Especially interesting:
 
 - ways to reach the interface, the phone remote or MCP from outside your PC or home network without pairing,
 - ways to read keys or secrets from the vault, logs, reports or the browser,
-- ways to bypass the emergency stop, the 120 s lock or the two-click rule for paid training,
+- ways to bypass the emergency stop, the lock after it or the two-click rule for paid training,
 - ways to see people data from a phone,
 - Knowlets that get past the package check (`duckpilot/knowlets.py`): files outside the package, code, oversized
   archives, or texts that end up as instructions,
