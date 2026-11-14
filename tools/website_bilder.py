@@ -222,20 +222,21 @@ def szene_stackchan(page, base, sprache):
 
 
 def szene_bittle(page, base, sprache):
-    """Bittle X (seit 0.38.59): Bello trabt ein Stück durchs Wohnzimmer – mitten im Schritt angehalten, nah herangeholt."""
-    satz = "Bello, lauf ein Stück vorwärts" if sprache == "de" else "Bello, walk forward a bit"
-    _koerper(page, base, "bittle", sprache, satz)
-    try:
-        page.wait_for_function("() => { const t = (window.duckpilot.state || {}).twist || {}; return Math.hypot(t.vx || 0,"
-                               " t.vy || 0) > 0.01; }", timeout=30000)
-    except Exception:  # noqa: BLE001
-        senden = "([n, a]) => window.duckpilot.send({type: 'tool', name: n, args: a})"
-        page.evaluate(senden, ["move", {"vx": 0.15, "seconds": 3}])
-        page.wait_for_timeout(1200)
+    """Bittle X (seit 0.38.59): Bello mitten im Trab, schräg von vorn – wie bei Stacki ein paar Bilder von Hand rechnen
+    (Trabschritt fest vorgegeben, damit keine Leerlauf-Geste dazwischenkommt), dann die 3D-Ansicht anhalten."""
+    _koerper(page, base, "bittle", sprache, "Hallo Bello, wie geht's dir?" if sprache == "de" else "Hi Bello, how are you?")
     page.evaluate("""() => { const s = window.duckpilot.scene; s.follow = false; if (s.intro) s.intro.done = true;
-        const r = s.duck.root.position;
-        s.camera.position.set(r.x + 0.22, 0.2, r.z + 0.34); s.controls.target.set(r.x + 0.02, 0.06, r.z); s.controls.update();
-        for (let i = 0; i < 4; i++) s._frame(); s.paused = true;
+        const d = s.duck, alt = d.update, st0 = window.duckpilot.state || {};
+        const trab = { ...st0, powered: true, sitting: false, fallen: false, twist: { vx: 0.15, vy: 0, vyaw: 0 },
+          gait_phase: 0.9, kopf_lage: { yaw: 0.25, pitch: 0.1 } };
+        d.update = () => alt.call(d, trab, 0.2);
+        for (let i = 0; i < 12; i++) d.update();
+        const r = d.root.position, y = d.root.rotation.y, fx = Math.cos(y), fz = -Math.sin(y);
+        s.camera.position.set(r.x + fx * 0.4 - fz * 0.3, 0.2, r.z + fz * 0.4 + fx * 0.3);
+        s.controls.target.set(r.x + fx * 0.03, 0.07, r.z + fz * 0.03); s.controls.update();
+        const rechts = s.camera.position.clone().setFromMatrixColumn(s.camera.matrixWorld, 0).multiplyScalar(0.11);
+        s.camera.position.add(rechts); s.controls.target.add(rechts); s.controls.update();
+        for (let i = 0; i < 6; i++) s._frame(); s.paused = true; d.update = alt;
         document.getElementById('ticker').replaceChildren(); }""")
     page.wait_for_timeout(500)
 
