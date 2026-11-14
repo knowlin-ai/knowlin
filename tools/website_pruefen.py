@@ -239,8 +239,11 @@ def main() -> int:
         b.pruefe("Pfeiltaste wählt den nächsten Körper (Fokus folgt)", gewaehlt == "tab-reachy" and fokus == "tab-reachy",
                  f"{gewaehlt}/{fokus}")
         p.keyboard.press("End"); p.wait_for_timeout(400)
-        b.pruefe("Ende springt zum letzten Körper (Ari, seit 0.38.50)",
-                 p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id") == "tab-ari")
+        b.pruefe("Ende springt zum letzten Körper (Stack-chan, seit 0.38.58)",
+                 p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id") == "tab-stackchan")
+        stack_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
+        p.keyboard.press("ArrowLeft"); p.wait_for_timeout(400)                   # zu Ari
+        ari_steck = p.text_content(".steckbrief") or ""
         ari_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
         # Fund 12.11.: Mit fest drei Spalten rutschte der vierte Reiter unter Microduck, der Schieber lag daneben
         reihe = p.evaluate("""() => { const t = [...document.querySelectorAll('.wahl [role=tab]')];
@@ -252,7 +255,8 @@ def main() -> int:
                  reihe["zeilen"] == 1 and reihe["versatz"] <= 4, str(reihe))
         p.keyboard.press("ArrowLeft"); p.wait_for_timeout(400)                   # zurück zu Odi
         steck = p.text_content(".steckbrief") or ""
-        b.pruefe("Steckbrief passt zum gewählten Körper", "Open Duck Mini v2" in steck, steck[:60])
+        b.pruefe("Steckbrief passt zum gewählten Körper", "Open Duck Mini v2" in steck and "SO-101" in ari_steck,
+                 f"{steck[:40]} / {ari_steck[:40]}")
         odi_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
         p.keyboard.press("Home"); p.wait_for_timeout(400)
         # Bildnachweis (seit 0.38.40): jedes sichtbare Bild mit Pollens Modell hat im selben Abschnitt einen Nachweis
@@ -264,9 +268,9 @@ def main() -> int:
             const ok = n && n.offsetParent && /Pollen Robotics/.test(n.textContent) && /CC BY-NC-SA 4\\.0/.test(n.textContent)
               && n.querySelector('a[href*="creativecommons.org/licenses/by-nc-sa/4.0"]');
             return !ok; }).map((img) => img.dataset.bild)""", list(POLLEN_BILDER))
-        b.pruefe("Bildnachweis: jedes Bild mit Pollens Modell nennt Urheber und Lizenz (Odi und Ari ohne)",
-                 not ohne and odi_nachweis == ari_nachweis == "offen",
-                 f"ohne Nachweis: {ohne} · Odi: {odi_nachweis} · Ari: {ari_nachweis}")
+        b.pruefe("Bildnachweis: jedes Bild mit Pollens Modell nennt Urheber und Lizenz (Odi, Ari, Stack-chan ohne)",
+                 not ohne and odi_nachweis == ari_nachweis == stack_nachweis == "offen",
+                 f"ohne Nachweis: {ohne} · Odi: {odi_nachweis} · Ari: {ari_nachweis} · Stack-chan: {stack_nachweis}")
         ctx.close()
 
         # 5 · Ohne JavaScript
