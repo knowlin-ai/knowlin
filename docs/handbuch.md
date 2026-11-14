@@ -114,12 +114,17 @@ Ein kleiner Schreibtisch-Roboter aus der Community (Apache-2.0, heute auch als B
 Bildschirm als Kopf, darunter zwei Servos zum Drehen und Nicken, dazu Kamera, Mikrofone und Lautsprecher. Seine
 Verkörperung heißt **Stacki** – quirlig, mit heller Stimme. Öffnen über die Kachel „Stack-chan“ auf der Startseite.
 
-- **Im Simulator:** Stacki steht auf dem Couchtisch, dreht den Kopf (bis ±80°) und nickt (bis ±23°). Seit 0.38.61 mit
+- **Im Simulator:** Stacki steht auf dem Couchtisch, dreht den Kopf (bis ±170°, echt endlos) und nickt – seit 0.38.62
+  wie beim StackChan von M5Stack fast nur nach oben (bis 80°, nach unten 10°). Seit 0.38.61 mit
   Gehäuse und Füßen aus den offenen Gehäusedaten der Community (Apache-2.0) und in deren echten Maßen. Laufen, Greifen
   und Entenlaute gibt es nicht – die Knöpfe verschwinden, und er sagt es ehrlich.
 - **Gesicht:** Augen und Mund auf dem Bildschirm zeigen Gefühle (froh, traurig, überrascht, wütend, müde, neugierig,
   verlegen), der Mund bewegt sich beim Sprechen, beim Zuhören schaut er aufmerksam, beim Nachdenken nach oben. Er
   blinzelt ab und zu. Schnellbefehle: Aufwachen, Schlafen, Hallo sagen, Freuen, Umschauen, Mitwippen.
+- **Wie das Original (seit 0.38.62):** Streicheln über die Berührungsfläche oben macht ihn froh, Schütteln schwindelig
+  (Spiralaugen) – über die Knöpfe „Streicheln“ und „Schütteln“ oder per Satz („Ich streichel dich mal“). Nach fünf
+  Minuten ohne Ansprache schläft er ein (Augen zu, „Zz“); jede Ansprache weckt ihn. Zwei Reihen LEDs über dem
+  Bildschirm leuchten grün, wenn er zuhört, und blau, wenn er spricht.
 - **Not-Aus:** wie bei jedem Körper sofort stromlos – der Kopf sinkt, die Augen gehen zu.
 - **Echter Stack-chan:** noch nicht angebunden. Den M5Stack-Kasten mit Bildschirm und das Gesicht zeichnet Knowlin
   selbst; Gehäuse und Füße kommen aus `case/case_SG90` des Projekts (Herkunft in `static/model/LIZENZ-stackchan.md`).

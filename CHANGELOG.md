@@ -9,6 +9,27 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.62 – 2026-11-14 – Stacki wie das Original: Berührung, Schlaf, LEDs
+
+### Neu
+- **Stacki spürt Berührung** (Funktionsabgleich mit M5Stacks StackChan, Maintainer: „Ok“): neues Körperwort
+  `beruehrung` und Werkzeug `beruehren` – Streicheln über die Fläche oben macht ihn froh (Kopf hebt sich kurz),
+  Schütteln schwindelig (Spiralaugen, Wellenmund, Kopf wackelt). Knöpfe „Streicheln“ und „Schütteln“ im Cockpit, ohne
+  KI-Modell auch per Satz („Ich streichel dich mal“) – nur bei Körpern mit Berührung.
+- **Stacki schläft ein** nach fünf Minuten ohne Ansprache (Augen zu, „Zz“, Kopf gesenkt) – jede Ansprache weckt ihn.
+- **LEDs über dem Bildschirm** (zwei Reihen à sechs): grün beim Zuhören, blau beim Sprechen (`state().gesicht.led`).
+
+### Geändert
+- **Stackis Kopf in den echten Grenzen:** Drehen bis ±170° (echt endlos), Nicken bis 80° nach oben und 10° nach unten
+  – vorher ±80° und ±23°.
+- README (englisch): Stacki mit Originalgehäuse statt „drawn“.
+
+### Sicherheit
+- Nach dem Not-Aus spürt Stacki keine Berührung; Berührung ist auch hochgehoben erlaubt (bewegt nur Kopf und Gesicht).
+
+### Nicht geprüft
+- Echter Stack-chan (noch nicht angebunden).
+
 ## 0.38.61 – 2026-11-14 – Bellos Tricks, Stacki im Originalgehäuse, Suche bei den Tricks
 
 ### Neu

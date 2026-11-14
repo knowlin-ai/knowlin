@@ -19,10 +19,11 @@ const M5_X = 0.023, M5_T = 0.018;            // M5Stack-Kasten vor der Schale: M
 const BILD_B = 0.0408, BILD_H = 0.0306;      // sichtbarer Bildschirm (2 Zoll, 4:3)
 const BILD_X = M5_X + M5_T / 2 + 0.0004, BILD_Y = KOPF_Y + 0.004;
 const PX = 160;               // Breite der Gesichts-Textur (Höhe 3/4)
+const LED = { gruen: 0x34d27a, blau: 0x3d8bff };
 
 // Gesicht auf die Zeichenfläche: schwarzer Grund, weiße Augen und Mund wie das Standardgesicht des Projekts.
 // a = Ausdruck, m = Mund offen 0…1, auf = Augen offen 0…1, bx/by = Blick (−1…1)
-export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by = 0 }) {
+export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by = 0, zz = false }) {
   const w = PX, h = PX * 0.75;
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, w, h);
@@ -32,7 +33,15 @@ export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by =
   for (const s of [-1, 1]) {
     const x = w / 2 + s * w * 0.24 + bx * 8;
     ctx.beginPath();
-    if (a === 'froh' && auf > 0.2) {                       // lachende Augen: Bögen nach oben
+    if (a === 'schwindelig' && auf > 0.2) {                // schwindelig (seit 0.38.62): Spiralen
+      ctx.lineWidth = 3.5;
+      for (let i = 0; i <= 40; i++) {
+        const w2 = i / 40 * Math.PI * 5, rr = r * i / 40;
+        const px = x + rr * Math.cos(w2 * s), py = augeY + rr * Math.sin(w2 * s);
+        if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+      }
+      ctx.stroke();
+    } else if (a === 'froh' && auf > 0.2) {                // lachende Augen: Bögen nach oben
       ctx.lineWidth = 6;
       ctx.arc(x, augeY + 4, r, Math.PI * 1.15, Math.PI * 1.85);
       ctx.stroke();
@@ -75,9 +84,21 @@ export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by =
   } else if (a === 'traurig') {
     ctx.arc(mx, my + 12, breit * 0.6, Math.PI * 1.25, Math.PI * 1.75);
     ctx.stroke();
+  } else if (a === 'schwindelig') {                          // Wellenmund (seit 0.38.62)
+    for (let i = 0; i <= 24; i++) {
+      const px = mx - breit * 0.6 + i * breit * 1.2 / 24, py = my + 4 * Math.sin(i / 24 * Math.PI * 4);
+      if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+    }
+    ctx.stroke();
   } else {
     ctx.moveTo(mx - breit / 2, my); ctx.lineTo(mx + breit / 2, my);
     ctx.stroke();
+  }
+  if (zz) {                                                  // schläft (seit 0.38.62): „Z z“ oben rechts
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText('Z', w * 0.8, h * 0.2);
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('z', w * 0.89, h * 0.11);
   }
 }
 
@@ -109,6 +130,18 @@ export class StackChan {
     teil(m5, rundKasten(0.001, BILD_H + 0.006, BILD_B + 0.006, 0.0015, 2), stoff(F.glas, 'glass'), BILD_X - 0.0008, BILD_Y, 0);
     for (const z of [-0.014, 0, 0.014]) {
       teil(m5, rundKasten(0.0012, 0.003, 0.008, 0.001, 2), stoff(F.knopf, 'plastic'), M5_X + M5_T / 2, KOPF_Y - 0.021, z);
+    }
+    // LEDs (seit 0.38.62, wie der StackChan von M5Stack): zwei Reihen à sechs, oben links über dem Bildschirm –
+    // grün beim Zuhören, blau beim Sprechen, sonst aus
+    this.ledStoff = new THREE.MeshStandardMaterial({ color: 0x1d1f23, emissive: 0x000000, roughness: 0.4 });
+    const ledForm = new THREE.SphereGeometry(0.0007, 8, 6);
+    for (const y of [0.0185, 0.021]) {
+      for (let i = 0; i < 6; i++) {
+        const led = new THREE.Mesh(ledForm, this.ledStoff);
+        led.position.set(M5_X + M5_T / 2 + 0.0002, y, 0.0135 + i * 0.002);
+        led.userData.einzeln = true;
+        this.headRoll.add(led);
+      }
     }
     // Bildschirm: eigene Zeichenfläche, wird nur neu gezeichnet, wenn sich das Gesicht ändert
     this.leinwand = document.createElement('canvas');
@@ -178,6 +211,14 @@ export class StackChan {
     const f = { a: g.ausdruck || 'ruhig', m: Math.round(this._mund * 8) / 8, auf,
       bx: denkt ? 0.7 : 0, by: denkt ? -0.7 : (g.ausdruck === 'verlegen' ? 0.6 : 0) };
     if (g.zustand === 'zuhoeren' && f.a === 'ruhig') f.a = 'neugierig';
+    if (g.zustand === 'schlaeft') f.zz = true;
+    const led = LED[g.led] ?? 0;                               // LEDs nach Zustand
+    if (led !== this._led) {
+      this._led = led;
+      this.ledStoff.color.setHex(led || 0x1d1f23);
+      this.ledStoff.emissive.setHex(led);
+      this.ledStoff.emissiveIntensity = led ? 2.2 : 0;
+    }
     const schluessel = JSON.stringify(f);
     if (schluessel !== this._letztes) {
       this._letztes = schluessel;

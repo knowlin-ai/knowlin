@@ -872,6 +872,26 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Tricks: Suche filtert („freu“ findet etwas, aber nicht alles), „Nichts gefunden“, leer zeigt wieder alles",
              0 < treffer < gesamt and leer and zurueck == 0, f"{info} · leer: {leer} · ausgeblendet danach: {zurueck}")
 
+    # 13c4 · Stacki spürt Berührung (seit 0.38.62): Knopf „Streicheln“ → froh, „Schütteln“ → schwindelig
+    einstellen(page, {"modul": "stackchan", "backend": "sim"})
+    oeffnen(page, base)
+    page.evaluate("() => window.duckpilot.showView('cockpit')")
+    page.wait_for_function("() => (window.duckpilot.state || {}).koerper === 'stackchan'", timeout=20000)
+    page.evaluate("() => document.querySelector('.quick.nur-stackchan [data-tool=power][data-args*=stand_up]').click()")
+    page.wait_for_function("() => ((window.duckpilot.state || {}).gesicht || {}).wach === true", timeout=20000)
+    gesehen = []
+    for art, erwartet in (("streicheln", "froh"), ("schuetteln", "schwindelig")):
+        page.evaluate(f"() => document.querySelector('.quick.nur-stackchan [data-tool=beruehren][data-args*={art}]').click()")
+        try:
+            page.wait_for_function(f"() => ((window.duckpilot.state || {{}}).gesicht || {{}}).ausdruck === '{erwartet}'",
+                                   timeout=20000)          # kommt nach seiner Begrüßung an die Reihe
+            gesehen.append(erwartet)
+        except Exception:  # noqa: BLE001
+            gesehen.append(f"nicht {erwartet}")
+    b.pruefe("Stacki: Streicheln macht froh, Schütteln schwindelig (Knöpfe im Cockpit)",
+             gesehen == ["froh", "schwindelig"], " · ".join(gesehen))
+    einstellen(page, {"modul": "duckpilot", "backend": "sim"})
+
     # 13d · Seit 0.38.19: Farbe der Microduck, Trainingsfeld mit vielen Enten
     oeffnen(page, base)
     einstellen(page, {"farbe": "lavender"})

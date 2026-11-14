@@ -45,7 +45,7 @@ def _distance(text: str, default: float = 0.4) -> float:
 
 
 def parse(text: str, koennen: frozenset[str] | set[str] = frozenset()) -> list[tuple[str, dict[str, Any]]]:
-    """Einfache Befehle erkennen. `koennen`: eigene Tricks des Körpers (Bello) – nur die werden als Hundekommando gelesen,
+    """Einfache Befehle erkennen. `koennen`: eigene Tricks und Körperwörter – nur die werden als Hundekommando gelesen,
     sonst bleibt z. B. „mach die Verbeugung“ für einen gelernten Trick der Ente beim Sprachmodell."""
     t = text.lower().strip()
     if re.search(r"\b(stopp?|halt|anhalten|aufhören|stehen bleiben|freeze|stand still|stop it)\b", t):
@@ -316,6 +316,11 @@ def _hundetrick(p: str, koennen: frozenset[str] | set[str]) -> tuple[str, dict[s
     for muster, trick in HUNDETRICKS:
         if trick in koennen and muster.search(p):
             return ("skill", {"name": trick})
+    if "beruehrung" in koennen:                       # Stack-chan (seit 0.38.62): „ich streichel dich“, „ich schüttel dich“
+        if re.search(r"streichel|\bstroke\b|\bpet you\b", p):
+            return ("beruehren", {"art": "streicheln"})
+        if re.search(r"sch(ü|ue)ttel|\bshake\b", p):
+            return ("beruehren", {"art": "schuetteln"})
     return None
 
 
@@ -511,9 +516,10 @@ class FallbackBrain:
         self.name = name or (lambda: "Quacki")
 
     def koennen(self) -> frozenset[str]:
-        """Eigene Tricks des Körpers für die Hundekommandos (Bello); sonst leer."""
+        """Eigene Tricks und Körperwörter für die körpereigenen Kommandos (Bellos Tricks, Stackis Berührung)."""
         try:
-            return frozenset(self.runner.engine.backend.skills())
+            be = self.runner.engine.backend
+            return frozenset(be.skills()) | frozenset(be.eigenschaften())
         except Exception:  # noqa: BLE001
             return frozenset()
 

@@ -573,6 +573,14 @@ ANTENNEN_TOOL = {
         "links_grad": {"type": "number"}, "rechts_grad": {"type": "number"}, "sekunden": {"type": "number"}},
         "required": ["links_grad", "rechts_grad"]},
 }
+BERUEHREN_TOOL = {
+    "name": "beruehren",
+    "description": "Der Mensch berührt den Körper (Stack-chan: Berührungsfläche oben auf dem Kopf). „streicheln“: er "
+                   "freut sich und hebt kurz den Kopf; „schuetteln“: ihm wird schwindelig. Nimm es, wenn jemand sagt, "
+                   "dass er dich streichelt oder schüttelt – nicht als eigene Geste.",
+    "input_schema": {"type": "object", "properties": {"art": {"type": "string", "enum": ["streicheln", "schuetteln"]}},
+                     "required": ["art"]},
+}
 POLLEN_TOOL = {
     "name": "pollen_bewegung",
     "description": "Reachy Mini: eine von Pollens aufgenommenen Bewegungen abspielen – Emotionen und Tänze aus Pollens "
@@ -635,6 +643,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
             tools = [*tools, ARM_TOOL, *werkbank_werkzeuge(be)]   # Arm (0.38.47, G5), Werkbank (0.38.48)
         if "antennen" in eig:
             tools = [*tools, ANTENNEN_TOOL]
+        if "beruehrung" in eig:                   # Berührung (seit 0.38.62, Stack-chan)
+            tools = [*tools, BERUEHREN_TOOL]
         if getattr(be, "koerper_art", "") == "reachy_mini":   # Reachys eigener Tanz (seit 0.38.13): nur seine Bewegungen
             from ..choreo import reachy_werkzeug
 
@@ -1015,6 +1025,12 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
                 return {"ok": False, "fehler": "Dieser Körper hat keine Antennen"}
             res = await setzen(-math.radians(_num(a, "rechts_grad", 10)), math.radians(_num(a, "links_grad", 10)),
                                _num(a, "sekunden", 1.5))
+            return {"ok": res.accepted, "grund": res.reason}
+        if name == "beruehren":
+            beruehren = getattr(eng.backend, "beruehren", None)
+            if beruehren is None:
+                return {"ok": False, "fehler": "Dieser Körper spürt keine Berührung"}
+            res = beruehren(str(a.get("art") or "streicheln"))
             return {"ok": res.accepted, "grund": res.reason}
         if name == "wo_gesehen":
             raum = getattr(self, "raum", None)

@@ -42,7 +42,7 @@ Jeder Körper beschreibt sich mit einem `duckpilot.koerper.Koerper`:
 ## Wortschatz
 
 **Fähigkeiten des Körpers:** `beine`, `raeder`, `kopf`, `koerperdrehung`, `schnabel`, `arm`, `greifer`, `antennen`,
-`augen_leds`, `gesicht` (seit 0.38.58), `stimmbank`, `tiefensensor`, `kamera`, `mikrofon`, `lautsprecher`,
+`augen_leds`, `gesicht` (seit 0.38.58), `beruehrung` (seit 0.38.62), `stimmbank`, `tiefensensor`, `kamera`, `mikrofon`, `lautsprecher`,
 `pollen_bewegungen`.
 Jedes Wort ist in `duckpilot/koerper.py` mit Bedeutung und Methode beschrieben. `GET /api/koerper/wortschatz` liefert
 die Liste.

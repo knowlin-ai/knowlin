@@ -8,7 +8,7 @@ from pathlib import Path
 
 from duckpilot import koerper
 from duckpilot.api import Head, Twist
-from duckpilot.backends.stackchan import AUSDRUECKE, KOPF_DREH, KOPF_NICK, StackChanSim, ausdruck_aus
+from duckpilot.backends.stackchan import AUSDRUECKE, KOPF_DREH, KOPF_HOCH, KOPF_RUNTER, StackChanSim, ausdruck_aus
 from duckpilot.brain.tools import ToolRunner
 from duckpilot.motion.behaviors import EMOTIONS
 from duckpilot.motion.engine import MotionEngine
@@ -27,7 +27,7 @@ def test_profil_figur_und_pruefung():
 
     p = koerper.holen("stackchan")
     assert p.fehler() == [] and p.familie == "stationaer" and "gesicht" in koerper.FAEHIGKEITEN
-    assert p.faehigkeiten == {"kopf", "gesicht", "kamera", "mikrofon", "lautsprecher"}
+    assert p.faehigkeiten == {"kopf", "gesicht", "beruehrung", "kamera", "mikrofon", "lautsprecher"}
     assert koerper.eigene_stimme(p.faehigkeiten)                     # Lautsprecher: spricht selbst
     assert p.lizenz == "Apache-2.0" and p.quelle == "https://github.com/stack-chan/stack-chan" and not p.echt
     assert figur("stackchan")["name"] == "Stacki" and not ist_ente("stackchan")
@@ -50,7 +50,7 @@ def test_steht_fest_kopf_in_grenzen():
         await sim.head(Head(0.0, -2.0, 3.0, 0.0))                       # weit über die Grenzen
         _laufen(sim, 1.5)
         lage = sim.state().kopf_lage
-        assert abs(lage["yaw"]) <= KOPF_DREH + 1e-6 and abs(lage["pitch"]) <= KOPF_NICK + 1e-6
+        assert abs(lage["yaw"]) <= KOPF_DREH + 1e-6 and -KOPF_HOCH - 1e-6 <= lage["pitch"] <= KOPF_RUNTER + 1e-6
         assert sim.state().perception.tof_mm is None or not sim.state().perception.points
     asyncio.run(go())
 
@@ -62,7 +62,7 @@ def test_gesicht_gefuehle_mund_und_not_aus():
         await sim.init()
         _laufen(sim, 3.0)
         g = sim.state().gesicht
-        assert g == {"ausdruck": "ruhig", "mund": 0.0, "wach": True, "zustand": None}
+        assert g == {"ausdruck": "ruhig", "mund": 0.0, "wach": True, "zustand": None, "led": None}
         assert sim.gefuehl_zeigen("freude", 1.0) == "froh"
         assert sim.state().gesicht["ausdruck"] == "froh"
         _laufen(sim, 2.0)
@@ -75,7 +75,7 @@ def test_gesicht_gefuehle_mund_und_not_aus():
         await sim.relax()                                               # Not-Aus: stromlos
         st = sim.state()
         assert not st.powered and st.gesicht["wach"] is False and st.gesicht["mund"] == 0.0
-        assert math.isclose(st.kopf_lage["pitch"], math.radians(18), abs_tol=1e-3)   # Kopf gesenkt
+        assert math.isclose(st.kopf_lage["pitch"], KOPF_RUNTER, abs_tol=1e-3)   # Kopf gesenkt
     asyncio.run(go())
 
 
@@ -168,3 +168,38 @@ def test_originalgehaeuse_liegt_bei_knowlin():
     assert "Apache License 2.0" in lizenz and "Stack-chan-Community" in lizenz and M.QUELLE["commit"] in lizenz
     js = (STATIC / "stackchan3d.js").read_text(encoding="utf-8")
     assert "/static/model/stackchan.dpm" in js and f"DREH_Y = {M.DREH_HOEHE}" in js
+
+
+def test_wie_das_original_beruehrung_schlaf_leds():
+    """Seit 0.38.62 (Funktionsabgleich mit M5Stacks StackChan, Maintainer: „Ok“): Kopf in den echten Grenzen (fast nur
+    nach oben nicken), Berührung oben auf dem Kopf (streicheln → froh, schütteln → schwindelig), nach fünf Minuten ohne
+    Ansprache schläft er ein, LEDs grün beim Zuhören und blau beim Sprechen. Nach dem Not-Aus spürt er nichts."""
+    from duckpilot.api import Head
+    from duckpilot.backends.stackchan import SCHLAF_NACH, kopf_lage
+    from duckpilot.brain.fallback import parse
+    assert "beruehrung" in koerper.FAEHIGKEITEN and "beruehrung" in koerper.holen("stackchan").faehigkeiten
+    assert kopf_lage(Head(head_pitch=-2.0))["pitch"] == round(-KOPF_HOCH, 4)      # hoch bis 80°
+    assert kopf_lage(Head(head_pitch=1.0))["pitch"] == round(KOPF_RUNTER, 4)      # runter nur 10°
+    sim = StackChanSim(realtime=False)
+    asyncio.run(sim.init())
+    _laufen(sim, 3.0)
+    assert sim.beruehren("streicheln").accepted
+    assert sim.state().gesicht["ausdruck"] == "froh"
+    assert sim.beruehren("schuetteln").accepted
+    assert sim.state().gesicht["ausdruck"] == "schwindelig"
+    assert not sim.beruehren("kitzeln").accepted
+    sim.gespraech("zuhoeren", 5)
+    assert sim.state().gesicht["led"] == "gruen"
+    sim.gespraech(None)
+    sim._angesprochen = sim.t - SCHLAF_NACH - 1                                  # fünf Minuten nichts
+    g = sim.state().gesicht
+    assert g["zustand"] == "schlaeft" and not g["wach"] and g["led"] is None
+    sim.gefuehl_zeigen("freude")                                                 # Ansprache weckt ihn
+    assert sim.state().gesicht["wach"]
+    k = frozenset(sim.skills()) | sim.eigenschaften()
+    assert parse("Ich streichel dich mal", k) == [("beruehren", {"art": "streicheln"})]
+    assert parse("Ich streichel dich mal") == []                                 # andere Körper: kein Kommando
+    asyncio.run(sim.relax())
+    assert not sim.beruehren("streicheln").accepted
+    js = (STATIC / "stackchan3d.js").read_text(encoding="utf-8")
+    assert "a === 'schwindelig'" in js and "ledStoff" in js and "zz" in js

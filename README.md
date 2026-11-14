@@ -118,7 +118,7 @@ dem Tisch. Jeder Körper zeigt nur, was er kann – was fehlt (Beine, Tiefensens
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone und Community | offenes Modell: laufen, Kopf, Antennen, mit Kamera ausweichen | geplant |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics und Hugging Face | Pollens Modell, Emotionen, Tänze, Spiele | über Pollens Daemon (ungetestet) |
 | **Ari** | SO-101 (Greifarm) | so101 | TheRobotStudio und Hugging Face | offenes Modell an eigener Werkbank: Gesten, sortieren, Türme bauen, aufräumen, Tic-Tac-Toe | über LeRobot (ungetestet) |
-| **Stacki** | Stack-chan (Schreibtisch-Roboter) | stackchan | Stack-chan-Community und M5Stack | Originalgehäuse (Apache-2.0): Kopf drehen und nicken, Gefühle im Bildschirmgesicht, spricht | geplant |
+| **Stacki** | Stack-chan (Schreibtisch-Roboter) | stackchan | Stack-chan-Community und M5Stack | Originalgehäuse (Apache-2.0): Kopf drehen und nicken, Gefühle im Bildschirmgesicht, Berührung, LEDs, spricht | geplant |
 | **Bello** | Bittle X (Roboterhund) | bittle | Petoi | gezeichnet: Trab, drehen, sitzen, zehn Tricks nach Petoi; Knowlin spricht für ihn | geplant (Petois serielles Protokoll) |
 | – | weitere LeRobot-Roboter (LeKiwi, Koch …) | lerobot | Hugging Face LeRobot | – | über LeRobot (Arm, Greifer, Räder; ungetestet) |
 
