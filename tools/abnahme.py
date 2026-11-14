@@ -842,7 +842,8 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     page.click("#wizard-next")
     try:
         page.wait_for_function("() => (window.duckpilot.state || {}).koerper === 'bittle'", timeout=30000)
-        page.wait_for_timeout(1500)
+        page.wait_for_function("() => !document.body.classList.contains('im-kopf')", timeout=20000)   # nach dem Übergang
+        page.wait_for_timeout(500)
     except Exception:  # noqa: BLE001
         pass
     modul = json.loads((ordner / "settings.json").read_text(encoding="utf-8")).get("modul")
