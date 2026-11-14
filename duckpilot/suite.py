@@ -16,7 +16,7 @@ from typing import Any
 
 FIGUREN_BILDER = Path(__file__).resolve().parent / "server" / "static" / "figuren"
 BILD_DATEI = {"duckpilot": "microduck.png", "reachy-mini": "reachy-mini.png", "open-duck-mini": "open-duck-mini.png",
-              "so101": "so101.png"}
+              "so101": "so101.png", "stackchan": "stackchan.png"}
 
 
 def eigenes_portraet(kid: str) -> Path:
@@ -47,6 +47,10 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
     ("so101", "SO-101", "offener Roboterarm (TheRobotStudio, LeRobot)", "fertig", "",
      "Greifen und Räumen an der eigenen Werkbank im Simulator, mit dem offenen 3D-Modell; echter Arm über LeRobot "
      "(ungetestet)."),
+    # seit 0.38.58: Stack-chan, der günstigste Körper mit Gesicht (Maintainer: „Ok mach“ auf den Vorschlag StackChan)
+    ("stackchan", "Stack-chan", "offener Schreibtisch-Roboter (Community, M5Stack)", "fertig", "",
+     "Ein Kopf mit Gesicht: dreht und nickt, zeigt Gefühle mit Augen und Mund und spricht – im Simulator; echter "
+     "Stack-chan geplant."),
     ("knowlets", "Knowlets", "Verkörperungen, Tricks und Tänze teilen", "fertig", "",
      "Charakter, Tricks und Tänze als Paket speichern, auf Hugging Face teilen und laden – nur Daten, nie Personen."),
     ("lab", "Knowlin Lab", "Trainingshalle für Module, die Bewegung lernen", "geplant", "Januar",
@@ -68,14 +72,14 @@ KERN: tuple[tuple[str, str, str], ...] = (
 # Jeder Körper hat seine Verkörperung (seit 0.38.3): Name des Körpers auf der Kachel, und ob es überhaupt ein Körper ist
 # (Lab und „Eigenes Modul“ sind Werkzeuge, keine Körper)
 KOERPER_NAME = {"duckpilot": "Microduck", "reachy-mini": "Reachy Mini", "open-duck-mini": "Open Duck Mini v2",
-                "so101": "SO-101", "mentor": "Mentor"}
+                "so101": "SO-101", "stackchan": "Stack-chan", "mentor": "Mentor"}
 
 # Werkzeug-Kacheln, die eine Seite in Knowlin öffnen (seit 0.38.5)
 ANSICHT = {"knowlets": "knowlets"}
 
 # Modul-Kachel → Einstellung `modul` (welcher Körper dranhängt); seit 0.38.1 auch Reachy Mini
 KOERPER_MODUL = {"duckpilot": "duckpilot", "reachy-mini": "reachy_mini", "open-duck-mini": "open_duck_mini",
-                 "so101": "so101"}
+                 "so101": "so101", "stackchan": "stackchan"}
 
 
 def module(koerper: str = "", aktiv: str = "duckpilot") -> list[dict[str, Any]]:

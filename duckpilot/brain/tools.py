@@ -1121,6 +1121,9 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
 
             reachy = ist_reachy(eng.backend)              # Reachy Mini: eigene Geste mit Antennen (seit 0.38.10)
             ch = B.emotion(str(a.get("emotion", "freude")), robot=eng.last_state.backend == "robotd", reachy=reachy)
+            zeigen = getattr(eng.backend, "gefuehl_zeigen", None)   # Gesicht auf dem Bildschirm (Stack-chan, seit 0.38.58)
+            if zeigen is not None:
+                zeigen(ch.title, ch.length)
             self.last_choreography = {"keyframes": (reachy and geste(ch.title)) or B.EMOTIONS[ch.title], "loops": 1,
                                       "title": ch.title}
             return started(ch)

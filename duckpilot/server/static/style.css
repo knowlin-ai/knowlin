@@ -2057,6 +2057,7 @@ body:not(.im-kopf).ohne-beine .braucht-beine, body:not(.im-kopf).ohne-tiefensens
 body:not(.im-kopf).ohne-schnabel .braucht-schnabel, body:not(.im-kopf).ohne-antennen .braucht-antennen,
 body:not(.koerper-microduck) .nur-microduck, body.koerper-microduck .ohne-microduck,
 body:not(.koerper-reachy) .nur-reachy, body.keine-ente .nur-ente, body:not(.koerper-so101) .nur-so101,
+body:not(.koerper-stackchan) .nur-stackchan, body.koerper-stackchan .ohne-stackchan,
 body:not(.spielt-ttt) .nur-ttt,
 body:not(.im-kopf).ohne-kopf .braucht-kopf, body:not(.im-kopf).ohne-arm .braucht-arm { display: none; }
 /* Sicht-Kachel mit Tiefensensor oder Kamera; Hilfetexte nur für Körper ohne Beine bzw. ohne Tiefensensor (0.38.14) –

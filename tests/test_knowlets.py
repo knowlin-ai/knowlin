@@ -91,7 +91,7 @@ def test_api_packen_pruefen_uebernehmen(tmp_settings, vault, tmp_path, monkeypat
         rt.memory.remember_trick("Winken", WINKEN)
         rt.choreos.speichere("Wippen", TANZ)
         ue = c.get("/api/knowlets").json()
-        assert [f["modul"] for f in ue["figuren"]] == ["duckpilot", "reachy_mini", "open_duck_mini", "so101"]
+        assert [f["modul"] for f in ue["figuren"]] == ["duckpilot", "reachy_mini", "open_duck_mini", "so101", "stackchan"]
         assert ue["figuren"][0]["tricks"] == ["Winken"] and ue["taenze"] == ["Wippen"] and not ue["hub"]["schluessel"]
         r = c.post("/api/knowlets/packen", json={"modul": "duckpilot", "figur": True, "tricks": ["Winken"],
                                                  "taenze": ["Wippen"], "titel": "Quacki"})

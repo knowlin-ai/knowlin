@@ -57,6 +57,12 @@ FIGUREN: dict[str, dict[str, Any]] = {
         "entenhaft": 0.0, "entenlaute": "aus", "klang_hoehe": 0.0, "klang_farbe": 0.2, "stimme_piper": "thorsten",
         "stimme_qwen": "", "weitere_enten": 0,
     }},
+    # Stack-chan (seit 0.38.58): kleiner Schreibtisch-Kopf mit Gesicht – fröhlich, neugierig, eine helle Stimme
+    "stackchan": {"name": "Stacki", "art": "Stack-chan", "ente": False, "gruss": "gruss.stackchan", "start": {
+        "duck_name": "Stacki", "wake_word": "stacki", "energie": 0.7, "humor": 0.6,   # quirlig
+        "entenhaft": 0.0, "entenlaute": "aus", "klang_hoehe": 2.0, "klang_farbe": 0.4, "stimme_piper": "kerstin",
+        "stimme_qwen": "", "weitere_enten": 0,
+    }},
 }
 
 
@@ -85,6 +91,12 @@ GESTALT: dict[str, list[dict[str, Any]]] = {
          "standard": True},
         {"id": "bastlerstolz", "name": "Bastlerstolz", "text": "erzählt gern, dass sie selbst gebaut ist", "standard": True},
         {"id": "antennen", "name": "Antennenspiel", "text": "zeigt Stimmungen gern mit den Antennen", "standard": False},
+    ],
+    "stackchan": [
+        {"id": "mimik", "name": "Mimik", "text": "zeigt Gefühle gern deutlich im Gesicht", "standard": True},
+        {"id": "nicken", "name": "Zustimmendes Nicken", "text": "nickt gern, wenn ihm etwas gefällt", "standard": True},
+        {"id": "blinzeln", "name": "Verschmitztes Blinzeln", "text": "blinzelt verschmitzt, wenn er einen Witz macht",
+         "standard": False},
     ],
     "so101": [
         {"id": "winken", "name": "Winken", "text": "winkt zur Begrüßung gern mit dem ganzen Arm", "standard": True},

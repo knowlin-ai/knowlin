@@ -329,7 +329,7 @@
           <div class="view-tools">
             <div class="stage-mode" role="radiogroup" aria-label="Blickwinkel">
               <label title="Kamera kreist um die Verkörperung"><input type="radio" name="stage-mode" value="beobachten" checked><span>Beobachten</span></label>
-              <label title="Durch die Augen der Verkörperung – ziehen zum Umschauen"><input type="radio" name="stage-mode" value="entenblick"><span class="nur-ente">Entenblick</span><span class="nur-reachy">Reachys Blick</span><span class="nur-so101">Greiferblick</span></label>
+              <label title="Durch die Augen der Verkörperung – ziehen zum Umschauen"><input type="radio" name="stage-mode" value="entenblick"><span class="nur-ente">Entenblick</span><span class="nur-reachy">Reachys Blick</span><span class="nur-so101">Greiferblick</span><span class="nur-stackchan">Stackis Blick</span></label>
             </div>
             <button class="view-menu-btn stab-btn braucht-beine" id="stab-btn" type="button" aria-pressed="false"
               title="Kopf-Stabilisator: der Kopf gleicht Wackeln und Drehen des Körpers aus – wie bei einem Huhn">
@@ -439,6 +439,7 @@
               <p class="nur-ente">Sag der Ente, was sie tun soll.</p>
               <p class="nur-reachy">Sprich mit Reachy – er hört zu, denkt nach und antwortet mit Kopf und Antennen.</p>
               <p class="nur-so101">Sprich mit Ari – er hört zu, denkt nach und antwortet mit seinem Arm.</p>
+              <p class="nur-stackchan">Sprich mit Stacki – er hört zu, denkt nach und antwortet mit Kopf und Gesicht.</p>
               <ul>
                 <li class="nur-microduck">Lauf zum Ball und schieß ihn.</li>
                 <li class="nur-reachy">Dreh dich zum Ball und wackel mit den Antennen.</li>
@@ -449,6 +450,9 @@
                 <li class="nur-so101">Leg den roten Würfel in die linke Kiste.</li>
                 <li class="nur-so101">Sortier die Würfel nach Farben.</li>
                 <li class="nur-so101">Lass uns Tic-Tac-Toe spielen.</li>
+                <li class="nur-stackchan">Zeig mir, wie du dich freust.</li>
+                <li class="nur-stackchan">Schau dich mal um und erzähl, was du siehst.</li>
+                <li class="nur-stackchan">Erzähl mir einen Witz.</li>
                 <li class="nur-ente">Zeig mir, wie du lachst.</li>
                 <li class="braucht-beine">Das hier ist die Küche.</li>
               </ul>
@@ -462,6 +466,14 @@
             <button class="chip" data-tool="emote" data-args='{"emotion":"umherspaehen"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Umschauen</button>
             <button class="chip" data-tool="pollen_bewegung" data-args='{"name":"zufall"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3l2 5M16 3l-2 5"/><rect x="5" y="8" width="14" height="9" rx="4.5"/></svg>Ein Gefühl von Pollen</button>
             <button class="chip" data-tool="dance" data-args='{"style":"party","seconds":12}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Tanzen</button>
+          </div>
+          <div class="quick nur-stackchan" role="group" aria-label="Schnellbefehle">
+            <button class="chip" data-tool="power" data-args='{"action":"stand_up"}'><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>Aufwachen</button>
+            <button class="chip" data-tool="power" data-args='{"action":"sit_down"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>Schlafen</button>
+            <button class="chip" data-tool="emote" data-args='{"emotion":"begruessen"}'><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1.9 2 5.1 2 7 0M9 9.5h.01M15 9.5h.01"/></svg>Hallo sagen</button>
+            <button class="chip" data-tool="emote" data-args='{"emotion":"freude"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>Freuen</button>
+            <button class="chip" data-tool="emote" data-args='{"emotion":"umherspaehen"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Umschauen</button>
+            <button class="chip" data-tool="dance" data-args='{"style":"nicken","seconds":12}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Mitwippen</button>
           </div>
           <div class="quick nur-so101" role="group" aria-label="Schnellbefehle">
             <button class="chip" data-tool="power" data-args='{"action":"stand_up"}'><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>Aufwecken</button>
@@ -1021,13 +1033,14 @@
                   <label><input type="radio" name="modul" value="reachy_mini" data-set="modul"><span>Reachy Mini</span></label>
                   <label><input type="radio" name="modul" value="open_duck_mini" data-set="modul"><span>Open Duck Mini</span></label>
                   <label><input type="radio" name="modul" value="so101" data-set="modul"><span>SO-101</span></label>
+                  <label><input type="radio" name="modul" value="stackchan" data-set="modul"><span>Stack-chan</span></label>
                 </div>
               </div>
               <div class="field">
                 <span class="field-label">Was gesteuert wird</span>
                 <div class="seg" role="radiogroup" aria-label="Körper">
                   <label><input type="radio" name="backend" value="sim" data-set="backend"><span>Simulator</span></label>
-                  <label class="ohne-open-duck"><input type="radio" name="backend" value="robotd" data-set="backend"><span>Echter Roboter</span></label>
+                  <label class="ohne-open-duck ohne-stackchan"><input type="radio" name="backend" value="robotd" data-set="backend"><span>Echter Roboter</span></label>
                 </div>
                 <p class="field-help nur-open-duck">Die Open Duck läuft hier im Simulator. Die Anbindung an eine selbst gebaute Open Duck
                   (Runtime auf dem Raspberry Pi) ist geplant – Hilfe willkommen.</p>

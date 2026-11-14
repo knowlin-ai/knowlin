@@ -46,6 +46,8 @@ FAEHIGKEITEN: dict[str, str] = {
     "greifer": "Greifer am Arm: Gelenk 'greifer' in haltung(), 0 = zu, 1 = offen.",
     "antennen": "Antennen als Ausdruck (Reachy Mini, Open Duck Mini).",
     "augen_leds": "Leuchtende Augen als Ausdruck (Open Duck Mini, je nach Bau).",
+    "gesicht": "Gesicht auf einem Bildschirm: Augen und Mund zeigen Gefühle, der Mund bewegt sich beim Sprechen "
+               "(state().gesicht).",
     "stimmbank": "Eigene Laute im Körper: sound(tag) mit den Ton-Tags aus api.SOUND_TAGS.",
     "tiefensensor": "Tiefensensor: state().perception mit tof_mm und points.",
     "kamera": "Kamera am Körper (Bild für Erkennen und Beschreiben, nie gespeichert).",
@@ -66,7 +68,7 @@ def eigene_stimme(eigenschaften: frozenset[str] | set[str]) -> bool:
 KURZ: dict[str, str] = {
     "beine": "laufen", "raeder": "fahren", "kopf": "Kopf und Blick bewegen", "koerperdrehung": "sich auf der Stelle drehen",
     "schnabel": "mit dem Schnabel greifen", "arm": "einen Arm bewegen", "greifer": "greifen", "antennen": "Antennen bewegen",
-    "augen_leds": "die Augen leuchten lassen", "stimmbank": "eigene Laute", "tiefensensor": "Abstände messen",
+    "augen_leds": "die Augen leuchten lassen", "gesicht": "ein Gesicht zeigen", "stimmbank": "eigene Laute", "tiefensensor": "Abstände messen",
     "kamera": "sehen", "mikrofon": "hören", "lautsprecher": "Töne ausgeben", "pollen_bewegungen": "Pollens Bewegungen abspielen",
 }
 assert KURZ.keys() == FAEHIGKEITEN.keys()
@@ -168,6 +170,12 @@ EINGEBAUT: tuple[Koerper, ...] = (
             "duckpilot.backends:baue_so101",
             echt="LeRobot so101_follower (Robot.connect / send_action)",
             quelle="https://github.com/TheRobotStudio/SO-ARM100", lizenz="Apache-2.0", eingebaut=True),
+    # Stack-chan (seit 0.38.58): Schreibtisch-Roboter der Community (Apache-2.0), heute auch von M5Stack – Kopf mit Gesicht
+    # auf dem Bildschirm, zwei Servos (drehen, nicken), Kamera, Mikrofone, Lautsprecher. Erst einmal nur im Simulator.
+    Koerper("stackchan", "Stack-chan", "Stack-chan-Community / M5Stack", "stationaer",
+            frozenset({"kopf", "gesicht", "kamera", "mikrofon", "lautsprecher"}),
+            "duckpilot.backends:baue_stackchan", quelle="https://github.com/stack-chan/stack-chan", lizenz="Apache-2.0",
+            eingebaut=True),
     Koerper("lerobot", "LeRobot-Roboter", "Hugging Face LeRobot (SO-101, LeKiwi, Koch …)", "arm",
             frozenset({"arm", "greifer", "raeder", "kamera"}),
             "duckpilot.backends.lerobot:baue_lerobot", zustand="lerobot",

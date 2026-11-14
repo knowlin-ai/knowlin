@@ -6,6 +6,7 @@ import { ladeArm, RealArm } from './arm3d.js';
 import { loadModel, RealDuck } from './duckmodel.js';
 import { studio } from './licht3d.js';
 import { loadReachy, RealReachy } from './reachymodell.js';
+import { StackChan } from './stackchan3d.js';
 
 const GRAD = Math.PI / 180;
 // Arm in der Haltung „staunen“ (duckpilot/arm.py): aufgerichtet, Greifer offen, Reihenfolge wie arm.GELENKE
@@ -18,6 +19,7 @@ const KOERPER = {
   'reachy-mini': { bau: async () => new RealReachy(await loadReachy()), von: 0.25, bis: 0.3, dreh: 20 },
   'open-duck-mini': { bau: async () => new RealDuck(await loadModel('/static/model/open_duck_mini.dpm')), von: 0.42, dreh: 25 },
   so101: { bau: async () => new RealArm(await ladeArm()), von: 0.25, dreh: 70, gelenke: ARM_STAUNEN },
+  stackchan: { bau: async () => new StackChan(), von: 0, dreh: 25, gesicht: { ausdruck: 'froh', wach: true } },
 };
 
 export const RENDERBAR = Object.keys(KOERPER);
@@ -27,7 +29,8 @@ export async function portraet(id, groesse = 256, anders = {}) {
   const k = { ...KOERPER[id], ...anders };
   if (!KOERPER[id]) throw new Error(`kein Porträt für ${id}`);
   const fig = await k.bau();
-  const st = { x: 0, y: 0, yaw: 0, stand_z: 0, pose: { z: 0, roll: 0, pitch: 0 }, display_joints: k.gelenke || null };
+  const st = { x: 0, y: 0, yaw: 0, stand_z: 0, pose: { z: 0, roll: 0, pitch: 0 }, display_joints: k.gelenke || null,
+    gesicht: k.gesicht || null };
   for (let i = 0; i < 3; i++) fig.update(st, 1);            // Glättung einschwingen lassen
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = groesse;

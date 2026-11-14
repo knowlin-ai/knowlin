@@ -3491,5 +3491,11 @@
  "Wir spielen gerade – erst das Spiel beenden": "We're playing right now – end the game first",
  "Da komme ich nicht hin": "I can't reach that",
  "Da würde ich an * stoßen": "I would bump into * there",
- "macht nach": "copies you"
+ "macht nach": "copies you",
+ "Stackis Blick": "Stacki's view",
+ "Sprich mit Stacki – er hört zu, denkt nach und antwortet mit Kopf und Gesicht.": "Talk to Stacki – he listens, thinks and answers with his head and face.",
+ "Erzähl mir einen Witz.": "Tell me a joke.",
+ "offener Schreibtisch-Roboter (Community, M5Stack)": "open desktop robot (community, M5Stack)",
+ "Ein Kopf mit Gesicht: dreht und nickt, zeigt Gefühle mit Augen und Mund und spricht – im Simulator; echter Stack-chan geplant.": "A head with a face: turns and nods, shows feelings with eyes and mouth, and talks – in the simulator; real Stack-chan planned.",
+ "Stack-chan": "Stack-chan"
 }

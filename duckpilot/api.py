@@ -208,6 +208,7 @@ class DuckState:
     stand_z: float = 0.0                                 # Höhe der Standfläche über dem Boden (m) – Reachy auf dem Tisch
     werkbank: dict[str, Any] = field(default_factory=dict)  # SO-101: Würfel und Kisten im Sockelrahmen (seit 0.38.48)
     standflaeche: str = ""                               # worauf er steht („“ = Boden)
+    gesicht: dict[str, Any] = field(default_factory=dict)  # Bildschirmgesicht {ausdruck, mund, wach, zustand} (seit 0.38.58)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

@@ -83,6 +83,13 @@ def baue_so101(cfg):
     return So101Sim()
 
 
+def baue_stackchan(cfg):
+    """Stack-chan (seit 0.38.58): Schreibtisch-Roboter mit Gesicht – vorerst nur im Simulator."""
+    from .stackchan import StackChanSim
+
+    return StackChanSim()
+
+
 def physics_problem() -> str:
     """Leer, wenn der Physik-Simulator starten kann; sonst der Grund."""
     import importlib.util

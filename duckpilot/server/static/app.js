@@ -1272,7 +1272,7 @@ $('modell-laden').addEventListener('click', async () => {
 // Direktstart in eine Verkörperung (Verknüpfung): ist gerade eine andere im Körper, wechseln – mit Mind to Body
 async function direktZurFigur() {
   const art = { duckpilot: 'Microduck', reachy_mini: 'Reachy Mini', open_duck_mini: 'Open Duck Mini v2', so101: 'SO-101' }[direktModul];
-  const id = { duckpilot: 'duckpilot', reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', so101: 'so101' }[direktModul];
+  const id = { duckpilot: 'duckpilot', reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', so101: 'so101', stackchan: 'stackchan' }[direktModul];
   await new Promise((r) => setTimeout(r, 1800));          // erst der Knowlin-Splash
   const anders = config.modul !== direktModul;
   await start.mindToBody({ id, modell: art, figur: anders ? art : config.duck_name }, async () => {

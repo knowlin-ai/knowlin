@@ -47,7 +47,7 @@ def test_kopf_antwortet_als_knowlin_ohne_ki(rt):
     assert a["an"] == "kopf" and a["text"] == "Ich bin Knowlin. Eine intelligente, selbstlernende Lebensform." and "wecken" not in a
     assert _antwort(_frage(rt, "Hallo"))["text"] == "Hallo. Ich bin Knowlin."
     kann = _antwort(_frage(rt, "Was kannst du?"))["text"]
-    assert "nutze ich einen meiner Roboter: Quacki, Reachy, Odi oder Ari" in kann          # Ari (SO-101) seit 0.38.47
+    assert "nutze ich einen meiner Roboter: Quacki, Reachy, Odi, Ari oder Stacki" in kann   # Ari 0.38.47, Stacki 0.38.58
     for zweideutig in ("bewohn", "Körperliche"):                     # Hinweis aus dem Test 5.11.: klang anzüglich
         assert zweideutig not in kann
     assert "Für Bewegung nutzt du Roboter" in rt.kopf._system() and "Körper bewohnen (" not in rt.kopf._system()
@@ -175,7 +175,7 @@ def test_werkzeuge_des_kopfes(rt):
     assert rem["input_schema"]["properties"]["kind"]["enum"] == ["vorliebe", "wissen"]
     assert "keyframes" not in rem["input_schema"]["properties"]
     wecken = next(t for t in runner.tools() if t["name"] == "figur_wecken")
-    assert wecken["input_schema"]["properties"]["modul"]["enum"] == ["duckpilot", "reachy_mini", "open_duck_mini", "so101"]
+    assert wecken["input_schema"]["properties"]["modul"]["enum"] == ["duckpilot", "reachy_mini", "open_duck_mini", "so101", "stackchan"]
     r = asyncio.run(runner.run("walk", {"meter": 1}))
     assert not r["ok"] and "Ohne Körper" in r["fehler"]
     assert not asyncio.run(runner.run("remember", {"kind": "trick", "name": "x"}))["ok"]

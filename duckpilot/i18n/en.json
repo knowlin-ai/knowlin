@@ -27,6 +27,7 @@
   "gruss.open_duck_mini": "*quak* {name} is ready!",
   "gruss.reachy_mini": "Hello. I'm awake.",
   "gruss.so101": "Hello. Ari is ready.",
+  "gruss.stackchan": "Hi! Stacki is awake.",
   "stimme.untertitel_kopf": "Voice of {name} – applies without a body. The embodiments have their own.",
   "stimme.entwerfen_hilfe": "Describe the voice – age, pitch, pace, character. Knowlin translates German descriptions into English before designing, because the model follows them most accurately that way. This produces three takes of the same sample; you keep the nicest.",
   "stimme.laute": "Duck sounds: {wert}",
