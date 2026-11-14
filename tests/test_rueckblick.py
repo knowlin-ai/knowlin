@@ -103,3 +103,13 @@ def test_nur_eigene_zeilen_und_nur_was_der_koerper_kann():
                         "n": 12, "korrigiert": None})
     buch.zurueckblicken(g.liste(), "microduck", {"beine", "kopf", "schnabel"}, jetzt=5000)
     assert sorted(x["art"] for x in buch.lehren) == ["trick"]               # die falsche Armlehre ist weg
+
+
+def test_karten_im_gedaechtnis_mit_abstand():
+    """„Bei Wissen kleben immer noch die UI-Kacheln aneinander“ (14.11.): Welt, Rückblick und Dashboard stehen als
+    Geschwister in der Gedächtnis-Ansicht – zwischen ihnen Luft. Alle Ansichten prüft die Abnahme (ANEINANDER_JS)."""
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    css = (root / "duckpilot" / "server" / "static" / "style.css").read_text(encoding="utf-8")
+    assert ".view-memory .page-inner > .card + .card, .view-memory .page-inner > .card + .dash" in css
+    assert "ANEINANDER_JS" in (root / "tools" / "abnahme.py").read_text(encoding="utf-8")

@@ -209,6 +209,7 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
                 if wo == "Knowlin":
                     zum_kopf(page)
                 funde: list[str] = []
+                stoesse: list[str] = []
                 for v, teil in ansichten:
                     if modul != "duckpilot" and (v in NUR_MICRODUCK or teil in NUR_MICRODUCK):
                         continue                                  # bei Reachy und Open Duck gar nicht erreichbar
@@ -224,13 +225,44 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
                                  page.evaluate("k => document.body.classList.contains('koerper-' + k)", klasse))
                         if sprache == "de":                       # jeder Körper, nicht nur Quacki und Reachy
                             ueberdeckungen(page, b, name)
+                    if sprache == "de":
+                        stoesse += [f"{v}/{teil or ''}: {s}" for s in page.evaluate(ANEINANDER_JS)]
                     keine_ente = modul in ("reachy_mini", "so101") and wo == "Körper"
                     funde += [f"{v}/{teil or ''}: {z[:80]}" for z in _verbotene_woerter(page.evaluate(SICHTBARER_TEXT),
                                                                                        keine_ente)]
                 titel = f"Inhalte {name if wo == 'Körper' else 'Knowlin (Kopf)'} ({sprache}): kein „duckpilot“" + \
                     (", keine Enten-Wörter" if modul in ("reachy_mini", "so101") and wo == "Körper" else "")
                 b.pruefe(titel, not funde, " · ".join(funde[:6]) + (f" (+{len(funde) - 6})" if len(funde) > 6 else ""))
+                if sprache == "de":
+                    b.pruefe(f"Ansichten {name if wo == 'Körper' else 'Knowlin (Kopf)'}: keine Karten ohne Abstand",
+                             not stoesse, " · ".join(stoesse[:6]))
     einstellen(page, {"modul": "duckpilot", "backend": "sim", "sim_physik": False, "sprache": "de"})
+
+
+# Karten, die ohne Luft aneinanderstoßen (seit 0.38.57, Fund des Maintainers: „bei Wissen kleben immer noch die
+# UI-Kacheln aneinander … ich dachte, das ist überall behoben“) – sichtbare Geschwister mit Rahmen oder Kartenklasse,
+# übereinander, Lücke unter 4 px.
+ANEINANDER_JS = r"""() => {
+  const sichtbar = (e) => { const r = e.getBoundingClientRect(); const s = getComputedStyle(e);
+    return r.height > 4 && r.width > 4 && s.display !== 'none' && s.visibility !== 'hidden'; };
+  const kartig = (e) => { const s = getComputedStyle(e);
+    return /\b(card|dash|set-card|al-card)\b/.test(e.className) || (parseFloat(s.borderTopWidth) > 0
+      && s.borderRadius !== '0px' && s.backgroundColor !== 'rgba(0, 0, 0, 0)'); };
+  const v = [...document.querySelectorAll('section.view')].find((x) => !x.hidden);
+  if (!v) return [];
+  const funde = [];
+  for (const el of v.querySelectorAll('*')) {
+    if (!sichtbar(el) || !kartig(el)) continue;
+    let n = el.nextElementSibling;
+    while (n && !sichtbar(n)) n = n.nextElementSibling;
+    if (!n || !kartig(n)) continue;
+    const a = el.getBoundingClientRect(), b = n.getBoundingClientRect();
+    if (Math.min(a.right, b.right) - Math.max(a.left, b.left) < 20) continue;
+    const luecke = b.top - a.bottom;
+    if (luecke >= -1 && luecke < 4) funde.push(`${el.id || el.className.split(' ')[0]} → ${n.id || n.className.split(' ')[0]}`);
+  }
+  return funde;
+}"""
 
 
 # Was über der 3D-Bühne schwebt (Zustand, Werkzeuge, Anzeige, Tastenhinweis, Gespräch), darf sich nicht überdecken –

@@ -25,7 +25,8 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   merkte sich nicht, welcher Körper etwas tat, und der Rückblick zählte Aris Armbewegungen mit. Jetzt trägt jede Zeile
   ihren Körper, gezählt wird nur, was dieser Körper selbst getan hat, und Lehren, die er gar nicht ausführen kann
   (Arm ohne Arm, Laufen ohne Beine), fallen beim nächsten Rückblick weg.
-- **Gedächtnis:** Die Karten stießen ohne Abstand aneinander; jetzt mit Luft dazwischen.
+- **Gedächtnis / Wissen:** Die Karten stießen ohne Abstand aneinander; jetzt mit Luft dazwischen. Die Abnahme sucht
+  seitdem in allen Ansichten jedes Körpers und bei Knowlin nach Karten ohne Abstand.
 
 ### Geändert
 - **Website: neuer Abschnitt „Lernt von dir, mit dir, für dich.“** Knowlin ist der Kopf für Assistenten mit
