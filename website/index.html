@@ -184,7 +184,7 @@ section { padding-block: clamp(72px, 10vw, 136px); }
 @media (hover: hover) and (pointer: fine) { .anker:hover { border-color: rgb(255 255 255 / 0.32); } }
 @media (max-width: 860px) {
   .held { padding-block: 40px 140px; }
-  .held-raster { grid-template-columns: 1fr; min-height: 0; gap: 20px; }
+  .held-raster { grid-template-columns: minmax(0, 1fr); min-height: 0; gap: 20px; }   /* Spalte nie breiter als der Schirm */
   .held-text { order: 2; }
   .anker-reihe { order: 1; margin: 230px 0 8px; justify-self: stretch; }
   .anker { flex: 1 1 0; min-width: 0; }
@@ -220,7 +220,7 @@ section { padding-block: clamp(72px, 10vw, 136px); }
    mit fest drei Spalten in eine zweite Zeile unter Microduck) */
 .wahl {
   --anzahl: 4;
-  position: relative; display: inline-grid; grid-template-columns: repeat(var(--anzahl), 1fr); padding: 4px;
+  position: relative; display: inline-grid; grid-template-columns: repeat(var(--anzahl), minmax(0, 1fr)); padding: 4px;
   background: color-mix(in srgb, var(--linie) 55%, var(--bg)); border-radius: 14px; max-width: 100%;
 }
 .wahl .schieber {
@@ -258,9 +258,9 @@ footer a { color: inherit; text-decoration: underline; text-decoration-color: va
 @media (max-width: 860px) {
   .buehne { grid-template-columns: 1fr; }
   .wahl { display: grid; width: 100%; }
-  .wahl button { padding-inline: 6px; white-space: normal; font-size: 0.875rem; }
+  .wahl button { padding-inline: 6px; white-space: normal; font-size: 0.875rem; overflow-wrap: break-word; }   /* „Micro­duck“ bricht am weichen Trennstrich */
 }
-@media (max-width: 420px) { .steckbrief dl div { grid-template-columns: 1fr; gap: 2px; } }
+@media (max-width: 420px) { .steckbrief dl div { grid-template-columns: 1fr; gap: 2px; } .wahl button { padding-inline: 3px; font-size: 0.8125rem; } }
 
 /* ── Was in ihr steckt: dunkle Vitrine wie die Bühne oben, Kacheln mit echten Programmfenstern (seit 0.38.39,
    Wunsch: „zeig mehr Features – das soll ja WOW-Effekt erzeugen“). Jede Kachel zeigt einen Ausschnitt des
@@ -543,7 +543,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
       </div>
       <div class="wahl" role="tablist" aria-label="Verkörperung">
         <span class="schieber" aria-hidden="true"></span>
-        <button type="button" role="tab" id="tab-microduck" aria-selected="true" aria-controls="koerper-buehne" data-koerper="microduck">Microduck</button>
+        <button type="button" role="tab" id="tab-microduck" aria-selected="true" aria-controls="koerper-buehne" data-koerper="microduck">Micro&shy;duck</button>
         <button type="button" role="tab" id="tab-reachy" aria-selected="false" aria-controls="koerper-buehne" data-koerper="reachy" tabindex="-1">Reachy Mini</button>
         <button type="button" role="tab" id="tab-odi" aria-selected="false" aria-controls="koerper-buehne" data-koerper="odi" tabindex="-1">Open Duck Mini</button>
         <button type="button" role="tab" id="tab-ari" aria-selected="false" aria-controls="koerper-buehne" data-koerper="ari" tabindex="-1">SO-101</button>
