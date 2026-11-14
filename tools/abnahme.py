@@ -854,6 +854,24 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
              and modul == "bittle" and im_cockpit, f"{wahl} · {erstes_hirn} · {knopf} · {modul} · Cockpit: {im_cockpit}")
     einstellen(page, {"modul": "duckpilot", "backend": "sim"})
 
+    # 13c3 · Suche auf der Trickseite (seit 0.38.61): filtert alle Kacheln, zeigt „x von y“, sonst „Nichts gefunden“
+    oeffnen(page, base)
+    page.evaluate("() => window.duckpilot.showView('tricks', 'tricks')")
+    page.wait_for_timeout(2500)
+    page.fill("#tricks-suche", "freu")
+    page.wait_for_function("() => /von/.test(document.getElementById('tricks-suche-info').textContent)", timeout=5000)
+    info = page.text_content("#tricks-suche-info") or ""
+    b.foto(page, "12c-tricks-suche", "Tricks: Suche nach „freu“")
+    page.fill("#tricks-suche", "xyzqq")
+    page.wait_for_function("() => /^0 von/.test(document.getElementById('tricks-suche-info').textContent)", timeout=5000)
+    leer = page.evaluate("() => !document.getElementById('tricks-suche-leer').hidden")
+    page.fill("#tricks-suche", "")
+    page.wait_for_timeout(400)
+    zurueck = page.evaluate("() => document.querySelectorAll('#view-tricks .such-aus').length")
+    treffer, gesamt = (int(x) for x in re.findall(r"\d+", info)[:2]) if len(re.findall(r"\d+", info)) >= 2 else (0, 0)
+    b.pruefe("Tricks: Suche filtert („freu“ findet etwas, aber nicht alles), „Nichts gefunden“, leer zeigt wieder alles",
+             0 < treffer < gesamt and leer and zurueck == 0, f"{info} · leer: {leer} · ausgeblendet danach: {zurueck}")
+
     # 13d · Seit 0.38.19: Farbe der Microduck, Trainingsfeld mit vielen Enten
     oeffnen(page, base)
     einstellen(page, {"farbe": "lavender"})

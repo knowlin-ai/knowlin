@@ -656,7 +656,11 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
                     # Der Körper sagt, was er kann (Open Duck: nur hinsetzen); am echten Roboter kommen Hub-Tricks dazu
                     basis = [s for s in default if s in skills] if set(skills) < set(default) else default
                     t["input_schema"]["properties"]["name"]["enum"] = list(dict.fromkeys([*basis, *skills]))
-                    if extra:
+                    titel = getattr(self.engine.backend, "trick_titel", None)   # eigene Tricks des Körpers (Bello)
+                    if extra and titel is not None:
+                        t["description"] += " Eigene Tricks dieses Körpers: " + "; ".join(
+                            f"{n} ({x})" for n, x in titel().items()) + "."
+                    elif extra:
                         t["description"] += " Dazu geladene Tricks vom Hub: " + ", ".join(extra) + "."
                 out.append(t)
             return out

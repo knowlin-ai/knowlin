@@ -353,7 +353,7 @@ class DuckAgent:
         t0 = time.monotonic()
         self.runner.engine.attention(2.5)
         if self.config.gehirn == "anbieter" and self.anbieter.configured:
-            if self.config.schnellbefehle and quick_command(text):
+            if self.config.schnellbefehle and quick_command(text, self.fallback.koennen()):
                 reply = await self.fallback.handle(text)
             else:
                 try:
@@ -380,7 +380,7 @@ class DuckAgent:
                     reply.text = f"(lokales Modell nicht erreichbar – einfache Steuerung) {reply.text}"
             reply.seconds = time.monotonic() - t0
             return reply
-        if self.config.schnellbefehle and quick_command(text):
+        if self.config.schnellbefehle and quick_command(text, self.fallback.koennen()):
             reply = await self.fallback.handle(text)            # eindeutiger Kurzbefehl: kein Claude-Aufruf nötig
             if self.usage is not None:
                 self.usage.local()

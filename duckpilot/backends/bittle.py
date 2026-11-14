@@ -22,7 +22,22 @@ from .sim import SimBackend
 
 EIGENSCHAFTEN = frozenset({"beine", "kopf", "mikrofon"})
 KOPF_DREH = math.radians(70)
-OHNE = "Bello ist ein Hund ohne Schnabel – aufheben, Purzelbaum und Pollens Tricks gehen nicht; laufen, drehen und sitzen schon"
+# Bellos Tricks (seit 0.38.61, nach dem Abgleich mit Petois eingebauten Tricks; Maintainer: „Ja und weiter“):
+# Name → (Titel, Dauer in s, kurze Beschreibung). Gezeichnet in static/bittle3d.js, Kacheln auf der Trickseite.
+# Salto und Handstand gibt es nur im Simulator – am echten Hund kämen sie erst nach eigener Prüfung dazu.
+TRICKS: dict[str, tuple[str, float, str]] = {
+    "pfote": ("Pfote geben", 2.6, "setzt sich und winkt mit der Pfote"),
+    "strecken": ("Strecken", 2.8, "streckt die Vorderbeine weit nach vorn"),
+    "verbeugen": ("Verbeugen", 2.4, "vorn tief, Po hoch – die Spielaufforderung"),
+    "liegestuetze": ("Liegestütze", 4.2, "drei Liegestütze auf den Vorderbeinen"),
+    "platz": ("Platz", 3.6, "legt sich hin und ruht kurz"),
+    "tot_stellen": ("Tot stellen", 3.6, "kippt auf die Seite und bleibt liegen"),
+    "boxen": ("Boxen", 3.2, "sitzt und boxt mit beiden Vorderpfoten"),
+    "umschauen": ("Umschauen", 3.0, "dreht den Kopf nach links und rechts"),
+    "handstand": ("Handstand", 3.4, "auf die Vorderbeine – nur im Simulator"),
+    "salto": ("Rückwärtssalto", 2.4, "ein Salto rückwärts – nur im Simulator"),
+}
+OHNE = "Bello ist ein Hund ohne Schnabel – aufheben, Purzelbaum und Pollens Tricks gehen nicht; seine eigenen Tricks schon"
 
 
 def kopf_lage(head: Head) -> dict[str, float]:
@@ -36,14 +51,22 @@ class BittleSim(SimBackend):
 
     koerper_art = "bittle"
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.extra_skills = {name: dauer for name, (_, dauer, _) in TRICKS.items()}
+
+    def trick_titel(self) -> dict[str, str]:
+        """Für das skill-Werkzeug: was die eigenen Tricks bedeuten (statt „vom Hub geladen“)."""
+        return {name: f"{titel} – {text}" for name, (titel, _, text) in TRICKS.items()}
+
     def eigenschaften(self) -> frozenset[str]:
         return EIGENSCHAFTEN | {"simulator", "zuruecksetzen"}
 
     def skills(self) -> list[str]:
-        return ["sit_toggle"]
+        return ["sit_toggle", *TRICKS]
 
     async def do(self, skill: str) -> IntentResult:
-        if skill != "sit_toggle":
+        if skill != "sit_toggle" and skill not in TRICKS:
             return IntentResult(False, OHNE)
         return await super().do(skill)
 
@@ -61,7 +84,8 @@ class BittleSim(SimBackend):
         st.koerper = self.koerper_art
         st.holding = None
         st.perception = Perception(objects=st.perception.objects, source="sim")
-        st.kopf_lage = {"yaw": 0.0, "pitch": 0.0} if (self.sitting or not self.powered) else kopf_lage(st.head)
+        ruhig = self.sitting or not self.powered or (self.skill in TRICKS and self.skill != "umschauen")
+        st.kopf_lage = {"yaw": 0.0, "pitch": 0.0} if ruhig else kopf_lage(st.head)
         return st
 
     def fassung(self, skill: str) -> dict[str, str]:

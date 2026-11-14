@@ -96,3 +96,60 @@ def test_keine_entengelenke_im_zustand():
     """Abnahme 14.11.: Bellos Zustandsansicht zeigte die Gelenke der Ente samt „Schnabel“."""
     html = (STATIC / "index.html").read_text(encoding="utf-8")
     assert 'class="card card-joints braucht-beine ohne-bittle"' in html
+
+
+def test_bellos_tricks_nach_petoi():
+    """Seit 0.38.61 (Funktionsabgleich mit Petoi, Maintainer: „Ja und weiter“): zehn eigene Tricks im Simulator – sie
+    laufen als Skill mit Fortschritt, stehen als Kacheln auf der Trickseite, im skill-Werkzeug mit Bedeutung und gehen
+    ohne KI-Modell per Zuruf („Pfote!“, „Platz!“). Nach dem Not-Aus geht keiner."""
+    import re
+
+    from duckpilot.backends.bittle import TRICKS
+    from duckpilot.brain.fallback import parse, quick_command
+
+    assert len(TRICKS) >= 10
+    sim = BittleSim(realtime=False)
+
+    async def wach():
+        await sim.connect()
+        await sim.init()
+        await sim.enable(True)
+    asyncio.run(wach())
+    _laufen(sim, 3)
+    assert set(TRICKS) <= set(sim.skills())
+    assert asyncio.run(sim.do("pfote")).accepted
+    _laufen(sim, 1.0)
+    st = sim.state()
+    assert st.skill == "pfote" and 0.2 < st.skill_progress < 0.6
+    _laufen(sim, 2.0)
+    assert sim.state().skill is None
+    assert not asyncio.run(sim.do("roulade")).accepted                   # Entenpurzelbaum bleibt Sache der Enten
+    asyncio.run(sim.relax())
+    assert not asyncio.run(sim.do("salto")).accepted                     # stromlos: kein Trick
+    # Kacheln = Liste des Simulators, 3D-Figur kennt jeden Trick
+    html = (STATIC / "teile" / "tricks.html").read_text(encoding="utf-8")
+    assert re.findall(r'data-bello="(\w+)"', html) == list(TRICKS)
+    js = (STATIC / "bittle3d.js").read_text(encoding="utf-8")
+    for name in TRICKS:
+        assert re.search(rf"\b{name}: \(p\)", js), name
+    # Zuruf ohne KI-Modell; „an seinen Platz“ und „eine Strecke“ sind keine Kommandos
+    k = frozenset(sim.skills())
+    assert parse("Gib Pfote!", k) == [("skill", {"name": "pfote"})] and quick_command("Gib Pfote!", k)
+    assert parse("Mach Platz", k) == [("skill", {"name": "platz"})]
+    assert parse("Stell dich tot", k) == [("skill", {"name": "tot_stellen"})]
+    assert ("skill", {"name": "platz"}) not in parse("leg den Ball an seinen Platz", k)
+    assert ("skill", {"name": "strecken"}) not in parse("lauf eine Strecke", k)
+    # bei der Ente bleibt „mach die Verbeugung“ ein Fall fürs Sprachmodell (gelernter Trick), kein Hundekommando
+    assert parse("mach die Verbeugung") == [] and not quick_command("Gib Pfote!")
+
+
+def test_skill_werkzeug_beschreibt_bellos_tricks():
+    from duckpilot.brain.tools import ToolRunner
+    from duckpilot.motion.engine import MotionEngine
+
+    sim = BittleSim()
+    asyncio.run(sim.connect())
+    tools = {t["name"]: t for t in ToolRunner(MotionEngine(sim)).tools()}
+    skill = tools["skill"]
+    assert "pfote" in skill["input_schema"]["properties"]["name"]["enum"]
+    assert "Pfote geben" in skill["description"] and "vom Hub" not in skill["description"]

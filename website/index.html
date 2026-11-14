@@ -848,10 +848,10 @@ profil = Koerper(
     },
     bittle: {
       bild: 'bittle',
-      de: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'Ein kleiner Roboterhund mit vier Beinen und neun Gelenken. Trabt durchs Zimmer, setzt sich auf „Sitz!“ und schaut sich um. Sprechen kann er nicht – Knowlin spricht für ihn.',
+      de: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'Ein kleiner Roboterhund mit vier Beinen und neun Gelenken. Trabt durchs Zimmer, gibt Pfote, macht Platz, stellt sich tot – zehn Tricks nach Petois Vorbild. Sprechen kann er nicht – Knowlin spricht für ihn.',
         zeilen: [['Simulator', 'ja', 'im Wohnzimmer'], ['Echter Roboter', 'bald', 'geplant (Petois serielles Protokoll)'], ['Sinne', null, 'Lagesensor, Mikrofon für Sprachbefehle']],
         alt: 'Bittle X im Simulator im Wohnzimmer, daneben das Gespräch' },
-      en: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'A small robot dog with four legs and nine joints. Trots around the room, sits on “Sit!” and looks around. It can’t speak – Knowlin speaks for it.',
+      en: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'A small robot dog with four legs and nine joints. Trots around the room, gives paw, lies down, plays dead – ten tricks modelled on Petoi’s. It can’t speak – Knowlin speaks for it.',
         zeilen: [['Simulator', 'ja', 'in the living room'], ['Real robot', 'bald', 'planned (Petoi’s serial protocol)'], ['Senses', null, 'motion sensor, microphone for voice commands']],
         alt: 'Bittle X in the simulator in the living room, with the conversation next to it' },
     },
@@ -894,7 +894,12 @@ profil = Koerper(
     const el = document.getElementById('buehne-nachweis');
     el.replaceChildren();
     el.dataset.nachweis = pollen ? 'pollen' : 'offen';
-    const GEZEICHNET = { stackchan: 'Apache-2.0', bittle: 'MIT' };   // von Knowlin gezeichnet, ohne Projektdateien
+    if (aktiv === 'stackchan') {        // seit 0.38.61: Gehäuse aus den offenen Daten, Bildschirm und Gesicht gezeichnet
+      el.textContent = en ? 'Image: Knowlin with Stack-chan – case and feet from the open case data of the Stack-chan community (Apache-2.0), screen and face drawn by Knowlin.'
+        : 'Bild: Knowlin mit Stack-chan – Gehäuse und Füße aus den offenen Gehäusedaten der Stack-chan-Community (Apache-2.0), Bildschirm und Gesicht von Knowlin gezeichnet.';
+      return;
+    }
+    const GEZEICHNET = { bittle: 'MIT' };   // von Knowlin gezeichnet, ohne Projektdateien
     if (GEZEICHNET[aktiv]) {
       el.textContent = en ? `Image: Knowlin with ${modell}, drawn by Knowlin after photos of the open project (${GEZEICHNET[aktiv]}).`
         : `Bild: Knowlin mit ${modell}, von Knowlin gezeichnet nach Fotos des offenen Projekts (${GEZEICHNET[aktiv]}).`;

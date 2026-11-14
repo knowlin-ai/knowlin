@@ -114,13 +114,15 @@ Ein kleiner Schreibtisch-Roboter aus der Community (Apache-2.0, heute auch als B
 Bildschirm als Kopf, darunter zwei Servos zum Drehen und Nicken, dazu Kamera, Mikrofone und Lautsprecher. Seine
 Verkörperung heißt **Stacki** – quirlig, mit heller Stimme. Öffnen über die Kachel „Stack-chan“ auf der Startseite.
 
-- **Im Simulator:** Stacki steht auf dem Couchtisch, dreht den Kopf (bis ±80°) und nickt (bis ±23°). Laufen, Greifen
+- **Im Simulator:** Stacki steht auf dem Couchtisch, dreht den Kopf (bis ±80°) und nickt (bis ±23°). Seit 0.38.61 mit
+  Gehäuse und Füßen aus den offenen Gehäusedaten der Community (Apache-2.0) und in deren echten Maßen. Laufen, Greifen
   und Entenlaute gibt es nicht – die Knöpfe verschwinden, und er sagt es ehrlich.
 - **Gesicht:** Augen und Mund auf dem Bildschirm zeigen Gefühle (froh, traurig, überrascht, wütend, müde, neugierig,
   verlegen), der Mund bewegt sich beim Sprechen, beim Zuhören schaut er aufmerksam, beim Nachdenken nach oben. Er
   blinzelt ab und zu. Schnellbefehle: Aufwachen, Schlafen, Hallo sagen, Freuen, Umschauen, Mitwippen.
 - **Not-Aus:** wie bei jedem Körper sofort stromlos – der Kopf sinkt, die Augen gehen zu.
-- **Echter Stack-chan:** noch nicht angebunden. Gezeichnet ist er nach Fotos, ohne Dateien des Projekts.
+- **Echter Stack-chan:** noch nicht angebunden. Den M5Stack-Kasten mit Bildschirm und das Gesicht zeichnet Knowlin
+  selbst; Gehäuse und Füße kommen aus `case/case_SG90` des Projekts (Herkunft in `static/model/LIZENZ-stackchan.md`).
 
 ### Bittle X (seit 0.38.59)
 
@@ -130,6 +132,9 @@ dazu der Hals. Seine Verkörperung heißt **Bello** – verspielt wie ein junger
 - **Im Simulator:** Bello läuft im Trab, dreht sich, setzt sich auf „Sitz!“ und schaut sich um (der Kopf dreht nur
   seitlich, bis ±70°). Ein harter Stoß wirft ihn um; er steht wie jeder Körper erst nach dem Stopp-Fenster und nie
   hochgehoben wieder auf.
+- **Tricks (seit 0.38.61):** zehn nach Petois eingebauten Tricks – Pfote geben, Strecken, Verbeugen, Liegestütze,
+  Platz, Tot stellen, Boxen, Umschauen, Handstand und Rückwärtssalto (die letzten beiden nur im Simulator). Unter
+  Tricks → „Bellos Tricks“ oder per Zuruf, auch ohne KI-Modell: „Pfote!“, „Platz!“, „Stell dich tot!“, „Salto!“.
 - **Ohne Schnabel und eigene Stimme:** Aufheben, Purzelbaum, Entenlaute und Erkunden mit Tiefensensor gibt es nicht.
   Knowlin spricht für ihn – mit seiner eigenen Stimme vom PC.
 - **Not-Aus:** sofort stromlos, Bello legt sich flach hin.

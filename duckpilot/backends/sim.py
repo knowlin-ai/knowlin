@@ -667,7 +667,7 @@ class SimBackend(DuckBackend):
         if not (self.powered and self.enabled):
             return IntentResult(False, "Motoren/Policy aus – erst aufstehen")
         if self.skill:
-            return IntentResult(False, f"'{self.skill}' hält die Ente gerade")
+            return IntentResult(False, f"'{self.skill}' läuft gerade noch")
         if self.sitting and skill != "sit_toggle":
             return IntentResult(False, "sitzt – erst aufstehen (sit_toggle)")
         self.requested = Twist()

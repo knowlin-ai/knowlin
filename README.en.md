@@ -123,7 +123,7 @@ robots. Every body shows only what it can do – what it lacks (legs, depth sens
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics and Hugging Face | Pollen's model, emotions, dances, games | via Pollen's daemon (untested) |
 | **Ari** | SO-101 (gripper arm) | so101 | TheRobotStudio and Hugging Face | open model at its own workbench: gestures, sorting, building towers, tidying up, tic-tac-toe | via LeRobot (untested) |
 | **Stacki** | Stack-chan (desktop robot) | stackchan | Stack-chan community and M5Stack | drawn: turns and nods its head, feelings on its screen face, talks | planned |
-| **Bello** | Bittle X (robot dog) | bittle | Petoi | drawn: trot, turn, sit, head turns sideways; Knowlin speaks for him | planned (Petoi's serial protocol) |
+| **Bello** | Bittle X (robot dog) | bittle | Petoi | drawn: trot, turn, sit, ten tricks after Petoi; Knowlin speaks for him | planned (Petoi's serial protocol) |
 | – | more LeRobot robots (LeKiwi, Koch …) | lerobot | Hugging Face LeRobot | – | via LeRobot (arm, gripper, wheels; untested) |
 
 **Your own robot:** With the [body interface](docs/body-interface.md) any robot can get Knowlin – as its own Python

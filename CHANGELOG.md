@@ -9,6 +9,34 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.61 – 2026-11-14 – Bellos Tricks, Stacki im Originalgehäuse, Suche bei den Tricks
+
+### Neu
+- **Bello kann zehn Tricks** (Funktionsabgleich mit Petoi, Maintainer: „Ja und weiter“): Pfote geben, Strecken,
+  Verbeugen, Liegestütze, Platz, Tot stellen, Boxen, Umschauen, Handstand und Rückwärtssalto – nach den eingebauten
+  Tricks des Bittle X, im Simulator gezeichnet. Kacheln unter Tricks → „Bellos Tricks“, im Werkzeug `skill` mit
+  Bedeutung, und ohne KI-Modell per Zuruf („Pfote!“, „Platz!“, „Stell dich tot!“). Hundekommandos gelten nur für
+  Körper, die den Trick haben – bei der Ente bleibt „mach die Verbeugung“ ein gelernter Trick fürs Sprachmodell.
+- **Suche auf der Trickseite** (Maintainer: „für Tricks und Fähigkeiten vllt eine Suchfunktion – bei Microduck ist die
+  Liste ja sehr lang aus unterschiedlichen Quellen“): ein Feld oben filtert alle Kacheln aller Quellen – Pollens
+  Emotionen, Erweiterungen, Gangarten, eigene Gesten, Leerlauf, Reachys Bewegungen, Aris Gesten, Bellos Tricks –,
+  zeigt „x von y“ und blendet leere Abschnitte aus; Groß/klein und ä/ae sind egal.
+
+### Geändert
+- **Stacki im Originalgehäuse** (Maintainer: „Haben wir für die neuen Roboter keine original 3D Modelle?“ – „Ja“):
+  Gehäuse und Füße aus den offenen Gehäusedaten der Stack-chan-Community (`case/case_SG90`, Apache-2.0), gebacken in
+  `static/model/stackchan.dpm` mit Herkunftsnachweis; die Figur hat jetzt die echten Maße (54 mm Kopf, 64 mm hoch).
+  Den M5Stack-Kasten mit dem 4:3-Bildschirm und das Gesicht zeichnet Knowlin weiter selbst. Für Bittle X gibt es keine
+  freien Modelldaten des Körpers – Bello bleibt gezeichnet.
+- Meldung, wenn ein Trick noch läuft: „läuft gerade noch“ statt „hält die Ente gerade“.
+
+### Sicherheit
+- Salto und Handstand gibt es nur im Simulator; am echten Bittle X kämen sie erst nach eigener Prüfung dazu. Nach dem
+  Not-Aus nimmt Bello keinen Trick an.
+
+### Nicht geprüft
+- Echter Stack-chan und echter Bittle X (noch nicht angebunden).
+
 ## 0.38.60 – 2026-11-14 – Erster Start mit allen Körpern
 
 ### Geändert

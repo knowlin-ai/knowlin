@@ -194,3 +194,15 @@ def test_beispiele_bleiben_bis_zum_eigenen_satz():
     """Seit 0.38.60: Der Gruß der Verkörperung beim Aufwachen ließ die Sätze zum Anklicken verschwinden – sie bleiben
     jetzt, bis man selbst etwas sagt."""
     assert "if (kind === 'user') $('hello')?.remove();" in APP
+
+
+def test_suche_auf_der_trickseite():
+    """Seit 0.38.61 (Maintainer: „für Tricks und Fähigkeiten vllt eine Suchfunktion – bei Microduck ist die Liste ja sehr
+    lang aus unterschiedlichen Quellen“): ein Suchfeld oben, das alle Kacheln aller Quellen filtert."""
+    tricks = (STATIC / "teile" / "tricks.html").read_text(encoding="utf-8")
+    assert 'id="tricks-suche"' in tricks and 'id="tricks-suche-leer"' in tricks and 'role="search"' in tricks
+    js = (STATIC / "tricks_suche.js").read_text(encoding="utf-8")
+    for art in (".emo", "article.move", "article.talent", "li.gait", ".pack-section", "MutationObserver"):
+        assert art in js
+    assert "initTricksSuche({ $ })" in (STATIC / "tricks_seite.js").read_text(encoding="utf-8")
+    assert ".such-aus { display: none !important; }" in (STATIC / "style.css").read_text(encoding="utf-8")

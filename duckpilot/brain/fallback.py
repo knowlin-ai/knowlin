@@ -44,7 +44,9 @@ def _distance(text: str, default: float = 0.4) -> float:
     return n if n <= 5 else n / 100
 
 
-def parse(text: str) -> list[tuple[str, dict[str, Any]]]:
+def parse(text: str, koennen: frozenset[str] | set[str] = frozenset()) -> list[tuple[str, dict[str, Any]]]:
+    """Einfache Befehle erkennen. `koennen`: eigene Tricks des Körpers (Bello) – nur die werden als Hundekommando gelesen,
+    sonst bleibt z. B. „mach die Verbeugung“ für einen gelernten Trick der Ente beim Sprachmodell."""
     t = text.lower().strip()
     if re.search(r"\b(stopp?|halt|anhalten|aufhören|stehen bleiben|freeze|stand still|stop it)\b", t):
         return [("stop", {})]
@@ -53,7 +55,8 @@ def parse(text: str) -> list[tuple[str, dict[str, Any]]]:
         p = part.strip()
         if not p or WIE_GEHTS.search(p):                      # Frage nach dem Befinden, kein Befehl
             continue
-        cmd = _szene(p) or _team(p) or _schuss(p) or _handeln(p) or _parse_part_en(p) or _parse_part(p)
+        cmd = (_hundetrick(p, koennen) or _szene(p) or _team(p) or _schuss(p) or _handeln(p) or _parse_part_en(p)
+               or _parse_part(p))
         if cmd:
             steps.append(cmd)
     return steps
@@ -68,12 +71,12 @@ NOT_QUICK = re.compile(r"\?|\b(was|wie|warum|wieso|weshalb|wer|wo|wohin|woher|wa
 QUICK_MAX_WORDS = 4
 
 
-def quick_command(text: str) -> bool:
+def quick_command(text: str, koennen: frozenset[str] | set[str] = frozenset()) -> bool:
     """Ein kurzer, eindeutiger Bewegungsbefehl ohne Frage, Bedingung oder Verneinung?"""
     t = text.lower().strip().rstrip(".!")
     if not t or len(t.split()) > QUICK_MAX_WORDS or NOT_QUICK.search(t):
         return False
-    steps = parse(t)
+    steps = parse(t, koennen)
     return bool(steps) and all(name in QUICK_TOOLS for name, _ in steps)
 
 
@@ -294,6 +297,28 @@ def _szene(p: str) -> tuple[str, dict[str, Any]] | None:
     return None
 
 
+# Hundetricks (seit 0.38.61, Bittle X): klassische Kommandos → eigener Trick, nur wenn der Körper ihn hat (`koennen`).
+# „Platz“ nur als Kommando, nicht in „an seinen Platz“; „Strecke“ (laufen) ist kein „Strecken“.
+HUNDETRICKS = (
+    (re.compile(r"\bpfote\b|\b(give|gimme) (me )?(a |your )?paw\b|\bpaw\b"), "pfote"),
+    (re.compile(r"\bstreck\w* dich\b|\bstretch\b"), "strecken"),
+    (re.compile(r"\bverbeug\w*|\btake a bow\b|\bbow\b"), "verbeugen"),
+    (re.compile(r"liegest(ü|ue)tz|\bpush[- ]?ups?\b"), "liegestuetze"),
+    (re.compile(r"^(mach )?platz\b|\bmach platz\b|^lie down\b"), "platz"),
+    (re.compile(r"\bstell\w* dich tot\b|\btot stellen\b|^peng\b|\bplay dead\b"), "tot_stellen"),
+    (re.compile(r"\bbox(e|en|t)\b|\bboxing\b"), "boxen"),
+    (re.compile(r"\bhandstand\b"), "handstand"),
+    (re.compile(r"\bsalto\b|\bback ?flip\b"), "salto"),
+)
+
+
+def _hundetrick(p: str, koennen: frozenset[str] | set[str]) -> tuple[str, dict[str, Any]] | None:
+    for muster, trick in HUNDETRICKS:
+        if trick in koennen and muster.search(p):
+            return ("skill", {"name": trick})
+    return None
+
+
 def _parse_part(p: str) -> tuple[str, dict[str, Any]] | None:
     if re.search(r"steh\w* auf|aufstehen|wach auf|motoren an", p):
         return ("power", {"action": "stand_up"})
@@ -485,6 +510,13 @@ class FallbackBrain:
         self.runner = runner
         self.name = name or (lambda: "Quacki")
 
+    def koennen(self) -> frozenset[str]:
+        """Eigene Tricks des Körpers für die Hundekommandos (Bello); sonst leer."""
+        try:
+            return frozenset(self.runner.engine.backend.skills())
+        except Exception:  # noqa: BLE001
+            return frozenset()
+
     async def _wie_gehts(self) -> str:
         """„Wie geht's dir?“ ehrlich aus dem Selbstbild beantworten (Haltung, Sperre nach dem Not-Aus)."""
         r = await self.runner.run("selbstbild", {})
@@ -571,7 +603,7 @@ class FallbackBrain:
             remembered = await self._memory_command(text)
             if remembered is not None:
                 return remembered
-        steps = parse(text)
+        steps = parse(text, self.koennen())
         if not steps:
             from ..motion.mood import PRAISE, USER_JOY, USER_LOW, USER_SCOLD
 

@@ -28,6 +28,15 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   catalog().then(setIdleRepertoire);   // Leerlauf-Gesten kennen den Katalog
   $('tricks-zu-erweiterungen')?.addEventListener('click', () => showView('tricks', 'pakete'));
   initTricksSuche({ $ });   // Suche über alle Kacheln (seit 0.38.61)
+  // Bellos Tricks (seit 0.38.61): Kachel → skill-Werkzeug; Abspielzeichen wie bei den übrigen Kacheln
+  for (const b of document.querySelectorAll('#bello-tricks [data-bello]')) {
+    b.querySelector('b')?.insertAdjacentHTML('beforeend', PLAY_ICON);
+    b.addEventListener('click', () => {
+      send({ type: 'tool', name: 'skill', args: { name: b.dataset.bello } });
+      b.classList.add('playing');
+      setTimeout(() => b.classList.remove('playing'), 3000);
+    });
+  }
   // Arm (seit 0.38.55): seine Gesten und Aufträge – jedes Mal neu, eigene Aufträge können dazugekommen sein
   function armKachel(titel, text, werkzeug, args, dauer = 2) {
     const b = el('button', 'emo');

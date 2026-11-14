@@ -16,6 +16,34 @@ const SITZ = 0.45;                          // Rumpfneigung im Sitzen (rad, vorn
 
 // Höhe der Schulter über dem Fuß für Schulter- und Kniewinkel
 const hoehe = (s, k) => OBEN * Math.cos(s) + UNTEN * Math.cos(s + k);
+const glatt = (x) => { const c = Math.max(0, Math.min(1, x)); return c * c * (3 - 2 * c); };
+const huelle = (p, rein = 0.2, raus = 0.82) => Math.min(glatt(p / rein), 1 - glatt((p - raus) / (1 - raus)));
+const welle = (p, mal) => 0.5 - 0.5 * Math.cos(2 * Math.PI * mal * p);
+
+// Bellos Tricks (seit 0.38.61, nach Petois eingebauten Tricks; Namen wie backends/bittle.py TRICKS).
+// Je Trick und Fortschritt p (0…1): Schulter s und Knie k je Bein [vl, vr, hl, hr], Rumpfhöhe y, Neigung n
+// (+ = vorn hoch), Kippen r (zur Seite), Kopf kd (drehen) und kp (heben), e = wie weit die Pose gilt (0 = Stand, 1 = Pose).
+const SITZEN = { s: [-SITZ, -SITZ, 0.9 - SITZ, 0.9 - SITZ], k: [0, 0, -1.9, -1.9], y: OBEN + UNTEN - 0.052 * Math.sin(SITZ) + 0.006, n: SITZ };
+const TRICKS = {
+  pfote: (p) => { const w = 0.25 * Math.sin(2 * Math.PI * 3 * p);
+    return { ...SITZEN, s: [1.45 + w, -SITZ, 0.9 - SITZ, 0.9 - SITZ], k: [-0.5, 0, -1.9, -1.9], e: huelle(p) }; },
+  strecken: (p) => ({ s: [1.15, 1.15, -0.45, -0.45], k: [-0.15, -0.15, 0.85, 0.85], y: 0.062, n: -0.32, kp: 0.3, e: huelle(p, 0.3, 0.75) }),
+  verbeugen: (p) => ({ s: [1.0, 1.0, -0.15, -0.15], k: [-2.05, -2.05, 0.35, 0.35], y: 0.058, n: -0.48, kp: 0.45, e: huelle(p, 0.25, 0.75) }),
+  liegestuetze: (p) => { const u = welle((p - 0.15) / 0.7, 3) * (p > 0.15 && p < 0.85 ? 1 : 0);
+    return { s: [0.45 + 0.5 * u, 0.45 + 0.5 * u, -0.45, -0.45], k: [-0.85 - 0.95 * u, -0.85 - 0.95 * u, 0.85, 0.85],
+      y: 0.083 - 0.026 * u, n: -0.22 * u, e: huelle(p, 0.12, 0.88) }; },
+  platz: (p) => ({ s: [1.25, 1.25, -1.25, -1.25], k: [-2.4, -2.4, 2.4, 2.4], y: 0.03, n: 0, kd: 0.3 * Math.sin(2 * Math.PI * p), e: huelle(p, 0.2, 0.85) }),
+  tot_stellen: (p) => ({ s: [0.25, 0.3, -0.3, -0.25], k: [-0.2, -0.3, 0.3, 0.2], y: 0.04, n: 0, r: 1.45, e: huelle(p, 0.18, 0.86) }),
+  boxen: (p) => { const a = Math.sin(2 * Math.PI * 4 * p), b = Math.sin(2 * Math.PI * 4 * p + Math.PI);
+    return { ...SITZEN, n: SITZ * 1.25, s: [1.15 + 0.45 * a, 1.15 + 0.45 * b, 0.9 - SITZ, 0.9 - SITZ], k: [-0.7, -0.7, -1.9, -1.9], e: huelle(p) }; },
+  umschauen: (p) => ({ s: [0.45, 0.45, -0.45, -0.45], k: [-0.85, -0.85, 0.85, 0.85], y: 0.083, n: 0.05,
+    kd: 0.95 * Math.sin(2 * Math.PI * p), e: huelle(p, 0.1, 0.9) }),
+  handstand: (p) => ({ s: [1.3, 1.3, 0.2, 0.2], k: [0, 0, -0.6, -0.6], y: 0.146, n: -1.3, kp: 1.15, e: huelle(p, 0.3, 0.75) }),
+  // Salto: Rumpf dreht einmal ganz herum (n bis 2π) und fliegt dabei hoch; Beine angezogen; wirkt direkt, nicht geglättet
+  salto: (p) => { const q = glatt((p - 0.18) / 0.62);
+    return { s: [1.1, 1.1, -1.1, -1.1], k: [-1.9, -1.9, 1.9, 1.9], y: 0.083 + 0.12 * Math.sin(Math.PI * q), n: (2 * Math.PI * q) % (2 * Math.PI),
+      e: huelle(p, 0.15, 0.85), direkt: p > 0.15 && p < 0.85 }; },
+};
 
 export class Bittle {
   constructor() {
@@ -81,6 +109,7 @@ export class Bittle {
     const t = st.twist || {};
     const laeuft = wach && !sitzt && (Math.hypot(t.vx || 0, t.vy || 0) > 0.01 || Math.abs(t.vyaw || 0) > 0.08);
     const ph = st.gait_phase || 0;
+    const trick = wach && TRICKS[st.skill] ? TRICKS[st.skill](Math.max(0, Math.min(1, st.skill_progress || 0))) : null;
     this.beine.forEach((b, i) => {
       const seite = b.vorn ? 1 : -1;                     // Knie zeigen zur Mitte: vorn nach hinten, hinten nach vorn
       let s = STAND.s * seite, kn = STAND.k * seite;
@@ -94,9 +123,11 @@ export class Bittle {
         s += (ss - s) * this._sitz;
         kn += (sk - kn) * this._sitz;
       }
+      if (trick) { s += (trick.s[i] - s) * trick.e; kn += (trick.k[i] - kn) * trick.e; }
       if (!wach) { s = 1.25 * seite; kn = -2.4 * seite; } // stromlos: Beine eingeklappt, liegt flach
-      this._s[i] += (s - this._s[i]) * Math.min(1, dt * 12);
-      this._k[i] += (kn - this._k[i]) * Math.min(1, dt * 12);
+      const f = trick && trick.direkt ? 1 : Math.min(1, dt * 12);
+      this._s[i] += (s - this._s[i]) * f;
+      this._k[i] += (kn - this._k[i]) * f;
       b.schulter.rotation.z = this._s[i];
       b.knie.rotation.z = this._k[i];
     });
@@ -107,11 +138,24 @@ export class Bittle {
       neigung = SITZ * this._sitz;
       y += ((OBEN + UNTEN) - 0.052 * Math.sin(SITZ) + 0.006 - y) * this._sitz;
     }
-    if (!wach) { y = 0.028; neigung = 0; }
+    let kippen = 0;
+    if (trick) {                                          // Trick: Höhe, Neigung, Kippen und Kopf aus der Pose
+      y += (trick.y - y) * trick.e;
+      neigung += (trick.n - neigung) * trick.e;
+      kippen = (trick.r || 0) * trick.e;
+      if (trick.kd !== undefined) this.headYaw.rotation.y = trick.kd * trick.e;
+      if (trick.kp !== undefined) this.headPitch.rotation.z = trick.kp * trick.e;   // Kopf heben (nach vorn schauen)
+    }
+    if (!trick || !trick.direkt) {                        // sanft hinein und heraus; beim Salto direkt
+      this._y = this._y === undefined ? y : this._y + (y - this._y) * Math.min(1, dt * 10);
+      this._n = this._n === undefined ? neigung : this._n + (neigung - this._n) * Math.min(1, dt * 10);
+      y = this._y; neigung = this._n;
+    } else { this._y = y; this._n = neigung; }
+    if (!wach) { y = 0.028; neigung = 0; this._y = y; this._n = 0; }
     const fallZiel = st.fallen ? (st.fall_side || 1) * 1.4 : 0;
     this._fall += (fallZiel - this._fall) * Math.min(1, dt * (st.fallen ? 9 : 3));
     if (Math.abs(this._fall) > 0.05) y = Math.max(0.04, y * Math.cos(this._fall));
     this.body.position.y = y;
-    this.body.rotation.set(this._fall, 0, neigung, 'XYZ');
+    this.body.rotation.set(this._fall + kippen, 0, neigung, 'XYZ');
   }
 }
