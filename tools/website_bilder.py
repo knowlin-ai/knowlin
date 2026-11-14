@@ -198,14 +198,27 @@ def szene_ari(page, base, sprache):
 
 
 def szene_stackchan(page, base, sprache):
-    """Stack-chan (seit 0.38.58): auf dem Couchtisch, nah herangeholt, mit fröhlichem Gesicht."""
-    _koerper(page, base, "stackchan", sprache, "Hallo Stacki, wie geht's dir?" if sprache == "de" else "Hi Stacki, how are you?")
+    """Stack-chan (seit 0.38.58): auf dem Couchtisch, nah herangeholt, mit fröhlichem Gesicht – ein paar Bilder von Hand
+    rechnen, dann die 3D-Ansicht anhalten, damit das Bild so bleibt."""
+    satz = "Hallo Stacki, wie geht's dir?" if sprache == "de" else "Hi Stacki, how are you?"
+    _koerper(page, base, "stackchan", sprache, satz)
+    try:                                  # unter Last kommt die Antwort spät – abwarten, nur wenn sie ausbleibt: noch einmal
+        page.wait_for_function("() => { const l = [...document.querySelectorAll('#log .msg')];"
+                               " return l.some((m) => m.classList.contains('msg-user'))"
+                               " && l[l.length - 1].classList.contains('msg-duck'); }", timeout=30000)
+    except Exception:  # noqa: BLE001
+        sagen(page, "#say-text", satz, 5.0)
     senden = "([n, a]) => window.duckpilot.send({type: 'tool', name: n, args: a})"
-    page.evaluate("() => { const s = window.duckpilot.scene; s.paused = false;"
-                  " s.camera.position.set(0.26, 0.6, -0.72); s.controls.target.set(0.55, 0.45, -0.25); s.controls.update(); }")
-    page.wait_for_timeout(2500)
     page.evaluate(senden, ["emote", {"emotion": "freude"}])
-    page.wait_for_timeout(1200)
+    page.wait_for_timeout(600)
+    # das fröhliche Gesicht fest fürs Bild (unter der Last der Aufnahme kommt der Zustand sonst manchmal zu spät an)
+    page.evaluate("""() => { const s = window.duckpilot.scene; s.follow = false; if (s.intro) s.intro.done = true;
+        s.camera.position.set(0.36, 0.56, -0.58); s.controls.target.set(0.56, 0.46, -0.22); s.controls.update();
+        const d = s.duck, alt = d.update;
+        d.update = (st, dt) => alt.call(d, { ...st, gesicht: { ...(st.gesicht || {}), ausdruck: 'froh', wach: true } }, dt);
+        for (let i = 0; i < 12; i++) s._frame(); s.paused = true; d.update = alt;
+        document.getElementById('ticker').replaceChildren(); }""")
+    page.wait_for_timeout(500)
 
 
 def szene_werte(page, base, sprache):

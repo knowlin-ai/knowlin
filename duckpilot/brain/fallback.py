@@ -51,7 +51,7 @@ def parse(text: str) -> list[tuple[str, dict[str, Any]]]:
     steps: list[tuple[str, dict[str, Any]]] = []
     for part in re.split(r"\b(?:und dann|danach|anschließend|dann|and then|then|afterwards)\b|,", t):
         p = part.strip()
-        if not p:
+        if not p or WIE_GEHTS.search(p):                      # Frage nach dem Befinden, kein Befehl
             continue
         cmd = _szene(p) or _team(p) or _schuss(p) or _handeln(p) or _parse_part_en(p) or _parse_part(p)
         if cmd:
@@ -426,6 +426,9 @@ GRUPPE_MODUS = (("folgen", r"folg|nach|zu mir|komm|follow|come"), ("tanzen", r"t
 
 
 WER_BIST_DU = re.compile(r"\b(wie hei(ß|ss)t du|wer bist du|dein name|what(?:'| i)s your name|who are you)\b", re.I)
+# „Wie geht's dir?“ ist eine Frage, kein Laufbefehl (Fund 14.11.: „geht“ ließ die Ente 40 cm laufen) – Antwort aus dem
+# Selbstbild, nicht erfunden
+WIE_GEHTS = re.compile(r"\bwie geht'?s\b|\bwie geht es dir\b|\bwie fühlst du dich\b|\bhow are you\b|\bhow do you feel\b")
 
 
 def spiel_befehl(low: str, wb: Any) -> dict[str, Any] | None:
@@ -482,6 +485,21 @@ class FallbackBrain:
         self.runner = runner
         self.name = name or (lambda: "Quacki")
 
+    async def _wie_gehts(self) -> str:
+        """„Wie geht's dir?“ ehrlich aus dem Selbstbild beantworten (Haltung, Sperre nach dem Not-Aus)."""
+        r = await self.runner.run("selbstbild", {})
+        en = _en()
+        lage = {"steht": ("I'm awake and ready.", "Ich bin wach und bereit."),
+                "sitzt": ("I'm resting right now.", "Ich ruhe mich gerade aus."),
+                "stromlos": ("My motors are off – I'm resting.", "Meine Motoren sind aus – ich ruhe mich aus."),
+                "liegt (umgefallen)": ("I'm lying down – help me up, please.", "Ich liege gerade – hilf mir kurz auf."),
+                "wird gehalten": ("Someone is holding me.", "Ich werde gerade gehalten.")}.get(str(r.get("haltung")))
+        satz = ("I'm fine, thanks! " if en else "Mir geht's gut, danke! ") + (lage[0 if en else 1] if lage else "")
+        if r.get("sperre_nach_notaus"):
+            satz += " I'll stay still a little longer after the emergency stop." if en else \
+                " Nach dem Not-Aus bleibe ich noch eine Weile still."
+        return satz.strip()
+
     async def handle(self, text: str) -> "Reply":
         from .agent import Reply
 
@@ -497,6 +515,8 @@ class FallbackBrain:
         if WER_BIST_DU.search(low):
             name = self.name() or "Quacki"
             return Reply(f"I'm {name}." if _en() else f"Ich bin {name}.", [], "einfach")
+        if WIE_GEHTS.search(low):
+            return Reply(await self._wie_gehts(), [], "einfach")
         # Arm an der Werkbank (seit 0.38.54): „sortier die Würfel“, „räum auf“, „bau einen Turm“, „leg den roten in die
         # linke Kiste“ – auch ohne Sprachmodell
         if hasattr(eng.backend, "auftrag_starten"):

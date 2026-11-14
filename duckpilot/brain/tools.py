@@ -547,11 +547,10 @@ NUR_MICRODUCK = {"trick_vom_hub", "parcours_bauen", "parcours_testen", "bewegung
 def fehlt_dem_koerper(name: str, backend: Any) -> str | None:
     """Warum ein Körper ein Werkzeug nicht kann – oder None. Eine Stelle für Angebot (`tools`) und Ausführung (`run`)."""
     eig = backend.eigenschaften()
-    if name in BEINE_TOOLS and "beine" not in eig:
-        from ..api import NICHT_OHNE_BEINE
-
-        return NICHT_OHNE_BEINE
     profil = koerper.zu_zustand(getattr(backend, "koerper_art", "") or koerper.holen("duckpilot").koerper_zustand)
+    if name in BEINE_TOOLS and "beine" not in eig:
+        # mit dem eigenen Namen (Fund 14.11.: auch Ari und Stacki meldeten „Reachy Mini hat keine Beine“)
+        return f"{profil.name if profil else 'Dieser Körper'} hat keine Beine – laufen, schießen und aufheben geht nicht"
     if name in NUR_MICRODUCK and not (profil and profil.lab):            # Trainingshalle laut Profil (seit 0.38.35)
         return "Das gibt es nur für die Microduck (Pollens Policies und Trainingshalle)."
     if name == "turn" and not DREHEN & eig:

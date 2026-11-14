@@ -105,3 +105,44 @@ def test_oberflaeche_verdrahtet():
     html = (STATIC / "index.html").read_text(encoding="utf-8")
     assert 'value="stackchan" data-set="modul"' in html and 'class="quick nur-stackchan"' in html
     assert ".nur-stackchan" in (STATIC / "style.css").read_text(encoding="utf-8")
+
+
+def test_wie_gehts_ist_kein_laufbefehl_und_jeder_nennt_seinen_namen():
+    """Funde 14.11. beim Bild für die Website: „Hallo Stacki, wie geht's dir?“ ließ (ohne Sprachmodell) laufen – „geht“
+    galt als Laufbefehl –, und Stacki (wie zuvor Ari) meldete „Reachy Mini hat keine Beine“."""
+    from duckpilot.brain.fallback import FallbackBrain, parse
+
+    assert parse("Wie geht's dir?") == [] and parse("Hallo Stacki, wie geht's dir?") == [("emote", {"emotion": "begruessen"})]
+    assert parse("geh vor") == [("walk", {"distance_m": 0.4})]           # echte Laufbefehle bleiben
+
+    async def go():
+        sim = StackChanSim(realtime=False)
+        eng = MotionEngine(sim)
+        await sim.connect()
+        await sim.init()
+        _laufen(sim, 3.0)
+        eng.last_state = sim.state()
+        runner = ToolRunner(eng)
+        walk = await runner.run("walk", {"distance_m": 0.3})
+        antwort = await FallbackBrain(runner).handle("Hallo Stacki, wie geht's dir?")
+        return walk, antwort
+    walk, antwort = asyncio.run(go())
+    assert walk["fehler"].startswith("Stack-chan hat keine Beine") and "Reachy" not in walk["fehler"]
+    assert antwort.text.startswith("Mir geht's gut") and "wach" in antwort.text
+
+
+def test_leerlauf_geste_in_der_gewaehlten_sprache():
+    """Fund 14.11. beim englischen Website-Bild: Unter „Bubbly“ stand die Leerlauf-Geste auf Deutsch („späht umher“)."""
+    from duckpilot import i18n
+    from duckpilot.server.runtime import _leerlauf_text
+
+    alt = i18n.sprache()
+    try:
+        i18n.setze_sprache("en")
+        assert _leerlauf_text("umherspaehen") == "peers around"
+        i18n.setze_sprache("de")
+        assert _leerlauf_text("umherspaehen") == "späht umher"
+    finally:
+        i18n.setze_sprache(alt)
+    src = (Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "runtime.py").read_text(encoding="utf-8")
+    assert 'event = {**event, "message": _leerlauf_text(str(event["geste"]))' in src

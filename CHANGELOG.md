@@ -9,7 +9,7 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
-## Unveröffentlicht
+## 0.38.58 – 2026-11-14 – Stack-chan als fünfter Körper
 
 ### Neu
 - **Stack-chan als fünfter Körper** (Maintainer: „Ok mach“ auf den Vorschlag, den günstigsten Roboter mit Gesicht
@@ -18,6 +18,14 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   Seine Verkörperung heißt Stacki. Eigene Kachel auf der Startseite mit Porträt, Schnellbefehle, Verknüpfung „Knowlin
   - Stack-chan“. Neues Wort `gesicht` in der Körperschnittstelle; das Werkzeug für Gefühle zeigt sie bei ihm im
   Gesicht. Gezeichnet nach Fotos, ohne Dateien des Projekts.
+
+### Behoben
+- **„Wie geht's dir?“ ist kein Laufbefehl mehr** (gefunden beim Bild für die Website): Ohne Sprachmodell las Knowlin
+  „geht“ als „geh“ und ließ die Ente 40 cm laufen. Jetzt antwortet die Verkörperung aus ihrem Selbstbild („Mir geht's
+  gut, danke! Ich bin wach und bereit.“).
+- **Körper ohne Beine nennen ihren eigenen Namen:** Ari und Stacki meldeten beim Laufen „Reachy Mini hat keine Beine“.
+- **Leerlauf-Gesten auf Englisch:** In der englischen Oberfläche stand unter der Bühne „späht umher“; jetzt in der
+  gewählten Sprache.
 
 ### Sicherheit
 - Stack-chan erfüllt die Pflichten der Körperschnittstelle (`python -m duckpilot.koerper_pruefung stackchan`): Not-Aus

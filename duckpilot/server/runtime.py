@@ -751,6 +751,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
     def _on_event(self, event: dict[str, Any]) -> None:
         self.blackbox.ereignis(event)
         self.erfahrung.on_event(event)
+        if event.get("type") == "charakter" and event.get("geste"):   # Leerlauf-Geste in der gewählten Sprache
+            event = {**event, "message": _leerlauf_text(str(event["geste"])) or event.get("message", "")}   # (Fund 14.11.)
         spawn(self.broadcast({"type": "event", "event": event}))
 
     def _on_memory(self, data: dict[str, Any]) -> None:

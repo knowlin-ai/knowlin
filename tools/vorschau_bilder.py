@@ -51,7 +51,7 @@ body {{ background: radial-gradient(ellipse at 75% 40%, #23262c 0%, #121417 55%,
 .marke img {{ width: {62 * s}px; height: {62 * s}px; }}
 h1 {{ font-weight: 400; font-size: {58 * s}px; line-height: 1.08; letter-spacing: -0.02em; margin: {38 * s}px 0 {24 * s}px; }}
 p {{ color: #aab0ba; font-size: {19 * s}px; line-height: 1.5; margin: 0 0 {30 * s}px; }}
-.chips {{ display: flex; flex-wrap: nowrap; gap: {8 * s}px; }}
+.chips {{ display: flex; flex-wrap: wrap; gap: {8 * s}px; }}   /* ab fünf Körpern zweizeilig (seit 0.38.58) */
 .chip {{ border: 1px solid #3a3f47; border-radius: 999px; padding: {7 * s}px {12 * s}px; font-size: {14.5 * s}px; white-space: nowrap;
   display: inline-flex; align-items: center; gap: {9 * s}px; color: #f1f2f4; }}
 .chip i {{ width: {7 * s}px; height: {7 * s}px; border-radius: 50%; background: #f6a94b; }}

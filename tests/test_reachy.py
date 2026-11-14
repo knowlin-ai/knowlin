@@ -14,7 +14,6 @@ from duckpilot.api import Head, Twist, wrap_angle
 from duckpilot.backends import build_backend
 from duckpilot.backends.reachy import (
     KOERPER_GRAD,
-    NICHT_OHNE_BEINE,
     ReachyMiniDaemon,
     ReachyMiniSim,
     kopf_ziel,
@@ -92,7 +91,7 @@ def test_werkzeuge_ohne_beine():
     namen, walk, turn = run(go())
     assert {"walk", "skill", "apportieren", "schiessen", "explore", "mir_folgen"}.isdisjoint(namen)
     assert {"turn", "head", "emote", "dance", "antennen", "choreography"} <= namen
-    assert walk == {"ok": False, "fehler": NICHT_OHNE_BEINE}
+    assert walk == {"ok": False, "fehler": "Reachy Mini hat keine Beine – laufen, schießen und aufheben geht nicht"}
     assert turn["ok"]
 
 
