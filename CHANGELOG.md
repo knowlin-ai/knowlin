@@ -30,6 +30,8 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   jedem Körper mit Beinen erscheinen (Abnahme mit Bello); die englische Meldung zu „Folg mir“ am echten Roboter fehlte.
 - **Cockpit bei 1100 px Breite:** Eine lange Zustandszeile (Bellos Choreografie) lief unter die Meldungen rechts; die
   Anzeige endet jetzt vor ihnen.
+- **Zustand bei Bello ohne Entengelenke:** Die Gelenktabelle der Ente (Hüfte, Knöchel, Schnabel) ist bei Bittle X
+  ausgeblendet; er hat neun eigene Gelenke.
 
 ### Sicherheit
 - Bittle X erfüllt die Pflichten der Körperschnittstelle (`python -m duckpilot.koerper_pruefung bittle`): Not-Aus

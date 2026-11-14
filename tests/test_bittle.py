@@ -90,3 +90,9 @@ def test_leerlauf_passt_zum_hund():
     assert personas
     gezeigt = {eng.idle_gesture(persona=p) for p in personas for _ in range(40)}
     assert not gezeigt & NUR_MIT_SCHNABEL and gezeigt - {None}
+
+
+def test_keine_entengelenke_im_zustand():
+    """Abnahme 14.11.: Bellos Zustandsansicht zeigte die Gelenke der Ente samt „Schnabel“."""
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    assert 'class="card card-joints braucht-beine ohne-bittle"' in html
