@@ -27,7 +27,8 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 ### Geändert
 - **Website aktuell:** Die Vitrine zeigt alle sechs Körper und das Neue – Ari lernt durch Vormachen, Bellos Tricks,
   Stackis Gefühle, Reachys Ausdruck, Odi zum Selbstbauen, die Suche bei den Tricks; „6 Körper“ statt „5“, Bellos
-  Steckbrief mit Gangarten, alle Bilder neu aufgenommen, Fußzeile nennt SO-101, Stack-chan und Petoi.
+  Steckbrief mit Gangarten, neue Bilder für Bello, Aris Vormachen und die Suche (deutsche Bildschirmfotos aufgefrischt;
+  Akrobatik und Training unverändert), Fußzeile nennt SO-101, Stack-chan und Petoi.
 - `docs/ROADMAP.md` wieder aus den Geplant-Kacheln gebaut (stand seit 0.38.42 still); ein Test hält beides gleich.
 - Die Rumpfhöhe der Bello-Figur kommt aus den Beinen statt aus festen Werten.
 
