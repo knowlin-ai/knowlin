@@ -512,6 +512,7 @@ function onState(msg) {
   if (msg.items) { scene.setItems(msg.items); map.setItems(msg.items); }
   laser?.onState(msg.laser);
   follow?.onState(msg.mensch);
+  tricksSeite.gangart(st.gangart);   // Bellos Gangart (0.38.65)
   map.setLaser(msg.laser);
 
   document.body.classList.toggle('spielt-ttt', !!st.werkbank?.spiel);

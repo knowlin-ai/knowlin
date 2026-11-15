@@ -40,6 +40,16 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
       setTimeout(() => b.classList.remove('playing'), 3000);
     });
   }
+  // Bellos Gangarten (seit 0.38.65): Kachel → skill-Werkzeug; gewählt ist, was der Körper im Zustand meldet
+  const gangKacheln = [...document.querySelectorAll('#bello-gangarten [data-bello-gang]')];
+  function gangart(name) {
+    if (!name) return;
+    for (const b of gangKacheln) {
+      const an = String(b.dataset.belloGang === name);
+      if (b.getAttribute('aria-pressed') !== an) b.setAttribute('aria-pressed', an);
+    }
+  }
+  for (const b of gangKacheln) b.addEventListener('click', () => send({ type: 'tool', name: 'skill', args: { name: b.dataset.belloGang } }));
   // Arm (seit 0.38.55): seine Gesten und Aufträge – jedes Mal neu, eigene Aufträge können dazugekommen sein
   function armKachel(titel, text, werkzeug, args, dauer = 2) {
     const b = el('button', 'emo');
@@ -197,5 +207,5 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
     return card;
   }
 
-  return { laden: loadTricks, gefuehlName: (k) => EMO_DE[k] || k.replace(/_/g, ' ') };
+  return { laden: loadTricks, gangart, gefuehlName: (k) => EMO_DE[k] || k.replace(/_/g, ' ') };
 }

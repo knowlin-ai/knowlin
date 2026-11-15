@@ -181,9 +181,9 @@ class SimBackend(DuckBackend):
         target = self.requested.clamped() if self._can_drive() else Twist()
         if not self._can_drive() and not self.requested.is_zero():
             self.limited_by.append(self._why_not_driving())
-        if self.skill == "roulade":
-            progress = self.skill_t / SKILL_DURATION["roulade"]
-            target = Twist(0.22 if 0.15 < progress < 0.75 else 0.0, 0.0, 0.0)
+        bewegt = self._skill_twist()
+        if bewegt is not None:
+            target = bewegt
         # Trägheit: Beschleunigung begrenzt
         a_lin, a_yaw = 0.8, 4.0
         for attr, acc in (("vx", a_lin), ("vy", a_lin), ("vyaw", a_yaw)):
@@ -214,7 +214,7 @@ class SimBackend(DuckBackend):
         # Gangphase: Schritte beim Laufen und beim Drehen auf der Stelle
         moving = math.hypot(v.vx, v.vy) > 0.01 or abs(v.vyaw) > 0.08
         if moving and self._can_drive():
-            freq = 2.0 + 2.0 * min(1.0, math.hypot(v.vx, v.vy) / 0.25)
+            freq = (2.0 + 2.0 * min(1.0, math.hypot(v.vx, v.vy) / 0.25)) * self._schritt_takt()
             self.gait_phase = (self.gait_phase + 2 * math.pi * freq * dt) % (2 * math.pi)
         else:
             # Füße kommen zur Ruhe
@@ -318,6 +318,17 @@ class SimBackend(DuckBackend):
                 self.enabled = False
                 self.sitting = False
             self.emit("skill_end", skill=name)
+
+    def _skill_twist(self) -> Twist | None:
+        """Tricks, die den Körper mitnehmen (Purzelbaum rollt vorwärts); andere Körper ergänzen eigene (seit 0.38.65)."""
+        if self.skill == "roulade":
+            progress = self.skill_t / SKILL_DURATION["roulade"]
+            return Twist(0.22 if 0.15 < progress < 0.75 else 0.0, 0.0, 0.0)
+        return None
+
+    def _schritt_takt(self) -> float:
+        """Schritte je Sekunde im Verhältnis zur Grundgangart (1,0); ein Vierbeiner ändert ihn mit der Gangart."""
+        return 1.0
 
     def _skill_progress(self) -> float:
         if self.skill is None:

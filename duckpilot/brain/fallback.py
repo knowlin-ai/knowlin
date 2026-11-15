@@ -114,7 +114,7 @@ def _parse_part_en(p: str) -> tuple[str, dict[str, Any]] | None:
         return ("_pick", {"target": _ding(p)})
     if re.search(r"\b(put (it )?down|drop it|let (it )?go)\b", p):
         return ("skill", {"name": "ground_pick"})
-    if re.search(r"\b(somersault|roll|tumble|forward roll)\b", p):
+    if re.search(r"\b(somersault|roll|tumble|forward roll)\b", p) and not re.search(r"\bball", p):   # „roll den Ball“ (0.38.65)
         return ("skill", {"name": "roulade"})
     if re.search(r"\bdance\b", p):
         return ("dance", {"style": "party", "seconds": sek(10)})
@@ -321,6 +321,18 @@ HUNDETRICKS = (
     (re.compile(r"auskeil|\bkick back\b"), "kicken"),
     (re.compile(r"\bspring\w*\b|\bh(ü|ue)pf\w*\b|^jump\b"), "springen"),
     (re.compile(r"\bsei (ein )?tisch\b|\bwie ein tisch\b|\bbe a table\b"), "tisch"),
+    # seit 0.38.65 (Petoi OpenCat): Bewegungen und Gangarten. „Komm her“ und „geh rückwärts“ bleiben Laufbefehle –
+    # der Trick heißt beim Zuruf „wink mich her“ bzw. „trab rückwärts“; „roll den Ball“ ist kein Rollen.
+    (re.compile(r"moon ?walk"), "moonwalk"),
+    (re.compile(r"auf der stelle|\b(march|step|trot) in place\b"), "auf_der_stelle"),
+    (re.compile(r"\btrab\w* r(ü|ue)ckw(ä|ae)rts\b|\btrot backwards?\b"), "rueckwaerts"),
+    (re.compile(r"\bumarm|\bhug\b"), "umarmen"),
+    (re.compile(r"\bwink\w* mich (her|ran|heran)\b|\bbeckon\b"), "komm_her"),
+    (re.compile(r"\broll dich\b|\broll (dich )?(einmal )?(herum|rum|über)\b|\broll over\b|\bmach (eine |die )?rolle\b|^roll(en)?\W*$"),
+     "rollen"),
+    (re.compile(r"\bkrabbel|\bcrawl"), "krabbeln"),
+    (re.compile(r"\btrab(e|en|t)?\b(?! r(ü|ue)ckw)|\btrot\b(?! (in place|backwards?))"), "traben"),
+    (re.compile(r"\bhoppel|\bbound\b"), "hoppeln"),
 )
 
 

@@ -135,4 +135,7 @@
 .ks-mk-punkt { fill: currentColor; stroke: none; }
 .ks-hand { display: grid; gap: var(--spacing-02); }
 .ks-raster[data-spielt] > .ks-sim { margin: 0; }
-.move-ohne { position: relative; z-index: 1; font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }
+.move-ohne { position: relative; z-index: 1; font-size: var(--t-caption); letter-spacing: var(--ls-micro); color: var(--ink-3); }/* Bellos Gangarten (seit 0.38.65): die gewählte wie eine gewählte Option – Rahmen, Fläche und Haken, nicht nur Farbe */
+#bello-gangarten .emo[aria-pressed="true"] { box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
+#bello-gangarten .emo[aria-pressed="true"] b::after { content: "✓"; color: var(--accent); margin-left: auto; }
+@media (forced-colors: active) { #bello-gangarten .emo[aria-pressed="true"] { outline: 2px solid Highlight; } }

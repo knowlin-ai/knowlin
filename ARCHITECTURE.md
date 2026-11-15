@@ -259,8 +259,12 @@ Wechsel des #-Teils lädt die Seite nicht); die 3D-Ansicht wird angehalten, weil
   Körper auf, wenn es die Methode gibt. Echter Stack-chan noch nicht angebunden.
 - **Bittle X** (seit 0.38.59): Petois Roboterhund (OpenCat, MIT) – vier Beine, Kopf dreht nur seitlich (±70°), Mikrofon,
   keine eigene Stimme (Knowlin spricht für ihn), kein Schnabel, kein Tiefensensor. Simulator `backends/bittle.py` (erbt
-  den einfachen Simulator: laufen, drehen, sitzen, fallen, aufstehen), gezeichnet in `static/bittle3d.js` (Trab aus
-  `gait_phase`, Sitzen, stromlos liegend). Echter Bittle später über Petois serielles Protokoll.
+  den einfachen Simulator: laufen, drehen, sitzen, fallen, aufstehen), gezeichnet in `static/bittle3d.js` (Sitzen,
+  stromlos liegend). Echter Bittle später über Petois serielles Protokoll.
+  Seit 0.38.65 Maße nach Petois offenem Modell (`MASSE`, nur Zahlen) und Gangarten (`GANGARTEN` in beiden Dateien,
+  `DuckState.gangart`): Die Füße laufen auf Bahnen (`gangBeine` mit zwei-gliedriger Rückrechnung `beinFuer`), die
+  Rumpfhöhe kommt aus den Beinen (`bodenHoehe`), Sitzen und Strecken neigen den Rumpf, bis vorn und hinten ein Fuß
+  aufsteht (`neigungFuer`). Tricks, die ihn mitnehmen, gibt `SimBackend._skill_twist` vor (Purzelbaum ebenso).
 - **Werkbank** (seit 0.38.48): Der SO-101 steht immer an seiner eigenen Werkbank (Box „Werkbank“ in seiner Welt),
   davor drei Würfel und zwei offene Kisten im Sockelrahmen. `greifen`/`ablegen` rechnen mit `arm_kinematik.greifhaltung`
   (von oben, gedämpfte kleinste Quadrate); außer Reichweite → ehrliches Nein. Geht der Greifer auf oder kommt der

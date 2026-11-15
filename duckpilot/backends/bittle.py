@@ -10,6 +10,10 @@ nach dem Stopp-Fenster wieder auf (dieselben Regeln wie überall, nie hochgehobe
 Tiefensensor und keine eigene Stimme – Knowlin spricht für ihn. Gezeichnet wird er in der 3D-Ansicht selbst
 (`static/bittle3d.js`), ohne Dateien von Petoi. Der Kopf dreht nur seitlich (±70°), nicken kann er mit dem Körper.
 
+Seit 0.38.65 („Bello wie das Original“) hat die Figur die Maße aus Petois offenem Simulationsmodell (nur die Zahlen) und
+läuft in drei Gangarten (`GANGARTEN`: Krabbeln, Traben, Hoppeln) – umgeschaltet über das skill-Werkzeug, gültig bis zur
+nächsten Wahl, mit eigener Höchstgeschwindigkeit. Dazu Bewegungen nach Petois Kürzeln, die ihn mitnehmen (`UNTERWEGS`).
+
 Der echte Bittle X ist noch nicht angebunden; geplant ist Petois serielles Protokoll (OpenCat, über USB oder Bluetooth).
 """
 
@@ -17,7 +21,7 @@ from __future__ import annotations
 
 import math
 
-from ..api import DuckState, Head, IntentResult, Perception
+from ..api import DuckState, Head, IntentResult, Perception, Twist
 from .sim import SimBackend
 
 EIGENSCHAFTEN = frozenset({"beine", "kopf", "mikrofon"})
@@ -49,7 +53,29 @@ TRICKS: dict[str, tuple[str, float, str]] = {
     "tisch": ("Tisch", 3.0, "steht mit ganz geraden Beinen still wie ein Tisch"),  # Petoi „tbl“
     "schlafen": ("Schlafen", 5.0, "legt sich hin und lässt den Kopf sinken"),  # Petoi „zz“
     "frontsalto": ("Vorwärtssalto", 2.4, "ein Salto vorwärts – nur im Simulator"),  # Petoi „ff“
+    # Seit 0.38.65 („Bello wie das Original“): Bewegungen nach Petois Kürzeln, die ihn mitnehmen oder auf der Stelle laufen
+    "rueckwaerts": ("Rückwärts", 3.0, "trabt ein Stück rückwärts"),  # Petoi „bk“
+    "auf_der_stelle": ("Auf der Stelle", 3.0, "trabt auf der Stelle, ohne loszulaufen"),  # Petoi „vt“
+    "moonwalk": ("Moonwalk", 4.0, "gleitet rückwärts, während die Beine vorwärts laufen"),  # Petoi „mw“
+    "umarmen": ("Umarmen", 3.4, "setzt sich auf und schließt die Vorderpfoten wie zu einer Umarmung"),  # Petoi „hg“
+    "komm_her": ("Komm her", 3.0, "sitzt und winkt dich mit der Pfote heran"),  # Petoi „cmh“
+    "rollen": ("Rollen", 3.2, "rollt einmal über die Seite und steht wieder auf"),  # Petoi „rl“
 }
+# Tricks, die ihn ein Stück mitnehmen: Name → (Geschwindigkeit vorwärts in m/s, von, bis – Anteil der Trickdauer)
+UNTERWEGS: dict[str, tuple[float, float, float]] = {
+    "rueckwaerts": (-0.08, 0.1, 0.9),
+    "moonwalk": (-0.05, 0.12, 0.88),
+}
+# Gangarten (seit 0.38.65, nach Petois Gangarten): Name → (Titel, höchste Geschwindigkeit vorwärts in m/s, Schritt-Takt
+# im Verhältnis zum Traben, kurze Beschreibung). Die Geschwindigkeiten sind für den Simulator geschätzt, nicht gemessen.
+# Umschalten über das skill-Werkzeug („krabbeln“), die Kacheln auf der Trickseite oder per Zuruf; gilt, bis eine andere
+# gewählt wird. Die 3D-Ansicht setzt die Beine je Gangart anders (static/bittle3d.js GANGARTEN).
+GANGARTEN: dict[str, tuple[str, float, float, str]] = {
+    "krabbeln": ("Krabbeln", 0.06, 0.6, "tief am Boden, ein Bein nach dem anderen"),  # Petoi „cr“
+    "traben": ("Traben", 0.18, 1.0, "diagonale Beinpaare im Wechsel – seine Grundgangart"),  # Petoi „tr“
+    "hoppeln": ("Hoppeln", 0.25, 1.15, "Vorder- und Hinterbeine im Wechsel, wie ein Hase"),  # Petoi „bd“
+}
+GRUND_GANGART = "traben"
 OHNE = "Bello ist ein Hund ohne Schnabel – aufheben, Purzelbaum und Pollens Tricks gehen nicht; seine eigenen Tricks schon"
 
 
@@ -67,21 +93,44 @@ class BittleSim(SimBackend):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.extra_skills = {name: dauer for name, (_, dauer, _) in TRICKS.items()}
+        self.gangart = GRUND_GANGART
 
     def trick_titel(self) -> dict[str, str]:
         """Für das skill-Werkzeug: was die eigenen Tricks bedeuten (statt „vom Hub geladen“)."""
-        return {name: f"{titel} – {text}" for name, (titel, _, text) in TRICKS.items()}
+        titel = {name: f"{t} – {text}" for name, (t, _, text) in TRICKS.items()}
+        titel.update({name: f"Gangart {t} – {text}" for name, (t, _, _, text) in GANGARTEN.items()})
+        return titel
 
     def eigenschaften(self) -> frozenset[str]:
         return EIGENSCHAFTEN | {"simulator", "zuruecksetzen"}
 
     def skills(self) -> list[str]:
-        return ["sit_toggle", *TRICKS]
+        return ["sit_toggle", *TRICKS, *GANGARTEN]
 
     async def do(self, skill: str) -> IntentResult:
+        if skill in GANGARTEN:                         # Gangart wechseln: sofort, auch im Sitzen – gilt beim nächsten Laufen
+            self.gangart = skill
+            self.emit("gangart", gangart=skill, message=f"Gangart: {GANGARTEN[skill][0]}")
+            return IntentResult(True, f"Gangart {GANGARTEN[skill][0]}")
         if skill != "sit_toggle" and skill not in TRICKS:
             return IntentResult(False, OHNE)
         return await super().do(skill)
+
+    async def move(self, twist: Twist) -> None:
+        """Wie überall, nur so schnell, wie die gewählte Gangart läuft (rückwärts höchstens halb so schnell)."""
+        vmax = GANGARTEN[self.gangart][1]
+        t = twist.clamped()
+        await super().move(Twist(max(-vmax / 2, min(vmax, t.vx)), max(-vmax / 2, min(vmax / 2, t.vy)), t.vyaw))
+
+    def _skill_twist(self) -> Twist | None:
+        if self.skill in UNTERWEGS:
+            v, von, bis = UNTERWEGS[self.skill]
+            p = self._skill_progress()
+            return Twist(v if von < p < bis else 0.0, 0.0, 0.0)
+        return super()._skill_twist()
+
+    def _schritt_takt(self) -> float:
+        return GANGARTEN[self.gangart][2]
 
     async def sound(self, tag: str) -> IntentResult:
         return IntentResult(False, "Bello hat keine Entenlaute – Knowlin spricht für ihn")
@@ -95,6 +144,7 @@ class BittleSim(SimBackend):
     def state(self) -> DuckState:
         st = super().state()
         st.koerper = self.koerper_art
+        st.gangart = self.gangart
         st.holding = None
         st.perception = Perception(objects=st.perception.objects, source="sim")
         ruhig = self.sitting or not self.powered or (self.skill in TRICKS and self.skill != "umschauen")

@@ -209,6 +209,7 @@ class DuckState:
     werkbank: dict[str, Any] = field(default_factory=dict)  # SO-101: Würfel und Kisten im Sockelrahmen (seit 0.38.48)
     standflaeche: str = ""                               # worauf er steht („“ = Boden)
     gesicht: dict[str, Any] = field(default_factory=dict)  # Bildschirmgesicht {ausdruck, mund, wach, zustand} (seit 0.38.58)
+    gangart: str = ""                                    # laufende Gangart, wenn der Körper mehrere hat (Bittle X, seit 0.38.65)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

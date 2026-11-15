@@ -49,6 +49,22 @@
                 <button type="button" class="emo" data-bello="tisch"><b>Tisch</b><span>steht mit ganz geraden Beinen still wie ein Tisch</span></button>
                 <button type="button" class="emo" data-bello="schlafen"><b>Schlafen</b><span>legt sich hin und lässt den Kopf sinken</span></button>
                 <button type="button" class="emo" data-bello="frontsalto"><b>Vorwärtssalto</b><span>ein Salto vorwärts – nur im Simulator</span></button>
+                <button type="button" class="emo" data-bello="rueckwaerts"><b>Rückwärts</b><span>trabt ein Stück rückwärts</span></button>
+                <button type="button" class="emo" data-bello="auf_der_stelle"><b>Auf der Stelle</b><span>trabt auf der Stelle, ohne loszulaufen</span></button>
+                <button type="button" class="emo" data-bello="moonwalk"><b>Moonwalk</b><span>gleitet rückwärts, während die Beine vorwärts laufen</span></button>
+                <button type="button" class="emo" data-bello="umarmen"><b>Umarmen</b><span>setzt sich auf und schließt die Vorderpfoten wie zu einer Umarmung</span></button>
+                <button type="button" class="emo" data-bello="komm_her"><b>Komm her</b><span>sitzt und winkt dich mit der Pfote heran</span></button>
+                <button type="button" class="emo" data-bello="rollen"><b>Rollen</b><span>rollt einmal über die Seite und steht wieder auf</span></button>
+              </div>
+              <!-- Gangarten (seit 0.38.65, nach Petois Gangarten; Liste wie backends/bittle.py GANGARTEN) -->
+              <div class="section-head">
+                <h3>Bellos Gangarten</h3>
+                <p>Wie er läuft, wenn du ihn steuerst – gilt, bis du eine andere wählst. Per Zuruf: „Krabbel!“, „Trab!“, „Hoppel!“.</p>
+              </div>
+              <div class="emo-grid grid grid--tiles-sm" id="bello-gangarten">
+                <button type="button" class="emo" data-bello-gang="krabbeln" aria-pressed="false"><b>Krabbeln</b><span>tief am Boden, ein Bein nach dem anderen</span></button>
+                <button type="button" class="emo" data-bello-gang="traben" aria-pressed="true"><b>Traben</b><span>diagonale Beinpaare im Wechsel – seine Grundgangart</span></button>
+                <button type="button" class="emo" data-bello-gang="hoppeln" aria-pressed="false"><b>Hoppeln</b><span>Vorder- und Hinterbeine im Wechsel, wie ein Hase</span></button>
               </div>
             </div>
             <div class="nur-reachy">
