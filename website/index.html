@@ -262,7 +262,7 @@ footer a { color: inherit; text-decoration: underline; text-decoration-color: va
 }
 @media (max-width: 420px) { .steckbrief dl div { grid-template-columns: 1fr; gap: 2px; } .wahl button { padding-inline: 3px; font-size: 0.8125rem; } }
 
-/* ── Was in ihr steckt: dunkle Vitrine wie die Bühne oben, Kacheln mit echten Programmfenstern (seit 0.38.39,
+/* ── Was in ihnen steckt: dunkle Vitrine wie die Bühne oben, Kacheln mit echten Programmfenstern (seit 0.38.39,
    Wunsch: „zeig mehr Features – das soll ja WOW-Effekt erzeugen“). Jede Kachel zeigt einen Ausschnitt des
    ganzen Fensters (--fx/--fy: wohin, --zoom: wie nah) – nichts ist mit Rand aufgefüllt. ── */
 .vitrine {
@@ -359,6 +359,14 @@ footer a { color: inherit; text-decoration: underline; text-decoration-color: va
   font: 650 0.9375rem/1 var(--schrift-anzeige); background: var(--tinte); color: var(--bg);
 }
 .schritte p { color: var(--tinte-2); }
+/* ── Was als Nächstes kommt (seit 0.38.65): aus duckpilot/geplant.py gebaut, je Version Kopf und Körper ── */
+.fahrplan { margin: 44px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 32px; }
+.fahrplan > li { display: grid; gap: 10px; align-content: start; padding-top: 14px; border-top: 1px solid var(--linie); }
+.fahrplan .fahrplan-version { font: 650 1rem/1.3 var(--schrift-mono); color: var(--akzent-text, var(--tinte)); }
+.fahrplan ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.fahrplan ul li { color: var(--tinte-2); font-size: 0.9375rem; }
+.fahrplan ul b { display: block; color: var(--tinte); font-weight: 600; }
+@media (max-width: 860px) { .fahrplan { grid-template-columns: 1fr; } }
 code { font-family: var(--schrift-mono); font-size: 0.88em; padding: 1px 6px; border-radius: 6px; background: color-mix(in srgb, var(--linie) 60%, transparent); color: var(--tinte); }
 @media (max-width: 860px) { .schritte { grid-template-columns: 1fr; } }
 .code {
@@ -442,6 +450,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
       <a href="#koerper"><span class="t" lang="de">Körper</span><span class="t" lang="en">Bodies</span></a>
       <a href="#funktionen"><span class="t" lang="de">Funktionen</span><span class="t" lang="en">Features</span></a>
       <a href="#sicherheit"><span class="t" lang="de">Sicherheit</span><span class="t" lang="en">Safety</span></a>
+      <a href="#fahrplan"><span class="t" lang="de">Fahrplan</span><span class="t" lang="en">Roadmap</span></a>
       <a href="#loslegen"><span class="t" lang="de">Loslegen</span><span class="t" lang="en">Get started</span></a>
     </nav>
     <div class="sprache" role="group" aria-label="Sprache · Language">
@@ -487,7 +496,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
         <button type="button" class="anker" id="anker-odi" data-anker="odi" aria-pressed="false">Open Duck Mini<small><span class="t" lang="de">watschelt</span><span class="t" lang="en">waddles</span></small></button>
         <button type="button" class="anker" id="anker-ari" data-anker="ari" aria-pressed="false">SO-101<small><span class="t" lang="de">greift und räumt</span><span class="t" lang="en">grabs and tidies</span></small></button>
         <button type="button" class="anker" id="anker-stackchan" data-anker="stackchan" aria-pressed="false">Stack-chan<small><span class="t" lang="de">schaut und lächelt</span><span class="t" lang="en">looks and smiles</span></small></button>
-        <button type="button" class="anker" id="anker-bittle" data-anker="bittle" aria-pressed="false">Bittle X<small><span class="t" lang="de">trabt und sitzt</span><span class="t" lang="en">trots and sits</span></small></button>
+        <button type="button" class="anker" id="anker-bittle" data-anker="bittle" aria-pressed="false">Bittle X<small><span class="t" lang="de">trabt und macht Tricks</span><span class="t" lang="en">trots and does tricks</span></small></button>
       </div>
     </div>
   </section>
@@ -571,13 +580,13 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
   <section class="vitrine" id="funktionen" aria-labelledby="vitrine-titel">
     <div class="huelle">
       <div class="kopfzeile">
-        <h2 id="vitrine-titel"><span class="t" lang="de">Was in ihr steckt.</span><span class="t" lang="en">What's inside.</span></h2>
+        <h2 id="vitrine-titel"><span class="t" lang="de">Was in ihnen steckt.</span><span class="t" lang="en">What's inside.</span></h2>
         <p class="leit"><span class="t" lang="de">Alles läuft heute schon – im Simulator auf deinem PC, mit echter Physik, ohne Konto und ohne Kosten. Wenn dein Roboter kommt, kann er es auch.</span><span class="t" lang="en">All of this works today – in the simulator on your PC, with real physics, no account, no cost. When your robot arrives, it can do it too.</span></p>
       </div>
       <ul class="zahlen">
-        <li><b>5</b><span><span class="t" lang="de">Körper – und deiner</span><span class="t" lang="en">bodies – and yours</span></span></li>
+        <li><b>6</b><span><span class="t" lang="de">Körper – und deiner</span><span class="t" lang="en">bodies – and yours</span></span></li>
         <li><b>1</b><span><span class="t" lang="de">Gedächtnis für alle</span><span class="t" lang="en">memory for all</span></span></li>
-        <li><b>8</b><span><span class="t" lang="de">Enten tanzen mit</span><span class="t" lang="en">ducks dance along</span></span></li>
+        <li><b>10/10</b><span><span class="t" lang="de">Ari lernt aus Vormachen</span><span class="t" lang="en">Ari learns from showing</span></span></li>
         <li><b>0 €</b><span><span class="t" lang="de">lokal und offen</span><span class="t" lang="en">local and open</span></span></li>
       </ul>
       <div class="kacheln">
@@ -587,6 +596,34 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
             alt="Tanzen: Knowlin hat den Takt eines Musikstücks erkannt und einen Tanz in Teilen geplant, daneben tanzen die Enten in der Vorschau" data-alt-en="Dancing: Knowlin found the beat of a song and planned a dance in parts, next to it the ducks dance in the preview">
           </div>
           <figcaption><span class="marke-klein"><span class="t" lang="de">Tanzen</span><span class="t" lang="en">Dance</span></span><h3><span class="t" lang="de">Tanzt zu deiner Musik.</span><span class="t" lang="en">Dances to your music.</span></h3><p><span class="t" lang="de">Sie hört Takt und Teile eines Stücks heraus und studiert einen Tanz ein – bis zu acht Enten tanzen mit. Die Musik bleibt auf deinem PC.</span><span class="t" lang="en">She picks out the beat and the parts of a song and rehearses a dance – up to eight ducks join in. The music stays on your PC.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <div class="ausschnitt" style="--fx:52%;--fy:58%;--zoom:1.45">
+            <img data-bild="vormachen" src="bilder/vormachen-de-1600.webp" srcset="bilder/vormachen-de-900.webp 900w, bilder/vormachen-de-1600.webp 1600w" sizes="(max-width: 860px) 200vw, 1200px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Vormachen: Ari hat die Aufgabe gelernt – roter Würfel in die linke Kiste, im Test 10 von 10" data-alt-en="Demonstrate: Ari has learned the task – red cube into the left box, 10 out of 10 in the test">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Vormachen · SO-101</span><span class="t" lang="en">Demonstrate · SO-101</span></span><h3><span class="t" lang="de">Lernt, was du ihm zeigst.</span><span class="t" lang="en">Learns what you show it.</span></h3><p><span class="t" lang="de">Mit der Hand vor der Webcam machst du Ari vor, wohin ein Würfel soll. Ein kleines Netz auf deinem PC lernt daraus, dann probiert er es selbst – im Test 10 von 10. Die Beispiele nimmst du als Datensatz für LeRobot mit.</span><span class="t" lang="en">With your hand in front of the webcam you show Ari where a cube should go. A small network on your PC learns from it, then he tries it himself – 10 out of 10 in the test. You can take the examples along as a LeRobot dataset.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <div class="ausschnitt" style="--fx:54%;--fy:42%;--zoom:1.4">
+            <img data-bild="bello_tricks" src="bilder/bello_tricks-de-1600.webp" srcset="bilder/bello_tricks-de-900.webp 900w, bilder/bello_tricks-de-1600.webp 1600w" sizes="(max-width: 860px) 200vw, 1200px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Bello, der Roboterhund, macht Männchen" data-alt-en="Bello the robot dog sits up and begs">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Tricks · Bittle X</span><span class="t" lang="en">Tricks · Bittle X</span></span><h3><span class="t" lang="de">Ein Hund mit 28 Tricks.</span><span class="t" lang="en">A dog with 28 tricks.</span></h3><p><span class="t" lang="de">Bello macht Männchen, Moonwalk und Rolle, krabbelt, trabt oder hoppelt – nach dem Vorbild von Petois Bittle X und mit dessen Maßen. Auf Zuruf auch ganz ohne KI.</span><span class="t" lang="en">Bello sits up and begs, moonwalks and rolls over, crawls, trots or bounds – modelled on Petoi's Bittle X and with its measurements. On command even without any AI.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <div class="ausschnitt" style="--fx:36%;--fy:62%;--zoom:2">
+            <img data-bild="stackchan" src="bilder/stackchan-de-1600.webp" srcset="bilder/stackchan-de-900.webp 900w, bilder/stackchan-de-1600.webp 1600w" sizes="(max-width: 860px) 200vw, 1200px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Stacki, der Stack-chan, mit fröhlichem Gesicht auf dem Couchtisch" data-alt-en="Stacki the Stack-chan with a happy face on the coffee table">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Gefühle · Stack-chan</span><span class="t" lang="en">Feelings · Stack-chan</span></span><h3><span class="t" lang="de">Zeigt, wie es ihm geht.</span><span class="t" lang="en">Shows how it feels.</span></h3><p><span class="t" lang="de">Stacki zeigt Gefühle mit Augen und Mund, freut sich übers Streicheln, wird beim Schütteln schwindelig und schläft ein, wenn lange niemand spricht. Grünes Licht heißt: Er hört zu.</span><span class="t" lang="en">Stacki shows feelings with eyes and mouth, enjoys being stroked, gets dizzy when shaken and dozes off when nobody talks for a while. A green light means: it's listening.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <div class="ausschnitt" style="--fx:40%;--fy:45%;--zoom:1.6">
+            <img data-bild="reachy" src="bilder/reachy-de-1600.webp" srcset="bilder/reachy-de-900.webp 900w, bilder/reachy-de-1600.webp 1600w" sizes="(max-width: 860px) 200vw, 1200px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Reachy Mini auf dem Couchtisch schaut sich um" data-alt-en="Reachy Mini on the coffee table looking around">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Ausdruck · Reachy Mini</span><span class="t" lang="en">Expression · Reachy Mini</span></span><h3><span class="t" lang="de">Spricht mit Kopf und Antennen.</span><span class="t" lang="en">Talks with head and antennas.</span></h3><p><span class="t" lang="de">Reachy schaut, nickt und zeigt Pollens Emotionen und Tänze. Kamera-Spiele mit deiner Hand rechnen nur im Browser – kein Bild verlässt deinen PC.</span><span class="t" lang="en">Reachy looks, nods and shows Pollen's emotions and dances. Camera games with your hand run only in the browser – no image leaves your PC.</span></p></figcaption>
         </figure>
         <figure class="kachel">
           <div class="ausschnitt" style="--fx:32%;--fy:58%;--zoom:2">
@@ -601,6 +638,20 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
             alt="Team: fünf Enten im Zimmer, alle tanzen" data-alt-en="Team: five ducks in the room, all dancing">
           </div>
           <figcaption><span class="marke-klein"><span class="t" lang="de">Team</span><span class="t" lang="en">Team</span></span><h3><span class="t" lang="de">Ein ganzes Entenrudel.</span><span class="t" lang="en">A whole flock.</span></h3><p><span class="t" lang="de">Weitere Enten mit eigener Stimme: folgen dir, tanzen mit, räumen gemeinsam Socken zum Sofa.</span><span class="t" lang="en">More ducks with their own voices: they follow you, dance along and tidy socks to the sofa together.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <div class="ausschnitt" style="--fx:42%;--fy:52%;--zoom:1.6">
+            <img data-bild="odi" src="bilder/odi-de-1600.webp" srcset="bilder/odi-de-900.webp 900w, bilder/odi-de-1600.webp 1600w" sizes="(max-width: 860px) 200vw, 1200px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Odi, die selbstgebaute Open Duck Mini, tanzt im Wohnzimmer" data-alt-en="Odi, the self-built Open Duck Mini, dancing in the living room">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Selbstbau · Open Duck Mini</span><span class="t" lang="en">DIY · Open Duck Mini</span></span><h3><span class="t" lang="de">Auch für selbstgebaute Roboter.</span><span class="t" lang="en">For self-built robots too.</span></h3><p><span class="t" lang="de">Odi ist die offene Ente zum Nachbauen, im Simulator mit ihrem offenen 3D-Modell. Jeder Bau bringt eigene Sensoren mit – Knowlin bietet nur an, was dein Exemplar kann.</span><span class="t" lang="en">Odi is the open duck to build yourself, in the simulator with its open 3D model. Every build brings its own sensors – Knowlin only offers what your unit can do.</span></p></figcaption>
+        </figure>
+        <figure class="kachel">
+          <div class="ausschnitt" style="--fx:9%;--fy:27%;--zoom:2.1">
+            <img data-bild="tricks_suche" src="bilder/tricks_suche-de-1600.webp" srcset="bilder/tricks_suche-de-900.webp 900w, bilder/tricks_suche-de-1600.webp 1600w" sizes="(max-width: 860px) 200vw, 1200px" width="1600" height="965" loading="lazy" decoding="async"
+            alt="Tricks: die Suche findet zu „sitz“ alle Tricks, die Bello im Sitzen macht" data-alt-en="Tricks: the search finds every trick Bello does sitting down for “sit”">
+          </div>
+          <figcaption><span class="marke-klein"><span class="t" lang="de">Tricks</span><span class="t" lang="en">Tricks</span></span><h3><span class="t" lang="de">Alle Tricks, eine Suche.</span><span class="t" lang="en">All tricks, one search.</span></h3><p><span class="t" lang="de">Pollens Emotionen, Tricks vom Hugging Face Hub, eigene Gesten – ein Suchfeld findet alles, was der gerade wache Körper kann.</span><span class="t" lang="en">Pollen's emotions, tricks from the Hugging Face Hub, your own gestures – one search box finds everything the body that's awake can do.</span></p></figcaption>
         </figure>
         <figure class="kachel breit">
           <div class="ausschnitt" style="--fx:52%;--fy:58%;--zoom:1.6">
@@ -622,7 +673,7 @@ profil = Koerper(
           <figcaption><span class="marke-klein"><span class="t" lang="de">Körperschnittstelle</span><span class="t" lang="en">Body interface</span></span><h3><span class="t" lang="de">Dein Roboter, derselbe Kopf.</span><span class="t" lang="en">Your robot, the same mind.</span></h3><p><span class="t" lang="de">Ein kleines Paket mit Profil – mit Sicherheitsprüfung, ohne Knowlin zu ändern. Der Greifarm SO-101 ist schon dabei, weitere LeRobot-Roboter auch.</span><span class="t" lang="en">A small package with a profile – with safety checks, without changing Knowlin. The SO-101 gripper arm is already on board, other LeRobot robots too.</span></p></figcaption>
         </figure>
       </div>
-      <p class="bildnachweis" data-nachweis="pollen"><span class="t" lang="de">Bilder: Knowlin mit dem 3D-Modell der Microduck – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" rel="noopener license">CC BY-NC-SA 4.0</a>. Die Bilder stehen unter derselben Lizenz.</span><span class="t" lang="en">Images: Knowlin with the Microduck 3D model – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener license">CC BY-NC-SA 4.0</a>. The images are under the same licence.</span></p>
+      <p class="bildnachweis" data-nachweis="pollen"><span class="t" lang="de">Bilder mit Microduck und Reachy Mini: Knowlin mit den 3D-Modellen von Pollen Robotics – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" rel="noopener license">CC BY-NC-SA 4.0</a>; diese Bilder stehen unter derselben Lizenz. SO-101 (TheRobotStudio), Stack-chan und Open Duck Mini mit ihren offenen Modellen (Apache-2.0); Bello hat Knowlin selbst gezeichnet.</span><span class="t" lang="en">Images with Microduck and Reachy Mini: Knowlin with Pollen Robotics' 3D models – © Pollen Robotics, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener license">CC BY-NC-SA 4.0</a>; these images are under the same licence. SO-101 (TheRobotStudio), Stack-chan and Open Duck Mini with their open models (Apache-2.0); Bello was drawn by Knowlin itself.</span></p>
     </div>
   </section>
 
@@ -726,6 +777,21 @@ profil = Koerper(
     </div>
   </section>
 
+  <section id="fahrplan" aria-labelledby="fahrplan-titel">
+    <div class="huelle">
+      <div class="kopfzeile">
+        <h2 id="fahrplan-titel"><span class="t" lang="de">Was als Nächstes kommt.</span><span class="t" lang="en">What's next.</span></h2>
+        <p class="leit">
+          <span class="t" lang="de">Heute ist Version {{VERSION}} – alles läuft im Simulator. Jedes Release bringt ein Thema für den Kopf und eins für einen Körper; echte Roboter schließen wir an, sobald sie geliefert sind.</span>
+          <span class="t" lang="en">Today it's version {{VERSION}} – everything runs in the simulator. Each release brings one topic for the mind and one for a body; real robots get connected as soon as they're delivered.</span>
+        </p>
+      </div>
+      <ol class="fahrplan">
+{{FAHRPLAN}}
+      </ol>
+    </div>
+  </section>
+
   <section id="loslegen">
     <div class="huelle">
       <div class="kopfzeile">
@@ -779,8 +845,8 @@ profil = Koerper(
 <footer>
   <div class="huelle">
     <p>
-      <span class="t" lang="de">Knowlin ist ein freies, nicht-kommerzielles Hobbyprojekt und nicht mit <a href="https://pollen-robotics.com/" rel="noopener">Pollen Robotics</a> oder <a href="https://huggingface.co/" rel="noopener">Hugging Face</a> verbunden. <a href="https://pollen-robotics.com/microduck/" rel="noopener">Microduck</a> und <a href="https://pollen-robotics.com/reachy-mini/" rel="noopener">Reachy Mini</a> sind Produkte von Pollen Robotics, <a href="https://github.com/apirrone/Open_Duck_Mini" rel="noopener">Open Duck Mini</a> ist ein offenes Projekt von Antoine Pirrone und Community.</span>
-      <span class="t" lang="en">Knowlin is a free, non-commercial hobby project and not affiliated with <a href="https://pollen-robotics.com/" rel="noopener">Pollen Robotics</a> or <a href="https://huggingface.co/" rel="noopener">Hugging Face</a>. <a href="https://pollen-robotics.com/microduck/" rel="noopener">Microduck</a> and <a href="https://pollen-robotics.com/reachy-mini/" rel="noopener">Reachy Mini</a> are products of Pollen Robotics; <a href="https://github.com/apirrone/Open_Duck_Mini" rel="noopener">Open Duck Mini</a> is an open project by Antoine Pirrone and community.</span>
+      <span class="t" lang="de">Knowlin ist ein freies, nicht-kommerzielles Hobbyprojekt und nicht mit <a href="https://pollen-robotics.com/" rel="noopener">Pollen Robotics</a> oder <a href="https://huggingface.co/" rel="noopener">Hugging Face</a> verbunden. <a href="https://pollen-robotics.com/microduck/" rel="noopener">Microduck</a> und <a href="https://pollen-robotics.com/reachy-mini/" rel="noopener">Reachy Mini</a> sind Produkte von Pollen Robotics, <a href="https://github.com/apirrone/Open_Duck_Mini" rel="noopener">Open Duck Mini</a> ist ein offenes Projekt von Antoine Pirrone und Community, <a href="https://github.com/TheRobotStudio/SO-ARM100" rel="noopener">SO-101</a> eines von TheRobotStudio, <a href="https://github.com/stack-chan/stack-chan" rel="noopener">Stack-chan</a> eines der Stack-chan-Community; <a href="https://www.petoi.com/pages/bittle-open-source-bionic-robot-dog" rel="noopener">Bittle X</a> ist ein Produkt von Petoi.</span>
+      <span class="t" lang="en">Knowlin is a free, non-commercial hobby project and not affiliated with <a href="https://pollen-robotics.com/" rel="noopener">Pollen Robotics</a> or <a href="https://huggingface.co/" rel="noopener">Hugging Face</a>. <a href="https://pollen-robotics.com/microduck/" rel="noopener">Microduck</a> and <a href="https://pollen-robotics.com/reachy-mini/" rel="noopener">Reachy Mini</a> are products of Pollen Robotics; <a href="https://github.com/apirrone/Open_Duck_Mini" rel="noopener">Open Duck Mini</a> is an open project by Antoine Pirrone and community, <a href="https://github.com/TheRobotStudio/SO-ARM100" rel="noopener">SO-101</a> one by TheRobotStudio, <a href="https://github.com/stack-chan/stack-chan" rel="noopener">Stack-chan</a> one by the Stack-chan community; <a href="https://www.petoi.com/pages/bittle-open-source-bionic-robot-dog" rel="noopener">Bittle X</a> is a product of Petoi.</span>
     </p>
     <p>
       <span class="t" lang="de">© 2026 Knowlin, Quelltext unter Apache-2.0. Bilder mit Microduck und Reachy Mini zeigen die 3D-Modelle von Pollen Robotics und stehen wie diese unter <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" rel="noopener license">CC BY-NC-SA 4.0</a>; die Modelldateien selbst liefert Knowlin nicht mit. Diese Seite setzt keine Cookies und lädt nichts von fremden Servern.</span>
@@ -848,10 +914,10 @@ profil = Koerper(
     },
     bittle: {
       bild: 'bittle',
-      de: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'Ein kleiner Roboterhund mit vier Beinen und neun Gelenken. Trabt durchs Zimmer, gibt Pfote, macht Männchen, stellt sich tot – 22 Tricks nach Petois Vorbild. Sprechen kann er nicht – Knowlin spricht für ihn.',
+      de: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'Ein kleiner Roboterhund mit vier Beinen und neun Gelenken, gezeichnet mit den Maßen aus Petois offenem Modell. Krabbelt, trabt oder hoppelt, gibt Pfote, macht Männchen und Moonwalk – 28 Tricks nach Petois Vorbild. Sprechen kann er nicht – Knowlin spricht für ihn.',
         zeilen: [['Simulator', 'ja', 'im Wohnzimmer'], ['Echter Roboter', 'bald', 'geplant (Petois serielles Protokoll)'], ['Sinne', null, 'Lagesensor, Mikrofon für Sprachbefehle']],
         alt: 'Bittle X im Simulator im Wohnzimmer, daneben das Gespräch' },
-      en: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'A small robot dog with four legs and nine joints. Trots around the room, gives paw, sits up and begs, plays dead – 22 tricks modelled on Petoi’s. It can’t speak – Knowlin speaks for it.',
+      en: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'A small robot dog with four legs and nine joints, drawn with the measurements from Petoi’s open model. Crawls, trots or bounds, gives paw, sits up and begs, moonwalks – 28 tricks modelled on Petoi’s. It can’t speak – Knowlin speaks for it.',
         zeilen: [['Simulator', 'ja', 'in the living room'], ['Real robot', 'bald', 'planned (Petoi’s serial protocol)'], ['Senses', null, 'motion sensor, microphone for voice commands']],
         alt: 'Bittle X in the simulator in the living room, with the conversation next to it' },
     },

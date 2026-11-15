@@ -16,7 +16,6 @@ from typing import Any
 # (Version, Name, ein Satz). Reihenfolge = Reihenfolge der Kacheln. Neu geordnet am 15.11.2026 (Maintainer: „Mischung je
 # Release“ – je Release ein Thema für den Kopf und eins für einen Körper; echte Roboter erst ab Lieferung).
 GEPLANT: tuple[tuple[str, str, str], ...] = (
-    ("0.38.65", "Bello wie das Original", "Maße nach Petois offenem Modell, dazu Gangarten: krabbeln, traben, rückwärts."),
     ("0.39", "Erfahrungsnetz 2", "Weltmodell und Tagesrückblick – Knowlin erinnert sich an mehr und lernt aus Erlebnissen."),
     ("0.39", "Stacki wie ab Werk", "Schau mich an, Tanz mit Licht und Musik, Avatar: Stacki spiegelt dein Gesicht."),
     ("0.40", "Gespräch in Echtzeit", "Ins Wort fallen, Werkzeuge im Gespräch wie Wetter und Uhrzeit."),

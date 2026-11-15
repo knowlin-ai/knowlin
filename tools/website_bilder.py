@@ -248,6 +248,68 @@ def szene_bittle(page, base, sprache):
     A.einstellen(page, {"idle_life": True})          # die folgenden Szenen wieder mit Leerlauf
 
 
+def szene_bello_tricks(page, base, sprache):
+    """Bellos Tricks (seit 0.38.65, Vitrine): Bello macht Männchen, schräg von vorn – die Pose wird wie beim Trab fest
+    vorgegeben (sonst hängt das Bild davon ab, wann die Aufnahme den Trick erwischt), dann die 3D-Ansicht anhalten."""
+    A.einstellen(page, {"modul": "bittle", "backend": "sim", "sim_physik": False, "sprache": sprache, "idle_life": False})
+    A.oeffnen(page, base)
+    zu(page, "cockpit", ms=4000)
+    sagen(page, "#say-text", "Mach Männchen!" if sprache == "de" else "Sit up and beg!", 5.0)
+    verbunden(page)
+    page.evaluate("""() => { const s = window.duckpilot.scene; s.follow = false; if (s.intro) s.intro.done = true;
+        const d = s.duck, alt = d.update, st0 = window.duckpilot.state || {};
+        const pose = { ...st0, powered: true, sitting: false, fallen: false, twist: { vx: 0, vy: 0, vyaw: 0 },
+          skill: 'maennchen', skill_progress: 0.5, kopf_lage: { yaw: 0, pitch: 0 } };
+        d.update = () => alt.call(d, pose, 0.2);
+        for (let i = 0; i < 14; i++) d.update();
+        const r = d.root.position, y = d.root.rotation.y, fx = Math.cos(y), fz = -Math.sin(y);
+        s.camera.position.set(r.x + fx * 0.5 - fz * 0.42, 0.24, r.z + fz * 0.5 + fx * 0.42);
+        s.controls.target.set(r.x, 0.1, r.z); s.controls.update();
+        const rechts = s.camera.position.clone().setFromMatrixColumn(s.camera.matrixWorld, 0).multiplyScalar(0.12);
+        s.camera.position.add(rechts); s.controls.target.add(rechts); s.controls.update();
+        for (let i = 0; i < 6; i++) s._frame(); s.paused = true; d.update = alt;
+        document.getElementById('ticker').replaceChildren(); }""")
+    page.wait_for_timeout(500)
+    A.einstellen(page, {"idle_life": True})
+
+
+def szene_vormachen(page, base, sprache):
+    """Ari lernt durch Vormachen (seit 0.38.64, Vitrine seit 0.38.65): Vormach-Fenster öffnen, mit den Beispielen des
+    eingebauten Lehrers lernen lassen (ohne Webcam – die Aufnahme hat keine), dann selbst ausprobieren."""
+    A.einstellen(page, {"modul": "so101", "backend": "sim", "sim_physik": False, "sprache": sprache})
+    A.oeffnen(page, base)
+    zu(page, "cockpit", ms=4000)
+    senden = "([n, a]) => window.duckpilot.send({type: 'tool', name: n, args: a})"
+    page.evaluate(senden, ["szene", {"aktion": "zuruecksetzen"}])
+    page.evaluate(senden, ["power", {"action": "stand_up"}])
+    page.wait_for_timeout(5000)
+    klick(page, "#vormachen-btn")
+    page.wait_for_selector("#ari-lernen:not([hidden])", timeout=60000)
+    page.evaluate("() => { document.getElementById('ari-lehrer').checked = true; }")
+    klick(page, "#ari-lernen-los")
+    page.wait_for_function("() => /(Gelernt|Learned)/.test(document.getElementById('ari-lernen-text').textContent)"
+                           " && !document.getElementById('ari-probieren').disabled", timeout=600000, polling=1000)
+    klick(page, "#ari-probieren")
+    page.wait_for_function("() => /(Geschafft|Done|Success)/i.test(document.getElementById('ari-lernen-text').textContent)",
+                           timeout=180000, polling=1000)
+    page.evaluate("() => { const s = window.duckpilot.scene; s.paused = false;"
+                  " s.camera.position.set(-1.2, 1.2, -0.0); s.controls.target.set(-1.72, 0.82, -0.25); s.controls.update(); }")
+    page.wait_for_timeout(2500)
+
+
+def szene_tricks_suche(page, base, sprache):
+    """Suche bei den Tricks (seit 0.38.61, Vitrine seit 0.38.65): Bellos Trickseite mit „sitz“ – die Suche findet alle
+    Tricks im Sitzen (bei der Microduck ohne Netz gäbe es nur die eigenen Gesten, Pollens Katalog lädt erst online)."""
+    A.einstellen(page, {"modul": "bittle", "backend": "sim", "sim_physik": False, "sprache": sprache})
+    A.oeffnen(page, base)
+    zu(page, "cockpit", ms=3000)
+    zu(page, "tricks", ms=4000)
+    page.fill("#tricks-suche", "sitz" if sprache == "de" else "sit", timeout=60000)
+    page.wait_for_function("() => /\\d/.test(document.getElementById('tricks-suche-info')?.textContent || '')",
+                           timeout=60000)
+    page.wait_for_timeout(1500)
+
+
 def szene_werte(page, base, sprache):
     """Knowlins Kopf (seit 0.38.42–0.38.45): Werte und Grenzen, darunter die Gedankenspur."""
     A.einstellen(page, {"modul": "so101", "backend": "sim", "sim_physik": False, "sprache": sprache})
@@ -355,7 +417,8 @@ def szene_training(page, base, sprache):
 
 
 SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi, "ari": szene_ari,
-          "stackchan": szene_stackchan, "bittle": szene_bittle,
+          "stackchan": szene_stackchan, "bittle": szene_bittle, "bello_tricks": szene_bello_tricks,
+          "vormachen": szene_vormachen, "tricks_suche": szene_tricks_suche,
           "werte": szene_werte,
           "synapsen": szene_synapsen, "charakter": szene_charakter, "tanz": szene_tanz, "team": szene_team,
           "akrobatik": szene_akrobatik, "training": szene_training}

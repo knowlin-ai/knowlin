@@ -9,6 +9,38 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.65 – 2026-11-15 – Bello wie das Original, Website aktuell
+
+### Neu
+- **Bello wie das Original** (Releaseplan „Mischung je Release“): Die Figur hat jetzt die Maße aus Petois offenem
+  Simulationsmodell (`bittle_simple.xml`, MIT – nur die Zahlen, keine Dateien): Hüften ±7,35 cm vorn/hinten und
+  ±4,85 cm seitlich, Oberschenkel 4,6 cm, Unterschenkel 5,5 cm, Rumpfplatte 12,7 × 9 cm.
+- **Drei Gangarten** nach Petoi: **Krabbeln** (tief, ein Bein nach dem anderen, fast immer drei Füße am Boden),
+  **Traben** (Grundgangart) und **Hoppeln** (vorn und hinten paarweise) – jede mit eigenem Tempo. Umschalten mit
+  den Kacheln unter Tricks → „Bellos Gangarten“, per Zuruf („Krabbel!“, „Trab!“, „Hoppel!“) oder über die KI; die
+  Wahl gilt, bis eine andere kommt. Die Füße laufen auf Bahnen und rutschen nicht mehr über den Boden.
+- **Sechs neue Bewegungen** nach Petois Kürzeln: Rückwärts, Auf der Stelle, Moonwalk, Umarmen, Komm her, Rollen –
+  Rückwärts und Moonwalk nehmen ihn ein Stück mit. Bello kann jetzt 28 Tricks.
+- **Website: Fahrplan** „Was als Nächstes kommt“ mit Version und Stand, gebaut aus denselben Daten wie die Kacheln
+  „Geplant“ in der App (`duckpilot/geplant.py`).
+
+### Geändert
+- **Website aktuell:** Die Vitrine zeigt alle sechs Körper und das Neue – Ari lernt durch Vormachen, Bellos Tricks,
+  Stackis Gefühle, Reachys Ausdruck, Odi zum Selbstbauen, die Suche bei den Tricks; „6 Körper“ statt „5“, Bellos
+  Steckbrief mit Gangarten, alle Bilder neu aufgenommen, Fußzeile nennt SO-101, Stack-chan und Petoi.
+- `docs/ROADMAP.md` wieder aus den Geplant-Kacheln gebaut (stand seit 0.38.42 still); ein Test hält beides gleich.
+- Die Rumpfhöhe der Bello-Figur kommt aus den Beinen statt aus festen Werten.
+
+### Behoben
+- **Im Sitzen hingen Bellos Vorderpfoten in der Luft** (Fund beim Bauen, mit den echten Beinlängen 2 cm, beim
+  Strecken die Hinterpfoten): Sitzen, Strecken, Verbeugen, Schnüffeln, Graben und Liegestütze neigen den Rumpf jetzt,
+  bis vorn und hinten ein Fuß aufsteht. Ein Test prüft das.
+- „Roll den Ball“ machte bei der Microduck einen Purzelbaum (das englische Wort „roll“ passte).
+
+### Nicht geprüft
+- Gangarten und Bewegungen am echten Bittle X (noch nicht angebunden); die Geschwindigkeiten je Gangart sind für den
+  Simulator geschätzt, nicht gemessen.
+
 ## 0.38.64 – 2026-11-15 – Ari lernt durch Vormachen, Bello macht Männchen
 
 ### Neu

@@ -54,3 +54,35 @@ def test_sperre_ohne_feste_zeit():
                       r"|two minutes by default|120 s lock", re.I)
     for p in ("website/index.html", "README.md", "README.en.md", "CONTRIBUTING.md", "SECURITY.md", "docs/handbuch.md"):
         assert not fest.search((ROOT / p).read_text(encoding="utf-8")), p
+
+
+def test_vitrine_zeigt_alle_sechs_koerper_und_das_neue():
+    """„Die Vitrine zeigt noch fast nur die Microduck; alle sechs Körper und die neuen Funktionen (Ari lernt durch
+    Vormachen, Bellos Tricks, Stacki, Suche bei den Tricks) sollen vorkommen“ (Releaseplan 0.38.65)."""
+    seite = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+    vitrine = seite[seite.index('id="funktionen"'):seite.index('<section id="werte">')]
+    for name in ("cockpit|tanz|akrobatik|team|training", "reachy", "odi", "vormachen", "stackchan", "bello_tricks",
+                 "tricks_suche"):
+        assert re.search(rf'data-bild="({name})"', vitrine), name
+    for bild in ("vormachen", "bello_tricks", "tricks_suche"):                 # die neuen Bilder gibt es auch
+        for sprache in ("de", "en"):
+            assert (ROOT / "website" / "bilder" / f"{bild}-{sprache}-1600.webp").exists(), (bild, sprache)
+    assert "<b>6</b>" in vitrine and "Was in ihr steckt" not in seite
+
+
+def test_fahrplan_und_roadmap_aus_den_geplant_kacheln(tmp_path):
+    """Roadmap und Stand (Releaseplan 0.38.65): Website und docs/ROADMAP.md kommen aus duckpilot/geplant.py – vorher
+    stand in ROADMAP.md noch der Plan von vor dem 15.11. (Rollschuhe in 0.39), weil sie seit 0.38.42 niemand neu baute."""
+    import sys
+
+    sys.path.insert(0, str(ROOT / "tools"))
+    import export_public
+
+    import website
+    from duckpilot.geplant import liste
+
+    assert (ROOT / "docs" / "ROADMAP.md").read_text(encoding="utf-8") == export_public.roadmap()
+    gebaut = (website.bauen(tmp_path / "w") / "index.html").read_text(encoding="utf-8")
+    assert "{{FAHRPLAN}}" not in gebaut and 'href="#fahrplan"' in gebaut
+    for g in liste():
+        assert g["name"] in gebaut

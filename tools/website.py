@@ -95,6 +95,28 @@ def download_url() -> str:
     return f"https://github.com/knowlin-ai/knowlin/releases/download/v{v}/Knowlin-Setup-{v}.exe"
 
 
+def fahrplan() -> str:
+    """Abschnitt „Was als Nächstes kommt“ (seit 0.38.65) aus `duckpilot/geplant.py` – dieselbe Liste wie die Kacheln
+    „Geplant“ in der App, englisch aus dem Sprachkatalog der Oberfläche. So veraltet die Seite nicht neben der App."""
+    sys.path.insert(0, str(ROOT))
+    from duckpilot.geplant import liste
+    from duckpilot.i18n import ui_text
+
+    gruppen: dict[str, list[dict[str, str]]] = {}
+    for eintrag in liste():
+        gruppen.setdefault(eintrag["version"], []).append(eintrag)
+
+    def zwei(text: str) -> str:
+        return (f'<span class="t" lang="de">{html.escape(text)}</span>'
+                f'<span class="t" lang="en">{html.escape(ui_text(text, "en"))}</span>')
+
+    teile = []
+    for v, eintraege in gruppen.items():
+        punkte = "".join(f"<li><b>{zwei(e['name'])}</b> {zwei(e['kurz'])}</li>" for e in eintraege)
+        teile.append(f'<li><h3 class="fahrplan-version">{zwei(v)}</h3><ul>{punkte}</ul></li>')
+    return "\n".join(teile)
+
+
 def teilen(text: str) -> tuple[str, str]:
     """Inhalt der Quelldatei in Kopf (Titel, Meta, Skripte, Stil) und Körper (ab der Kopfleiste) teilen."""
     i = text.index('<header class="leiste">')
@@ -193,7 +215,7 @@ def bauen(ziel: Path) -> Path:
     muster = ("_*", "*.md") if MIT_AUSPROBIEREN else ("_*", "*.md", "demo")
     shutil.copytree(QUELLE, ziel, ignore=shutil.ignore_patterns(*muster))
     text = (QUELLE / "index.html").read_text(encoding="utf-8")
-    text = text.replace("{{DOWNLOAD}}", download_url()).replace("{{VERSION}}", version())
+    text = text.replace("{{DOWNLOAD}}", download_url()).replace("{{VERSION}}", version()).replace("{{FAHRPLAN}}", fahrplan())
     kopf, koerper = teilen(text)
     beschreibung = re.search(r'<meta name="description" content="([^"]+)"', kopf).group(1)
     seite = KOPF.format(adresse=ADRESSE, basis=ADRESSE, beschreibung=beschreibung, daten=strukturiert(beschreibung)) + kopf + "</head>\n<body>\n" + koerper + "\n</body>\n</html>\n"

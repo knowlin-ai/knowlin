@@ -140,11 +140,17 @@ dazu der Hals. Seine Verkörperung heißt **Bello** – verspielt wie ein junger
 - **Tricks (seit 0.38.61):** zehn nach Petois eingebauten Tricks – Pfote geben, Strecken, Verbeugen, Liegestütze,
   Platz, Tot stellen, Boxen, Umschauen, Handstand und Rückwärtssalto (die letzten beiden nur im Simulator). Unter
   Tricks → „Bellos Tricks“ oder per Zuruf, auch ohne KI-Modell: „Pfote!“, „Platz!“, „Stell dich tot!“, „Salto!“.
+  Seit 0.38.64 dazu Männchen, High five, Jubeln, Nicken, Schnüffeln, Kratzen, Graben, Auskeilen, Springen, Tisch,
+  Schlafen und Vorwärtssalto; seit 0.38.65 Rückwärts, Auf der Stelle, Moonwalk, Umarmen, Komm her und Rollen –
+  zusammen 28 („Mach Männchen!“, „Mach den Moonwalk“, „Roll dich“).
+- **Gangarten (seit 0.38.65):** Krabbeln (langsam und tief), Traben (Grundgangart) und Hoppeln (schnell). Unter Tricks →
+  „Bellos Gangarten“ oder per Zuruf „Krabbel!“, „Trab!“, „Hoppel!“; die Wahl gilt, bis du eine andere wählst.
+  „Komm her“ und „Geh rückwärts“ bleiben Laufbefehle – die Tricks heißen beim Zuruf „Wink mich her“ und „Trab rückwärts“.
 - **Ohne Schnabel und eigene Stimme:** Aufheben, Purzelbaum, Entenlaute und Erkunden mit Tiefensensor gibt es nicht.
   Knowlin spricht für ihn – mit seiner eigenen Stimme vom PC.
 - **Not-Aus:** sofort stromlos, Bello legt sich flach hin.
 - **Echter Bittle X:** noch nicht angebunden; geplant über Petois serielles Protokoll (USB oder Bluetooth). Gezeichnet
-  ist er nach Fotos, ohne Dateien von Petoi. Den Greifarm des Bittle X gibt es noch nicht.
+  ist er nach Fotos, seit 0.38.65 mit den Maßen aus Petois offenem Simulationsmodell – nur die Zahlen, ohne Dateien. Den Greifarm des Bittle X gibt es noch nicht.
 
 ### Weitere Körper: LeRobot und dein eigener Roboter (seit 0.38.35)
 
