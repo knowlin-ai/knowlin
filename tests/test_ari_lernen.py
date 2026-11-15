@@ -136,3 +136,25 @@ def test_nur_im_simulator_und_nur_am_pc(tmp_path, monkeypatch):
     assert schule.export() is None
     assert any(p.search("/api/ari_lernen") for _, p in remote.PC_ONLY)
     assert any(p.search("/api/ari_lernen/export") for _, p in remote.PC_ONLY)
+
+
+def test_vormachen_knopf_schickt_kein_leeres_werkzeug():
+    """Fund beim Prüfen (15.11.): Der Knopf „Vormachen“ steht bei den Schnellbefehlen, hat aber kein `data-tool` – der
+    gemeinsame Klick-Handler schickte trotzdem `tool` ohne Namen, im Gespräch stand „unbekanntes Werkzeug None“."""
+    import re
+    from pathlib import Path
+
+    static = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
+    html = (static / "index.html").read_text(encoding="utf-8")
+    eigene = [b for b in re.findall(r"<div class=\"quick[^>]*>(.*?)</div>", html, re.S)
+              for b in re.findall(r"<button[^>]*>", b) if "data-tool" not in b and "data-chat" not in b]
+    assert any('id="vormachen-btn"' in b for b in eigene)
+    js = (static / "app.js").read_text(encoding="utf-8")
+    assert re.search(r"if \(b\.dataset\.tool\) send\(\{ type: 'tool'", js)
+
+
+def test_meldungen_sind_richtig_gebeugt():
+    from duckpilot.arm_schule import kiste_dativ, wuerfel_akk, wuerfel_nom
+
+    assert wuerfel_nom("roter Würfel") == "der rote Würfel" and wuerfel_akk("grüner Würfel") == "den grünen Würfel"
+    assert kiste_dativ("linke Kiste") == "der linken Kiste"

@@ -29,6 +29,8 @@ Körper   backends/sim.py (einfach)  backends/physics.py (MuJoCo + Pollens Polic
          backends/so101.py (SO-101-Arm im Simulator, seit 0.38.47)  backends/stackchan.py (Stack-chan im Simulator, seit 0.38.58)  backends/bittle.py (Bittle X, seit 0.38.59)  backends/tischplatz.py (Tischroboter: Reachy, SO-101)
          arm.py (Arm-Haltungen und -Gesten in Grad – Basis)  arm_kinematik.py (SO-101: Spitze, Greifhaltung – Basis)  arm_huelle.py (Fühlpunkte auf Greifer und Backe, erzeugt von tools/arm_huelle_erzeugen.py – Basis, seit 0.38.55)  mentor.py (Vormachen: Handpunkte → Ziel der Greiferspitze – Basis, seit 0.38.57)
          backends/werkbank.py (Werkbank des SO-101: Würfel, Kisten, Greifen und Ablegen, seit 0.38.48)
+         arm_lernen.py (Ari lernt durch Vormachen: Beobachtung, Lehrer, kleines Netz, Prüfen – Lab, seit 0.38.64)
+         arm_schule.py (Aufnehmen, Lernen, Ausprobieren in der App – Lab)  arm_export.py (ZIP für LeRobot – Lab)
          werkbank_auftrag.py (Aufträge als Daten: Regeln, Prüfung, eigene merken – Basis, seit 0.38.54)
          backends/werkbank_spiel.py (Tic-Tac-Toe an der Werkbank, seit 0.38.54)  backends/werkbank_weg.py (freier Weg: tastet jede Bewegung mit der Hülle ab, seit 0.38.55)
          gemeinsames Interface: api.py (DuckBackend, DuckState, Perception)
@@ -47,7 +49,7 @@ die Körper unterscheidet `config.modul`. Jedes Modul gehört zu einer Schicht �
 |---|---|---|
 | Kern (Gehirn) | brain/, Stimme, Erfahrung, Alltag, Personen, Handy, MCP | Körper |
 | Motorik (Kleinhirn) | motion/, `api.py`, Gelenke, Beschwerden, Laser | Kern, Lab, Körper |
-| Lab (Trainingshalle) | physics/, Training, Kaggle, Lernschleife, Parcours, Akrobatik, Stoßreihe, Kollision | Kern |
+| Lab (Trainingshalle) | physics/, Training, Kaggle, Lernschleife, Parcours, Akrobatik, Stoßreihe, Kollision, Ari lernt (arm_lernen, arm_schule, arm_export) | Kern |
 | Körper (Microduck) | backends/, modell/, Pflege, Kamera/Enten-Erkenner, Skill-Pakete der Microduck | Kern |
 | Basis / Verbindung | Einstellungen, Hub, Hilfen / Server, Routen, Laufzeit, Start | – |
 
@@ -74,6 +76,13 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 - **Not-Aus wartet auf nichts** (seit 0.38.63): Die Oberfläche schickt alles über eine WebSocket-Verbindung; der
   Server arbeitet die Nachrichten je Verbindung der Reihe nach ab (`routes/verbindung.py`), nur `stop` läuft sofort
   daneben, und was davor bestellt und noch nicht dran war, verfällt. Test: `test_not_aus_wartet_nicht_auf_ein_langsames_werkzeug`.
+- **Gelerntes steuert nur über die geprüften Wege** (seit 0.38.64): Ari führt ein gelerntes Netz Takt für Takt über
+  `nachmachen` aus – dieselbe Reichweiten- und Wegprüfung wie beim Vormachen. Jeder Stopp und der Not-Aus beenden es im
+  nächsten Takt (`arm_schule.py`, Marke aus `engine.estop_at`/`stopped_at`); nur im Simulator, nie am echten Arm.
+- **Nur zeigen, was der Körper kann** (seit 0.38.64): Oberfläche (`ohne-<eigenschaft>`, `braucht-…`), Werkzeuge
+  (`fehlt_dem_koerper`) und der Text für die KI (`DuckAgent._system`) richten sich nach `eigenschaften()` und den
+  Skills – z. B. ohne Kamera kein Blick, Laser und „Folg mir“, ohne Schnabel kein Aufheben und kein Gefieder putzen,
+  Entenregeln nur für Enten. Test: `tests/test_koerper_abgleich.py`.
 - **Sicherheit vor allem:** Not-Aus gewinnt immer und macht seit 0.38.24 **sofort stromlos** (`MotionEngine.not_aus` →
   `backend.relax()`: robotd `robot.relax`, Reachy `motors/set_mode/disabled`, Simulatoren und Gäste-Enten ebenso;
   Claudes `stop`-Werkzeug und interne Stopps halten nur an). Nach einem Not-Aus steht oder setzt sich eine Weile nichts

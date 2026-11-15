@@ -169,7 +169,9 @@ section { padding-block: clamp(72px, 10vw, 136px); }
 @media (max-width: 520px) { .fakten { flex-direction: column; gap: 4px; } .fakten li + li::before { display: none; } }
 
 /* Die Körper als Ziele für den Impuls aus dem Kopf */
-.anker-reihe { align-self: end; justify-self: center; display: flex; gap: 10px; flex-wrap: nowrap; justify-content: center; margin-bottom: -8px; }
+/* Sechs Körper (seit 0.38.59) in zwei Reihen zu je drei – in einer Reihe brachen Namen und Zeilen um (Fund 15.11.) */
+.anker-reihe { align-self: end; justify-self: stretch; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px; margin-bottom: -8px; }
 .anker {
   display: grid; gap: 2px; justify-items: start; min-width: 0; min-height: 56px; padding: 10px 14px 11px;
   border-radius: 14px; border: 1px solid rgb(255 255 255 / 0.14); background: rgb(12 14 17 / 0.72);
@@ -186,15 +188,13 @@ section { padding-block: clamp(72px, 10vw, 136px); }
   .held { padding-block: 40px 140px; }
   .held-raster { grid-template-columns: minmax(0, 1fr); min-height: 0; gap: 20px; }   /* Spalte nie breiter als der Schirm */
   .held-text { order: 2; }
-  .anker-reihe { order: 1; margin: 230px 0 8px; justify-self: stretch; }
-  .anker { flex: 1 1 0; min-width: 0; }
+  .anker-reihe { order: 1; margin: 230px 0 8px; }
 }
 /* Handy: alle Körper nebeneinander – Schrift wächst mit der Breite, Namen bleiben im Rahmen (Fund 12.11.: „Microduck“
    ragte über den Rand, „Open Duck Mini“ brach dreizeilig um) */
 @media (max-width: 560px) {
   /* seit 0.38.58 mehr als vier Körper: zwei Reihen zu je drei, sonst ragt „Microduck“ über den Rand */
-  .anker-reihe { gap: 6px; flex-wrap: wrap; }
-  .anker { flex: 1 1 calc((100% - 12px) / 3); }
+  .anker-reihe { gap: 6px; }
   .anker { min-height: 48px; padding: 8px 6px; justify-items: center; align-content: center; text-align: center;
     font-size: clamp(0.6875rem, 3.2vw, 0.875rem); hyphens: manual; }
   .anker small { display: none; }
@@ -848,10 +848,10 @@ profil = Koerper(
     },
     bittle: {
       bild: 'bittle',
-      de: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'Ein kleiner Roboterhund mit vier Beinen und neun Gelenken. Trabt durchs Zimmer, gibt Pfote, macht Platz, stellt sich tot – zehn Tricks nach Petois Vorbild. Sprechen kann er nicht – Knowlin spricht für ihn.',
+      de: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'Ein kleiner Roboterhund mit vier Beinen und neun Gelenken. Trabt durchs Zimmer, gibt Pfote, macht Männchen, stellt sich tot – 22 Tricks nach Petois Vorbild. Sprechen kann er nicht – Knowlin spricht für ihn.',
         zeilen: [['Simulator', 'ja', 'im Wohnzimmer'], ['Echter Roboter', 'bald', 'geplant (Petois serielles Protokoll)'], ['Sinne', null, 'Lagesensor, Mikrofon für Sprachbefehle']],
         alt: 'Bittle X im Simulator im Wohnzimmer, daneben das Gespräch' },
-      en: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'A small robot dog with four legs and nine joints. Trots around the room, gives paw, lies down, plays dead – ten tricks modelled on Petoi’s. It can’t speak – Knowlin speaks for it.',
+      en: { name: 'Bittle X', von: 'Petoi · OpenCat', text: 'A small robot dog with four legs and nine joints. Trots around the room, gives paw, sits up and begs, plays dead – 22 tricks modelled on Petoi’s. It can’t speak – Knowlin speaks for it.',
         zeilen: [['Simulator', 'ja', 'in the living room'], ['Real robot', 'bald', 'planned (Petoi’s serial protocol)'], ['Senses', null, 'motion sensor, microphone for voice commands']],
         alt: 'Bittle X in the simulator in the living room, with the conversation next to it' },
     },

@@ -48,6 +48,29 @@ def _aufgabe_von(zeile: str) -> str | None:
         return None
 
 
+def _stamm(name: str, endung: str) -> tuple[str, str]:
+    adj, _, nomen = name.partition(" ")
+    return (adj[: -len(endung)] if adj.endswith(endung) else adj), nomen
+
+
+def wuerfel_nom(name: str) -> str:
+    """„roter Würfel“ → „der rote Würfel“."""
+    s, n = _stamm(name, "er")
+    return f"der {s}e {n}" if n else name
+
+
+def wuerfel_akk(name: str) -> str:
+    """„roter Würfel“ → „den roten Würfel“."""
+    s, n = _stamm(name, "er")
+    return f"den {s}en {n}" if n else name
+
+
+def kiste_dativ(name: str) -> str:
+    """„linke Kiste“ → „der linken Kiste“."""
+    s, n = _stamm(name, "e")
+    return f"der {s}en {n}" if n else name
+
+
 def _datei_name(text: str) -> str:
     for a, b in (("ä", "ae"), ("ö", "oe"), ("ü", "ue"), ("ß", "ss")):
         text = text.replace(a, b)
@@ -148,7 +171,8 @@ class ArmSchule:
         wb = self.body.werkbank
         wb.zuruecksetzen()
         L.zufaellige_lage(self.body, self.aufgabe, random.Random())
-        self.meldung = f"Der {self.aufgabe['wuerfel']} liegt neu."
+        wer = wuerfel_nom(self.aufgabe["wuerfel"])
+        self.meldung = f"{wer[:1].upper()}{wer[1:]} liegt neu."
         return {"ok": True, **self.status()}
 
     # ── Aufnehmen (A1) ───────────────────────────────────────────────────
@@ -156,8 +180,8 @@ class ArmSchule:
         if (f := self._frei()) is not None:
             return f
         self.taetigkeit = "aufnahme"
-        self.meldung = (f"Aufnahme läuft – führe Ari mit deiner Hand: {self.aufgabe['wuerfel']} greifen, in die "
-                        f"{self.aufgabe['kiste']} legen.")
+        self.meldung = (f"Aufnahme läuft – führe Ari mit deiner Hand: {wuerfel_akk(self.aufgabe['wuerfel'])} greifen, "
+                        f"in die {self.aufgabe['kiste']} legen.")
         spawn(self._aufnahme())
         return {"ok": True, **self.status()}
 
@@ -278,7 +302,7 @@ class ArmSchule:
                     alltag.touch()
                 await asyncio.sleep(L.SCHRITT_S)
                 if L.geschafft(be.werkbank, a):
-                    self.meldung = f"Geschafft – der {a['wuerfel']} liegt in der {a['kiste']}."
+                    self.meldung = f"Geschafft – {wuerfel_nom(a['wuerfel'])} liegt in {kiste_dativ(a['kiste'])}."
                     return
             self.meldung = "Nicht geschafft – mehr Beispiele vormachen und neu lernen."
         finally:

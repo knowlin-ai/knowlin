@@ -637,7 +637,10 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         from ..motion import character as C
 
         out = []
+        eig = set(self.backend.eigenschaften())
         for name, spec in B.EMOTIONS.items():
+            if name in C.NUR_MIT_SCHNABEL and "schnabel" not in eig:     # Odi, Bello, Stacki: kein Gefieder putzen
+                continue
             info = B.POLLEN.get(name)
             art = "pollen" if info else "charakter" if name in B.CHARACTER else "eigen"
             bei = [p for p, rep in C.REPERTOIRE.items() if any(g == name for g, _ in rep["gesten"])]

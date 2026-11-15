@@ -2083,6 +2083,7 @@ body:not(.spielt-ttt) .nur-ttt,
 body:not(.im-kopf).ohne-kopf .braucht-kopf, body:not(.im-kopf).ohne-arm .braucht-arm { display: none; }
 /* Sicht-Kachel mit Tiefensensor oder Kamera; Hilfetexte nur für Körper ohne Beine bzw. ohne Tiefensensor (0.38.14) –
    ohne Beine, Tiefensensor und Kamera (der Arm) bliebe von der Anzeige nur ein leeres Glas mit „?“ (seit 0.38.55) */
+body:not(.im-kopf).ohne-kamera .braucht-kamera,     /* ohne Kamera kein Blick durch ihre Augen (seit 0.38.64) */
 body:not(.im-kopf).ohne-tiefensensor.ohne-kamera .braucht-sicht,
 body:not(.im-kopf).ohne-beine.ohne-tiefensensor.ohne-kamera .hud-tele,
 body:not(.ohne-beine) .nur-ohne-beine, body:not(.ohne-tiefensensor) .nur-ohne-tiefensensor { display: none; }

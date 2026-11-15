@@ -344,7 +344,7 @@ class DuckAgent:
             skills = set(backend.skills() or ())
         except Exception:  # noqa: BLE001 – ein Körper ohne Liste: wie bisher alles nennen
             skills = {"kick_left", "ground_pick"}
-        ball = (BALL if "kick_left" in skills else "") + (LASER if beine else "") + \
+        ball = (BALL if "kick_left" in skills else "") + (LASER if beine and ("kamera" in eig or not eig) else "") + \
             (AUFHEBEN if "ground_pick" in skills or "schnabel" in eig else "")
         beispiel = ", ".join(b for w, b in (("kopf", "Kopf schief legen"), ("beine", "wippen"),
                                             ("schnabel", "Schnabel klappern"), ("antennen", "Antennen wackeln"),

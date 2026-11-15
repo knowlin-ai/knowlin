@@ -652,7 +652,9 @@ class SimBackend(DuckBackend):
         self.requested = Twist()
 
     def eigenschaften(self) -> frozenset[str]:
-        return frozenset({"beine", "kopf", "schnabel", "tiefensensor", "simulator", "zuruecksetzen", "stimmbank"})
+        # „kamera“ seit 0.38.64: die Microduck hat eine (Profil); vorher fehlte sie hier, und mit dem Abgleich wären
+        # Entenblick, Laser und „Folg mir“ verschwunden
+        return frozenset({"beine", "kopf", "schnabel", "tiefensensor", "kamera", "simulator", "zuruecksetzen", "stimmbank"})
 
     def fassung(self, skill: str) -> dict[str, str]:
         """Welche Fassung läuft? Im einfachen Simulator keine Policy, nur eine gezeichnete Bewegung (seit 0.37.14)."""

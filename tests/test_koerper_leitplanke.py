@@ -16,7 +16,7 @@ AUS_ORDNER = ("duckpilot/backends/", "duckpilot/modell/", "duckpilot/i18n/")   #
 
 ERLAUBT = {
     "duckpilot/api.py": 1,
-    "duckpilot/brain/agent.py": 4,
+    "duckpilot/brain/agent.py": 3,
     "duckpilot/brain/kopf.py": 1,
     "duckpilot/brain/tools.py": 3,
     "duckpilot/choreo.py": 3,

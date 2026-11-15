@@ -179,7 +179,8 @@ class RobotdBackend(DuckBackend):
 
     def eigenschaften(self) -> frozenset[str]:
         """Der echte Roboter: Policies ja, Zurücksetzen nie; Tiefensensor nur mit tofd (seit 0.38)."""
-        return frozenset({"beine", "kopf", "schnabel", "policies", "stimmbank"} | ({"tiefensensor"} if self.tof_conn else set()))
+        return frozenset({"beine", "kopf", "schnabel", "kamera", "policies", "stimmbank"}    # Kamera über mediad
+                         | ({"tiefensensor"} if self.tof_conn else set()))
 
     def __init__(self, address: str, tof: str | None = None, state_hz: int = 25,
                  head_signs: list[float] | None = None, updater: str | None = None) -> None:

@@ -779,7 +779,7 @@ $('hello').addEventListener('click', (e) => { if (e.target.tagName === 'LI') sen
 
 document.querySelectorAll('.quick button').forEach((b) => b.addEventListener('click', () => {
   if (b.dataset.chat) return sendChat(b.dataset.chat);
-  send({ type: 'tool', name: b.dataset.tool, args: JSON.parse(b.dataset.args || '{}') });
+  if (b.dataset.tool) send({ type: 'tool', name: b.dataset.tool, args: JSON.parse(b.dataset.args || '{}') });   // sonst eigener Knopf (Vormachen)
 }));
 
 // Not-Aus: Pilz rastet kurz sichtbar ein – auch bei Esc und Gamepad
@@ -839,7 +839,7 @@ function updatePov() {
   $('pov').hidden = !(main && robot);
   $('pov').classList.toggle('pov--main', main && robot);
   $('pov-img').hidden = $('pov-boxes').hidden = !robot;
-  const blick = config.modul === 'reachy_mini' ? 'Reachys Blick' : 'Entenblick';
+  const blick = { reachy_mini: 'Reachys Blick', stackchan: 'Stackis Blick' }[config.modul] || 'Entenblick';
   $('pov-label').textContent = robot ? `${blick} · Kopfkamera` : `${blick} · Kopfkamera (Simulator)`;
 }
 // Am echten Roboter: Bilder von mediad, ein paar pro Sekunde, nur wenn der Entenblick sichtbar ist
@@ -896,7 +896,8 @@ const HINTS_REACHY = {
 const HINTS_OHNE_KOPF = { beobachten: '<b>Ziehen</b> Kamera drehen · <kbd>Esc</kbd> stoppt', entenblick: '<kbd>Esc</kbd> stoppt' };
 const YAW_MAX = 1.05, PITCH_MAX = 0.65;
 function setStageMode(mode) {
-  mode = mode === 'entenblick' ? 'entenblick' : 'beobachten';
+  const kamera = !config.eigenschaften || config.eigenschaften.includes('kamera');   // ohne Kamera kein Blick (0.38.64)
+  mode = mode === 'entenblick' && kamera ? 'entenblick' : 'beobachten';
   scene.setMode(mode);
   if (activePointer()) scene.controls.enabled = false;   // Laser oder Folg mir an: Ziehen bewegt den Zeiger
   for (const r of document.querySelectorAll('input[name="stage-mode"]')) r.checked = r.value === mode;

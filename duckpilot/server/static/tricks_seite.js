@@ -19,7 +19,10 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
     erschrecken: 'erschrecken',
   };
   let emotionCatalog = null;
+  let katalogFuer = null;                 // der Katalog hängt vom Körper ab (ohne Schnabel kein Gefieder putzen, 0.38.64)
   async function catalog() {
+    const modul = (getConfig() || {}).modul;
+    if (modul !== katalogFuer) { emotionCatalog = null; katalogFuer = modul; }
     if (!emotionCatalog) {
       emotionCatalog = api('/api/emotions').catch(() => { emotionCatalog = null; return []; });
     }

@@ -9,6 +9,51 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.64 – 2026-11-15 – Ari lernt durch Vormachen, Bello macht Männchen
+
+### Neu
+- **Ari lernt durch Vormachen** (Stufe A, Maintainer: „Ari zuerst“, „A, dann B“): im Fenster „Vormachen“ eine
+  Aufgabe wählen („roter Würfel → linke Kiste“), mit der Hand vor der Webcam Beispiele **aufnehmen** (fertig, wenn der
+  Würfel in der Kiste liegt), **lernen** (ein kleines Netz am PC, auf Wunsch ergänzt um Beispiele vom Lehrer bei
+  zufällig gelegtem Würfel) und **ausprobieren**: Ari macht es selbst. Danach prüft er sich in zehn unsichtbaren
+  Versuchen – mit Lehrer-Beispielen im Test 10 von 10. Wie bei LeRobot (Lernen durch Vormachen), nur klein und ohne
+  PyTorch (`arm_lernen.py`, `arm_schule.py`).
+- **Export für LeRobot:** ZIP mit Beispielen (Gelenke des SO-101 wie beim `so101_follower`, dazu Aris elf Messwerte),
+  Beschreibung und einem Skript, das daraus mit LeRobot einen Datensatz baut (`arm_export.py`).
+- **Bello: Männchen und elf weitere Tricks** nach Petois OpenCat (MIT): Männchen, High five, Jubeln, Nicken,
+  Schnüffeln, Kratzen, Graben, Auskeilen, Springen, Tisch, Schlafen, Vorwärtssalto – mit Kachel, 3D-Pose und Zuruf
+  ohne KI-Modell („Mach Männchen!“, „Gib mir fünf“). Bello kann jetzt 22 Tricks.
+- **Geplante Funktionen neu geordnet** (Maintainer: „Mischung je Release“): je Release ein Thema für den Kopf und eins
+  für einen Körper; echte Roboter ab Lieferung.
+
+### Geändert
+- **Der Text für die KI richtet sich nach dem Körper:** Bello, Stacki und Ari haben eigene Beschreibungen; Albern-Modus,
+  Laute, Laufen, Ball, Aufheben, Laserpointer und die Beispiel-Gesten kommen nur, wenn der Körper sie kann. Ari kennt
+  seine Werkbank statt des Wohnzimmers.
+- **Nur zeigen, was der Körper kann** (Maintainer: „schau in jedem Fall, dass nur Funktionen gezeigt werden, die die
+  Roboter auch abbilden können“): ohne Kamera (Bello, Ari) kein Blick durch ihre Augen, kein Laserpointer, kein „Folg
+  mir“ – in der Oberfläche und bei den Werkzeugen der KI; ohne Schnabel (Odi, Bello, Stacki) kein „Gefieder putzen“
+  unter „Im Leerlauf“. Die Microduck meldet ihre Kamera jetzt auch selbst.
+- Website: die sechs Körper oben in zwei Reihen zu je drei.
+
+### Behoben
+- **„Mach Männchen“ bei Bello** (Fund des Maintainers): ging an das Sprachmodell, und das antwortete mit einem
+  „Entenmännchen“ – Bello bekam die Entenregeln. Jetzt ein eigener Trick, und keine Entenregeln mehr für Nicht-Enten
+  (Regressionstest).
+- Der Knopf „Vormachen“ schickte zusätzlich ein Werkzeug ohne Namen – im Gespräch stand „unbekanntes Werkzeug None“.
+- Trennzeile beim Körperwechsel: „Jetzt in Bello · · Simulator“ ohne Körpernamen bei Stacki und Bello.
+- Die Kopfkamera hieß bei Stacki und Bello „Entenblick“.
+- Website: „Microduck“ ragte über den Rand, Unterzeilen brachen Wort für Wort um (Fund des Maintainers).
+
+### Sicherheit
+- Ari führt Gelerntes nur über `nachmachen` aus (gleiche Wegprüfung wie beim Vormachen), nur im Simulator; jeder Stopp
+  und der Not-Aus beenden es im nächsten Takt (Test). Lernen und Export gibt es nur am PC.
+
+### Nicht geprüft
+- Das Skript `nach_lerobot.py` mit einer echten LeRobot-Installation (nur auf Syntax geprüft; LeRobot-Versionen
+  unterscheiden sich in `add_frame`).
+- Vormachen-Aufnahme mit echter Webcam-Hand (im Test spielt der Lehrer die Hand).
+
 ## 0.38.63 – 2026-11-15 – Not-Aus wartet auf nichts
 
 ### Sicherheit

@@ -535,7 +535,9 @@ BRAUCHT_EIGENSCHAFT = {"explore": {"tiefensensor"}, "karte": {"tiefensensor"}, "
                        # seit 0.38.47: ein Arm ohne Kopf (SO-101) bekommt keine Kopf-Werkzeuge
                        "head": {"kopf"}, "look_around": {"kopf"}, "emote": {"kopf"}, "dance": {"kopf"},
                        "choreo": {"kopf"}, "choreography": {"kopf"}, "auftrag": {"greifer"},   # Werkbank-Aufträge (0.38.54)
-                       "tictactoe": {"greifer"}}
+                       "tictactoe": {"greifer"},
+                       # seit 0.38.64: Laserpunkt und Mensch sieht der Körper nur mit eigener Kamera (Bello hat keine)
+                       "laser_folgen": {"beine", "kamera"}, "mir_folgen": {"beine", "kamera"}}
 # Drehen geht mit Beinen, Rädern oder einem drehbaren Körper (Reachy) – irgendeins davon reicht
 DREHEN = {"beine", "raeder", "koerperdrehung"}
 BRAUCHT_SKILL = {"schiessen": ("kick_left", "kick_right"), "apportieren": ("ground_pick",), "team": ("ground_pick",)}

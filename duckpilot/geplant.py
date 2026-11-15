@@ -13,19 +13,24 @@ from __future__ import annotations
 
 from typing import Any
 
-# (Version, Name, ein Satz). Reihenfolge = Reihenfolge der Kacheln.
+# (Version, Name, ein Satz). Reihenfolge = Reihenfolge der Kacheln. Neu geordnet am 15.11.2026 (Maintainer: „Mischung je
+# Release“ – je Release ein Thema für den Kopf und eins für einen Körper; echte Roboter erst ab Lieferung).
 GEPLANT: tuple[tuple[str, str, str], ...] = (
-    ("0.39", "Rollen und Polaroid", "Pollens Zubehör für die Microduck: Rollschuh-Gangarten und das NFC-Polaroid."),
-    ("0.39", "Hoverboard und NFC-Hüte", "Reachy Mini fährt mit Pollens Hoverboard, Hüte wechseln die Persönlichkeit."),
-    ("0.40", "Erfahrungsnetz 2", "Weltmodell und Selbstbild – Knowlin erinnert sich an mehr und lernt aus Erlebnissen."),
-    ("0.41", "Natürlicher sprechen", "Ins Wort fallen, Werkzeuge im Gespräch wie Wetter und Uhrzeit."),
-    ("0.42", "Choreografie und VR", "Tänze im Editor bauen, Bewegungen vormachen, der Roboter mit der Quest im Wohnzimmer."),
-    ("0.43", "Spiele", "Fußball – auch mit mehreren Enten –, Verstecken und „Ente sagt“."),
-    ("0.44", "Mentor", "Du zeigst, Knowlin lernt: Bewegungen, Abläufe, Dinge und Orte – mit Handy, Webcam oder Brille."),
-    ("0.45", "Alltag", "Routinen und Zeitpläne, Kalender-Abo aus einer lokalen Datei."),
-    ("0.46", "Aufräumen und Smart Home", "Vor dem Saugroboter aufräumen, Licht und Alexa-Routinen."),
-    ("ab Lieferung", "Digitaler Zwilling", "Der echte Roboter live im Simulator – mit Frühwarnung und Probelauf."),
-    ("ab Lieferung", "Echte Open Duck", "Anbindung an die Open-Duck-Runtime – mit Testern aus der Community."),
+    ("0.38.65", "Bello wie das Original", "Maße nach Petois offenem Modell, dazu Gangarten: krabbeln, traben, rückwärts."),
+    ("0.39", "Erfahrungsnetz 2", "Weltmodell und Tagesrückblick – Knowlin erinnert sich an mehr und lernt aus Erlebnissen."),
+    ("0.39", "Stacki wie ab Werk", "Schau mich an, Tanz mit Licht und Musik, Avatar: Stacki spiegelt dein Gesicht."),
+    ("0.40", "Gespräch in Echtzeit", "Ins Wort fallen, Werkzeuge im Gespräch wie Wetter und Uhrzeit."),
+    ("0.40", "Reachy wie in Pollens App", "Umherschauen, Gesicht folgen und schlafen gehen."),
+    ("0.41", "Mentor 2", "Vorgemachtes als Auftrag merken – mit Webcam oder Handy."),
+    ("0.41", "Ari übt selbst", "Reinforcement Learning im Simulator verfeinert, was du ihm vorgemacht hast."),
+    ("0.42", "Alltag", "Routinen und Zeitpläne, Kalender-Abo aus einer lokalen Datei."),
+    ("0.42", "Ari mit LeRobot", "Mit einem zweiten Arm steuern, fertige Policies laden, Beispiele auf den Hub."),
+    ("0.43", "Choreografie", "Tänze im Editor bauen – für jeden Körper."),
+    ("0.43", "Bello lernt", "Gangarten mit Reinforcement Learning im offenen Modell von Petoi."),
+    ("0.44", "Spiele und VR", "Fußball, Verstecken, „Ente sagt“ – und der Roboter mit der Quest im Wohnzimmer."),
+    ("0.45", "Haushalt und Smart Home", "Vor dem Saugroboter aufräumen, Licht und Routinen über Home Assistant."),
+    ("ab Lieferung", "Echte Microduck", "Inbetriebnahme mit Trockenlauf, digitaler Zwilling mit Frühwarnung."),
+    ("ab Lieferung", "Zubehör der Microduck", "Rollschuh-Gangarten und das NFC-Polaroid, sobald Pollen liefert."),
 )
 
 
