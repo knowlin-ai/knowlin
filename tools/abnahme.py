@@ -880,16 +880,23 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     page.evaluate("() => document.querySelector('.quick.nur-stackchan [data-tool=power][data-args*=stand_up]').click()")
     page.wait_for_function("() => ((window.duckpilot.state || {}).gesicht || {}).wach === true", timeout=20000)
     gesehen = []
+    # jeden Ausdruck mitschreiben, der im Zustand ankommt: Das Gesicht zeigt ihn nur rund 3 s – unter Last (Prüfkette,
+    # Software-Grafik) verpasste das Warten auf Bildwiederholungen das Fenster manchmal (Fund 15.11., 0.38.65)
+    page.evaluate("""() => { window.__ausdruecke = new Set(); clearInterval(window.__ausdruckUhr);
+        window.__ausdruckUhr = setInterval(() => { const a = ((window.duckpilot.state || {}).gesicht || {}).ausdruck;
+          if (a) window.__ausdruecke.add(a); }, 40); }""")
     for art, erwartet in (("streicheln", "froh"), ("schuetteln", "schwindelig")):
+        page.evaluate("() => window.__ausdruecke.clear()")       # nur, was nach diesem Knopf kommt
         page.evaluate(f"() => document.querySelector('.quick.nur-stackchan [data-tool=beruehren][data-args*={art}]').click()")
         try:
-            page.wait_for_function(f"() => ((window.duckpilot.state || {{}}).gesicht || {{}}).ausdruck === '{erwartet}'",
+            page.wait_for_function(f"() => window.__ausdruecke.has('{erwartet}')",
                                    timeout=20000)          # kommt nach seiner Begrüßung an die Reihe
             gesehen.append(erwartet)
         except Exception:  # noqa: BLE001
             gesehen.append(f"nicht {erwartet}")
     b.pruefe("Stacki: Streicheln macht froh, Schütteln schwindelig (Knöpfe im Cockpit)",
              gesehen == ["froh", "schwindelig"], " · ".join(gesehen))
+    page.evaluate("() => clearInterval(window.__ausdruckUhr)")
     einstellen(page, {"modul": "duckpilot", "backend": "sim"})
 
     # 13d · Seit 0.38.19: Farbe der Microduck, Trainingsfeld mit vielen Enten
