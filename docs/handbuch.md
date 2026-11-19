@@ -201,6 +201,11 @@ Prüfen: `python -m duckpilot.koerper_pruefung [id]`. Spezifikation: [Körpersch
     Wegprüfungen, nicht deine Handbewegung nach. Hochheben und an derselben Stelle wieder hinlegen zählt nicht.
   - **Lernen durch Vormachen** (seit 0.38.64): im Vormach-Fenster eine Aufgabe wählen (Würfel → Kiste), Beispiele
     aufnehmen, „Lernen“ (ein kleines Netz, auf Wunsch mit Beispielen vom Lehrer), „Ausprobieren“, Export für LeRobot.
+  - **Beispiele auf den Hub** (seit 0.42): „Auf den Hub …“ öffnet ein Kästchen, „Jetzt hochladen“ ist der zweite
+    Klick. Die Beispiele landen als Dataset-Repo unter deinem Hugging-Face-Konto, **privat**, solange du nicht
+    „Öffentlich“ ankreuzt – mit Karte (Tags `LeRobot`, `so101`), Rohdaten und `nach_lerobot.py`. Den Schlüssel nimmt
+    Knowlin aus dem Tresor (Lernen → Training). Es ist das Rohformat mit Bauanleitung, kein fertiger
+    LeRobot-Datensatz; den baut `nach_lerobot.py` mit installiertem LeRobot.
   - **Selbst üben** (Stufe B, seit 0.41): Ari probiert es in unsichtbaren Simulatoren in vier Runden selbst, mit etwas
     Zufall in den Bewegungen, und lernt aus den Versuchen, die gelingen. Behalten wird das Ergebnis nur, wenn er im Test
     (zehn feste Lagen) mindestens so gut ist wie vorher; die Meldung sagt „vorher 6, jetzt 9 von 10“.
@@ -231,7 +236,7 @@ verschwinden aus den Reitern statt leere Seiten zu zeigen.
 | Bereich | Reiter | Was dort ist |
 |---|---|---|
 | **Steuern** | Cockpit · Tricks · Tanzen · Team · Vom Hub | 3D-Ansicht mit Telemetrie, Spur, Zielmarke, Orten und auf Wunsch der Punktwolke; oben rechts **Beobachten / Entenblick**, **Kopf ruhig** und das Menü **Ansicht**, rechts Gespräch, Schnellbefehle und Sprechknopf. Dazu Pollens 14 Emotionen und eigene Gesten zum Antippen und Bewegungen anderer vom Hugging Face Hub. |
-| **Alltag** | – | Alltagsbuddy: große Uhr, Ruhe/Aktiv, Timer, Erinnerungen, Termine (auch als .ics-Datei), To-dos und unten **„Was der Buddy darf“** (Sehen, Personen erkennen und begrüßen). Erscheint, solange die Erweiterung „Alltagsbuddy“ an ist (Standard) – ein- und ausschalten unter System → Erweiterungen. |
+| **Alltag** | – | Alltagsbuddy: große Uhr, Ruhe/Aktiv, Timer, Erinnerungen, Termine (auch als .ics-Datei), To-dos, Routinen, Kalender-Abo und unten **„Was der Buddy darf“** (Sehen, Personen erkennen und begrüßen). Erscheint, solange die Erweiterung „Alltagsbuddy“ an ist (Standard) – ein- und ausschalten unter System → Erweiterungen. |
 | **Umgebung** | – | erkundeter Bereich mit Ansicht von oben, Bring mir, Wo zuletzt gesehen (seit 0.38 eigener Bereich) |
 | **Charakter** | Persönlichkeit · Stimme · Gespräch · Gedächtnis | Charakter und Verhalten; Stimme und Entenlaute; Zuhören und Antworten; was sie sich gemerkt hat, dazu Stimmung und Hirnaktivität (Innenleben) |
 | **Lernen** | Akrobatik · Parcours · Training | die Ente als Gliederpuppe mit Drehringen, Gleichgewichts-Ampel und Übungen; Aufträge mit Hindernisparcours in der Physik; Reinforcement Learning **kostenlos am PC** (mit Lernschleife) oder **auf Kaggle**, bezahlt auf Hugging Face Jobs. Ein Punkt am Symbol zeigt, dass gerade etwas läuft. |
@@ -1443,6 +1448,19 @@ Ein kleiner Assistent wie Jarvis, nur mit Federn – Bereich **Alltag**, per Spr
   verschachtelte Regeln kommen mit dem ersten Termin. Zeitzonen und Sommer-/Winterzeit werden
   berücksichtigt. Eine Anmeldung
   bei einem Kalenderdienst gibt es bewusst nicht.
+- **Kalender-Abo** (seit 0.42, nur am PC): statt einmal übernehmen den Pfad einer `.ics`-Datei auf dem PC angeben,
+  die dein Kalenderprogramm aktuell hält (etwa ein regelmäßiger Export aus Thunderbird oder Outlook oder ein
+  Sync-Ordner). Knowlin schaut jede Minute nach und liest die Datei neu, sobald sie sich ändert. Was aus der Datei
+  verschwindet und noch kommt, verschwindet auch hier – aber nur Termine aus dem Abo („Abo“ in der Liste), nie
+  von Hand eingetragene. Eine kaputte oder fehlende Datei löscht nichts; die Karte sagt, was los ist. Im Überblick
+  steht nur der Dateiname. „Abo beenden“ nimmt die Termine aus dem Abo wieder heraus.
+- **Routinen** (seit 0.42): mehrere Dinge auf einmal, zur Uhrzeit (täglich, werktags oder am Wochenende) oder nur
+  auf Zuruf – „Starte die Morgenroutine“, „Welche Routinen gibt es?“, auch ohne Claude. Schritte: eine Ansage zu
+  Beginn, Tagesüberblick, Wetter (Stadt aus den Einstellungen), To-dos vorlesen, sich freuen (Geste), aufwachen
+  oder zur Ruhe. Die Reihenfolge ist fest: aufwachen → Geste → eine Ansage mit allem → zur Ruhe. Je Routine ein
+  Schalter „zur Uhrzeit“ und ein Knopf „Jetzt“. War der PC zur Uhrzeit aus, wird höchstens 30 Minuten später
+  nachgeholt. Claude legt Routinen auch an („Leg eine Morgenroutine um 7:30 an mit Wetter und Überblick“).
+  Bewusst ohne Licht, Schlösser oder Heizung und ohne freie Befehle.
 - **Wenn etwas fällig ist:** Band oben mit „Erledigt“ und „5 Minuten später“, die Ente quakt und
   macht eine Geste, auf Wunsch wird es vorgelesen. Unbestätigt meldet sie sich bis zu dreimal im
   Minutenabstand. Termine, die vorbei sind, während der PC aus war, wecken nicht nachträglich.
@@ -1456,6 +1474,8 @@ Ein kleiner Assistent wie Jarvis, nur mit Federn – Bereich **Alltag**, per Spr
   weckt sie dann nur auf, aufstehen tut sie erst auf „Steh auf“. Weckt sie ein Befehl wie „Schieß den Ball“, steht sie erst auf und führt ihn
   dann aus; kommt sie nicht am Ball an, lässt sie den Tritt aus. Im Simulator lädt der Akku in Ruhe nach. Hochgehoben steht sie
   nicht auf; nach einem Sturz erst nach dem Stopp-Fenster. Läuft gerade eine Bewegung, meldet sie sich ohne Geste, damit nichts abbricht.
+  Für Routinen gilt dasselbe: nach einem Not-Aus, gestürzt oder hochgehoben keine Geste und kein Aufstehen, „zur
+  Ruhe“ stellt dann nur den Modus um – die Ansage kommt trotzdem.
 - Alles liegt in `alltag.json` im Datenordner, nichts geht in die Cloud.
 
 ### Was der Buddy darf: sehen und Personen erkennen
@@ -1658,6 +1678,7 @@ Tests laufen mit `pip install pytest` und `python -m pytest`.
   Stufen und Schrägen), nicht auf dem gebauten Parcours selbst.
 - Akrobatik ist Simulation: Beinhaltungen gehen am echten Roboter nur über eine trainierte Policy.
 - Die Last im Gelenk-Check am Roboter ist eine Näherung aus dem Motorstrom (Blockierstrom ≈ 1,8 A).
-- Der Alltagsbuddy meldet sich nur, solange duckpilot läuft; Kalender kommen nur als Datei (kein Abo).
+- Der Alltagsbuddy meldet sich nur, solange duckpilot läuft; Kalender kommen nur als Datei (einmal oder als Abo
+  einer Datei auf dem PC, kein Abo einer Internet-Adresse).
 - Stand der Protokollanbindung: `duck-ipc-proto` API v44 (Oktober 2026). robotd lehnt andere
   Versionen nicht ab, neue Felder werden ignoriert.

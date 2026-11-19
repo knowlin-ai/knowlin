@@ -9,6 +9,38 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.42.0 – 2026-11-19 – Alltag mit Routinen und Kalender-Abo, Aris Beispiele auf den Hub
+
+### Neu
+- **Routinen:** mehrere Dinge auf einmal, zur Uhrzeit (täglich, werktags, am Wochenende) oder nur auf Zuruf –
+  „Starte die Morgenroutine“, auch ohne Claude. Schritte: Ansage, Tagesüberblick, Wetter, To-dos vorlesen, sich
+  freuen, aufwachen, zur Ruhe. Karte „Routinen“ auf der Seite Alltag; das Werkzeug `alltag` kennt `routine`,
+  `routinen` und `routine_anlegen` (`routinen.py`). War der PC zur Uhrzeit aus, wird höchstens 30 Minuten später
+  nachgeholt.
+- **Kalender-Abo aus einer lokalen Datei:** Pfad einer `.ics`-Datei angeben, die ein Kalenderprogramm aktuell hält;
+  Knowlin liest sie neu, sobald sie sich ändert, und nimmt Termine heraus, die daraus verschwunden sind – nur die
+  aus dem Abo (`kalender_abo.py`).
+- **Aris Beispiele auf den Hub:** im Vormach-Fenster „Auf den Hub …“ → „Jetzt hochladen“; ein Dataset-Repo unter dem
+  eigenen Hugging-Face-Konto mit Karte, Rohdaten und `nach_lerobot.py`, in einem Commit (`ari_hub.py`).
+
+### Geändert
+- Fahrplan: „Ari mit LeRobot“ (zweiter Arm, fertige Policies) wartet jetzt auf einen echten SO-101; 0.43 ist das
+  nächste Release.
+
+### Sicherheit
+- Routinen kennen nur feste Schritte, nichts am Haus. Nach einem Not-Aus, gestürzt oder hochgehoben gibt es keine
+  Geste und kein Aufstehen; „zur Ruhe“ stellt dann nur den Modus um.
+- Den Abo-Pfad setzt man nur direkt am PC; in Überblick und Handy steht nur der Dateiname. Eine kaputte oder fehlende
+  Datei löscht keine Termine.
+- Hub-Upload nur am PC, nur nach dem zweiten Klick, privat als Standard; der Schlüssel kommt aus dem Tresor. Im Upload
+  stehen nur Gelenkwinkel und Lagen von Würfel und Kiste.
+
+### Nicht geprüft
+- Abo mit Dateien, die Outlook, Thunderbird oder ein Sync-Programm wirklich laufend schreiben (geprüft mit selbst
+  geschriebenen Dateien und Änderungszeiten).
+- Upload gegen den echten Hugging Face Hub (geprüft mit einer Attrappe der Hub-API).
+- Routinen mit Geste und Aufstehen am echten Roboter.
+
 ## 0.41.0 – 2026-11-19 – Mentor 2 und Ari übt selbst
 
 ### Neu
