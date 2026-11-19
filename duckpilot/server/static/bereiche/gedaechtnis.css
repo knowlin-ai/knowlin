@@ -9,6 +9,7 @@
   background: var(--surface-sunken); color: var(--ink); font: inherit; font-size: var(--t-small);
 }
 .tages-wahl:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+@media (pointer: coarse) { .tages-wahl { min-height: 44px; } }             /* Fingerziel (Abnahme 0.39) */
 .tages-text { margin: 0; font-size: var(--t-body); line-height: 1.5; }
 .tages-chips { display: flex; flex-wrap: wrap; gap: var(--spacing-02); list-style: none; margin: 0; padding: 0; }
 .tages-momente { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--spacing-02); }
