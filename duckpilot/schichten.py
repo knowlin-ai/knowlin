@@ -31,7 +31,7 @@ SCHICHTEN: dict[str, tuple[str, ...]] = {
     "motorik": ("motion", "api", "joints", "protest", "laser", "koerper_pruefung"),
     "lab": (
         "physics", "training", "kaggle_training", "lernschleife", "mission", "acrobatics_service",
-        "stossreihe_service", "kollision_service", "arm_lernen", "arm_export", "arm_schule", "arm_ueben", "ari_hub",
+        "stossreihe_service", "kollision_service", "arm_lernen", "arm_export", "arm_schule", "arm_ueben", "ari_hub", "bello_schule",
     ),
     "koerper": (
         "backends", "modell", "care", "vision", "skills.app_moves", "skills.gaits", "skills.talent", "skills.community",

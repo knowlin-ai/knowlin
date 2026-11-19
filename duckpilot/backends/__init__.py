@@ -92,9 +92,13 @@ def baue_stackchan(cfg):
 
 def baue_bittle(cfg):
     """Bittle X (seit 0.38.59): Petois Roboterhund – vorerst nur im Simulator."""
+    from .. import settings
+    from ..bello_schule import laden
     from .bittle import BittleSim
 
-    return BittleSim()
+    sim = BittleSim()
+    sim.gelernt_setzen(laden(settings.data_dir()))      # selbst gelernte Gangart (seit 0.43), falls es eine gibt
+    return sim
 
 
 def physics_problem() -> str:

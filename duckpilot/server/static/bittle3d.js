@@ -96,8 +96,16 @@ export function beinFuer(x, y, vorn) {
 // Beinwinkel im Gang: Phase ph, Richtung +1 vorwärts / -1 rückwärts, Ausschlag-Faktor (0 = auf der Stelle). Die Füße
 // laufen auf Bahnen: am Boden auf gleicher Höhe nach hinten, in der Luft im Bogen nach vorn – so stehen die Stützbeine
 // wirklich auf und rutschen nicht.
-export function gangBeine(gang, ph, richtung = 1, weit = 1) {
-  const g = GANGARTEN[gang] || GANGARTEN.traben;
+// Selbst gelernte Gangart (seit 0.43, physics/bello.py): Traben mit den gelernten Werten aus `st.gang_form`
+export function gelernteGangart(form) {
+  if (!form) return GANGARTEN.traben;
+  const zahl = (v, lo, hi, d) => (Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : d);
+  return { ...GANGARTEN.traben, schritt: zahl(form.schritt, 0.005, 0.045, 0.024), hub: zahl(form.hub, 0.005, 0.04, 0.022),
+    luft: zahl(form.luft, 0.2, 0.65, 0.45), ducken: zahl(form.ducken, 0, 1, 0) };
+}
+
+export function gangBeine(gang, ph, richtung = 1, weit = 1, form = null) {
+  const g = gang === 'gelernt' ? gelernteGangart(form) : GANGARTEN[gang] || GANGARTEN.traben;
   const s = [], k = [];
   BEINE.forEach(([, , vorn], i) => {
     const seite = vorn ? 1 : -1;
@@ -240,7 +248,7 @@ export class Bittle {
     const t = st.twist || {};
     const laeuft = wach && !sitzt && (Math.hypot(t.vx || 0, t.vy || 0) > 0.01 || Math.abs(t.vyaw || 0) > 0.08);
     // Gang je Gangart; rückwärts schwingen die Beine andersherum
-    const gang = laeuft ? gangBeine(st.gangart || 'traben', st.gait_phase || 0, (t.vx || 0) < -0.01 ? -1 : 1) : null;
+    const gang = laeuft ? gangBeine(st.gangart || 'traben', st.gait_phase || 0, (t.vx || 0) < -0.01 ? -1 : 1, 1, st.gang_form) : null;
     const trick = wach && TRICKS[st.skill] ? TRICKS[st.skill](Math.max(0, Math.min(1, st.skill_progress || 0))) : null;
     this.beine.forEach((b, i) => {
       const seite = b.vorn ? 1 : -1;                     // Knie zeigen zur Mitte: vorn nach hinten, hinten nach vorn

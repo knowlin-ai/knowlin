@@ -246,6 +246,23 @@ def ids() -> tuple[str, ...]:
     return tuple(k.id for k in alle())
 
 
+def tanzstil(k: Koerper | None) -> str:
+    """Welcher Tanz-Wortschatz passt (seit 0.43, `motion/tanzstile.py`) – aus Familie und Fähigkeiten, nie aus dem
+    Namen. Ohne Profil: der Tanz der Ente."""
+    if k is None:
+        return "ente"
+    f = k.faehigkeiten
+    if k.familie in ("ente", "humanoid") or ("beine" in f and k.familie not in ("vierbeiner",)):
+        return "ente"
+    if k.familie == "vierbeiner":
+        return "vierbeiner"
+    if "arm" in f:
+        return "arm"
+    if "antennen" in f and "koerperdrehung" in f:
+        return "kopf_antennen"
+    return "kopf"
+
+
 def holen(kid: str) -> Koerper:
     erweiterungen_laden()
     k = _REGISTER.get(kid)

@@ -32,7 +32,8 @@ export function setzeModul(config, { $, hiddenTabs }) {
   const microduck = k.klasse === 'microduck';
   for (const t of NUR_MICRODUCK) { if (microduck) hiddenTabs.delete(t); else hiddenTabs.add(t); }
   for (const t of NUR_REACHY) { if (k.klasse === 'reachy') hiddenTabs.delete(t); else hiddenTabs.add(t); }
-  if (eig.has('kopf')) hiddenTabs.delete('tricks/tanz'); else hiddenTabs.add('tricks/tanz');   // Tanzen braucht einen Kopf
+  // Tanzen braucht einen Kopf oder einen Arm (seit 0.43 für jede Bauart)
+  if (eig.has('kopf') || eig.has('arm')) hiddenTabs.delete('tricks/tanz'); else hiddenTabs.add('tricks/tanz');
   const lernen = $('rail-lernen');
   if (lernen) lernen.hidden = !microduck;
   // Kopfzeile „Knowlin › Verkörperung · Körper“

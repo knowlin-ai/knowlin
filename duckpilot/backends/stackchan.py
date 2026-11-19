@@ -137,6 +137,19 @@ class StackChanSim(TischPlatz, SimBackend):
         self._ausdruck_bis = self.t + max(0.5, min(15.0, float(sekunden) + 0.5))
         return self._ausdruck
 
+    # ── Tanzen (seit 0.43, Bauart „kopf“): den Kopf fährt der Tanz, hier nur Gesicht und Licht ──
+    async def tanz_schritt(self, name: str, sekunden: float, bpm: float) -> IntentResult:
+        if not self.powered:
+            return IntentResult(False, "Stack-chan ist aus")
+        if ausdruck_aus(name) != "ruhig":                # ein Gefühl als Akzent: zeigt es im Gesicht
+            self.gefuehl_zeigen(name, min(3.0, float(sekunden)))
+        self._angesprochen = self.t
+        return IntentResult(True, f"tanzt {name}")
+
+    def tanz_ende(self) -> None:
+        """Tanz vorbei oder abgebrochen: der Lichttanz endet mit."""
+        self._tanz_bis = 0.0
+
     def licht(self, farbe: str | None, sekunden: float = 5.0) -> IntentResult:
         """LEDs eine Weile in einer Farbe leuchten lassen (None/„aus“: wieder nach Zustand)."""
         if farbe in (None, "", "aus"):

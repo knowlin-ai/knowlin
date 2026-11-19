@@ -55,8 +55,8 @@ def _nur_reachy(c):
 
 # ── Vokabular ─────────────────────────────────────────────────────────────────────────────────────────────────────
 def test_plan_fuer_reachy_nur_reachy_bewegungen_ohne_posen():
-    c = C.plane(ANALYSE, ["Storch"], reachy=True)
-    assert c == C.plane(ANALYSE, ["Storch"], reachy=True) and c["koerper"] == "reachy_mini"
+    c = C.plane(ANALYSE, ["Storch"], stil="kopf_antennen")
+    assert c == C.plane(ANALYSE, ["Storch"], stil="kopf_antennen") and c["stil"] == "kopf_antennen"
     _nur_reachy(c)
     tl = C.takt_s(120)
     for a, b in zip(c["schritte"], c["schritte"][1:]):           # lückenlos auf Taktanfängen
@@ -65,8 +65,11 @@ def test_plan_fuer_reachy_nur_reachy_bewegungen_ohne_posen():
     assert "koerper_drehen" in namen                               # im lauten Teil dreht sich der Körper
     assert not namen & (set(TANZGESTEN[0] + TANZGESTEN[1] + TANZGESTEN[2]) - set(RT.REACHY_TANZ))   # keine Entengesten
     gespeichert = C.pruefe(c)
-    assert gespeichert["koerper"] == "reachy_mini"
-    assert "koerper" not in C.pruefe(C.plane(ANALYSE))            # der Entenplan bleibt, wie er war
+    assert gespeichert["stil"] == "kopf_antennen"
+    assert "stil" not in C.pruefe(C.plane(ANALYSE))               # der Entenplan bleibt, wie er war
+    alt = {**c, "koerper": "reachy_mini"}                         # Tänze vor 0.43 merkten sich den Körper
+    alt.pop("stil")
+    assert C.pruefe(alt)["stil"] == "kopf_antennen"
     assert {s["art"] for s in C.plane(ANALYSE)["schritte"]} & {"schritt", "wiegen"}
 
 
@@ -79,7 +82,7 @@ def test_stufen_und_namen_vollstaendig():
 
 
 def test_ki_bekommt_nur_reachy_bewegungen():
-    auftrag = C.ki_auftrag_reachy("Lied", "", C.plane(ANALYSE, reachy=True))
+    auftrag = C.ki_auftrag_reachy("Lied", "", C.plane(ANALYSE, stil="kopf_antennen"))
     assert all(n in auftrag for n in RT.REACHY_TANZ) and "Posen" not in auftrag
     assert "traellern" not in auftrag and "Bein zu Bein" not in auftrag
 
@@ -159,7 +162,7 @@ def test_reachy_tanzt_im_simulator_mit_kopf_antennen_und_drehung():
         eng.listeners.append(notizen.append)
         r = ToolRunner(eng)
         r.choreos = C.ChoreoBuch(Path(__import__("tempfile").mkdtemp()))
-        r.choreos.speichere("Reachy", C.plane(ANALYSE, reachy=True))
+        r.choreos.speichere("Reachy", C.plane(ANALYSE, stil="kopf_antennen"))
         assert (await r.run("choreo", {"aktion": "tanzen", "name": "Reachy"}))["ok"]
         assert isinstance(eng.current, RT.ReachyMusikTanz)
         x0, y0 = sim.x, sim.y
@@ -263,7 +266,7 @@ def test_routen_fuer_reachy_und_not_aus_stoppt_mitwippen(reachy_client):
     c, rt, gesendet = reachy_client
     assert isinstance(rt.backend, ReachyMiniSim)
     d = c.get("/api/choreo").json()
-    assert d["reachy"] and d["gesten"] == list(RT.REACHY_TANZ) and d["posen"] == [] and set(d["namen"]) == set(RT.REACHY_TANZ)
+    assert d["stil"] == "kopf_antennen" and d["arten"] == ["trick", "gefuehl", "pause"] and d["gesten"] == list(RT.REACHY_TANZ) and d["posen"] == [] and set(d["namen"]) == set(RT.REACHY_TANZ)
     assert set(d["gefuehle"]) <= set(GESTEN) and "traurig" not in d["gefuehle"]
     plan = c.post("/api/choreo/plan", json={"analyse": ANALYSE}).json()
     assert plan["ok"]
@@ -370,7 +373,8 @@ def test_oberflaeche_tanz_je_koerper():
     assert "nur-microduck" in zeile("Posen aus Lernen → Akrobatik")
     assert "nur-reachy" in zeile('id="mitwippen"') and "nur-reachy" in zeile('data-set="reachy_begruessung"')
     assert "nur-reachy" in zeile("Reachy tanzt mit Kopf, Antennen und Drehung")
-    teil = html[html.index('<div data-part="tanz"'):html.index('<div data-part="team"')]
+    teil = (STATIC / "teile" / "tanz.html").read_text(encoding="utf-8")   # eigener Teil seit 0.43
+    assert teil in html
     weitere = teil.index("Weitere Enten")
     assert '<div class="nur-ente stapel">' in teil[weitere - 200:weitere]   # „Weitere Enten“ nur bei Enten
     js = (STATIC / "mitwippen.js").read_text(encoding="utf-8")

@@ -69,6 +69,30 @@ GESTEN: dict[str, list[tuple[dict[str, float], float]]] = {
 }
 
 
+# Tanz (seit 0.43, Bauart „arm“ in motion/tanzstile.py): Name → [(Haltung, Schläge)] – jede Bewegung beginnt und endet
+# in „hoch“, damit sie sich ohne Ruck wiederholt. Alles bleibt oben über der Werkbank; ob unterwegs etwas im Weg ist,
+# prüft der Körper vor dem Tanzen (werkbank_weg).
+TANZ: dict[str, list[tuple[dict[str, float], float]]] = {
+    "wiegen": [(_mit("hoch", shoulder_pan=-22, wrist_roll=-15), 1.0), (_mit("hoch", shoulder_pan=22, wrist_roll=15), 1.0)],
+    "nicken": [(_mit("hoch", wrist_flex=30), 0.5), (_mit("hoch", wrist_flex=-20), 0.5)],
+    "greifer_takt": [(_mit("hoch", gripper=55), 0.5), (_mit("hoch", gripper=5), 0.5)],
+    "kreisen": [(_mit("hoch", wrist_roll=60), 1.0), (_mit("hoch", wrist_roll=-60), 1.0)],
+    "schwingen": [(_mit("hoch", shoulder_lift=-80, elbow_flex=-55), 1.0), (_mit("hoch", shoulder_lift=-45, elbow_flex=-10), 1.0)],
+    "winken": [(_mit("hoch", wrist_flex=35), 0.5), (_mit("hoch", wrist_flex=-35), 0.5)],
+    "jubeln": [(_mit("hoch", shoulder_pan=-30, gripper=60, wrist_roll=40), 1.0),
+               (_mit("hoch", shoulder_pan=30, gripper=0, wrist_roll=-40), 1.0)],
+}
+
+
+def tanz_folge(name: str, sekunden: float, bpm: float) -> list[tuple[dict[str, float], float]]:
+    """Eine Tanzbewegung im Takt, so oft wiederholt, wie in `sekunden` passt (mindestens einmal). Erst nach „hoch“."""
+    schlag = 60.0 / max(40.0, min(220.0, float(bpm)))
+    eine = [(h, max(0.15, n * schlag)) for h, n in TANZ[name]]
+    laenge = sum(s for _, s in eine)
+    mal = max(1, int(max(0.0, float(sekunden) - 0.6) // laenge))
+    return [(POSEN["hoch"], 0.6), *eine * mal]
+
+
 def begrenzen(gelenke: dict[str, Any]) -> tuple[dict[str, float], list[str]]:
     """Namen übersetzen (auch deutsch), Grenzen einhalten. Rückgabe: (Haltung in Grad, unbekannte Namen)."""
     out: dict[str, float] = {}

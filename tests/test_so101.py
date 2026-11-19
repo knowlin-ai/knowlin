@@ -69,7 +69,8 @@ def test_werkzeuge_fuer_einen_arm():
         r = ToolRunner(eng)
         namen = {t["name"] for t in r.tools()}
         assert {"arm", "absicht", "selbstbild"} <= namen
-        assert not namen & {"head", "look_around", "emote", "dance", "choreo", "turn", "walk", "sound"}
+        assert not namen & {"head", "look_around", "emote", "turn", "walk", "sound"}
+        assert {"dance", "choreo"} <= namen                             # tanzen kann er seit 0.43 mit dem Arm
         assert (await r.run("emote", {"emotion": "freude"}))["ok"] is False
         await sim.init()
         gruss = await r.run("absicht", {"aktion": "gruessen"})

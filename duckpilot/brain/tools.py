@@ -16,8 +16,7 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable
 from .. import koerper
 from ..api import SOUND_TAGS, Head, Twist
 from ..motion import behaviors as B
-from ..motion import reachy_tanz as RT
-from ..motion import tanz as T
+from ..motion import koerper_tanz as KT
 from ..motion.apportieren import Apportieren
 from ..motion.engine import MotionEngine
 from .tools_absicht import ABSICHT_TOOL, ARM_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge, werkbank_werkzeuge
@@ -539,13 +538,15 @@ BEINE_TOOLS = {"walk", "drive", "go_to", "approach", "umrunden", "apportieren", 
 BRAUCHT_EIGENSCHAFT = {"explore": {"tiefensensor"}, "karte": {"tiefensensor"}, "apportieren": {"schnabel"},
                        "team": {"schnabel"}, "kopf_ruhig": {"beine"}, "sound": {"stimmbank"}, "arm": {"arm"},
                        # seit 0.38.47: ein Arm ohne Kopf (SO-101) bekommt keine Kopf-Werkzeuge
-                       "head": {"kopf"}, "look_around": {"kopf"}, "licht": {"led"}, "emote": {"kopf"}, "dance": {"kopf"},
-                       "choreo": {"kopf"}, "choreography": {"kopf"}, "auftrag": {"greifer"},   # Werkbank-Aufträge (0.38.54)
+                       "head": {"kopf"}, "look_around": {"kopf"}, "licht": {"led"}, "emote": {"kopf"},
+                       "choreography": {"kopf"}, "auftrag": {"greifer"},   # Werkbank-Aufträge (0.38.54)
                        "tictactoe": {"greifer"},
                        # seit 0.38.64: Laserpunkt und Mensch sieht der Körper nur mit eigener Kamera (Bello hat keine)
                        "laser_folgen": {"beine", "kamera"}, "mir_folgen": {"beine", "kamera"}}
 # Drehen geht mit Beinen, Rädern oder einem drehbaren Körper (Reachy) – irgendeins davon reicht
 DREHEN = {"beine", "raeder", "koerperdrehung"}
+# Tanzen (seit 0.43 für jede Bauart): mit einem Kopf oder einem Arm – irgendeins davon reicht
+TANZEN = {"kopf", "arm"}
 BRAUCHT_SKILL = {"schiessen": ("kick_left", "kick_right"), "apportieren": ("ground_pick",), "team": ("ground_pick",)}
 # Pollens Microduck-Welt: Hub-Policies, Trainingshalle, Parcours – nur für die Microduck
 NUR_MICRODUCK = {"trick_vom_hub", "parcours_bauen", "parcours_testen", "bewegung_ueben", "training_vorschlagen",
@@ -563,6 +564,8 @@ def fehlt_dem_koerper(name: str, backend: Any) -> str | None:
         return "Das gibt es nur für die Microduck (Pollens Policies und Trainingshalle)."
     if name == "turn" and not DREHEN & eig:
         return "Dieser Körper kann sich nicht drehen."
+    if name in ("dance", "choreo") and not TANZEN & eig:
+        return "Dieser Körper kann nicht tanzen (er hat weder Kopf noch Arm)."
     ohne = sorted(BRAUCHT_EIGENSCHAFT.get(name, set()) - eig)
     if ohne:
         return f"Das kann dieser Körper nicht (fehlt: {', '.join(ohne)})."
@@ -625,6 +628,11 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
         if memory is not None:
             engine.listeners.append(self._log_event)
 
+    def _tanzstil(self) -> str:
+        """Tanz-Wortschatz des aktuellen Körpers (seit 0.43) – aus dem Profil, nie aus dem Namen."""
+        art = getattr(self.engine.backend, "koerper_art", "") or koerper.holen("duckpilot").koerper_zustand
+        return koerper.tanzstil(koerper.zu_zustand(art))
+
     def tools(self) -> list[dict[str, Any]]:
         """Die Werkzeugliste für Claude – ohne Gedächtnis-Werkzeuge, wenn es keins gibt.
         Die Skill-Liste kommt vom Körper: am echten Roboter stehen geladene Hub-Tricks mit drin."""
@@ -657,10 +665,11 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
             tools = [*tools, BERUEHREN_TOOL]
         if "led" in eig:                          # LEDs und Tanz mit Licht (seit 0.39, Stack-chan)
             tools = [*tools, LICHT_TOOL]
-        if getattr(be, "koerper_art", "") == "reachy_mini":   # Reachys eigener Tanz (seit 0.38.13): nur seine Bewegungen
-            from ..choreo import reachy_werkzeug
+        stil = self._tanzstil()                  # Tanz im Wortschatz der Bauart (Reachy 0.38.13, alle seit 0.43)
+        if stil != "ente":
+            from ..choreo import werkzeug
 
-            tools = [reachy_werkzeug(t) if t["name"] == "choreo" else t for t in tools]
+            tools = [werkzeug(t, stil) if t["name"] == "choreo" else t for t in tools]
         pollen = getattr(self, "pollen", None)
         liste = pollen.liste() if pollen is not None and "pollen_bewegungen" in eig else []
         if liste:
@@ -1165,16 +1174,15 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
                                       "title": ch.title}
             return started(ch)
         if name == "dance":
-            from ..motion.reachy_gesten import ist_reachy
-
-            if ist_reachy(eng.backend):                  # Reachy: eigener Tanz mit Kopf, Antennen, Drehung (0.38.13)
+            stil = self._tanzstil()
+            if stil != "ente":                           # ohne Beine: Tanz im eigenen Wortschatz (Reachy 0.38.13, alle 0.43)
                 from ..choreo import plane
 
                 bpm = max(60.0, min(160.0, _num(a, "bpm", 110)))
                 stufe = {"nicken": 0.2, "wackeln": 0.5}.get(str(a.get("style")), 0.9)
                 takte = max(1, int(_num(a, "seconds", 12) / (240.0 / bpm) + 0.5))
-                c = plane({"bpm": bpm, "start": 0.0, "energie": [stufe] * takte}, reachy=True)
-                return started(RT.ReachyMusikTanz(c, "Tanz"))
+                c = plane({"bpm": bpm, "start": 0.0, "energie": [stufe] * takte}, stil=stil)
+                return started(KT.musik_tanz(stil, c, titel="Tanz"))
             return started(B.Dance(str(a.get("style", "party")), _num(a, "seconds", 12), _num(a, "bpm", 110)))
         if name == "enten":
             sw = getattr(self, "schwarm", None)
@@ -1193,15 +1201,15 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
                 # Nur den Tanz beenden – kein Not-Aus (seit 0.38.34; vorher schickte „Stopp“ beim Tanzen den Not-Aus mit
                 # 2 Minuten Sperre). Sie bleibt stehen; mittanzende Enten hören mit auf, weil ihr Takt fehlt.
                 cur = eng.current
-                tanzt = isinstance(cur, (T.MusikTanz, T.GehoerTanz, RT.ReachyMusikTanz, RT.ReachyGehoerTanz))
+                tanzt = isinstance(cur, KT.TANZ_KLASSEN)
                 if tanzt:
                     eng.cancel_current("Tanz gestoppt")
                     await eng.backend.move(Twist())
                 return {"ok": True, "gestoppt": tanzt}
-            reachy = getattr(eng.backend, "koerper_art", "") == "reachy_mini"
+            stil = self._tanzstil()
             if a.get("aktion") == "gehoer":           # nach Gehör: die Oberfläche hört mit und schickt Tempo/Lautstärke
-                # Reachy (seit 0.38.13): eigene Bewegungen; „ruhig“ = Mitwippen zu Musik oder Radio aus der Oberfläche
-                self.gehoer = RT.ReachyGehoerTanz(ruhig=bool(a.get("ruhig"))) if reachy else T.GehoerTanz()
+                # je Bauart eigene Bewegungen (Reachy 0.38.13, alle 0.43); „ruhig“ = Mitwippen zu Musik oder Radio
+                self.gehoer = KT.gehoer_tanz(stil, ruhig=bool(a.get("ruhig")))
                 return started(self.gehoer)
             if a.get("aktion") == "speichern":
                 try:
@@ -1219,7 +1227,7 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
             profil = koerper.zu_zustand(getattr(eng.backend, "koerper_art", "") or koerper.holen("duckpilot").koerper_zustand)
             posen = self.posen() if profil and profil.lab and callable(getattr(self, "posen", None)) else {}
             ab = max(0.0, min(float(c.get("dauer") or 0.0), _num(a, "ab", 0.0)))
-            tanz = RT.ReachyMusikTanz(c, str(a.get("name")), ab=ab) if reachy else T.MusikTanz(c, posen, str(a.get("name")), ab=ab)
+            tanz = KT.musik_tanz(stil, c, posen, str(a.get("name")), ab=ab)
             out = started(tanz)
             if c.get("musik") and self.on_musik:
                 self.on_musik(c["musik"], ab)        # die Oberfläche spielt die Musik dazu (ab der Startmarke)

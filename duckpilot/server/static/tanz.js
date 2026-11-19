@@ -11,8 +11,9 @@ const tr = (text) => uebersetzeText(text) || text;
 const ARTEN = ['schritt', 'wiegen', 'drehen', 'nicken', 'wippen', 'wackeln', 'trick', 'pose', 'gefuehl', 'pause'];
 const ART_TEXT = { schritt: 'Bein zu Bein', wiegen: 'Wiegen', nicken: 'Nicken', wippen: 'Wippen', wackeln: 'Wackeln', drehen: 'Drehen', trick: 'Tanzgeste', pose: 'Pose', gefuehl: 'Gefühl', pause: 'Pause' };
 // Reachy Mini (seit 0.38.13): eigene Bewegungen im Takt (Kopf, Antennen, Drehung), Gefühle als Akzent – keine Entenschritte
-const ARTEN_REACHY = ['trick', 'gefuehl', 'pause'];
-const ART_TEXT_REACHY = { ...ART_TEXT, trick: 'Tanzbewegung' };
+const ART_TEXT_EIGEN = { ...ART_TEXT, trick: 'Tanzbewegung' };
+// Für welche Bauart ein Tanz eingeübt ist (seit 0.43, Wortschatz je Bauart in motion/tanzstile.py)
+const STIL_TEXT = { kopf_antennen: 'für Kopf und Antennen', kopf: 'für einen Kopf', arm: 'für einen Arm', vierbeiner: 'für einen Hund' };
 const ANALYSE_S = 240;   // so viel vom Stück wird angeschaut (wie choreo.plane max_s)
 const WELLE_DT = 0.05;
 const MIT_NAME = new Set(['trick', 'pose', 'gefuehl']);   // eine Säule der Wellenform je 50 ms
@@ -335,10 +336,11 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
   let posen = [];
   let gesten = [];
   let ki = false;
-  let reachy = false;       // Reachy Mini: Bewegungen und Gefühle aus seinem eigenen Vokabular (seit 0.38.13)
+  let eigen = false;        // Körper ohne Beine: Bewegungen und Gefühle aus dem eigenen Wortschatz (Reachy 0.38.13, alle 0.43)
+  let arten = ARTEN;
   let gefuehle = [];
   let namen = {};
-  const artText = (a) => (reachy ? ART_TEXT_REACHY : ART_TEXT)[a] || a;
+  const artText = (a) => (eigen ? ART_TEXT_EIGEN : ART_TEXT)[a] || a;
   const nameText = (n) => namen[n] || gestenName(n);
   let ende = 0;
   let marke = 0;
@@ -431,7 +433,7 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
   function namenWahl(s) {
     const sel = el('select', 'input');
     sel.setAttribute('aria-label', 'Name');
-    const liste = [...(s.art === 'pose' ? posen : reachy && s.art === 'gefuehl' ? gefuehle : gesten)];
+    const liste = [...(s.art === 'pose' ? posen : eigen && s.art === 'gefuehl' ? gefuehle : gesten)];
     if (s.name && !liste.includes(s.name)) liste.unshift(s.name);
     for (const n of liste) sel.append(new Option(tr(s.art === 'pose' ? n : nameText(n)), n));
     sel.value = s.name || liste[0] || '';
@@ -525,9 +527,9 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
       takte.addEventListener('change', () => { s.takte = Math.max(1, Math.min(64, Number(takte.value) || 1)); neuTakten(); });
       const art = el('select', 'input');
       art.setAttribute('aria-label', 'Bewegung');
-      const arten = reachy ? [...ARTEN_REACHY] : [...ARTEN];
-      if (!arten.includes(s.art)) arten.push(s.art);     // älterer Tanz: Schritt bleibt sichtbar (Reachy übersetzt ihn)
-      for (const a of arten) {
+      const artenListe = [...arten];
+      if (!artenListe.includes(s.art)) artenListe.push(s.art);   // älterer Tanz: Schritt bleibt sichtbar (wird übersetzt)
+      for (const a of artenListe) {
         const o = new Option(tr(artText(a)), a);
         if (a === 'pose' && !posen.length) o.disabled = true;
         art.append(o);
@@ -586,7 +588,8 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
     posen = d.posen || [];
     gesten = d.gesten || [];
     ki = Boolean(d.ki);
-    reachy = Boolean(d.reachy);
+    eigen = Boolean(d.stil) && d.stil !== 'ente';
+    arten = Array.isArray(d.arten) && d.arten.length ? d.arten : ARTEN;
     gefuehle = d.gefuehle || [];
     namen = d.namen || {};
     const ul = $('tanz-liste');
@@ -595,7 +598,7 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
     for (const t of d.taenze || []) {
       const li = el('li');
       const info = el('div');
-      info.append(el('strong', '', t.name), el('span', 'field-help', ` · ${Math.round(t.bpm)} BPM · ${zeit(t.dauer || 0)}${t.musik ? '' : ` · ${tr('ohne Musik')}`}${t.koerper === 'reachy_mini' ? ` · ${tr('für Reachy')}` : ''}`));
+      info.append(el('strong', '', t.name), el('span', 'field-help', ` · ${Math.round(t.bpm)} BPM · ${zeit(t.dauer || 0)}${t.musik ? '' : ` · ${tr('ohne Musik')}`}${STIL_TEXT[t.stil] ? ` · ${tr(STIL_TEXT[t.stil])}` : ''}`));
       const knoepfe = el('div', 'input-row');
       const los = el('button', 'btn btn--primary', 'Tanzen');
       los.type = 'button';

@@ -13,3 +13,6 @@ body.is-fern:not(.ist-sicher) .pc-oder-sicher { display: none !important; }
 .ari-lernen-weiter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-03); }
 .ari-lernen-weiter[hidden], .ari-hub-box[hidden] { display: none; }
 .ari-hub-box { display: grid; gap: var(--spacing-02); padding: var(--spacing-03); border-radius: var(--r-card); background: var(--surface-sunken); }
+/* Bello lernt laufen (seit 0.43) */
+.bello-lernt { display: grid; gap: var(--spacing-02); margin-block-end: var(--spacing-05); }
+.bello-lernt .key-actions button[hidden] { display: none; }

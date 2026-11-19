@@ -2080,6 +2080,7 @@ body:not(.koerper-reachy) .nur-reachy, body.keine-ente .nur-ente, body:not(.koer
 body:not(.koerper-stackchan) .nur-stackchan, body.koerper-stackchan .ohne-stackchan,
 body:not(.koerper-bittle) .nur-bittle, body.koerper-bittle .ohne-bittle,
 body:not(.spielt-ttt) .nur-ttt,
+body:not(.keine-ente) .nur-anderer-tanz, body.koerper-reachy .nur-anderer-tanz,     /* Tanzhinweis für Kopf, Arm, Hund (0.43) */
 body:not(.im-kopf).ohne-kopf .braucht-kopf, body:not(.im-kopf).ohne-arm .braucht-arm { display: none; }
 /* Sicht-Kachel mit Tiefensensor oder Kamera; Hilfetexte nur für Körper ohne Beine bzw. ohne Tiefensensor (0.38.14) –
    ohne Beine, Tiefensensor und Kamera (der Arm) bliebe von der Anzeige nur ein leeres Glas mit „?“ (seit 0.38.55) */

@@ -3734,5 +3734,17 @@
  "Abonnieren": "Subscribe",
  "Jetzt neu lesen": "Reread now",
  "Abo beenden": "End subscription",
- "Das Abo richtest du nur direkt am PC ein.": "You set up the subscription only directly at the PC."
+ "Das Abo richtest du nur direkt am PC ein.": "You set up the subscription only directly at the PC.",
+ "Ari tanzt oben über der Werkbank – nicht mit einem Würfel im Greifer": "Ari dances up above the workbench – not with a cube in the gripper",
+ "Knowlin hört den Takt heraus und studiert einen Tanz ein, passend zu diesem Körper.": "Knowlin picks out the beat and rehearses a dance that suits this body.",
+ "für Kopf und Antennen": "for head and antennas",
+ "für einen Kopf": "for a head",
+ "für einen Arm": "for an arm",
+ "für einen Hund": "for a dog",
+ "Gelernt": "Learned",
+ "selbst im Physikmodell gelernt": "learned by himself in the physics model",
+ "Bello lernt laufen": "Bello learns to walk",
+ "Im Physikmodell probiert er seine Gangart immer wieder leicht verändert aus und behält, was schneller und ruhiger läuft – etwa eine halbe Minute auf diesem PC. Übernommen wird nur, was auf neuen Prüfläufen besser ist; dann gibt es die Gangart „Gelernt“. Simulation – am echten Bittle X läuft weiter Petois Gangart.": "In the physics model he keeps trying slightly changed versions of his gait and keeps what walks faster and steadier – about half a minute on this PC. Only what is better on fresh test runs is taken over; then there is the gait “Learned”. Simulation – on a real Bittle X, Petoi's gait keeps running.",
+ "Gelernte Gangart vergessen": "Forget the learned gait",
+ "Weiterlernen": "Keep learning"
 }

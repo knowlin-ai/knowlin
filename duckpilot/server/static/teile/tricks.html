@@ -67,6 +67,20 @@
                 <button type="button" class="emo" data-bello-gang="krabbeln" aria-pressed="false"><b>Krabbeln</b><span>tief am Boden, ein Bein nach dem anderen</span></button>
                 <button type="button" class="emo" data-bello-gang="traben" aria-pressed="true"><b>Traben</b><span>diagonale Beinpaare im Wechsel – seine Grundgangart</span></button>
                 <button type="button" class="emo" data-bello-gang="hoppeln" aria-pressed="false"><b>Hoppeln</b><span>Vorder- und Hinterbeine im Wechsel, wie ein Hase</span></button>
+                <button type="button" class="emo" data-bello-gang="gelernt" aria-pressed="false" id="bello-gang-gelernt" hidden><b>Gelernt</b><span>selbst im Physikmodell gelernt</span></button>
+              </div>
+              <!-- Bello lernt laufen (seit 0.43, physics/bello.py) -->
+              <div class="section-head">
+                <h3>Bello lernt laufen</h3>
+                <p>Im Physikmodell probiert er seine Gangart immer wieder leicht verändert aus und behält, was schneller und ruhiger läuft – etwa eine halbe Minute auf diesem PC. Übernommen wird nur, was auf neuen Prüfläufen besser ist; dann gibt es die Gangart „Gelernt“. Simulation – am echten Bittle X läuft weiter Petois Gangart.</p>
+              </div>
+              <div class="bello-lernt" id="bello-lernt">
+                <p class="field-help" id="bello-lernt-stand" aria-live="polite"></p>
+                <div class="key-actions pc-only">
+                  <button type="button" class="btn btn--sm" id="bello-lernt-los">Lernen</button>
+                  <button type="button" class="btn btn--sm btn--ghost" id="bello-lernt-stopp" hidden>Abbrechen</button>
+                  <button type="button" class="btn btn--sm btn--ghost" id="bello-lernt-vergessen" hidden>Gelernte Gangart vergessen</button>
+                </div>
               </div>
             </div>
             <div class="nur-reachy">
@@ -150,102 +164,6 @@
               <p class="field-help">Antippen, und hier ist es gleich zu sehen. Ziehen dreht die Ansicht.</p>
             </section>
             </div>
-          </div>
-
-          <div data-part="tanz" hidden>
-            <header class="page-head">
-              <h2>Tanzen</h2>
-              <p class="nur-ente">Ein Musikstück wählen – Knowlin hört den Takt heraus und studiert einen Tanz ein. Die Musik bleibt auf diesem PC.</p>
-              <!-- Reachy: eigener Tanz (0.38.13) -->
-              <p class="nur-reachy">Ein Musikstück wählen – Reachy hört den Takt heraus und studiert einen Tanz ein. Reachy tanzt mit Kopf, Antennen und Drehung. Die Musik bleibt auf diesem PC.</p>
-            </header>
-            <div class="tanz-spielt" id="tanz-spielt" role="status" hidden>
-              <span class="tanz-spielt-text"><span id="tanz-spielt-titel"></span></span>
-              <button class="btn btn--primary btn--sm" type="button" id="tanz-spielt-stopp">Musik und Tanz stoppen</button>
-            </div>
-            <div class="grid grid--halves tanz-grid">
-              <section class="card set-card">
-                <h3>Neuer Tanz</h3>
-                <div class="tanz-datei" id="tanz-ablage">
-                  <button type="button" class="btn btn--primary" id="tanz-waehlen">Musikstück wählen</button>
-                  <input class="sr-only" type="file" id="tanz-datei" tabindex="-1" aria-hidden="true" accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac,.opus">
-                  <span class="tanz-datei-name" id="tanz-datei-name">mp3, m4a, ogg, wav oder flac · bis 40 MB · oder hierher ziehen</span>
-                </div>
-                <p class="field-help" id="tanz-analyse" aria-live="polite">Noch kein Stück gewählt.</p>
-                <div class="tanz-zeitleiste" id="tanz-zeit-box" hidden>
-                  <canvas id="tanz-zeitleiste" height="150" role="img" aria-label="Zeitleiste: Wellenform, Teile des Stücks, Bewegungen und Posen"></canvas>
-                  <p class="field-help" id="tanz-marke">Klick in die Zeitleiste setzt die Startmarke.</p>
-                </div>
-                <div class="input-row" id="tanz-aktionen" hidden>
-                  <button class="btn btn--primary" type="button" id="tanz-probe">Probe tanzen</button>
-                  <button class="btn" type="button" id="tanz-ab">Ab Marke proben</button>
-                  <button class="btn" type="button" id="tanz-stopp">Stopp</button>
-                  <button class="btn btn--ghost" type="button" id="tanz-ki">Mit KI choreografieren</button>
-                </div>
-                <ol class="tanz-schritte" id="tanz-schritte"></ol>
-                <form class="input-row" id="tanz-speichern" hidden>
-                  <input class="input" type="text" id="tanz-name" maxlength="60" placeholder="Name des Tanzes" aria-label="Name des Tanzes">
-                  <button class="btn" type="submit">Speichern</button>
-                </form>
-                <p class="field-help nur-microduck">Gesten kommen aus Tricks, Posen aus Lernen → Akrobatik (gespeicherte Haltungen). Mit echter Physik hält sie Posen wirklich, sonst deutet sie sie mit Kopf und Haltung an.</p>
-                <!-- Tanzvokabular je Körper (0.38.13): Open Duck ohne Posen, Reachy mit eigenen Bewegungen -->
-                <p class="field-help ohne-microduck nur-ente">Gesten kommen aus Tricks, die Antennen schlagen im Takt mit.</p>
-                <p class="field-help nur-reachy">Reachy tanzt mit Kopf, Antennen und Drehung: Bewegungen im Takt (nicken, wiegen, kreisen, hoch und runter, Antennen), bei Refrain und viel Energie dreht sich der ganze Körper. Gefühle setzen Akzente, Posen gibt es bei Reachy nicht.</p>
-              </section>
-              <div class="tanz-rechts">
-              <section class="card set-card tanz-vorschau-karte">
-                <h3>Vorschau</h3>
-                <div class="tanz-vorschau" id="tanz-vorschau" aria-label="Live-Ansicht"></div>
-                <p class="field-help nur-ente">Die Ente live – wie im Cockpit. Ziehen dreht die Ansicht.</p>
-                <p class="field-help nur-reachy">Reachy live – wie im Cockpit. Ziehen dreht die Ansicht.</p>
-                <div class="nur-ente stapel">
-                <div class="field"><span class="field-label" id="tanz-enten-label">Weitere Enten tanzen mit</span>
-                  <div class="seg enten-zahl" role="radiogroup" aria-labelledby="tanz-enten-label"><label><input type="radio" name="enten-tanz" value="0" data-set="weitere_enten" data-num><span>allein</span></label><label><input type="radio" name="enten-tanz" value="1" data-set="weitere_enten" data-num><span>1</span></label><label><input type="radio" name="enten-tanz" value="2" data-set="weitere_enten" data-num><span>2</span></label><label><input type="radio" name="enten-tanz" value="3" data-set="weitere_enten" data-num><span>3</span></label><label><input type="radio" name="enten-tanz" value="4" data-set="weitere_enten" data-num><span>4</span></label><label><input type="radio" name="enten-tanz" value="5" data-set="weitere_enten" data-num><span>5</span></label><label><input type="radio" name="enten-tanz" value="6" data-set="weitere_enten" data-num><span>6</span></label><label><input type="radio" name="enten-tanz" value="7" data-set="weitere_enten" data-num><span>7</span></label><label><input type="radio" name="enten-tanz" value="8" data-set="weitere_enten" data-num><span>8</span></label></div></div>
-                <p class="field-help" data-enten-hinweis>Jede Ente tanzt an ihrem eigenen Platz im selben Takt – im einfachen Simulator. Mehr unter Steuern → Team.</p>
-                </div>
-              </section>
-              <section class="card set-card">
-                <h3>Nach Gehör</h3>
-                <p class="field-help nur-ente">Musik aus dem Raum oder vom PC – Radio, Spotify, YouTube: Sie hört mit und tanzt spontan. Das Audio bleibt im Browser, nur Tempo und Lautstärke gehen an Knowlin.</p>
-                <p class="field-help nur-reachy">Musik aus dem Raum oder vom PC – Radio, Spotify, YouTube: Reachy hört mit und tanzt spontan. Das Audio bleibt im Browser, nur Tempo und Lautstärke gehen an Knowlin.</p>
-                <label class="field"><span class="field-label">Woher kommt die Musik?</span>
-                  <select class="select" id="gehoer-quelle">
-                    <option value="mikro">Mikrofon – Musik im Raum</option>
-                    <option value="pc">Ton dieses PCs – Spotify, YouTube, Browser</option>
-                  </select></label>
-                <p class="field-help" id="gehoer-pc-tipp" hidden>Im Fenster „Teilen“ den ganzen Bildschirm wählen und <b>Systemaudio teilen</b> anhaken. Das Bild wird sofort verworfen – nur der Ton zählt.</p>
-                <button class="btn btn--primary" type="button" id="gehoer-an" aria-pressed="false">Mithören und tanzen</button>
-                <p class="field-help" id="gehoer-status" aria-live="polite"></p>
-              </section>
-              <!-- Reachy: Mitwippen zu Musik oder Webradio (0.38.13, wie Pollens App „Reachy Mini Radio“) – static/mitwippen.js -->
-              <section class="card set-card nur-reachy" id="mitwippen">
-                <h3>Mitwippen</h3>
-                <p class="field-help">Ein Stück vom PC oder ein Webradio läuft hier im Browser – Reachy wippt ruhig im Takt mit. Nichts wird aufgenommen oder gespeichert, nur die zuletzt genutzten Radio-Adressen.</p>
-                <div class="input-row">
-                  <button class="btn" type="button" id="mitwippen-stueck">Stück vom PC abspielen</button>
-                  <input class="sr-only" type="file" id="mitwippen-datei" tabindex="-1" aria-hidden="true" accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac,.opus">
-                </div>
-                <form class="mitwippen-radio" id="mitwippen-radio">
-                  <label class="field"><span class="field-label">Webradio (Adresse des Streams)</span>
-                    <input class="input" type="url" id="mitwippen-url" maxlength="300" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://…" list="mitwippen-zuletzt-liste"></label>
-                  <datalist id="mitwippen-zuletzt-liste"></datalist>
-                  <button class="btn btn--primary" type="submit" id="mitwippen-radio-an">Radio abspielen</button>
-                </form>
-                <div class="mitwippen-zuletzt" id="mitwippen-zuletzt" aria-label="Zuletzt gehört"></div>
-                <div class="mitwippen-laeuft" id="mitwippen-laeuft" hidden>
-                  <p class="mitwippen-titel" id="mitwippen-titel"></p>
-                  <button class="btn btn--sm" type="button" id="mitwippen-stopp">Musik stoppen</button>
-                </div>
-                <p class="field-help" id="mitwippen-status" aria-live="polite"></p>
-              </section>
-              <section class="card set-card">
-                <h3>Einstudierte Tänze</h3>
-                <ul class="tanz-liste" id="tanz-liste"></ul>
-                <p class="field-help">Auch per Sprache: „Tanz den …“ – Claude kennt die Namen.</p>
-              </section>
-              </div>
-            </div>
-            <audio id="tanz-audio" preload="auto"></audio>
           </div>
 
           <div data-part="team" hidden>
@@ -454,5 +372,3 @@
             </div>
           </div>
           <!-- ═══ Kamera-Spiele – Ende ═══ -->
-        </div></div>
-      </section>

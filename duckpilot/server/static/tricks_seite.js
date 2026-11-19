@@ -1,5 +1,6 @@
 // Seite „Tricks“: Gefühle zum Abspielen (Pollens, eigene, Charakter) und Tricks vom Hugging Face Hub
 // (seit 0.38.17 aus app.js ausgelagert)
+import { initBelloLernt } from './bello_lernt.js';
 import { setIdleRepertoire } from './personality.js';
 import { vorschauKachel } from './skills.js';
 import { initTricksReiter } from './tricks_reiter.js';
@@ -75,7 +76,9 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
       'auftrag', { auftrag: a.name })), armKachel('Tic-Tac-Toe', 'Du gegen Ari – Feld anklicken', 'tictactoe', { aktion: 'start' }));
   }
   let emotionsLoaded = false;
+  const belloLernt = initBelloLernt({ $, api, toast });   // Bello lernt laufen (seit 0.43)
   async function loadTricks(p = 'tricks') {
+    if (p === 'tricks' && document.body.classList.contains('koerper-bittle')) belloLernt.zeigen();
     if (!emotionsLoaded) {
       emotionsLoaded = true;
       const list = await catalog();

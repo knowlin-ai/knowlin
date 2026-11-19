@@ -210,6 +210,7 @@ class DuckState:
     standflaeche: str = ""                               # worauf er steht („“ = Boden)
     gesicht: dict[str, Any] = field(default_factory=dict)  # Bildschirmgesicht {ausdruck, mund, wach, zustand} (seit 0.38.58)
     gangart: str = ""                                    # laufende Gangart, wenn der Körper mehrere hat (Bittle X, seit 0.38.65)
+    gang_form: dict[str, float] = field(default_factory=dict)  # gelernte Gangart: Schritt, Hub, Luft, Ducken (seit 0.43)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

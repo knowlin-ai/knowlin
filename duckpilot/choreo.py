@@ -24,8 +24,10 @@ import threading
 from pathlib import Path
 from typing import Any
 
-from .motion.reachy_tanz import REACHY_GEFUEHLE, REACHY_STUFEN, REACHY_TANZ, REACHY_TANZ_TEXT
+from .motion.reachy_tanz import REACHY_TANZ
 from .motion.tanz import TANZGESTEN, geste_im_takt  # noqa: F401 – Tanzgesten gehören zur Motorik
+from .motion.tanzstile import STILE, TanzStil
+from .motion.tanzstile import stil as _stil
 
 SCHRITTE = ("nicken", "wippen", "wackeln", "wiegen", "schritt", "drehen", "trick", "pose", "gefuehl", "pause")
 GEFUEHLE = ("begeistert", "freude", "aufgeregt", "ja", "staunen", "stolz")   # Gesten aus Tricks für Höhepunkte
@@ -92,59 +94,33 @@ def teile(energie: list[float], klang: list[list[float]] | None = None) -> list[
     return out
 
 
-# Bewegungen je Teil, Phrase für Phrase (zu je vier Takten) – gleiche Teile tanzt sie gleich, wie ein Mensch den
-# Refrain. "@" = Höhepunkt: eine gespeicherte Pose (wenn es welche gibt) oder eine Geste aus Tricks.
-MUSTER: dict[str, tuple[tuple[tuple[str, int], ...], ...]] = {
-    # seit 0.36.2 mehr von Bein zu Bein (schritt, wiegen) und mehr Drehungen (Hinweis aus dem Test)
-    "Intro": ((("wiegen", 2), ("geste0", 2)), (("schritt", 2), ("geste0", 2))),
-    "Strophe": ((("schritt", 2), ("geste1", 2)), (("wiegen", 1), ("schritt", 1), ("drehen", 2))),
-    # seit 0.38.23 beginnt jeder Refrain mit dem Höhepunkt – der Einsatz ist der Moment, den man sieht
-    "Refrain": ((("@", 1), ("schritt", 1), ("geste2", 1), ("drehen", 1)), (("drehen", 2), ("geste2", 1), ("schritt", 1))),
-    "Bridge": ((("wiegen", 2), ("geste1", 2)), (("drehen", 2), ("wiegen", 2))),
-    "Drop": ((("@", 1), ("drehen", 3)), (("schritt", 2), ("geste2", 2))),
-    "Breakdown": ((("pause", 1), ("wiegen", 3)), (("geste0", 2), ("wiegen", 2))),
-    "Outro": ((("schritt", 2), ("geste0", 2)), (("drehen", 2), ("wiegen", 2))),
-}
 
-
-# Reachy Mini (seit 0.38.13): gleicher Aufbau, aber nur Reachys Bewegungen (`motion/reachy_tanz`). „gesteN“ = eine
-# Bewegung der Energiestufe N (fest je Teil und Stelle), Namen direkt aus REACHY_TANZ, „@“ = Gefühl am Höhepunkt.
-# Refrain und Drop drehen den Körper hin und her.
-MUSTER_REACHY: dict[str, tuple[tuple[tuple[str, int], ...], ...]] = {
-    "Intro": ((("wiegen", 2), ("geste0", 2)), (("kopfnicken", 2), ("antennen_takt", 2))),
-    "Strophe": ((("kopfnicken", 2), ("geste1", 2)), (("wiegen", 1), ("antennen_takt", 1), ("geste1", 2))),
-    "Refrain": ((("@", 1), ("koerper_drehen", 2), ("geste2", 1)), (("party", 2), ("koerper_drehen", 2))),
-    "Bridge": ((("umschauen", 2), ("geste1", 2)), (("wiegen", 2), ("kopfnicken", 2))),
-    "Drop": ((("@", 1), ("koerper_drehen", 3)), (("antennen_wirbel", 2), ("geste2", 2))),
-    "Breakdown": ((("pause", 1), ("wiegen", 3)), (("umschauen", 2), ("wippen", 2))),
-    "Outro": ((("wiegen", 2), ("geste0", 2)), (("kopfnicken", 2), ("wiegen", 2))),
-}
-
-
-def _geste(teil: str, phrase: int, platz: int, stufe: int, reachy: bool = False) -> str:
+def _geste(teil: str, phrase: int, platz: int, stufe: int, st: TanzStil | None = None) -> str:
     """Welche Tanzgeste – fest je Teil und Stelle im Muster, damit jeder Refrain gleich getanzt wird."""
-    liste = REACHY_STUFEN[stufe] if reachy else TANZGESTEN[stufe]
+    liste = (st or STILE["ente"]).stufen[stufe]
     return liste[(sum(map(ord, teil)) + 3 * phrase + platz) % len(liste)]
 
 
 def plane(analyse: dict[str, Any], posen: list[str] | None = None, *, max_s: float = 240.0,
-          reachy: bool = False) -> dict[str, Any]:
+          stil: str = "ente") -> dict[str, Any]:
     """Tanz aus der Analyse eines Musikstücks: {bpm, start, energie: [0..1 je Takt]} → Choreo mit Schritten und Teilen.
 
     Das Stück wird in Teile gegliedert (Intro, Strophe, Refrain, Drop, Breakdown, Outro); jeder Teil bekommt sein
     Bewegungsmuster, Refrains also immer denselben Tanz. An Höhepunkten eine Pose (gespeicherte Haltungen) oder eine
     Geste, im letzten Takt eine Schlusspose. Deterministisch – gleiche Musik, gleicher Tanz.
 
-    `reachy`: Tanz für Reachy Mini – nur Reachys Bewegungen (`art` trick mit Namen aus `REACHY_TANZ`), Gefühle aus
-    seinen eigenen Gesten, keine Posen."""
+    `stil`: Tanz-Wortschatz der Bauart (`motion/tanzstile.py`, seit 0.43) – nur dessen Bewegungen (`art` trick),
+    Gefühle und Posen nur, wenn die Bauart welche hat. Die Ente tanzt zusätzlich mit Schritten, Wiegen und Drehen."""
+    st = _stil(stil)
+    ente = "schritt" in st.arten
     bpm = max(40.0, min(220.0, float(analyse.get("bpm") or 110)))
     start = max(0.0, float(analyse.get("start") or 0.0))
     energie = [max(0.0, min(1.0, float(e))) for e in (analyse.get("energie") or [])][: int(max_s / takt_s(bpm)) + 1]
     if not energie:
         energie = [0.5] * 16
     tl = takt_s(bpm)
-    posen = [] if reachy else [p for p in (posen or []) if p][:20]
-    gefuehle = REACHY_GEFUEHLE if reachy else GEFUEHLE
+    posen = [p for p in (posen or []) if p][:20] if st.posen else []
+    gefuehle = st.gefuehle
     hoehe = [0]
 
     def hoehepunkt() -> dict[str, Any]:
@@ -160,7 +136,7 @@ def plane(analyse: dict[str, Any], posen: list[str] | None = None, *, max_s: flo
     schritte: list[dict[str, Any]] = []
     langsam = bpm < 92                     # Balladen: wiegen statt Schritte und Drehungen (seit 0.38.23)
     for ab in abschnitte:
-        muster = (MUSTER_REACHY if reachy else MUSTER)[ab["name"]]
+        muster = st.muster[ab["name"]]
         takt, ende, phrase = ab["takt"], ab["takt"] + ab["takte"], 0
         while takt < ende:
             # Energie dieser Phrase: leise Stellen in einem lauten Teil tanzt sie kleiner, Gesten nach der Stufe
@@ -171,14 +147,14 @@ def plane(analyse: dict[str, Any], posen: list[str] | None = None, *, max_s: flo
                 n = min(n, ende - takt)
                 if n <= 0:
                     break
-                if not reachy and art in ("schritt", "drehen") and (stufe_phrase == 0 or (langsam and ab["name"] != "Drop")):
+                if ente and art in ("schritt", "drehen") and (stufe_phrase == 0 or (langsam and ab["name"] != "Drop")):
                     art = "wiegen"
                 if art == "@":
                     schritt = hoehepunkt()
                 elif art.startswith("geste"):
                     stufe = min(int(art[-1]), stufe_phrase + 1)
-                    schritt = {"art": "trick", "name": _geste(ab["name"], phrase % len(muster), platz, stufe, reachy)}
-                elif reachy and art in REACHY_TANZ:
+                    schritt = {"art": "trick", "name": _geste(ab["name"], phrase % len(muster), platz, stufe, st)}
+                elif art in st.texte:
                     schritt = {"art": "trick", "name": art}
                 else:
                     schritt = {"art": art}
@@ -187,7 +163,7 @@ def plane(analyse: dict[str, Any], posen: list[str] | None = None, *, max_s: flo
             phrase += 1
     # Schlusspose im letzten Takt
     letzter = schritte[-1]
-    schluss = {"art": "pose", "name": posen[0]} if posen else {"art": "gefuehl", "name": "stolz"}
+    schluss = {"art": "pose", "name": posen[0]} if posen else {"art": "gefuehl", "name": st.schluss}
     if letzter["art"] not in ("pose", "gefuehl"):
         schritte = _einfuegen(schritte, {"t": round(start + (len(energie) - 1) * tl, 3), "takte": 1, **schluss}, tl)
     out = {"bpm": round(bpm, 2), "start": round(start, 3), "schritte": schritte,
@@ -197,8 +173,8 @@ def plane(analyse: dict[str, Any], posen: list[str] | None = None, *, max_s: flo
     out["energie"] = [round(e, 2) for e in energie]      # zum Neuplanen einzelner Teile im Editor (ohne neue Analyse)
     if klang:                                            # Klangbild je Takt bleibt beim Tanz (seit 0.38.24): Neuplanen
         out["klang"] = _klang_sauber(klang)              # und spätere bessere Erkennung ohne die Musik erneut zu laden
-    if reachy:
-        out["koerper"] = "reachy_mini"
+    if st.key != "ente":
+        out["stil"] = st.key
     return out
 
 
@@ -283,8 +259,11 @@ def pruefe(choreo: dict[str, Any]) -> dict[str, Any]:
     klang = _klang_sauber(choreo.get("klang"))
     if klang and len(klang) == len(sauber.get("energie", [])):
         sauber["klang"] = klang
-    if choreo.get("koerper") == "reachy_mini":            # für Reachy eingeübt (seit 0.38.13)
-        sauber["koerper"] = "reachy_mini"
+    stil = choreo.get("stil")
+    if choreo.get("koerper") == "reachy_mini":            # Tänze vor 0.43 merkten sich den Körper statt der Bauart
+        stil = "kopf_antennen"
+    if stil in STILE and stil != "ente":                  # für eine Bauart eingeübt (seit 0.43)
+        sauber["stil"] = stil
     return sauber
 
 
@@ -300,50 +279,75 @@ def _klang_sauber(klang: Any) -> list[list[float]] | None:
     return out
 
 
-def gesten() -> list[str]:
-    """Gesten aus Tricks, die im Tanz gehen (Pollens Emotionen und eigene) – ohne die, die sich hinlegen."""
+def gesten(stil: str = "ente") -> list[str]:
+    """Bewegungen, die im Tanz gehen. Ente: Gesten aus Tricks (Pollens Emotionen und eigene) ohne die, die sich
+    hinlegen; sonst der Wortschatz der Bauart."""
+    if stil in STILE and stil != "ente":
+        return list(REACHY_TANZ) if stil == "kopf_antennen" else STILE[stil].bewegungen()
     from .motion.behaviors import EMOTIONS
 
     return [k for k, v in EMOTIONS.items() if not any("skill" in kf for kf in v)]
 
 
-def reachy_gesten() -> list[str]:
-    """Reachys eigene Gesten zu Gefühlen (für Höhepunkte im Tanz) – ohne die traurigen und ärgerlichen."""
-    from .motion.reachy_gesten import GESTEN
+def gefuehle(stil: str = "ente") -> list[str]:
+    """Gefühle als Akzent im Tanz. Reachys eigene Gesten ohne die traurigen und ärgerlichen; sonst die der Bauart."""
+    if stil == "kopf_antennen":
+        from .motion.reachy_gesten import GESTEN
 
-    return [k for k in GESTEN if k not in ("traurig", "muede", "wuetend", "frustriert", "stolpern", "nein", "trotzig")]
+        return [k for k in GESTEN if k not in ("traurig", "muede", "wuetend", "frustriert", "stolpern", "nein", "trotzig")]
+    return list(_stil(stil).gefuehle)
 
 
-def ki_auftrag_reachy(name: str, musik: str, choreo: dict[str, Any]) -> str:
-    """Der Auftrag an das KI-Gehirn für Reachy Mini: nur Reachys Bewegungen (Kopf, Antennen, Körperdrehung)."""
+def reachy_gesten() -> list[str]:                         # ältere Aufrufer
+    return gefuehle("kopf_antennen")
+
+
+def namen(stil: str) -> dict[str, str]:
+    """Kurze Beschreibung je Bewegung (Editor, Sprachmodell)."""
+    return dict(_stil(stil).texte)
+
+
+def ki_auftrag_stil(name: str, musik: str, choreo: dict[str, Any], stil: str) -> str:
+    """Der Auftrag an das KI-Gehirn für eine Bauart ohne Beine: nur ihre Bewegungen und Gefühle."""
+    st = _stil(stil)
     bpm = float(choreo.get("bpm") or 110)
     tl = takt_s(bpm)
     teile_ = ", ".join(f"{a['name']} ab {a['t']:.1f} s ({a['takte']} Takte)" for a in choreo.get("abschnitte") or [])
-    stufe = lambda n: ", ".join(f"{k} ({REACHY_TANZ_TEXT[k]})" for k in REACHY_STUFEN[n])   # noqa: E731
-    return (f"Studier bitte einen Tanz für Reachy Mini zum Stück „{name}“ ein (Datei {musik or 'ohne Musik'}): {bpm:.1f} BPM, "
+    stufe = lambda n: ", ".join(f"{k} ({st.texte.get(k, k)})" for k in st.stufen[n])   # noqa: E731
+    return (f"Studier bitte einen Tanz zum Stück „{name}“ ein (Datei {musik or 'ohne Musik'}): {bpm:.1f} BPM, "
             f"erster Schlag bei {float(choreo.get('start') or 0):.2f} s, ein Takt = {tl:.3f} s, Länge "
-            f"{float(choreo.get('dauer') or 0):.0f} s. Teile: {teile_ or 'unbekannt'}. Reachy hat keine Beine und keinen "
-            f"Schnabel – er tanzt mit Kopf, Antennen und Körperdrehung. Bewegungen (art trick, name genau so, im Takt "
-            f"gestreckt): ruhig {stufe(0)}; mittel {stufe(1)}; laut {stufe(2)}. Gefühle als Akzent (art gefuehl): "
-            f"{', '.join(reachy_gesten())}. Sonst nur art pause. Speichere ihn mit dem Werkzeug choreo (aktion speichern, "
-            f"name „{name}“, musik „{musik}“, bpm, start, schritte lückenlos auf Taktanfängen). Tanz ihn noch nicht, sag "
-            f"nur kurz, was du dir ausgedacht hast.")
+            f"{float(choreo.get('dauer') or 0):.0f} s. Teile: {teile_ or 'unbekannt'}. Dieser Körper {st.wie}. "
+            f"Bewegungen (art trick, name genau so, im Takt gestreckt): ruhig {stufe(0)}; mittel {stufe(1)}; laut "
+            f"{stufe(2)}. Gefühle als Akzent (art gefuehl): {', '.join(gefuehle(stil))}. Sonst nur art pause. Speichere "
+            f"ihn mit dem Werkzeug choreo (aktion speichern, name „{name}“, musik „{musik}“, bpm, start, schritte "
+            f"lückenlos auf Taktanfängen). Tanz ihn noch nicht, sag nur kurz, was du dir ausgedacht hast.")
 
 
-def reachy_werkzeug(tool: dict[str, Any]) -> dict[str, Any]:
-    """Das Werkzeug `choreo` für Reachy Mini: dieselben Aktionen, aber nur Reachys Bewegungen im Angebot an die KI."""
+def ki_auftrag_reachy(name: str, musik: str, choreo: dict[str, Any]) -> str:   # ältere Aufrufer
+    return ki_auftrag_stil(name, musik, choreo, "kopf_antennen")
+
+
+def werkzeug(tool: dict[str, Any], stil: str) -> dict[str, Any]:
+    """Das Werkzeug `choreo` für eine Bauart ohne Beine: dieselben Aktionen, aber nur ihre Bewegungen im Angebot."""
+    if stil not in STILE or stil == "ente":
+        return tool
+    st = STILE[stil]
     neu = json.loads(json.dumps(tool))
     neu["description"] = (
-        "Einstudierte Tänze zu Musikstücken für Reachy Mini. aktion=liste zeigt die gespeicherten Tänze; aktion=tanzen "
-        "tanzt einen davon (die Musik spielt die Oberfläche dazu); aktion=speichern legt einen Tanz an oder ersetzt ihn "
-        "(name, musik, bpm, start, schritte). Ein Schritt: t (Sekunden, immer auf einem Taktanfang: start + n·240/bpm), "
-        "takte, art (trick = eine Bewegung von Reachy im Takt, gefuehl = kurze Geste als Akzent, pause) und name. "
-        f"Bewegungen: {', '.join(REACHY_TANZ)}; Gefühle: {', '.join(reachy_gesten())}. Reachy tanzt mit Kopf, Antennen "
-        "und Körperdrehung – ruhige Teile ruhig, Refrains gleich, Körper drehen (koerper_drehen, party) für laute Teile.")
+        "Einstudierte Tänze zu Musikstücken. aktion=liste zeigt die gespeicherten Tänze; aktion=tanzen tanzt einen davon "
+        "(die Musik spielt die Oberfläche dazu); aktion=speichern legt einen Tanz an oder ersetzt ihn (name, musik, bpm, "
+        "start, schritte). Ein Schritt: t (Sekunden, immer auf einem Taktanfang: start + n·240/bpm), takte, art (trick = "
+        "eine Bewegung im Takt, gefuehl = kurze Geste als Akzent, pause) und name. "
+        f"Dieser Körper {st.wie}. Bewegungen: {', '.join(gesten(stil))}; Gefühle: {', '.join(gefuehle(stil))}. "
+        "Ruhige Teile ruhig, Refrains gleich, die großen Bewegungen für laute Teile.")
     schritt = neu["input_schema"]["properties"]["schritte"]["items"]["properties"]
     schritt["art"]["enum"] = ["trick", "gefuehl", "pause"]
-    schritt["name"] = {"type": "string", "enum": [*REACHY_TANZ, *reachy_gesten()]}
+    schritt["name"] = {"type": "string", "enum": [*gesten(stil), *gefuehle(stil)]}
     return neu
+
+
+def reachy_werkzeug(tool: dict[str, Any]) -> dict[str, Any]:                  # ältere Aufrufer
+    return werkzeug(tool, "kopf_antennen")
 
 
 def ki_auftrag(name: str, musik: str, choreo: dict[str, Any], posen: list[str]) -> str:
@@ -377,7 +381,8 @@ class ChoreoBuch:
             return {}
 
     def liste(self) -> list[dict[str, Any]]:
-        return [{"name": k, **{f: v.get(f) for f in ("musik", "bpm", "dauer", "koerper")}, "schritte": len(v.get("schritte", []))}
+        return [{"name": k, **{f: v.get(f) for f in ("musik", "bpm", "dauer")}, "stil": pruefe(v).get("stil"),
+                 "schritte": len(v.get("schritte", []))}
                 for k, v in sorted(self._lesen().items())]
 
     def hole(self, name: str) -> dict[str, Any] | None:

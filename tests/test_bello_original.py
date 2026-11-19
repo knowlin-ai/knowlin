@@ -138,7 +138,8 @@ def test_oberflaeche_kennt_gangarten_und_tricks():
     assert set(out["gang"]) == set(GANGARTEN) and set(out["tricks"]) == set(TRICKS)
     assert "st.gangart" in js
     html = (STATIC / "teile" / "tricks.html").read_text(encoding="utf-8")
-    assert re.findall(r'data-bello-gang="(\w+)"', html) == list(GANGARTEN)
+    assert re.findall(r'data-bello-gang="(\w+)"', html) == [*GANGARTEN, "gelernt"]   # „Gelernt“ seit 0.43
+    assert "st.gang_form" in js and "export function gelernteGangart" in js
     seite = (STATIC / "tricks_seite.js").read_text(encoding="utf-8")
     assert "#bello-gangarten [data-bello-gang]" in seite and "aria-pressed" in seite
     assert "tricksSeite.gangart(st.gangart)" in (STATIC / "app.js").read_text(encoding="utf-8")

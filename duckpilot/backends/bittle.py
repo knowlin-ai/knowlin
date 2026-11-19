@@ -76,6 +76,10 @@ GANGARTEN: dict[str, tuple[str, float, float, str]] = {
     "hoppeln": ("Hoppeln", 0.25, 1.15, "Vorder- und Hinterbeine im Wechsel, wie ein Hase"),  # Petoi „bd“
 }
 GRUND_GANGART = "traben"
+# Gelernte Gangart (seit 0.43, `physics/bello.py`): im MuJoCo-Modell mit einer Evolutionsstrategie gelernt, hier gezeigt.
+# Tempo und Takt kommen aus dem Lernergebnis; die Handgangart „traben“ läuft mit 2 Schrittzyklen je Sekunde.
+GELERNT = "gelernt"
+HAND_TAKT_HZ = 2.0
 OHNE = "Bello ist ein Hund ohne Schnabel – aufheben, Purzelbaum und Pollens Tricks gehen nicht; seine eigenen Tricks schon"
 
 
@@ -94,20 +98,37 @@ class BittleSim(SimBackend):
         super().__init__(*args, **kwargs)
         self.extra_skills = {name: dauer for name, (_, dauer, _) in TRICKS.items()}
         self.gangart = GRUND_GANGART
+        self._tanz: tuple[str, float] | None = None      # Tanzschritt (seit 0.43): Trick, bis wann wiederholen
+        self.gelernt: dict | None = None                  # gelernte Gangart (seit 0.43): {parameter, tempo}
+
+    def gelernt_setzen(self, gang: dict | None) -> None:
+        """Gelernte Gangart übernehmen (oder vergessen – dann zurück zum Traben)."""
+        ok = isinstance(gang, dict) and isinstance(gang.get("parameter"), dict) and isinstance(gang.get("tempo"), (int, float))
+        self.gelernt = {"parameter": dict(gang["parameter"]), "tempo": max(0.02, min(0.36, float(gang["tempo"])))} if ok else None
+        if self.gelernt is None and self.gangart == GELERNT:
+            self.gangart = GRUND_GANGART
 
     def trick_titel(self) -> dict[str, str]:
         """Für das skill-Werkzeug: was die eigenen Tricks bedeuten (statt „vom Hub geladen“)."""
         titel = {name: f"{t} – {text}" for name, (t, _, text) in TRICKS.items()}
         titel.update({name: f"Gangart {t} – {text}" for name, (t, _, _, text) in GANGARTEN.items()})
+        if self.gelernt:
+            titel[GELERNT] = "Gangart Gelernt – im Physikmodell selbst gelernt (Lernen → Bello lernt laufen)"
         return titel
 
     def eigenschaften(self) -> frozenset[str]:
         return EIGENSCHAFTEN | {"simulator", "zuruecksetzen"}
 
     def skills(self) -> list[str]:
-        return ["sit_toggle", *TRICKS, *GANGARTEN]
+        return ["sit_toggle", *TRICKS, *GANGARTEN, *([GELERNT] if self.gelernt else [])]
 
     async def do(self, skill: str) -> IntentResult:
+        if skill == GELERNT:
+            if not self.gelernt:
+                return IntentResult(False, "Bello hat noch keine Gangart gelernt – unter Tricks → „Bello lernt laufen“")
+            self.gangart = GELERNT
+            self.emit("gangart", gangart=GELERNT, message="Gangart: Gelernt")
+            return IntentResult(True, "Gangart Gelernt")
         if skill in GANGARTEN:                         # Gangart wechseln: sofort, auch im Sitzen – gilt beim nächsten Laufen
             self.gangart = skill
             self.emit("gangart", gangart=skill, message=f"Gangart: {GANGARTEN[skill][0]}")
@@ -116,9 +137,32 @@ class BittleSim(SimBackend):
             return IntentResult(False, OHNE)
         return await super().do(skill)
 
+    # ── Tanzen (seit 0.43, Bauart „vierbeiner“): Tanzschritte sind Tricks am Platz, wiederholt bis zum Schrittende ──
+    async def tanz_schritt(self, name: str, sekunden: float, bpm: float) -> IntentResult:
+        if name not in TRICKS or name in UNTERWEGS or name in ("salto", "frontsalto", "handstand", "rollen", "tot_stellen"):
+            return IntentResult(False, f"„{name}“ tanzt Bello nicht")
+        if self.skill in TRICKS:                          # der vorige Tanzschritt darf gehen
+            self.skill = None
+        r = await self.do(name)
+        self._tanz = (name, self.t + max(0.5, float(sekunden))) if r.accepted else None
+        return r
+
+    def tanz_ende(self) -> None:
+        self._tanz = None
+
+    def _step_skill(self, dt: float) -> None:
+        super()._step_skill(dt)
+        if self._tanz is None:
+            return
+        name, bis = self._tanz
+        if self.fallen or not self.powered or self.t >= bis:
+            self._tanz = None
+        elif self.skill is None and bis - self.t > 0.6 * TRICKS[name][1]:
+            self._start_skill(name)                       # noch Zeit: den Trick noch einmal
+
     async def move(self, twist: Twist) -> None:
         """Wie überall, nur so schnell, wie die gewählte Gangart läuft (rückwärts höchstens halb so schnell)."""
-        vmax = GANGARTEN[self.gangart][1]
+        vmax = self.gelernt["tempo"] if self.gangart == GELERNT and self.gelernt else GANGARTEN[self.gangart][1]
         t = twist.clamped()
         await super().move(Twist(max(-vmax / 2, min(vmax, t.vx)), max(-vmax / 2, min(vmax / 2, t.vy)), t.vyaw))
 
@@ -130,6 +174,8 @@ class BittleSim(SimBackend):
         return super()._skill_twist()
 
     def _schritt_takt(self) -> float:
+        if self.gangart == GELERNT and self.gelernt:
+            return float(self.gelernt["parameter"].get("takt_hz", HAND_TAKT_HZ)) / HAND_TAKT_HZ
         return GANGARTEN[self.gangart][2]
 
     async def sound(self, tag: str) -> IntentResult:
@@ -145,6 +191,9 @@ class BittleSim(SimBackend):
         st = super().state()
         st.koerper = self.koerper_art
         st.gangart = self.gangart
+        if self.gangart == GELERNT and self.gelernt:          # die 3D-Ansicht setzt die Beine danach (bittle3d.js)
+            p = self.gelernt["parameter"]
+            st.gang_form = {k: round(float(p.get(k, 0.0)), 4) for k in ("schritt", "hub", "luft", "ducken")}
         st.holding = None
         st.perception = Perception(objects=st.perception.objects, source="sim")
         ruhig = self.sitting or not self.powered or (self.skill in TRICKS and self.skill != "umschauen")

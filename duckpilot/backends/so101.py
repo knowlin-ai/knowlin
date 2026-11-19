@@ -147,6 +147,38 @@ class So101Sim(TischPlatz, SimBackend):
         self.sitting = name == "ruhe"
         return IntentResult(True, f"{name} ({A.dauer(name):.1f} s)")
 
+    # ── Tanzen (seit 0.43, Bauart „arm“) ────────────────────────────────
+    async def tanz_schritt(self, name: str, sekunden: float, bpm: float) -> IntentResult:
+        """Ein Schritt im Tanz: eine Tanzbewegung (`arm.TANZ`) im Takt oder ein Gefühl als Geste. Nicht mit einem
+        Würfel im Greifer und nicht, wenn auf dem Weg etwas im Weg wäre – dann bleibt er einfach stehen."""
+        if not self.powered:
+            return IntentResult(False, "Motoren sind aus – erst aufwecken")
+        if self.werkbank.haelt:
+            return IntentResult(False, "Mit einem Würfel im Greifer tanzt Ari nicht – erst ablegen")
+        if name in A.GESTEN and name not in A.TANZ:
+            folge = A.GESTEN[name]
+        elif name in A.TANZ:
+            folge = A.tanz_folge(name, sekunden, bpm)
+        else:
+            return IntentResult(False, f"Tanzbewegung unbekannt – bekannt: {', '.join(A.TANZ)}")
+        wb = self.werkbank
+        hin = W.hindernisse(wb.dinge, wb.kisten, WUERFEL, set())
+        punkte = [dict(self.gelenke), *({**self.gelenke, **h} for h, _ in folge)]
+        for von, nach in zip(punkte, punkte[1:]):
+            if (hit := W.weg(von, nach, hin, False, WUERFEL)) is not None:
+                return IntentResult(False, f"Zum Tanzen ist hier zu wenig Platz – {hit} wäre im Weg")
+        self._auftrag_abbrechen("Tanzen")
+        self._folgen([(dict(h), s, None) for h, s in folge], f"tanz:{name}")
+        self.sitting = False
+        return IntentResult(True, f"tanzt {name}")
+
+    def tanz_ende(self) -> None:
+        """Tanz vorbei oder abgebrochen: die restlichen Haltungen verwerfen und ruhig nach „bereit“."""
+        if self.geste_name and str(self.geste_name).startswith("tanz:") and self.powered:
+            self._folge, self._bei_ankunft = [], None
+            self._anfahren(A.POSEN["bereit"], 0.9)
+            self.geste_name = None
+
     def _folgen(self, folge: list[tuple[dict[str, float], float, str | None]], name: str) -> None:
         self._folge = folge[1:]
         self._anfahren(folge[0][0], folge[0][1])

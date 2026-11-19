@@ -6,29 +6,35 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 
 from ... import choreo as C
+from ... import koerper
 from ...aio import spawn
 from ..runtime import Runtime
 
 
 def register(app: FastAPI, runtime: Runtime) -> None:
-    def art() -> str:
-        return getattr(runtime.backend, "koerper_art", "microduck")
+    def profil() -> koerper.Koerper | None:
+        art = getattr(runtime.backend, "koerper_art", "") or koerper.holen("duckpilot").koerper_zustand
+        return koerper.zu_zustand(art)
+
+    def stil() -> str:
+        """Tanz-Wortschatz des Körpers (seit 0.43) – aus Familie und Fähigkeiten, nie aus dem Namen."""
+        return koerper.tanzstil(profil())
 
     def posen() -> dict:
-        """Posen aus Lernen → Akrobatik – die gibt es nur bei der Microduck (Open Duck und Reachy: keine Akrobatik)."""
-        return dict(runtime.acro.book.get("posen", {})) if art() == "microduck" else {}
+        """Posen aus Lernen → Akrobatik – nur für Körper mit Trainingshalle und einem Tanzstil mit Posen."""
+        p = profil()
+        return dict(runtime.acro.book.get("posen", {})) if p and p.lab and C.STILE[stil()].posen else {}
 
     @app.get("/api/choreo")
     async def choreo_liste() -> JSONResponse:
         buch = runtime.choreos
         musik = sorted(p.name for p in buch.musik.glob("*") if p.suffix.lower() in C.MUSIK_ENDUNGEN) if buch.musik.exists() else []
-        reachy = art() == "reachy_mini"
-        out = {"taenze": buch.liste(), "posen": sorted(posen()), "musik": musik,
-               "gesten": list(C.REACHY_TANZ) if reachy else C.gesten(),
+        s = stil()
+        out = {"taenze": buch.liste(), "posen": sorted(posen()), "musik": musik, "gesten": C.gesten(s),
                "physik": bool(getattr(runtime.backend, "runs_policies", False)),
-               "ki": bool(runtime.agent.online), "reachy": reachy}
-        if reachy:                  # Reachys eigener Tanz (seit 0.38.13): Bewegungen, Gefühle, Namen für die Oberfläche
-            out |= {"gefuehle": C.reachy_gesten(), "namen": C.REACHY_TANZ_TEXT}
+               "ki": bool(runtime.agent.online), "stil": s, "arten": list(C.STILE[s].arten)}
+        if s != "ente":             # eigener Wortschatz (Reachy seit 0.38.13, alle seit 0.43): Gefühle und Namen
+            out |= {"gefuehle": C.gefuehle(s), "namen": C.namen(s)}
         return JSONResponse(out)
 
     @app.get("/api/choreo/{name}")
@@ -56,8 +62,7 @@ def register(app: FastAPI, runtime: Runtime) -> None:
     async def choreo_plan(request: Request) -> JSONResponse:
         body = await request.json()
         try:
-            return JSONResponse({"ok": True, "choreo": C.plane(body.get("analyse") or {}, sorted(posen()),
-                                                               reachy=art() == "reachy_mini")})
+            return JSONResponse({"ok": True, "choreo": C.plane(body.get("analyse") or {}, sorted(posen()), stil=stil())})
         except (TypeError, ValueError) as exc:
             return JSONResponse({"ok": False, "fehler": f"Analyse unlesbar: {exc}"}, status_code=400)
 
@@ -88,8 +93,9 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         musik = str(body.get("musik", ""))
         musik = musik if runtime.choreos.musik_pfad(musik) else ""
         c = body.get("choreo") or {}
-        text = C.ki_auftrag_reachy(name, musik, C.pruefe(c)) if art() == "reachy_mini" else \
-            C.ki_auftrag(name, musik, C.pruefe(c), sorted(posen()))
+        s = stil()
+        text = C.ki_auftrag(name, musik, C.pruefe(c), sorted(posen())) if s == "ente" else \
+            C.ki_auftrag_stil(name, musik, C.pruefe(c), s)
         spawn(runtime.chat(text, via="tanz"))
         return JSONResponse({"ok": True})
 
