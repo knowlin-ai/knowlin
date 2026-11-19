@@ -1546,6 +1546,39 @@ Unten auf der Alltag-Seite, alles standardmäßig **aus**:
   die Ente einem Handy nicht – auch nicht über Tailscale. „Was siehst du?“ geht vom Handy, wenn Sehen am
   PC eingeschaltet ist.
 
+## Smart Home und Haushalt (seit 0.45)
+
+Unter **Alltag → Smart Home**. Knowlin schaltet Licht, Saugroboter und Szenen und schickt Meldungen aufs Handy – nur im
+eigenen Netz, ohne Herstellerwolke und ohne Marke, die fest eingebaut wäre.
+
+- **Home Assistant:** unter „Einrichten“ (nur am PC) die Adresse im Heimnetz (z. B. `http://homeassistant.local:8123`)
+  und ein langlebiges Zugriffstoken (in Home Assistant: Profil → Sicherheit) eintragen. Optional ein Meldedienst (z. B.
+  `mobile_app_mein_handy`), dann meldet Knowlin „fertig aufgeräumt“ oder „Akku knapp“ über die Home-Assistant-App.
+  Räume kommen aus Home Assistant.
+- **Hue Bridge ohne Home Assistant:** Adresse der Bridge eintragen (Hue-App → Einstellungen → Bridges), den runden Knopf
+  auf der Bridge drücken und innerhalb von 30 Sekunden „Koppeln“. Lichter mit ihren Räumen und die Raumszenen erscheinen.
+- **Schalten** geht in der Liste, per Sprache und auch vom gekoppelten Handy. Ohne Sprachmodell: „Licht im Wohnzimmer
+  an“, „Mach das Licht in der Küche aus“, „Starte den Saugroboter“, „Saugroboter stopp“, „Schick den Staubsauger zur
+  Ladestation“, „Szene Abend aktivieren“. „Licht an“ ohne Raum fragt nach, welcher Raum gemeint ist.
+- **Nie:** Schlösser, Alarmanlagen, Heizung, Rollläden, Garagentore und Steckdosen schaltet Knowlin nicht – sie stehen
+  gar nicht erst in der Liste, auch nicht für ein Sprachmodell. Szenen aus Home Assistant erscheinen nur, wenn sie
+  ausschließlich Licht schalten (eine Szene „Gute Nacht“, die auch abschließt, fehlt deshalb). Bitten wie „Schließ die
+  Haustür ab“ lehnt Knowlin freundlich ab.
+- **Vor dem Saugroboter aufräumen** (einfacher Simulator, Körper mit Schnabel und Beinen): die Ente an die Stelle
+  stellen, wo der Korb stehen soll, „Hier ist der Korb“ drücken, unter „Danach saugen mit“ den Saugroboter wählen und
+  „Vor dem Saugroboter aufräumen“. Sie trägt Socken, Klötzchen, Klemmbaustein und Schachfigur nacheinander hin (jedes
+  mit Prüfung und Plan B wie beim Apportieren) und startet danach den Sauger. Was nicht klappt, bleibt liegen und steht
+  in der Meldung. Ohne Smart Home räumt sie nur auf.
+- **Zurück zum Ladeplatz:** „Hier ist der Ladeplatz“ an der gewünschten Stelle drücken. Fällt der Akku unter die
+  Schwelle (10, 15, 20 oder 30 %, Standard 15 %), geht der Körper dorthin, setzt sich, wenn er kann, und bittet um einen
+  Akkuwechsel – die Microduck hat einen Wechselakku, eine Ladestation gibt es nicht. Einmal je Entladung; mitten in
+  einem Befehl wartet sie, bis er fertig ist. Im Simulator zum Ausprobieren: „Akku knapp spielen“ (nur am PC).
+- **Sicherheit:** Nach einem Not-Aus startet in der Sperre weder ein Saugroboter noch das Aufräumen oder die Heimkehr;
+  hochgehoben oder gestürzt geht sie nicht von selbst los. Der Not-Aus bricht Aufräumen und Heimkehr sofort ab.
+- **Datenschutz:** Token und Hue-Schlüssel liegen nur im Tresor des Betriebssystems, in `haus.json` stehen nur die
+  Adressen. Adressen im Internet (z. B. die Cloud-Adresse von Home Assistant) nimmt Knowlin nicht an. Meldungen sind
+  nur Text, nie Bilder. „Trennen“ löscht Token bzw. Schlüssel.
+
 ## Punktwolke des Tiefensensors
 
 Die Microduck hat keinen Lidar, sondern einen 8 × 8-Tiefensensor (ToF) im Kopf: 64 Entfernungen auf

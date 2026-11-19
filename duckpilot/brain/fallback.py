@@ -710,6 +710,10 @@ class FallbackBrain:
         if wf is not None:
             r = await self.runner.run("wetter", wf)
             return Reply(r.get("text") or r.get("fehler") or "", [{"tool": "wetter", "input": wf, "result": r}], "einfach")
+        hb = await self.runner._haus_befehl(text) if hasattr(self.runner, "_haus_befehl") else None
+        if hb is not None:                                        # Smart Home ohne Sprachmodell (seit 0.45)
+            return Reply(hb.get("text") or hb.get("fehler") or "", [{"tool": "haus", "input": {"text": text}, "result": hb}],
+                         "einfach")
         if WO_GESEHEN.search(low) and getattr(self.runner, "raum", None) is not None:
             r = await self.runner.run("wo_gesehen", {"ding": text})
             return Reply(r.get("text") or r.get("fehler") or "Weiß ich nicht.",

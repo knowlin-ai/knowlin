@@ -1,6 +1,8 @@
 # Haushalt und Smart Home – Plan und Optionen
 
-Stand: 1. November 2026 · Status: **geplant, noch nicht gebaut** (ab 0.46, am echten Roboter in R6)
+Stand: 19. November 2026 · Status: **erster Teil gebaut in 0.45** (Home Assistant, Hue Bridge, Aufräumen vor dem
+Saugroboter und Heimkehr im Simulator); Rundgang und „Licht folgt“ geplant für 0.46, am echten Roboter in R6.
+Bedienung: Handbuch, Abschnitt „Smart Home und Haushalt“.
 
 Diese Seite beschreibt, was duckpilot im Haushalt können soll, welchen Weg wir zuerst gehen und welche Optionen es
 daneben gibt. Der erste Schritt bleibt bewusst allgemein: Die Funktionen kommen erst einmal grundsätzlich, die
@@ -22,24 +24,25 @@ Community kann danach einzelne Geräte, Marken und Wege genauer ausarbeiten.
 
 | Funktion | Was sie tut | Braucht | Geplant |
 |---|---|---|---|
-| Aufräumen vor dem Saugroboter | Sammelt Kleines (z. B. Socken) ein, bringt es an einen Platz, startet danach den Sauger | Karte, Apportieren, Kamera am Roboter | 0.46 im Simulator, R6 am Roboter |
-| Heimkehr zum Ladeplatz | Geht bei schwachem Akku zum „Ladeplatz“, setzt sich, bittet um Akkuwechsel; setzt die Aufgabe danach fort | Karte, Akkustand | 0.46 |
-| Rundgang | Läuft eine Runde, meldet Auffälliges (Fenster offen, Wasser am Boden, etwas im Weg) aufs Handy | Karte, Kamera am Roboter | 0.47 im Simulator, R6 am Roboter |
-| Licht folgt der Ente | Schaltet Licht im Raum an, in dem sie läuft, und wieder aus, wenn sie ihn verlässt | Karte mit Räumen, Smart Home | 0.47 |
+| Aufräumen vor dem Saugroboter | Sammelt Kleines (z. B. Socken) ein, bringt es an einen Platz, startet danach den Sauger | Karte, Apportieren, Kamera am Roboter | **0.45 im Simulator**, R6 am Roboter |
+| Heimkehr zum Ladeplatz | Geht bei schwachem Akku zum „Ladeplatz“, setzt sich, bittet um Akkuwechsel; setzt die Aufgabe danach fort | Karte, Akkustand | **0.45** (ohne Fortsetzen der Aufgabe) |
+| Rundgang | Läuft eine Runde, meldet Auffälliges (Fenster offen, Wasser am Boden, etwas im Weg) aufs Handy | Karte, Kamera am Roboter | 0.46 im Simulator, R6 am Roboter |
+| Licht folgt der Ente | Schaltet Licht im Raum an, in dem sie läuft, und wieder aus, wenn sie ihn verlässt | Karte mit Räumen, Smart Home | 0.46 |
 | Besuchsmodus (Vorher-nachher) | Fotografiert feste Stellen vor und nach einem Termin und sagt, was sich verändert hat | Karte, Kamera, Termine, Bilder speichern | R6 |
 
 ## Anbindung ans Smart Home
 
-**Erster Schritt: Home Assistant.** Eine Anbindung an die lokale Zentrale Home Assistant deckt die meisten Marken auf
-einmal ab. duckpilot nutzt dort nur allgemeine Gerätearten (`light`, `vacuum`, `scene`, `notify`) und kennt keine
-einzelne Marke.
+**Erster Schritt (seit 0.45): Home Assistant und Hue Bridge.** Eine Anbindung an die lokale Zentrale Home Assistant
+deckt die meisten Marken auf einmal ab. Knowlin nutzt dort nur allgemeine Gerätearten (`light`, `vacuum`, `scene`,
+`notify`) und kennt keine einzelne Marke; Szenen nur, wenn sie ausschließlich Licht schalten. Wer kein Home Assistant
+hat, koppelt die Hue Bridge direkt.
 
 | Weg | Vorteil | Nachteil | Status |
 |---|---|---|---|
-| **Home Assistant** (REST/WebSocket, Zugangsschlüssel im Tresor) | lokal, kostenlos, Hunderte Marken, Räume („Bereiche“) schon gepflegt | braucht eine laufende Home-Assistant-Installation | **Standard, ab 0.46** |
+| **Home Assistant** (REST/WebSocket, Zugangsschlüssel im Tresor) | lokal, kostenlos, Hunderte Marken, Räume („Bereiche“) schon gepflegt | braucht eine laufende Home-Assistant-Installation | **Standard, seit 0.45** |
 | Matter direkt (duckpilot als Matter-Steuerung) | gemeinsamer Standard von Amazon, Google, Apple; ohne Zentrale | aufwendiger, nicht jedes Gerät kann es | Option für die Community |
 | Die Ente als Matter-Gerät (Modi wie Aufräumen, Rundgang, Ruhe) | erscheint direkt in Alexa, Google Home, Apple Home | Matter-Zertifizierung und Geräteklassen noch zu klären | Option für die Community |
-| Hue direkt (Hue Bridge, lokal) | einfach, ohne Home Assistant | nur Licht von Hue | Rückfallweg, falls gewünscht |
+| Hue direkt (Hue Bridge, lokal, koppeln mit dem Knopf an der Bridge) | einfach, ohne Home Assistant, Räume aus der Hue-App | nur Licht von Hue | **Standard ohne Home Assistant, seit 0.45** |
 
 ### Alexa, Google, Apple
 

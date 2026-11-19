@@ -9,6 +9,40 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.45.0 – 2026-11-19 – Haushalt und Smart Home
+
+### Neu
+- **Smart Home unter Alltag** (`haus.py`, `server/routes/haus.py`, `static/haus.js`, Teil `teile/haus.html`): Licht an
+  und aus, Saugroboter starten, pausieren, anhalten und zur Station schicken, Szenen, Meldungen aufs Handy.
+  - **Home Assistant** über die lokale REST-Schnittstelle mit einem langlebigen Zugriffstoken; Räume aus Home Assistant.
+  - **Hue Bridge direkt** (ohne Home Assistant): koppeln mit dem Knopf an der Bridge, Lichter mit Räumen, Raumszenen.
+- **Ohne Sprachmodell:** „Licht im Wohnzimmer an“, „Mach das Licht aus“, „Starte den Saugroboter“, „Schick den
+  Staubsauger zur Ladestation“, „Szene Abend aktivieren“ – auch im Kopf ohne Körper. Mit Sprachmodell das Werkzeug `haus`.
+- **Vor dem Saugroboter aufräumen** (einfacher Simulator, Körper mit Schnabel und Beinen, `motion/haushalt.py`):
+  Socken, Klötzchen und Bausteine nacheinander zum Ort „Korb“, danach startet der gewählte Saugroboter.
+- **Heimkehr zum Ladeplatz:** Unter der Schwelle (Standard 15 %) geht der Körper zum gemerkten Ort „Ladeplatz“, setzt
+  sich und bittet um einen Akkuwechsel; im Simulator mit „Akku knapp spielen“ auszuprobieren.
+
+### Geändert
+- Der simulierte Akku bleibt knapp, wenn man ihn knapp spielt (vorher sprang er beim Laufen auf 25 % zurück).
+- Fahrplan: als Nächstes „Rundgang und Licht“ (0.46).
+
+### Sicherheit
+- **Nie Schlösser, Alarm, Heizung, Rollläden, Garagentore oder Steckdosen:** Freigegeben sind nur Licht, Saugroboter
+  und Szenen (`haus.ARTEN`, `haus.DIENSTE`); alles andere wird weder angezeigt noch geschaltet – auch nicht auf
+  Vorschlag eines Sprachmodells. Szenen aus Home Assistant zählen nur, wenn sie ausschließlich Licht schalten.
+  „Schließ die Haustür ab“ oder „Mach die Heizung an“ lehnt Knowlin ab.
+- Adressen nur im eigenen Netz (private IP, `.local`, Tailscale); Cloud-Adressen werden abgelehnt.
+- Token und Hue-Schlüssel nur im Tresor; in `haus.json` stehen nur Adressen. Einrichten nur am PC.
+- Nach einem Not-Aus startet in der Sperre kein Saugroboter, kein Aufräumen und keine Heimkehr; hochgehoben, gestürzt
+  oder mitten in einem Befehl geht sie nicht von selbst zum Ladeplatz.
+- „Licht an“ ohne Raum fragt nach, statt alle Lichter zu schalten.
+
+### Nicht geprüft
+- Gegen ein echtes Home Assistant und eine echte Hue Bridge (geprüft mit nachgebauten Antworten beider Schnittstellen).
+- Saugroboter über Home Assistant (z. B. Dreame) und Meldungen an die Home-Assistant-App.
+- Aufräumen und Heimkehr mit einem echten Roboter.
+
 ## 0.44.0 – 2026-11-19 – Spiele für jeden Körper, VR mit der Quest
 
 ### Neu

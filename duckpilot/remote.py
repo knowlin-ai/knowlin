@@ -60,6 +60,8 @@ PC_ONLY: list[tuple[str, re.Pattern[str]]] = [(m, re.compile(p)) for m, p in [
     ("POST", r"^/api/szene$"),              # Simulator zurücksetzen nur am PC (seit 0.38)
     ("*", r"^/api/alltag/abo(/|$)"),       # Kalender-Abo: Pfad auf dem PC nur am PC setzen (seit 0.42)
     ("POST", r"^/api/bello/lernen$"),       # Bello lernt laufen: rechnet auf dem PC (seit 0.43)
+    ("POST", r"^/api/haus/(ha|hue|einstellungen|akku_knapp)$"),   # Smart Home einrichten nur am PC (seit 0.45)
+    ("DELETE", r"^/api/haus/(ha|hue)$"),
     ("*", r"^/api/ari_lernen(/|$)"),        # Ari lernt durch Vormachen – mit der Webcam am PC (seit 0.38.64)
     ("*", r"^/api/fernzugang(/|$)"),
     ("*", r"^/api/personen(/|$)"),          # Gesichtsmerkmale: anlernen, ansehen, löschen nur am PC

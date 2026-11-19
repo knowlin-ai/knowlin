@@ -1037,6 +1037,23 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Spiele: „Ente sagt“ beginnt mit einer Ansage", any(w in (ansage or "") for w in ("sagt", "Zeig", "Nimm")), ansage)
     page.click("#sp-sagt-stopp")
 
+    # 13m · Seit 0.45: Smart Home unter Alltag – Karte da, Cloud-Adressen abgewiesen, Aufräumen sagt ehrlich, was fehlt
+    page.evaluate("() => window.duckpilot.showView('alltag')")
+    page.wait_for_timeout(1500)
+    karte = page.evaluate("() => ['al-haus', 'haus-ha-form', 'haus-aufraeumen'].map((i) => !!document.getElementById(i)?.offsetParent)")
+    cloud = page.evaluate("() => fetch('/api/haus/ha', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                          " body: JSON.stringify({adresse: 'https://abcd.ui.nabu.casa', token: 'x'.repeat(40)})}).then(r => r.json())")
+    b.pruefe("Smart Home: Karte unter Alltag, Adresse in der Cloud abgewiesen", all(karte) and
+             "eigenen Netz" in (cloud.get("fehler") or ""), f"{karte} · {cloud.get('fehler')}")
+    page.click("#haus-aufraeumen")
+    try:
+        page.wait_for_function("() => /Korb|aufwecken|räume/.test(document.getElementById('haus-msg').textContent)", timeout=8000)
+    except Exception:  # noqa: BLE001
+        pass
+    meldung = page.text_content("#haus-msg") or ""
+    b.pruefe("Smart Home: „Vor dem Saugroboter aufräumen“ antwortet ehrlich", any(w in meldung for w in ("Korb", "aufwecken", "räume")),
+             meldung)
+
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")
     lm = page.evaluate("() => fetch('/api/anbieter/modelle', {method: 'POST', headers: {'Content-Type': 'application/json'},"

@@ -1,8 +1,9 @@
 // Seite „Alltag“ und alles, was dazugehört: große Uhr, Ruhe/Aktiv, Timer, Erinnerungen, Termine (auch als
 // .ics-Datei), To-dos. Dazu das Alarmband oben (Erledigt / Später) und der Modus-Schalter in der Kopfzeile.
 // Alle Texte aus Kalenderdateien und Eingaben landen nur über textContent im Dokument.
-// Routinen und Kalender-Abo (seit 0.42) stecken in alltag_routinen.js.
+// Routinen und Kalender-Abo (seit 0.42) stecken in alltag_routinen.js, Smart Home (seit 0.45) in haus.js.
 import { initRoutinen } from './alltag_routinen.js';
+import { initHaus } from './haus.js';
 
 const WD = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MON = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -105,6 +106,7 @@ export function initAlltag(h) {
     renderEvents();
     renderTodos();
     routinen.render(data);
+    haus.render();
     if (!ticking) ticking = setInterval(() => { if (visible()) { renderClock(); tickTimers(); } }, 1000);
   }
 
@@ -285,6 +287,7 @@ export function initAlltag(h) {
   });
 
   const routinen = initRoutinen({ $, el, api, toast, command, row, del });
+  const haus = initHaus({ $, el, api, toast });
 
   return { load, update, onAlarm, render };
 }

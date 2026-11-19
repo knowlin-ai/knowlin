@@ -1,0 +1,11 @@
+/* Smart Home und Haushalt auf der Seite „Alltag“ (seit 0.45). Nur Tokens. */
+.al-haus [hidden] { display: none; }
+.haus-geraet .al-what { flex: 1 1 8rem; }
+.haus-acts { display: flex; flex-wrap: wrap; gap: var(--spacing-02); margin-left: auto; }
+.haus-acts .btn.is-on { box-shadow: inset 0 0 0 2px var(--accent); }
+.haus-einrichten { margin-top: var(--spacing-04); }
+.haus-einrichten summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+.haus-einrichten h4 { margin: var(--spacing-04) 0 var(--spacing-02); }
+.haus-haushalt { margin-top: var(--spacing-04); border-top: 1px solid var(--line-soft); padding-top: var(--spacing-03); }
+.haus-haushalt h4 { margin: 0 0 var(--spacing-02); }
+.haus-aufraeumen, .haus-akku { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-03); margin-top: var(--spacing-03); }

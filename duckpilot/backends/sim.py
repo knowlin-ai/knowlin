@@ -155,7 +155,8 @@ class SimBackend(DuckBackend):
         bewegt = self.powered and (self.skill is not None or math.hypot(self.applied.vx, self.applied.vy) > 0.01
                                    or abs(self.applied.vyaw) > 0.08)
         if bewegt:
-            self.battery = max(SIM_AKKU_MIN, self.battery - dt / 3600.0)   # ~1 h Laufzeit beim Laufen
+            # ~1 h Laufzeit beim Laufen; unter SIM_AKKU_MIN nur, wenn jemand „Akku knapp“ spielt (Heimkehr, seit 0.45)
+            self.battery = max(min(SIM_AKKU_MIN, self.battery), self.battery - dt / 3600.0)
         elif self.battery < 1.0:
             laden = 1800.0 if not self.powered else 3600.0                 # in Ruhe ~30 min, im Stehen ~1 h bis voll
             self.battery = min(1.0, self.battery + dt / laden)

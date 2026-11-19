@@ -1,3 +1,3 @@
 """duckpilot – Microduck am PC simulieren, mit Claude steuern, später auf den echten Roboter umschalten."""
 
-__version__ = "0.44.0"
+__version__ = "0.45.0"

@@ -228,6 +228,10 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         from ..wetter import Wetter
 
         self.wetter = Wetter()                                  # nur auf Nachfrage, Open-Meteo (seit 0.40)
+        from ..haus import Haus, tresor_lesen, tresor_schreiben
+
+        self.haus = Haus(S.data_dir(), tresor_lesen, tresor_schreiben)   # Smart Home (seit 0.45), lokal
+        self.haus_dienst: Any = None                           # setzt routes/haus.py
         self._wire()
 
     # ── Aufbau ────────────────────────────────────────────────────────────
@@ -283,6 +287,9 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.runner.raum = self.raum
         self.runner.wetter = self.wetter                       # Wetter (seit 0.40, Open-Meteo)
         self.runner.wetter_ort = lambda: self.config.wetter_ort
+        self.runner.haus = self.haus                           # Smart Home (seit 0.45)
+        self.runner.haus_sperre = lambda: self.engine.notaus_gesperrt()
+        self.runner.haus_aufraeumen = lambda ziel, sauger=True: self.haus_dienst.aufraeumen_start(ziel, sauger)
         self.runner.englisch = lambda: str(getattr(self.config, "sprache", "de")).startswith("en")
         self.runner.pollen = PollenAdapter(self)
         self.runner.free_training = self.free_training
@@ -432,6 +439,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.reachy_beim_zuweisen()
         self._tasks.append(asyncio.create_task(self._reachy_leerlauf(), name="reachy-leerlauf"))
         self._tasks.append(asyncio.create_task(self._eigenstaendig(), name="eigenstaendig"))
+        if self.haus_dienst is not None:                        # Heimkehr zum Ladeplatz (seit 0.45)
+            self._tasks.append(asyncio.create_task(self.haus_dienst.waechter(), name="haushalt"))
         self.alltag.start()
         if self.memory is not None:                             # einmal am Tag ein Sicherungspunkt (seit 0.38.24)
             self._tasks.append(asyncio.create_task(asyncio.to_thread(self.sicherung.taeglich), name="sicherungspunkt"))

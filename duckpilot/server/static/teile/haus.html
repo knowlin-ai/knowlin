@@ -1,0 +1,59 @@
+            <!-- Smart Home und Haushalt (seit 0.45): lokal über Home Assistant oder die Hue Bridge. haus.js -->
+            <section class="card al-card al-haus" id="al-haus" aria-labelledby="al-haus-titel">
+              <div class="card-head">
+                <h3 id="al-haus-titel">Smart Home</h3>
+                <button type="button" class="btn btn--sm btn--ghost" id="haus-neu" hidden>Neu laden</button>
+              </div>
+              <p class="field-help">Licht, Saugroboter, Szenen und Meldungen aufs Handy – nur im eigenen Netz, ohne Herstellerwolke. <span id="haus-nie"></span></p>
+              <p class="field-msg" id="haus-msg" aria-live="polite"></p>
+              <ul class="al-list" id="haus-geraete"></ul>
+              <p class="field-help" id="haus-leer">Noch nichts verbunden.</p>
+
+              <details class="haus-einrichten pc-only" id="haus-einrichten">
+                <summary>Einrichten</summary>
+                <h4 class="field-label">Home Assistant</h4>
+                <p class="field-help">Adresse im Heimnetz und ein langlebiges Zugriffstoken (in Home Assistant: Profil → Sicherheit). Das Token kommt in den Tresor, nie in eine Datei.</p>
+                <form class="al-form haus-form" id="haus-ha-form" autocomplete="off">
+                  <input class="input" id="haus-ha-adresse" maxlength="200" placeholder="http://homeassistant.local:8123" aria-label="Adresse von Home Assistant" required>
+                  <input class="input" id="haus-ha-token" type="password" maxlength="600" placeholder="Zugriffstoken" aria-label="Zugriffstoken von Home Assistant" required>
+                  <input class="input" id="haus-ha-melden" maxlength="60" placeholder="Meldungen an (optional), z. B. mobile_app_mein_handy" aria-label="Meldedienst in Home Assistant">
+                  <button class="btn" type="submit">Verbinden</button>
+                </form>
+                <div class="key-actions" id="haus-ha-an" hidden>
+                  <span class="field-help" id="haus-ha-stand"></span>
+                  <button type="button" class="btn btn--sm btn--ghost" id="haus-ha-aus">Trennen</button>
+                </div>
+                <h4 class="field-label">Hue Bridge (ohne Home Assistant)</h4>
+                <p class="field-help">Adresse der Bridge (steht in der Hue-App unter Einstellungen → Bridges). Zum Koppeln den runden Knopf auf der Bridge drücken, dann „Koppeln“.</p>
+                <form class="al-form al-form--one" id="haus-hue-form" autocomplete="off">
+                  <input class="input" id="haus-hue-adresse" maxlength="200" placeholder="192.168.…" aria-label="Adresse der Hue Bridge" required>
+                  <button class="btn" type="submit">Koppeln</button>
+                </form>
+                <div class="key-actions" id="haus-hue-an" hidden>
+                  <span class="field-help" id="haus-hue-stand"></span>
+                  <button type="button" class="btn btn--sm btn--ghost" id="haus-hue-aus">Trennen</button>
+                </div>
+                <p class="field-msg" id="haus-einrichten-msg" aria-live="polite"></p>
+              </details>
+              <p class="field-help fern-only">Einrichten geht nur direkt am PC; schalten geht auch hier.</p>
+
+              <div class="haus-haushalt" id="haus-haushalt" hidden>
+                <h4 class="field-label">Haushalt</h4>
+                <p class="field-help" id="haus-orte"></p>
+                <div class="key-actions">
+                  <button type="button" class="btn btn--sm" id="haus-korb">Hier ist der Korb</button>
+                  <button type="button" class="btn btn--sm" id="haus-ladeplatz">Hier ist der Ladeplatz</button>
+                </div>
+                <div class="haus-aufraeumen" id="haus-aufraeumen-box">
+                  <label class="field-label" for="haus-sauger">Danach saugen mit</label>
+                  <select class="select" id="haus-sauger"><option value="">keinem Saugroboter</option></select>
+                  <button type="button" class="btn btn--primary" id="haus-aufraeumen">Vor dem Saugroboter aufräumen</button>
+                </div>
+                <div class="haus-akku" id="haus-akku-box">
+                  <label class="field-label" for="haus-schwelle">Zum Ladeplatz bei</label>
+                  <select class="select pc-only" id="haus-schwelle"><option value="0.1">10 %</option><option value="0.15">15 %</option><option value="0.2">20 %</option><option value="0.3">30 %</option></select>
+                  <button type="button" class="btn btn--sm btn--ghost pc-only" id="haus-akku-knapp" hidden>Akku knapp spielen</button>
+                </div>
+                <p class="field-help">Sie trägt Socken, Klötzchen und Bausteine zum Korb, dann startet der Saugroboter. Bei knappem Akku geht sie zum Ladeplatz und bittet um einen Akkuwechsel. Nach einem Not-Aus startet in der Sperre kein Saugroboter.</p>
+              </div>
+            </section>

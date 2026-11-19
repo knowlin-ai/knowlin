@@ -37,7 +37,7 @@ from .tools import ToolRunner, fehlt_dem_koerper
 log = logging.getLogger(__name__)
 
 # Was der Kopf ohne Körper darf: Gedächtnis (ohne Tricks und Orte – die brauchen einen Körper) und Alltag
-KOPF_TOOLS = ("remember", "recall", "forget", "alltag", "tagesrueckblick", "wetter")   # seit 0.39, Wetter 0.40
+KOPF_TOOLS = ("remember", "recall", "forget", "alltag", "tagesrueckblick", "wetter", "haus")   # 0.39, Wetter 0.40, Haus 0.45
 EIGENE_TOOLS = ("koerper_vorschlagen", "figur_wecken", "namen_setzen")
 VORSCHLAG_GILT_S = 180              # so lange zählt ein „ja“ als Antwort auf den Vorschlag
 
@@ -473,6 +473,11 @@ class KopfAgent:
         if wf is not None:                                     # Wetter auch ohne KI-Modell (seit 0.40)
             r = await self.runner.run("wetter", wf)
             return Reply(r.get("text") or r.get("fehler") or "", [{"tool": "wetter", "input": wf, "result": r}], "einfach")
+        innen = getattr(self.runner, "inner", self.runner)
+        hb = await innen._haus_befehl(text) if hasattr(innen, "_haus_befehl") else None   # Smart Home ohne KI (0.45)
+        if hb is not None:
+            return Reply(hb.get("text") or hb.get("fehler") or "", [{"tool": "haus", "input": {"text": text}, "result": hb}],
+                         "einfach")
         namen = [f["name"] for f in self.figuren()]
         aufzaehlung = ", ".join(namen[:-1]) + (" or " if en else " oder ") + namen[-1] if len(namen) > 1 else "".join(namen)
         if WAS_KANNST.search(text.lower()):
