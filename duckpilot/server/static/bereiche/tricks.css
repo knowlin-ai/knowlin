@@ -139,3 +139,7 @@
 #bello-gangarten .emo[aria-pressed="true"] { box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
 #bello-gangarten .emo[aria-pressed="true"] b::after { content: "✓"; color: var(--accent); margin-left: auto; }
 @media (forced-colors: active) { #bello-gangarten .emo[aria-pressed="true"] { outline: 2px solid Highlight; } }
+
+/* Reiter je Quelle (seit 0.38.66) */
+.tricks-reiter { display: flex; flex-wrap: wrap; gap: var(--spacing-02); margin-top: var(--spacing-04); }
+.reiter-aus { display: none !important; }

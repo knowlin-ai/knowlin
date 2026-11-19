@@ -2,6 +2,7 @@
 // (seit 0.38.17 aus app.js ausgelagert)
 import { setIdleRepertoire } from './personality.js';
 import { vorschauKachel } from './skills.js';
+import { initTricksReiter } from './tricks_reiter.js';
 import { initTricksSuche } from './tricks_suche.js';
 
 export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, skillPacks, reachy }) {
@@ -31,6 +32,7 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   catalog().then(setIdleRepertoire);   // Leerlauf-Gesten kennen den Katalog
   $('tricks-zu-erweiterungen')?.addEventListener('click', () => showView('tricks', 'pakete'));
   initTricksSuche({ $ });   // Suche über alle Kacheln (seit 0.38.61)
+  initTricksReiter({ $, el });   // Reiter je Quelle (seit 0.38.66)
   // Bellos Tricks (seit 0.38.61): Kachel → skill-Werkzeug; Abspielzeichen wie bei den übrigen Kacheln
   for (const b of document.querySelectorAll('#bello-tricks [data-bello]')) {
     b.querySelector('b')?.insertAdjacentHTML('beforeend', PLAY_ICON);

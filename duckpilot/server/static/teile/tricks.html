@@ -13,6 +13,8 @@
                 <input class="input" type="search" id="tricks-suche" placeholder="Tricks suchen, z. B. „tanz“ oder „freude“" aria-label="Tricks und Fähigkeiten durchsuchen" autocomplete="off" spellcheck="false">
                 <span class="field-help" id="tricks-suche-info" role="status" aria-live="polite"></span>
               </div>
+              <!-- Reiter je Quelle (seit 0.38.66, tricks_reiter.js); die Suche geht immer über alle -->
+              <div class="tricks-reiter" id="tricks-reiter" role="group" aria-label="Quellen" hidden></div>
             </header>
             <!-- Live-Vorschau neben den Tricks (seit 0.38.33, „wo sind die Tricks mit der Vorschau?“) – wie beim Tanzen -->
             <div class="tricks-layout">
