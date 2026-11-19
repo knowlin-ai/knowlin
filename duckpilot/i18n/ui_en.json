@@ -3693,5 +3693,11 @@
  "Ich suche dein Gesicht …": "Looking for your face …",
  "Webcam nicht freigegeben.": "Webcam not allowed.",
  "Schauen beendet. Die Webcam ist aus.": "Stopped looking. The webcam is off.",
- "Not-Aus – Schauen beendet. Die Webcam ist aus.": "Emergency stop – stopped looking. The webcam is off."
+ "Not-Aus – Schauen beendet. Die Webcam ist aus.": "Emergency stop – stopped looking. The webcam is off.",
+ "Stadt fürs Wetter": "City for the weather",
+ "z. B. Berlin": "e.g. Berlin",
+ "Nur die Stadt, nie dein Standort. Fragst du nach dem Wetter, geht der Stadtname an Open-Meteo (ohne Konto, ohne Schlüssel); sonst nichts.": "Only the city, never your location. When you ask about the weather, the city name is sent to Open-Meteo (no account, no key); nothing else.",
+ "Ins Wort fallen": "Interrupt",
+ "Sprichst du dazwischen, hört sie sofort auf und dir zu. Nur, wenn du gerade mit der Stimme sprichst; gemessen wird nur die Lautstärke, nichts wird aufgenommen.": "If you talk over her, she stops right away and listens to you. Only while you are speaking by voice; only the loudness is measured, nothing is recorded.",
+ "Schaut sich eine Weile in Ruhe um – wie in Pollens App": "Looks around calmly for a while – like in Pollen's app"
 }

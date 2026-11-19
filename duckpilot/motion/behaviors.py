@@ -592,25 +592,45 @@ class HoldHead(Behavior):
 
 
 class LookAround(Behavior):
+    """Sich umschauen wie Pollens Reachy-App (seit 0.40): ein Blickziel nach dem anderen, schnell hin (≈ 0,35 s), dann
+    eine Weile dort verweilen – statt einer festen Schleife. Zufällig, aber mit festem Startwert je Aufruf prüfbar."""
+
     name = "umschauen"
     channels = ("head",)
+    HIN_S = 0.35
 
-    def __init__(self, duration: float = 6.0) -> None:
+    def __init__(self, duration: float = 6.0, seed: int | None = None) -> None:
         super().__init__()
         self.duration = max(1.0, min(60.0, duration))
         self.timeout = self.duration + 1
-        self.points = [(-0.9, 0.1), (-0.4, -0.3), (0.3, 0.25), (0.9, -0.1), (0.0, -0.4), (0.0, 0.1)]
+        self.rng = random.Random(seed)
+        self.von = (0.0, 0.0)
+        self.ziel = self._neues_ziel((0.0, 0.0))
+        self.ab = 0.0                              # seit wann zum aktuellen Ziel unterwegs
+        self.bleiben = self.rng.uniform(0.6, 1.6)
+
+    def _neues_ziel(self, jetzt: tuple[float, float]) -> tuple[float, float]:
+        for _ in range(8):                         # nicht zweimal fast dieselbe Stelle
+            z = (self.rng.uniform(-0.9, 0.9), self.rng.uniform(-0.35, 0.2))
+            if abs(z[0] - jetzt[0]) > 0.3:
+                return z
+        return (-jetzt[0] * 0.8, 0.0)
 
     def tick(self, st, dt):
         if self.elapsed >= self.duration:
             return self.finish("umgeschaut")
-        seg = 1.1
-        i = int(self.elapsed / seg)
-        a = self.points[i % len(self.points)]
-        b = self.points[(i + 1) % len(self.points)]
-        k = smoothstep((self.elapsed % seg) / seg * 1.6)
-        yaw = a[0] + (b[0] - a[0]) * k
-        pitch = a[1] + (b[1] - a[1]) * k
+        def blick() -> tuple[float, float]:
+            k = smoothstep(min(1.0, (self.elapsed - self.ab) / self.HIN_S))
+            return (self.von[0] + (self.ziel[0] - self.von[0]) * k, self.von[1] + (self.ziel[1] - self.von[1]) * k)
+
+        if self.duration - self.elapsed <= self.HIN_S + 0.3 and self.ziel != (0.0, 0.0):
+            self.von, self.ziel, self.ab = blick(), (0.0, 0.0), self.elapsed     # zum Schluss wieder geradeaus
+        elif self.ziel != (0.0, 0.0) or self.duration - self.elapsed > self.HIN_S + 0.3:
+            if self.elapsed - self.ab >= self.HIN_S + self.bleiben:
+                self.von, self.ab = self.ziel, self.elapsed
+                self.ziel = self._neues_ziel(self.ziel)
+                self.bleiben = self.rng.uniform(0.6, 1.6)
+        yaw, pitch = blick()
         return Command(head=Head(0.0, pitch, yaw, -0.15 * yaw))
 
 

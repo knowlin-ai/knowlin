@@ -287,6 +287,10 @@ export async function playPlan(plan, hooks = {}) {
   const parts = (plan && plan.teile) || [];
   if (!parts.length) { hooks.onEnd && hooks.onEnd(); return; }
   const live = () => token === planToken;
+  // Streaming (seit 0.40): rechnet der PC langsamer als gesprochen wird, sagt der Plan, wie lange vorgerechnet werden
+  // muss (vorlauf_s) – danach läuft die Antwort ohne Lücke durch, statt auf die Browser-Stimme zu wechseln
+  const t0 = performance.now();
+  const vorlaufMs = ((plan && plan.vorlauf_s) || 0) * 1000;
   // alle Sätze gleich anfordern – der PC rechnet sie der Reihe nach, der erste ist schnell da
   const clips = parts.map((p) => (p.art === 'text' && p.id ? fetchClip(p.id).catch((e) => e) : null));
   let started = false;
@@ -306,6 +310,8 @@ export async function playPlan(plan, hooks = {}) {
     // die ganze Antwort dabei – kein Hin und Her zwischen zwei Stimmen
     const frist = Math.max(STIMME.clipWartenMs, ((plan && plan.warten_s) || 0) * 1000);
     const buf = clips[i] && !fellBack ? await mitFrist(clips[i], frist) : (clips[i] ? new Error('') : null);
+    if (!live()) break;
+    if (!started && vorlaufMs) await sleep(Math.max(0, vorlaufMs - (performance.now() - t0)));
     if (!live()) break;
     start();
     let gespielt = false;

@@ -84,7 +84,7 @@ PC_ONLY: list[tuple[str, re.Pattern[str]]] = [(m, re.compile(p)) for m, p in [
 PC_ONLY_SETTINGS = {"backend", "robot", "tof", "updater", "media", "configd", "model", "gehirn", "lokal_adresse",
                     "anbieter", "anbieter_modell", "anbieter_adresse",
                     "lokal_modell", "memory", "stt", "whisper_model", "sim_physik", "modul", "reachy_adresse",
-                    "koerper_optionen"}
+                    "koerper_optionen", "wetter_ort"}
 # Was die Augen und das Erkennen von Personen einschaltet – nur am PC (Einverständnis, Webcam)
 PC_ONLY_OPTIONS = {"sehen", "personen", "begruessen", "augen"}
 # Kopfzeilen, die ein Weiterleiter (Proxy) setzt: kommt so etwas von 127.0.0.1, ist es nicht „der PC selbst“

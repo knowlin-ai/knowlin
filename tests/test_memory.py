@@ -178,5 +178,5 @@ def test_agent_sends_memory_context_and_tools(tmp_path):
         assert {"remember", "do_trick", "forget"} <= names
         assert "Gedächtnis" in calls[0]["system"][0]["text"]
         # ohne Gedächtnis: keine Gedächtnis-Werkzeuge
-        assert len(ToolRunner(eng).tools()) == len(TOOLS) - len(MEMORY_TOOLS) + 4      # + absicht, selbstbild (0.38.43), tagesrueckblick, weltbild (0.39)
+        assert len(ToolRunner(eng).tools()) == len(TOOLS) - len(MEMORY_TOOLS) + 5      # + absicht, selbstbild (0.38.43), tagesrueckblick, weltbild (0.39), wetter (0.40)
     run(go())

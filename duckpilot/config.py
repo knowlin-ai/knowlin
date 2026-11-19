@@ -40,6 +40,7 @@ class Config:
     duck_name: str = "Quacki"
     kopf_name: str = "Knowlin"                 # Name des Kopfes (Startseite, seit 0.38.9) – im Gespräch oder hier vergeben
     nutzer_name: str = ""                      # wie dich der Kopf anspricht; leer = „Mensch“ (bleibt auf dem PC)
+    wetter_ort: str = ""                       # Stadt fürs Wetter (seit 0.40, Open-Meteo); leer = erst fragen
     kopf_stimme_motor: str = "piper"           # Knowlins eigene Stimme (seit 0.38.10): "browser" | "piper" | "qwen"
     kopf_stimme_piper: str = "thorsten"        # Piper-Stimme des Kopfes (fehlt sie: Browser-Stimme, normal)
     kopf_stimme_qwen: str = ""                 # entworfene Stimme des Kopfes
@@ -63,6 +64,7 @@ class Config:
     klang_farbe: float = 0.0                   # Klangsignatur: −1 dunkler … +1 heller
     entenlaute: str = "manchmal"               # "aus" | "selten" | "manchmal" | "oft"
     plaudern: bool = False                     # Gesprächsmodus: länger reden, Mikro bleibt kurz offen
+    ins_wort_fallen: bool = True               # seit 0.40: Dazwischensprechen hält die Stimme an (nur nach Sprechen)
     schnellbefehle: bool = True                # kurze eindeutige Befehle ohne Claude (spart Tokens)
     mcp: bool = False                          # andere Programme dürfen die Ente über MCP steuern (nur am PC)
     sprache: str = "de"                        # Oberfläche, Sprechen und Denken der Ente: "de" | "en" (seit 0.34)
@@ -125,6 +127,7 @@ class Config:
             "duck_name": self.duck_name,
             "kopf_name": self.kopf_name,
             "nutzer_name": self.nutzer_name,
+            "wetter_ort": self.wetter_ort,
             "kopf_stimme_motor": self.kopf_stimme_motor,
             "kopf_stimme_piper": self.kopf_stimme_piper,
             "kopf_stimme_qwen": self.kopf_stimme_qwen,
@@ -138,6 +141,7 @@ class Config:
             "weitere_enten": self.weitere_enten,
             "klang_farbe": self.klang_farbe,
             "plaudern": self.plaudern,
+            "ins_wort_fallen": self.ins_wort_fallen,
             "qwen_geduldig": self.qwen_geduldig,
             "schnellbefehle": self.schnellbefehle,
             "gehirn": self.gehirn,

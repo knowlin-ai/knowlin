@@ -1,6 +1,7 @@
 import { Scene3D } from './duck3d.js';
 import { LineChart, MapView, TofTerrain, Joints, eventItem, SHOWN_EVENTS } from './dashboard.js';
 import { Listener, playSound, speak, stopSpeaking, playPlan, germanVoices, setVoice, currentVoice, setKlang } from './voice.js';
+import { Unterbrecher } from './ins_wort.js';   // Ins Wort fallen (0.40)
 import { initVoicePage } from './stimme.js';
 import { initTraining, trainingsfeldLaden } from './training.js';
 import { initLernen } from './lernen.js';
@@ -731,8 +732,14 @@ function vorlesen(m, extra = {}) {
   if (ttsOn && m.text) {
     const hooks = {
       send: extra.kopf ? null : send, goofy: !extra.kopf && !!config.goofy, mood: m.gefuehl || moodNow, energie: config.energie,
-      onStart: () => { listener?.pause(true); document.body.classList.add('duck-speaking'); extra.onStart?.(); },
+      onStart: () => {
+        listener?.pause(true); document.body.classList.add('duck-speaking'); extra.onStart?.();
+        if (config.ins_wort_fallen !== false && lastUserSpoke && !fern.remote && listener?.supported) {
+          unterbrecher.start(() => { stopSpeaking(); send({ type: 'speaking_end' }); listener.start(); });
+        }
+      },
       onEnd: () => {
+        unterbrecher.stop();
         extra.onEnd?.();
         document.body.classList.remove('duck-speaking');
         listener?.pause(false);
@@ -748,6 +755,7 @@ function vorlesen(m, extra = {}) {
   }
 }
 let voiceWarned = false;
+const unterbrecher = new Unterbrecher();
 let lastUserSpoke = false;   // Gesprächsfenster nur nach gesprochenen Sätzen
 
 function setThinking(on) {

@@ -1,6 +1,6 @@
 """„Schau mich an“ (seit 0.39): Gesichtserkennung laden, Schauen starten, Blickziele, stoppen – nur am PC.
 
-Für jeden Körper mit Kopf und Kamera (`eigenschaften()`), gedacht für Stack-chan „wie ab Werk“. Die Webcam wertet nur
+Für jeden Körper mit Kopf und Kamera (`eigenschaften()`): Stack-chan „wie ab Werk“ (0.39), Reachy wie in Pollens App (0.40). Die Webcam wertet nur
 der Browser aus (`static/schau.js`); hierher kommen nur Zahlen: die Mitte des Gesichts im Bild (0 … 1) und ob gerade
 eins zu sehen ist. Bewegt wird über die Engine (`motion/schau.SchauHaltung`) mit allen Sicherheitsregeln: nicht während
 der Sperre nach einem Not-Aus, nicht stromlos oder schlafend; der Not-Aus beendet das Schauen sofort.
@@ -90,14 +90,24 @@ class Schauen:
             yaw, pitch = blick_aus_bild(min(1.0, max(0.0, x)), min(1.0, max(0.0, y)))
             weg = jetzt - self._zuletzt_gesehen
             self._zuletzt_gesehen = jetzt
-            zeigen = getattr(self.rt.backend, "gefuehl_zeigen", None)
-            if weg > FREUDE_NACH_S and jetzt - self._gefreut > FREUDE_ABSTAND_S and zeigen is not None:
+            be = self.rt.backend
+            if callable(getattr(be, "angesprochen", None)):
+                be.angesprochen()                          # ein Gesicht vor der Kamera hält ihn wach (seit 0.40)
+            if weg > FREUDE_NACH_S and jetzt - self._gefreut > FREUDE_ABSTAND_S:
                 self._gefreut = jetzt
-                zeigen("freude", 1.5)                       # wie das Original: freut sich, wenn er dich wiedersieht
+                self._freuen(be)
         else:
             yaw, pitch = 0.0, -5.0                         # niemand da: geradeaus, leicht hoch
         h.setze(math.radians(yaw), math.radians(pitch))
         return {"ok": True, "yaw": round(yaw, 1), "pitch": round(pitch, 1)}
+
+    def _freuen(self, be: Any) -> None:
+        """Freut sich, wenn er dich wiedersieht: mit dem Gesicht (Stacki) oder den Antennen (Reachy)."""
+        zeigen = getattr(be, "gefuehl_zeigen", None)
+        if zeigen is not None:
+            zeigen("freude", 1.5)
+        elif getattr(be, "antennen_setzen", None) is not None and not self.rt.engine.notaus_gesperrt():
+            self.rt.engine.fire(be.antennen_setzen(-math.radians(35), math.radians(35), 0.8))
 
     def stopp(self) -> dict[str, Any]:
         h, self.haltung = self.haltung, None

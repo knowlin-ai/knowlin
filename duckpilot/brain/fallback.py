@@ -104,7 +104,7 @@ def _parse_part_en(p: str) -> tuple[str, dict[str, Any]] | None:
         return ("power", {"action": "stand_up"})
     if re.search(r"\bsit( down)?\b", p):
         return ("power", {"action": "sit_down"})
-    if re.search(r"\b(go to sleep|sleep|rest|motors off)\b", p):
+    if re.search(r"\b(go to sleep|sleep|rest|motors off|good night)\b", p):
         return ("power", {"action": "rest"})
     if re.search(r"\b(shoot|kick)\b", p):
         return ("_kick", {"side": "kick_right" if "right" in p else "kick_left"})
@@ -166,6 +166,25 @@ TAGESRUECKBLICK = re.compile(r"\bwie war (dein|euer|der) tag\b|\bwas (hast du|ha
                              r"\bhow was (your|the) day\b|\bwhat did you do (today|yesterday)\b|\bwhat happened (today|yesterday)\b")
 WELTBILD = re.compile(r"\bwas (weißt|weisst) du über (das|dieses|dein|unser) zimmer\b|\bwas liegt wo\b|"
                       r"\bwhat do you know about (the|this|our) room\b|\bwhat is where\b")
+# Wetter (seit 0.40): ohne Sprachmodell, Ort aus der Frage oder den Einstellungen
+WETTER = re.compile(r"\b(wie (ist|wird|war) (denn )?(das |heute das |morgen das )?wetter|wetter (heute|morgen|in |jetzt)|"
+                    r"regnet es|wird es (heute |morgen )?regnen|brauch\w* ich (heute |morgen )?(einen |nen )?(regen)?schirm|"
+                    r"wie (warm|kalt) (ist|wird) es|what'?s the weather|how is the weather|weather (today|tomorrow|in )|"
+                    r"will it rain|is it raining|do i need an umbrella|how (warm|cold) is it)")
+WETTER_ORT = re.compile(r"\b(?:in|im|for)\s+([A-ZÄÖÜ][\wäöüß\-]+(?:\s+(?:am|an der|im|[A-ZÄÖÜ])[\wäöüß\- ]*)?)")
+
+
+def wetter_frage(text: str) -> dict[str, Any] | None:
+    """„Wie wird das Wetter morgen in Wien?“ → {"tag": "morgen", "ort": "Wien"}; None, wenn es keine Wetterfrage ist."""
+    if not WETTER.search(text.lower()):
+        return None
+    a: dict[str, Any] = {"tag": "morgen" if re.search(r"\b(morgen|tomorrow)\b", text.lower()) else "heute"}
+    m = WETTER_ORT.search(text)
+    if m:
+        a["ort"] = re.sub(r"\s+(heute|morgen|jetzt|today|tomorrow)\b.*$", "", m.group(1)).strip(" ?!.")
+    return a
+
+
 WO_GESEHEN = re.compile(r"\bwo (hast du\b.*\bgesehen|ist|liegt|sind|war)\b|\bwhere (is|are|did you (last )?see|was)\b")
 
 
@@ -416,7 +435,7 @@ def _parse_part(p: str) -> tuple[str, dict[str, Any]] | None:
         return ("power", {"action": "stand_up"})
     if re.search(r"setz\w* dich|hinsetzen|sitz\b", p):
         return ("power", {"action": "sit_down"})
-    if re.search(r"schlaf|ausruhen|feierabend|motoren aus", p):
+    if re.search(r"schlaf|ausruhen|feierabend|motoren aus|gute nacht", p):
         return ("power", {"action": "rest"})
     if re.search(r"schieß|schiess|kick|tritt", p):
         side = "kick_right" if "recht" in p else "kick_left"
@@ -687,6 +706,10 @@ class FallbackBrain:
         if WELTBILD.search(low) and getattr(self.runner, "raum", None) is not None:
             r = await self.runner.run("weltbild", {})
             return Reply(weltbild_text(r, _en()), [{"tool": "weltbild", "input": {}, "result": r}], "einfach")
+        wf = wetter_frage(text)
+        if wf is not None:
+            r = await self.runner.run("wetter", wf)
+            return Reply(r.get("text") or r.get("fehler") or "", [{"tool": "wetter", "input": wf, "result": r}], "einfach")
         if WO_GESEHEN.search(low) and getattr(self.runner, "raum", None) is not None:
             r = await self.runner.run("wo_gesehen", {"ding": text})
             return Reply(r.get("text") or r.get("fehler") or "Weiß ich nicht.",

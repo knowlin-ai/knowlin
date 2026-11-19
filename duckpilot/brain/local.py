@@ -39,7 +39,7 @@ LOCAL_TOOLS = {
     # Ohne diese Werkzeuge konnte das eigene Modell „schieß mir den Ball zu“ gar nicht ausführen – dann sprang die
     # Absicherung ein und hängte jedes Mal „Jetzt mache ich es wirklich.“ an.
     "schiessen", "apportieren", "handeln", "team", "enten", "karte", "wo_gesehen", "pollen_bewegung",
-    "tagesrueckblick", "weltbild", "licht",            # Erfahrungsnetz 2, LEDs von Stack-chan (seit 0.39)
+    "tagesrueckblick", "weltbild", "licht", "wetter",  # Erfahrungsnetz 2, LEDs (0.39), Wetter (0.40)
 }
 LOCAL_NOTE = """
 - Du läufst gerade als lokales Sprachmodell auf dem PC (ohne Internet). Bleib bei kurzen, freundlichen Antworten \

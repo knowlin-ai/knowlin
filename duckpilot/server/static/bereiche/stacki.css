@@ -1,7 +1,7 @@
 /* Stack-chan „wie ab Werk“ (seit 0.39): Schau mich an, Gesichter. Nur Tokens. */
 
 .schau-info { margin: 0; padding: 0 var(--spacing-05) var(--spacing-03); color: var(--ink-2); font-size: var(--t-small); }
-#schau-start[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+[data-schau][aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
 
 /* Vorschaubilder der Gesichter im Format des Bildschirms (4:3) */
 .avatarbild { aspect-ratio: 4 / 3; background: var(--media-bg); }

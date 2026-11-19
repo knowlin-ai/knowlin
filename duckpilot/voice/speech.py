@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import logging
+import math
 import random
 import re
 import threading
@@ -426,13 +427,20 @@ class Speaker:
             ok, why = self.ready()
         motor = self.motor() if ok else "browser"
         warten = None
+        vorlauf = None
         if motor == "qwen":
+            items = self.kurzer_anfang(items)
             # je Antwort entscheiden, nicht mitten im Satz wechseln (seit 0.37.9): schafft Qwen es auf diesem Gerät
             # nicht flüssig, spricht die ganze Antwort Piper (falls geladen), sonst die Browser-Stimme
-            schafft, warten = self._schaffts("qwen", [i["text"] for i in items if i["art"] == "text"])
+            saetze = [i["text"] for i in items if i["art"] == "text"]
+            schafft, warten = self._schaffts("qwen", saetze)
+            f = self.faktor.get("qwen")
+            if schafft and f is not None and warten is not None and warten > f * len(saetze[0]) * self.SPRECH_S_JE_ZEICHEN + 0.5:
+                vorlauf = warten                   # erst so lange vorrechnen, dann ohne Lücke durchsprechen
             if not schafft and getattr(self.config, "qwen_geduldig", False):
                 schafft = True                 # „darf halt langsamer sein“ (seit 0.38.40): warten statt wechseln
                 warten = self._gesamt_s("qwen", [i["text"] for i in items if i["art"] == "text"])
+                vorlauf = self._vorlauf(f, saetze) if f is not None else None   # dann ohne Lücken (0.40)
             if not schafft:
                 ok, why = False, ("die entworfene Stimme rechnet auf diesem Gerät zu langsam "
                                   f"({self.faktor['qwen']:.1f} s je Sekunde Sprache)").replace(".", ",", 1)
@@ -446,6 +454,8 @@ class Speaker:
         out: dict[str, Any] = {"motor": motor, "teile": items}
         if not ok and self.motor() != "browser":
             out["hinweis"] = why
+        if vorlauf is not None and motor == "qwen":
+            out["vorlauf_s"] = vorlauf
         if warten is not None:
             grenze = self.GEDULD_MAX_S if motor == "qwen" and getattr(self.config, "qwen_geduldig", False) else 45.0
             out["warten_s"] = round(min(grenze, max(15.0, warten * 2 + 5)), 1)
@@ -527,8 +537,36 @@ class Speaker:
             return False, erster
         # danach muss sie mithalten: Rechnen des nächsten Satzes ≤ Sprechen des vorigen (mit etwas Luft)
         if len(saetze) > 1 and f > self.FLUESSIG_FAKTOR * 1.15:
-            return False, erster
+            # Streaming (seit 0.40): statt gleich auf eine andere Stimme zu wechseln, so lange vorrechnen lassen, dass
+            # die Antwort danach ohne Lücke durchläuft – solange das nicht länger dauert als beim ersten Satz erlaubt
+            vorlauf = self._vorlauf(f, saetze)
+            return vorlauf <= self.ERSTER_SATZ_MAX_S, vorlauf
         return True, erster
+
+    def _vorlauf(self, f: float, saetze: list[str]) -> float:
+        """Wie lange vor dem ersten Ton gewartet werden muss, damit danach kein Satz auf sich warten lässt: Satz i ist
+        nach der Summe der Rechenzeiten bis i fertig und wird gebraucht, wenn die Sätze davor gesprochen sind."""
+        fertig = gesprochen = vorlauf = 0.0
+        for s in saetze:
+            dauer = len(s) * self.SPRECH_S_JE_ZEICHEN
+            fertig += f * dauer
+            vorlauf = max(vorlauf, fertig - gesprochen)
+            gesprochen += dauer + 0.11
+        return math.ceil(vorlauf * 100) / 100              # aufrunden: lieber einen Hauch früher fertig
+
+    @staticmethod
+    def kurzer_anfang(items: list[dict[str, Any]], max_zeichen: int = 70) -> list[dict[str, Any]]:
+        """Den ersten langen Satz am ersten Komma teilen – das erste Stück ist schneller gerechnet und Knowlin fängt
+        früher an zu sprechen (Streaming, seit 0.40)."""
+        for i, it in enumerate(items):
+            if it.get("art") != "text":
+                continue
+            t = it["text"]
+            k = t.find(",", 20)
+            if len(t) > max_zeichen and 0 < k < len(t) - 15:
+                return [*items[:i], {**it, "text": t[:k + 1]}, {**it, "text": t[k + 1:].strip()}, *items[i + 1:]]
+            return items
+        return items
 
     GEDULD_MAX_S = 240.0                # so lange wartet das Fenster höchstens auf einen Satz, wenn langsam erlaubt ist
 

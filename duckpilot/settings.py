@@ -53,6 +53,7 @@ EDITABLE: dict[str, Any] = {
     "duck_name": str,
     "kopf_name": str,                          # seit 0.38.9: Name des Kopfes (leer = Knowlin)
     "nutzer_name": str,                        # seit 0.38.9: wie der Kopf dich anspricht (leer = Mensch)
+    "wetter_ort": "wetter_ort",                # seit 0.40: Stadt fürs Wetter (Open-Meteo), nie ein Standort
     "kopf_stimme_motor": ("browser", "piper", "qwen"),   # seit 0.38.10: Knowlins eigene Stimme
     "kopf_stimme_piper": "piper_voice",
     "kopf_stimme_qwen": "voice_id",
@@ -70,6 +71,7 @@ EDITABLE: dict[str, Any] = {
     "klang_farbe": "plusminus",                # Klangsignatur: dunkler −1 … heller +1
     "entenlaute": ("aus", "selten", "manchmal", "oft"),
     "plaudern": bool,
+    "ins_wort_fallen": bool,                   # seit 0.40: Dazwischensprechen hält die Stimme an
     "qwen_geduldig": bool,
     "schnellbefehle": bool,
     "mcp": bool,
@@ -181,6 +183,10 @@ def validate(patch: dict[str, Any]) -> dict[str, Any]:
                 value = "Knowlin"
             if key in ("tof", "updater", "media", "configd") and not value:
                 value = None
+        elif rule == "wetter_ort":
+            from .wetter import ort_pruefen
+
+            value = ort_pruefen(str(value or ""))
         elif rule == "stopp_fenster":
             # WCAG 2.2.1: die Zeit zum „Stopp“-Rufen nach einem Sturz ist einstellbar
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not 2 <= value <= 10:

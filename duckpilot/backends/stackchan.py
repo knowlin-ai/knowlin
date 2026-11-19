@@ -111,6 +111,10 @@ class StackChanSim(TischPlatz, SimBackend):
         if self._gespraech:
             self._angesprochen = self.t
 
+    def angesprochen(self) -> None:
+        """Jemand wendet sich ihm zu (z. B. ein Gesicht vor der Kamera) – wach bleiben bzw. aufwachen (seit 0.40)."""
+        self._angesprochen = self.t
+
     def schlaeft(self) -> bool:
         """Nach fünf Minuten ohne Ansprache eingeschlafen (Augen zu, Kopf gesenkt) – jede Ansprache weckt ihn."""
         return self.powered and not self.sitting and self.t - self._angesprochen >= SCHLAF_NACH

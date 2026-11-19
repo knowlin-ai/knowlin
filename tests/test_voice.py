@@ -756,3 +756,31 @@ def test_geduldig_spricht_trotz_langsamkeit_mit_eigener_stimme():
     sp.config = SimpleNamespace(qwen_geduldig=True)
     assert sp._schaffts("qwen", ["Hallo, ich bin Quacki."])[0] is False      # ohne Geduld: zu langsam
     assert sp._gesamt_s("qwen", ["Hallo.", "Wie geht's?"]) > 10
+
+
+def test_streaming_rechnet_vor_statt_die_stimme_zu_wechseln(tmp_path, monkeypatch):
+    """0.40: rechnet Qwen etwas langsamer als gesprochen wird, spricht trotzdem Qwen – nach einem Vorlauf, der so lang
+    ist, dass danach kein Satz auf sich warten lässt (vorher: Wechsel auf Piper oder die Browser-Stimme)."""
+    _qwen_bereit(monkeypatch, piper=True)
+    cfg = _Cfg()
+    cfg.stimme_motor, cfg.stimme_qwen = "qwen", "bruno-2"
+    sp = SP.Speaker(tmp_path, cfg)
+    sp.messen("qwen", T.Audio(b"", [], 2.0, 2.8))               # 1,4 s Rechnen je Sekunde Sprache
+
+    async def go():
+        plan = sp.prepare("Heute war ein schöner Tag. Ich habe im Wohnzimmer gespielt. Danach habe ich geschlafen.")
+        assert plan["motor"] == "qwen" and "hinweis" not in plan
+        saetze = [t["text"] for t in plan["teile"] if t["art"] == "text"]
+        assert plan["vorlauf_s"] == sp._vorlauf(1.4, saetze) and 0 < plan["vorlauf_s"] <= sp.ERSTER_SATZ_MAX_S
+    asyncio.run(go())
+    # nachgerechnet: mit dem Vorlauf ist jeder Satz fertig, bevor er dran ist
+    saetze = ["Ein Satz mit etwas Text.", "Noch einer, etwas länger als der erste Satz.", "Und ein dritter Satz."]
+    v, fertig, dran = sp._vorlauf(1.4, saetze), 0.0, 0.0
+    for s in saetze:
+        fertig += 1.4 * len(s) * sp.SPRECH_S_JE_ZEICHEN
+        assert fertig <= v + dran + 1e-6
+        dran += len(s) * sp.SPRECH_S_JE_ZEICHEN + 0.11
+    lang = [{"art": "text", "text": "Das ist ein ziemlich langer erster Satz, der am Komma geteilt wird, damit es schneller losgeht."}]
+    teile = SP.Speaker.kurzer_anfang(lang)
+    assert len(teile) == 2 and teile[0]["text"].endswith(",") and teile[1]["text"].startswith("der")
+    assert SP.Speaker.kurzer_anfang([{"art": "text", "text": "Kurz."}]) == [{"art": "text", "text": "Kurz."}]

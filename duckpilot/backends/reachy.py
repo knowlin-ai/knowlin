@@ -15,6 +15,11 @@ Zwei Körper:
   Daemon (`http://localhost:8000` bzw. `http://reachy-mini.local:8000`). Ohne Pollens SDK als Abhängigkeit – nur HTTP.
   Geprüft gegen Pollens eigenen Testmodus `reachy-mini-daemon --mockup-sim` (Version 1.13), nicht an einem echten Gerät.
 
+Wie in Pollens App (seit 0.40): Nach zehn Minuten ohne Ansprache schläft Reachy von selbst ein (Kopf sinkt, Antennen
+legen sich an – am echten Reachy über Pollens `goto_sleep`), und jede Ansprache weckt ihn wieder (`wake_up`). Was als
+Ansprache zählt: zuhören, sprechen, Gefühle und Bewegungen von Pollen, Antennen, ein Gesicht vor der Kamera
+(`angesprochen`). Leerlauf-Gesten halten ihn nicht wach. Nach einem Not-Aus weckt ihn nichts von selbst.
+
 Grenzen aus Pollens Doku (core-concept.md): Kopf nicken/neigen ±40°, Kopf drehen ±180°, Körper drehen ±160°, Kopf und
 Körper höchstens 65° auseinander. duckpilot bleibt darunter.
 """
@@ -49,6 +54,7 @@ KOPF_Z_M = 0.02               # Kopf hoch/runter
 SCHLAF_NICKEN = 0.42          # Kopf im Schlaf nach vorn gesenkt (Pollens SLEEP_HEAD_POSE ≈ 24°)
 EIGENSCHAFTEN = frozenset({"kopf", "antennen", "koerperdrehung", "kamera", "mikrofon", "lautsprecher",
                            "pollen_bewegungen"})
+SCHLAF_NACH_S = 600.0         # so lange ohne Ansprache, dann schläft er ein (wie Pollens App, seit 0.40)
 FUSS_M = 0.065               # Fuß von Reachy Mini ≈ 13 cm Durchmesser (der Körper darüber ist etwas breiter)
 # Worauf man Reachy stellen kann (Name enthält …) – Sofa (weich) und Pflanze sind keine Stellflächen
 
@@ -88,20 +94,36 @@ class ReachyMiniSim(TischPlatz, SimBackend):
         self._bild: dict[str, float] | None = None          # Bild einer laufenden Aufnahme von Pollen
         self.stand_z = 0.0                                  # Höhe der Standfläche (Tischroboter: auf dem Couchtisch)
         self.standflaeche = ""
+        self._angesprochen = 0.0
         self.platzieren(STANDARD_FLAECHE)
 
     # ── Körper ───────────────────────────────────────────────────────────
     def eigenschaften(self) -> frozenset[str]:
         return EIGENSCHAFTEN | {"simulator", "zuruecksetzen"}
 
+    def angesprochen(self) -> None:
+        """Jemand wendet sich ihm zu – wach bleiben bzw. aufwachen (seit 0.40)."""
+        self._angesprochen = self.t
+
+    def schlaeft(self) -> bool:
+        """Von selbst eingeschlafen (zehn Minuten ohne Ansprache) – nicht dasselbe wie hingesetzt oder stromlos."""
+        return self.powered and not self.sitting and self.t - self._angesprochen >= SCHLAF_NACH_S
+
+    async def init(self) -> IntentResult:
+        self.angesprochen()
+        return await super().init()
+
     def skills(self) -> list[str]:
         return []
 
     def gespraech(self, zustand: str | None, sekunden: float = 4.0) -> None:
+        if zustand:
+            self.angesprochen()
         self.ausdruck.setze(zustand, sekunden)
 
     async def pollen_bewegung(self, aufnahme: Aufnahme) -> IntentResult:
         """Eine Aufnahme aus Pollens Bibliothek abspielen (Kopf, Antennen, Körper; der Ton läuft im Browser)."""
+        self.angesprochen()
         if not self.powered or self.sitting:
             return IntentResult(False, "schläft – erst aufwecken")
         self.ausdruck.spielen(aufnahme)
@@ -115,6 +137,7 @@ class ReachyMiniSim(TischPlatz, SimBackend):
         return IntentResult(False, "Reachy ist keine Ente – keine Entenlaute (Töne kommen mit Pollens Bewegungen)")
 
     async def do(self, skill: str) -> IntentResult:
+        self.angesprochen()
         if skill == "sit_toggle":
             return await (self.init() if self.sitting else self.rest())
         return IntentResult(False, NICHT_OHNE_BEINE)
@@ -129,6 +152,7 @@ class ReachyMiniSim(TischPlatz, SimBackend):
     async def antennen_setzen(self, rechts: float, links: float, sekunden: float = 1.5) -> IntentResult:
         if not self.powered:
             return IntentResult(False, "schläft – erst aufwecken")
+        self.angesprochen()
         g = math.radians(170)
         self.antennen_ziel = [max(-g, min(g, rechts)), max(-g, min(g, links))]
         self._antennen_bis = self.t + max(0.2, min(10.0, sekunden))
@@ -151,7 +175,9 @@ class ReachyMiniSim(TischPlatz, SimBackend):
 
     def _step_actuators(self, dt: float) -> None:
         super()._step_actuators(dt)
-        wach = self.powered and not self.sitting
+        if self.mouth_now > 0.05:                               # spricht gerade – zählt als Ansprache
+            self.angesprochen()
+        wach = self.powered and not self.sitting and not self.schlaeft()
         self._zusatz, aus_ant, self._bild = self.ausdruck.schritt(dt, self.mouth_now, wach)
         if not wach:
             ziel = [-ANTENNE_SCHLAF, ANTENNE_SCHLAF]
@@ -180,7 +206,7 @@ class ReachyMiniSim(TischPlatz, SimBackend):
         st.battery = None
         st.gait_phase = 0.0
         st.perception = Perception(objects=st.perception.objects, source="sim")
-        if self.sitting or not self.powered:
+        if self.sitting or not self.powered or self.schlaeft():
             st.head = Head(-0.2, SCHLAF_NICKEN, 0.0, 0.0)
             lage = dict(SCHLAF_LAGE)
         elif self._bild is not None:
@@ -234,6 +260,8 @@ class ReachyMiniDaemon(DuckBackend):
         self._spielt_uuid: str | None = None
         self.apps = PollenApps(self._rufen)          # Pollens Apps (seit 0.38.19)
         self._app_abfrage = 0.0
+        self._angesprochen = time.monotonic()
+        self._auto_schlaf = False                   # selbst eingeschlafen – nur dann weckt eine Ansprache ihn wieder
 
     def eigenschaften(self) -> frozenset[str]:
         return EIGENSCHAFTEN
@@ -241,11 +269,25 @@ class ReachyMiniDaemon(DuckBackend):
     def skills(self) -> list[str]:
         return []
 
+    def angesprochen(self) -> None:
+        """Jemand wendet sich ihm zu: wach bleiben – und aufwachen, wenn er von selbst eingeschlafen ist (seit 0.40).
+        Nach einem Not-Aus (`relax`) weckt ihn das nie."""
+        self._angesprochen = time.monotonic()
+        if self._auto_schlaf and not self._wach:
+            self._auto_schlaf = False
+            try:
+                asyncio.get_running_loop().create_task(self.init())
+            except RuntimeError:                        # kein Loop (Tests ohne Laufzeit)
+                pass
+
     def gespraech(self, zustand: str | None, sekunden: float = 4.0) -> None:
+        if zustand:
+            self.angesprochen()
         self.ausdruck.setze(zustand, sekunden)
 
     async def pollen_bewegung(self, aufnahme: Aufnahme) -> IntentResult:
         """Pollens Daemon spielt die Aufnahme selbst ab (mit Ton aus dem Lautsprecher des Roboters)."""
+        self.angesprochen()
         if not self._wach:
             return IntentResult(False, "schläft – erst aufwecken")
         from urllib.parse import quote
@@ -298,12 +340,22 @@ class ReachyMiniDaemon(DuckBackend):
                     except Exception:  # noqa: BLE001 – ältere Daemons ohne Apps
                         self.apps.laufend = None
                 await self._senden()
+                await self._muede()
             except asyncio.CancelledError:
                 raise
             except Exception as exc:  # noqa: BLE001
                 self._verbunden, self.fehler = False, f"Reachy Mini nicht erreichbar: {exc}"
                 await asyncio.sleep(1.0)
             await asyncio.sleep(0.05)
+
+    async def _muede(self) -> None:
+        """Zehn Minuten ohne Ansprache: schlafen gehen wie in Pollens App (nicht während einer Aufnahme oder App)."""
+        jetzt = time.monotonic()
+        if (self._wach and not self.apps.aktiv and jetzt >= self._spielt_bis and self._mund <= 0.02
+                and jetzt - self._angesprochen >= SCHLAF_NACH_S):
+            if (await self.rest()).accepted:
+                self._auto_schlaf = True
+                log.info("Reachy Mini schläft von selbst ein (zehn Minuten ohne Ansprache)")
 
     async def _senden(self) -> None:
         jetzt = time.monotonic()
@@ -361,11 +413,14 @@ class ReachyMiniDaemon(DuckBackend):
 
     async def mouth(self, open_: float) -> None:
         self._mund = max(0.0, min(1.0, float(open_)))
+        if self._mund > 0.05:
+            self.angesprochen()
 
     async def pose(self, pose: Pose, active: bool = True) -> None:
         self._pose = pose.clamped() if active else Pose()
 
     async def antennen_setzen(self, rechts: float, links: float, sekunden: float = 1.5) -> IntentResult:
+        self.angesprochen()
         g = math.radians(170)
         self._antennen_ziel = [max(-g, min(g, rechts)), max(-g, min(g, links))]
         self._antennen_bis = time.monotonic() + max(0.2, min(10.0, sekunden))
@@ -376,6 +431,7 @@ class ReachyMiniDaemon(DuckBackend):
             await self._rufen("POST", "/api/motors/set_mode/enabled")
             await self._rufen("POST", "/api/move/play/wake_up")
             self._schlaeft, self._wach, self._gesendet = False, True, None
+            self._angesprochen, self._auto_schlaf = time.monotonic(), False
             return IntentResult(True, "wacht auf")
         except Exception as exc:  # noqa: BLE001
             return IntentResult(False, f"Aufwecken ging nicht: {exc}")
@@ -407,13 +463,14 @@ class ReachyMiniDaemon(DuckBackend):
         """Not-Aus: Motoren sofort aus (Pollens /api/motors/set_mode/disabled) – der Kopf sinkt auf die Plattform."""
         try:
             await self._rufen("POST", "/api/motors/set_mode/disabled")
-            self._schlaeft, self._wach = True, False
+            self._schlaeft, self._wach, self._auto_schlaf = True, False, False
             return IntentResult(True, "stromlos")
         except Exception as exc:  # noqa: BLE001
             return IntentResult(False, f"Motoren ließen sich nicht abschalten: {exc}")
 
     async def do(self, skill: str) -> IntentResult:
         if skill == "sit_toggle":
+            self._auto_schlaf = False                   # ausdrücklich gewünscht – nicht noch einmal von selbst wecken
             return await (self.init() if not self._wach else self.rest())
         return IntentResult(False, NICHT_OHNE_BEINE)
 

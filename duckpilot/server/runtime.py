@@ -225,6 +225,9 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         from .sicherung import SicherungService
 
         self.sicherung = SicherungService(self)                 # Sicherungspunkte (seit 0.38.24)
+        from ..wetter import Wetter
+
+        self.wetter = Wetter()                                  # nur auf Nachfrage, Open-Meteo (seit 0.40)
         self._wire()
 
     # ── Aufbau ────────────────────────────────────────────────────────────
@@ -278,6 +281,9 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.runner.on_choreo = lambda name: spawn(self.broadcast({"type": "choreo", "name": name}))
         self.runner.schwarm = getattr(self, "schwarm", None)
         self.runner.raum = self.raum
+        self.runner.wetter = self.wetter                       # Wetter (seit 0.40, Open-Meteo)
+        self.runner.wetter_ort = lambda: self.config.wetter_ort
+        self.runner.englisch = lambda: str(getattr(self.config, "sprache", "de")).startswith("en")
         self.runner.pollen = PollenAdapter(self)
         self.runner.free_training = self.free_training
         self._wire_practice()

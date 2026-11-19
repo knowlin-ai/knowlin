@@ -37,7 +37,7 @@ from .tools import ToolRunner, fehlt_dem_koerper
 log = logging.getLogger(__name__)
 
 # Was der Kopf ohne Körper darf: Gedächtnis (ohne Tricks und Orte – die brauchen einen Körper) und Alltag
-KOPF_TOOLS = ("remember", "recall", "forget", "alltag", "tagesrueckblick")   # Tagesrückblick seit 0.39
+KOPF_TOOLS = ("remember", "recall", "forget", "alltag", "tagesrueckblick", "wetter")   # seit 0.39, Wetter 0.40
 EIGENE_TOOLS = ("koerper_vorschlagen", "figur_wecken", "namen_setzen")
 VORSCHLAG_GILT_S = 180              # so lange zählt ein „ja“ als Antwort auf den Vorschlag
 
@@ -467,6 +467,12 @@ class KopfAgent:
                 r = await self.runner.run("alltag", q)
                 return Reply(r.get("antwort") or r.get("fehler") or ("Done." if en else "Erledigt."),
                              [{"tool": "alltag", "input": q, "result": r}], "einfach")
+        from .fallback import wetter_frage
+
+        wf = wetter_frage(text)
+        if wf is not None:                                     # Wetter auch ohne KI-Modell (seit 0.40)
+            r = await self.runner.run("wetter", wf)
+            return Reply(r.get("text") or r.get("fehler") or "", [{"tool": "wetter", "input": wf, "result": r}], "einfach")
         namen = [f["name"] for f in self.figuren()]
         aufzaehlung = ", ".join(namen[:-1]) + (" or " if en else " oder ") + namen[-1] if len(namen) > 1 else "".join(namen)
         if WAS_KANNST.search(text.lower()):

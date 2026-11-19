@@ -38,13 +38,14 @@ function skriptLaden(src) {
 }
 
 function initSchau() {
-  const knopf = document.getElementById('schau-start');
+  const knoepfe = [...document.querySelectorAll('[data-schau]')];   // je Körper mit Kopf und Kamera einer (Stacki, Reachy)
   const info = document.getElementById('schau-info');
-  if (!knopf || !info) return;
+  if (!knoepfe.length || !info) return;
   let stream = null, video = null, erkenner = null, laeuft = false, takt = 0, unterwegs = false, mitte = null;
 
   const sagen = (t) => { info.hidden = !t; info.textContent = t ? tr(t) : ''; };
-  const zustand = (an) => { laeuft = an; knopf.setAttribute('aria-pressed', String(an)); };
+  const zustand = (an) => { laeuft = an; for (const k of knoepfe) k.setAttribute('aria-pressed', String(an)); };
+  const sperren = (ja) => { for (const k of knoepfe) k.disabled = ja; };
 
   async function laden() {
     let s = await api('/api/schau');
@@ -113,7 +114,7 @@ function initSchau() {
     const s = await api('/api/schau');
     if (s.grund) { sagen(s.grund); toast(tr(s.grund)); return; }
     if (!navigator.mediaDevices?.getUserMedia) { sagen('Diese Ansicht kann keine Webcam öffnen.'); return; }
-    knopf.disabled = true;
+    sperren(true);
     try {
       if (!(await laden())) return;
       sagen('Webcam startet …');
@@ -134,11 +135,11 @@ function initSchau() {
     } catch (e) {
       await aus(e && e.name === 'NotAllowedError' ? 'Webcam nicht freigegeben.' : `Ging nicht: ${(e && e.message) || e}`);
     } finally {
-      knopf.disabled = false;
+      sperren(false);
     }
   }
 
-  knopf.addEventListener('click', () => (laeuft ? aus('Schauen beendet. Die Webcam ist aus.') : an()));
+  for (const k of knoepfe) k.addEventListener('click', () => (laeuft ? aus('Schauen beendet. Die Webcam ist aus.') : an()));
   document.getElementById('stop')?.addEventListener('click', () => { if (laeuft) aus('Not-Aus – Schauen beendet. Die Webcam ist aus.'); });
   window.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && laeuft) aus('Not-Aus – Schauen beendet. Die Webcam ist aus.'); });
   document.addEventListener('visibilitychange', () => { if (document.hidden && laeuft) aus('Schauen beendet. Die Webcam ist aus.'); });
