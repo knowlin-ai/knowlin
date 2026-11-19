@@ -9,6 +9,33 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.44.0 – 2026-11-19 – Spiele für jeden Körper, VR mit der Quest
+
+### Neu
+- **„Ente sagt“** (für jeden Körper): Handzeichen ansagen, nur mit „… sagt“ nachmachen; Webcam-Handerkennung im Browser
+  oder Knöpfe (`ente_sagt.py`).
+- **Verstecken** (mit Beinen, einfacher Simulator): Vorhang über der 3D-Ansicht, Versteck bei einem Möbelstück, raten
+  mit „wärmer/kälter“ (`verstecken.py`).
+- **Elfmeter** (Enten mit Schussbein): Tor an der Wand, fünf Schüsse, du bist der Torwart (`motion/elfmeter.py`).
+- **VR und Mixed Reality mit der Meta Quest** (WebXR, `static/vr.js`): Roboter auf dem eigenen Boden, anstupsen,
+  hinzeigen und hinlaufen lassen.
+
+### Geändert
+- Der Reiter „Spiele“ gibt es für jeden Körper; Reachys Kamera-Spiele stehen darin nur bei Reachy. Der Spielebereich
+  ist ein eigener Teil (`teile/spiele.html`).
+- Der Simulator kann ein Tor aufstellen und den Ball hinlegen; der Zustand meldet das Spielfeld (`spielfeld`).
+
+### Sicherheit
+- Nach einem Not-Aus startet weder Verstecken noch Elfmeter; Freudengesten nie während der Sperre.
+- Der Vorhang beim Verstecken deckt nur die 3D-Ansicht zu – Not-Aus und Leiste bleiben bedienbar.
+- In VR: Greiftaste an jedem Controller und ein großer Knopf im Overlay lösen den Not-Aus aus; nur über eine sichere
+  Adresse.
+
+### Nicht geprüft
+- **VR mit einer echten Meta Quest** (gebaut ohne Brille; geprüft sind nur Seite, Knöpfe und Code-Regeln).
+- „Ente sagt“ mit einer echten Webcam (geprüft mit den Knöpfen und der Spiellogik).
+- Spiele mit echten Robotern.
+
 ## 0.43.0 – 2026-11-19 – Jeder Körper tanzt, Bello lernt laufen
 
 ### Neu

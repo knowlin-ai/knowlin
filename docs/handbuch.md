@@ -652,6 +652,35 @@ System → Körper (oder Einstellungen → Über) → **Das lief schief**. duckp
 Datenordner. „Auf GitHub melden“ öffnet ein vorausgefülltes Issue, die Datei hängst du selbst an. **Nie dabei:**
 Gespräche, Personen, Bilder, Schlüssel.
 
+## Spiele (seit 0.44)
+
+Tricks → **Spiele**, für jeden Körper, auch vom Handy (nur Wörter und Zahlen gehen an Knowlin):
+
+- **„Ente sagt“** (heißt nach der Verkörperung, z. B. „Quacki sagt“): Knowlin sagt ein Handzeichen an – Faust, Schere,
+  offene Hand oder Hand weg. Nur wenn davor „… sagt“ kommt, machst du es nach, sonst nicht. Mit geladener
+  Handerkennung („mit Webcam“) prüft der Browser dein Zeichen (es geht nur das Wort an Knowlin, kein Bild); ohne
+  tippst du es an. Drei Leben, je drei Punkte wird die Zeit knapper; bei richtigen Antworten freut sich der Körper.
+- **Verstecken** (Körper mit Beinen, einfacher Simulator): Ein Vorhang legt sich über die 3D-Ansicht (Not-Aus und
+  Leiste bleiben frei), Knowlin zählt bis zehn, und der Roboter läuft zu einem Versteck bei einem Möbelstück – auf der
+  Seite, die von der Raummitte weg zeigt. Dann rätst du per Knopf: „Wärmer“, „kälter“; nach fünf Fehlversuchen zeigt
+  er sich. Kommt er nicht ganz hin, gilt ehrlich das Versteck, an dem er steht. Nach einem Not-Aus startet das Spiel
+  nicht.
+- **Elfmeter** (Enten mit Schussbein, einfacher Simulator): Ein Tor an der linken Wand, fünf Schüsse vom
+  Elfmeterpunkt mit dem gezielten Schuss. Sie wählt die Ecke zufällig und verrät sie erst nach dem Schuss – du stehst
+  im Tor und hechtest per Knopf in eine Ecke. Erwischst du ihre, ist er gehalten.
+- Bestwerte als Zahlen in `spiele_alle.json`. Reachys Kamera-Spiele (Ampel, Hand folgen, Mach mir nach, Schere Stein
+  Papier) bleiben, wo sie waren.
+
+### VR und Mixed Reality mit der Meta Quest (seit 0.44, nicht geprüft)
+
+Im Cockpit erscheint **„In VR ansehen“**, wenn der Browser WebXR mit Passthrough kann (Meta Quest Browser) und die Seite
+über eine sichere Adresse läuft (https, z. B. Tailscale wie beim Vormachen vom Handy). Dann steht der Roboter aus dem
+Simulator auf deinem echten Boden: auf den Boden zeigen und abdrücken stellt ihn hin; danach heißt Abdrücken auf dem
+Boden „lauf dahin“ (nur mit Beinen oder Rädern), Abdrücken auf ihm „anstupsen“ (Stacki wird gestreichelt, die anderen
+freuen sich). **Not-Aus:** die Greiftaste an jedem Controller oder der rote Knopf im Overlay. Kamera- und Raumdaten der
+Brille bleiben in der Brille. Ehrlich: ohne eigene Quest gebaut und **nicht** mit einer Brille geprüft – Rückmeldungen
+willkommen.
+
 ## Tanzen zu Musik (Choreomodus)
 
 Steuern → **Tanzen**. Ein Musikstück wählen (mp3, m4a, ogg, wav, flac, bis 40 MB). Der Browser hört Tempo, die Eins
