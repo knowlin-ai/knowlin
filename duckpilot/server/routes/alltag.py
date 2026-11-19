@@ -8,6 +8,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from ... import kalender_abo
 from ... import remote as R
 from ..runtime import (
     Runtime,
@@ -112,3 +113,35 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             return JSONResponse({"ok": False, "fehler": str(exc)}, status_code=400)
         await runtime.alltag.push()
         return JSONResponse({"ok": True, **res})
+
+    # ── Routinen und Kalender-Abo (seit 0.42) ────────────────────────────
+    @app.post("/api/alltag/routine/{rid}")
+    async def alltag_routine(rid: str, request: Request) -> JSONResponse:
+        body = await _json_body(request)
+        it = runtime.alltag.planner.routine_an(rid, bool(body.get("an", True)))
+        await runtime.alltag.push()
+        return JSONResponse({"ok": it is not None})
+
+    @app.post("/api/alltag/abo")
+    async def alltag_abo(request: Request) -> JSONResponse:
+        if (r := _alltag_off()) is not None:
+            return r
+        body = await _json_body(request)
+        try:
+            abo = await asyncio.to_thread(kalender_abo.setzen, runtime.alltag.planner, body.get("pfad"))
+        except ValueError as exc:
+            return JSONResponse({"ok": False, "fehler": str(exc)}, status_code=400)
+        await runtime.alltag.push()
+        return JSONResponse({"ok": True, "abo": abo})
+
+    @app.post("/api/alltag/abo/lesen")
+    async def alltag_abo_lesen() -> JSONResponse:
+        await asyncio.to_thread(kalender_abo.lesen, runtime.alltag.planner, True)
+        await runtime.alltag.push()
+        return JSONResponse({"ok": True, "abo": kalender_abo.anzeige(runtime.alltag.planner)})
+
+    @app.delete("/api/alltag/abo")
+    async def alltag_abo_aus() -> JSONResponse:
+        n = await asyncio.to_thread(kalender_abo.beenden, runtime.alltag.planner)
+        await runtime.alltag.push()
+        return JSONResponse({"ok": True, "entfernt": n})

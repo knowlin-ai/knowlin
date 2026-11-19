@@ -1,6 +1,6 @@
 // Ari lernt durch Vormachen (seit 0.38.64, Stufe A; Maintainer: „Ari zuerst“, „A, dann B“). Im Vormach-Fenster:
 // Aufgabe wählen, Beispiele aufnehmen (deine Hand führt Ari, bis der Würfel in der Kiste liegt), lernen, selbst
-// ausprobieren, als ZIP für LeRobot mitnehmen. Gerechnet wird auf dem Server (arm_lernen.py, arm_schule.py).
+// ausprobieren, als ZIP für LeRobot mitnehmen – oder auf den Hugging Face Hub laden (seit 0.42, Zwei-Klick, privat). Gerechnet wird auf dem Server (arm_lernen.py, arm_schule.py).
 
 export function initAriLernen({ $, api, toast }) {
   const box = $('ari-lernen');
@@ -39,7 +39,8 @@ export function initAriLernen({ $, api, toast }) {
     const g = s.gelernt ? `Gelernt: ${s.gelernt.geschafft} von ${s.gelernt.versuche} im Test${u ? ` (nach dem Üben, vorher ${u.vorher})` : ''}.`
       : 'Noch nichts gelernt.';
     text.textContent = [s.meldung, s.fortschritt, `${s.beispiele} eigene Beispiele. ${g}`].filter(Boolean).join(' ');
-    $('ari-export').hidden = !s.beispiele && !s.gelernt;
+    $('ari-weiter').hidden = !s.beispiele && !s.gelernt;
+    if ($('ari-weiter').hidden) $('ari-hub-box').hidden = true;
     clearTimeout(poll);
     if (t && !box.closest('[hidden]')) poll = setTimeout(laden, 700);   // solange etwas läuft, nachsehen
   }
@@ -63,6 +64,20 @@ export function initAriLernen({ $, api, toast }) {
   knopf.lernen.addEventListener('click', () => tun('lernen', { lehrer: $('ari-lehrer').checked }));
   knopf.ueben?.addEventListener('click', () => tun(stand && stand.taetigkeit === 'ueben' ? 'abbrechen' : 'ueben'));
   knopf.probieren.addEventListener('click', () => tun(stand && stand.taetigkeit === 'ausprobieren' ? 'abbrechen' : 'ausprobieren'));
+
+  // Hub: erster Klick öffnet das Kästchen, „Jetzt hochladen“ ist der zweite
+  $('ari-hub').addEventListener('click', () => { $('ari-hub-box').hidden = false; $('ari-hub-los').focus(); });
+  $('ari-hub-ab').addEventListener('click', () => { $('ari-hub-box').hidden = true; });
+  $('ari-hub-los').addEventListener('click', async () => {
+    const b = $('ari-hub-los');
+    b.disabled = true;
+    const r = await api('/api/ari_lernen/hub', 'POST', { bestaetigt: true, oeffentlich: $('ari-hub-oeffentlich').checked })
+      .catch(() => null);
+    b.disabled = false;
+    if (!r || !r.ok) { toast((r && r.fehler) || 'Hochladen ging nicht', true); return; }
+    $('ari-hub-box').hidden = true;
+    toast(r.oeffentlich ? `Geteilt: ${r.repo} (öffentlich)` : `Hochgeladen: ${r.repo} (privat)`);
+  });
 
   return {
     zeigen: laden,

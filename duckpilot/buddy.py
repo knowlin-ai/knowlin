@@ -22,6 +22,8 @@ from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
 
+from . import kalender_abo, routinen
+
 MAX_ITEMS = 500
 TEXT_MAX = 200
 WEEKDAYS = ["montag", "dienstag", "mittwoch", "donnerstag", "freitag", "samstag", "sonntag"]
@@ -429,7 +431,7 @@ class Planner:
         self.data = self._load()
 
     def _load(self) -> dict[str, Any]:
-        base = {"timer": [], "erinnerungen": [], "termine": [], "todos": [],
+        base = {"timer": [], "erinnerungen": [], "termine": [], "todos": [], "routinen": [], "abo": {},
                 "modus": "aktiv", "ruhe_nach_min": 0, "wecken": "aufstehen", "durchsagen": True,
                 # Funktionen des Buddys (Alltag → Was der Buddy darf); Sehen und Personen bewusst aus
                 "sehen": False, "personen": False, "begruessen": True, "augen": "simulator"}
@@ -564,9 +566,10 @@ class Planner:
             return it
 
     def remove(self, kind: str, ref: str) -> dict[str, Any] | None:
-        key = {"timer": "timer", "erinnerung": "erinnerungen", "termin": "termine", "todo": "todos"}.get(kind)
+        key = {"timer": "timer", "erinnerung": "erinnerungen", "termin": "termine", "todo": "todos",
+               "routine": "routinen"}.get(kind)
         if key is None:
-            raise ValueError("Art: timer, erinnerung, termin oder todo.")
+            raise ValueError("Art: timer, erinnerung, termin, todo oder routine.")
         with self.lock:
             it = self._find(key, ref)
             if it:
@@ -717,6 +720,8 @@ class Planner:
                 "morgen": self.agenda(now.date() + timedelta(days=1)),
                 "alarme": [a.__dict__ for a in self.alarms],
                 "optionen": self.options(),
+                "routinen": [{**r, "beschreibung": routinen.beschreiben(r)} for r in self.data["routinen"]],
+                "abo": kalender_abo.anzeige(self),
             }
 
     def brief(self) -> str:
@@ -740,19 +745,54 @@ class Planner:
             parts.append(f"{t['name']}: noch {fmt_duration(max(0, t['ende'] - now.timestamp()))}.")
         return " ".join(parts)
 
-    def import_ics(self, text: str) -> dict[str, Any]:
+    def import_ics(self, text: str, source: str = "ics") -> dict[str, Any]:
         events, series, unsupported = parse_ics(text, self.clock())
         n = 0
+        uids: list[str] = []
         with self.lock:
             try:
                 for ev in events[:MAX_ITEMS]:
-                    self.add_event(ev["titel"], ev["start"], ev["ende"], ev["ort"], source="ics", uid=ev["uid"],
+                    self.add_event(ev["titel"], ev["start"], ev["ende"], ev["ort"], source=source, uid=ev["uid"],
                                    all_day=ev["ganztags"], save=False)
                     n += 1
+                    uids.append(ev["uid"])
             except ValueError:
                 pass                                   # Liste voll: was drin ist, bleibt
             self.save()
-        return {"importiert": n, "serien": series, "nicht_aufgeloest": unsupported}
+        return {"importiert": n, "serien": series, "nicht_aufgeloest": unsupported, "uids": uids}
+
+    # ── Routinen (seit 0.42) ─────────────────────────────────────────────
+    def add_routine(self, **felder: Any) -> dict[str, Any]:
+        r = routinen.pruefen(**felder)
+        with self.lock:
+            if len(self.data["routinen"]) >= routinen.MAX_ROUTINEN:
+                raise ValueError("Es gibt schon 20 Routinen – erst eine löschen.")
+            if any(x["name"].lower() == r["name"].lower() for x in self.data["routinen"]):
+                raise ValueError(f"Eine Routine „{r['name']}“ gibt es schon.")
+            if r["zeit"] and r["zeit"] <= self.clock().strftime("%H:%M"):
+                r["zuletzt"] = self.clock().date().isoformat()      # heute schon vorbei: ab morgen
+            self.data["routinen"].append(r)
+            self.save()
+            return r
+
+    def routine(self, ref: str) -> dict[str, Any] | None:
+        return routinen.finden(self.data["routinen"], ref)
+
+    def routine_an(self, ref: str, an: bool) -> dict[str, Any] | None:
+        with self.lock:
+            r = routinen.finden(self.data["routinen"], ref)
+            if r:
+                r["an"] = bool(an)
+                self.save()
+            return r
+
+    def routinen_faellig(self) -> list[dict[str, Any]]:
+        with self.lock:
+            vorher = [r.get("zuletzt") for r in self.data["routinen"]]
+            neu = routinen.faellig(self.data["routinen"], self.clock())
+            if vorher != [r.get("zuletzt") for r in self.data["routinen"]]:
+                self.save()                               # auch wenn nichts ausgelöst wurde (PC war zu lange aus)
+            return neu
 
 
 def _next_repeat(due: datetime, repeat: str | None, now: datetime) -> datetime | None:

@@ -19,6 +19,7 @@ import time
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+from .. import kalender_abo, routinen
 from ..aio import spawn
 from ..buddy import Alarm, Planner, fmt_duration, fmt_when, local, now_local, parse_duration, parse_when, say_time
 from . import Pack, PackInfo
@@ -34,7 +35,7 @@ NUDGE_EVERY_S = 60.0
 NUDGE_MAX = 3
 BACK_TO_REST_S = 20.0
 ACTIONS = ["uhrzeit", "ueberblick", "timer", "erinnerung", "termin", "todo", "todo_erledigt", "todos",
-           "loeschen", "ruhe", "aktiv", "ansehen", "wer_ist_da"]
+           "loeschen", "ruhe", "aktiv", "ansehen", "wer_ist_da", "routine", "routinen", "routine_anlegen"]
 
 
 class AlltagPack(Pack):
@@ -61,7 +62,10 @@ class AlltagPack(Pack):
                 "(deutsch wie „morgen um 9“, „in 20 Minuten“, oder ISO 2026-11-03T09:00), optional wiederholung "
                 "(taeglich|werktags|woechentlich). termin: text (Titel), wann, optional ort, minuten_vorher (Standard 15). "
                 "todo: text auf die Liste. todo_erledigt: text oder id abhaken. todos: Liste zeigen. loeschen: art "
-                "(timer|erinnerung|termin|todo) und text/id. ruhe: Ruhemodus (hinsetzen, Motoren aus, wacht bei Fälligem "
+                "(timer|erinnerung|termin|todo|routine) und text/id. routine: eine Routine jetzt starten (text = Name). "
+                "routinen: alle Routinen zeigen. routine_anlegen: text (Name), optional wann (Uhrzeit wie 7:30, leer = "
+                "nur auf Zuruf), tage (taeglich|werktags|wochenende), schritte (ueberblick, wetter, todos, freuen, "
+                "aktiv, ruhe), ansage (Satz zu Beginn). ruhe: Ruhemodus (hinsetzen, Motoren aus, wacht bei Fälligem "
                 "auf). aktiv: aufwachen und wieder mitmachen. ansehen: ein Bild der Kamera (am Roboter die Kopfkamera, im "
                 "Simulator die PC-Webcam oder die Simulator-Ansicht) bekommen, um es zu beschreiben, Text vorzulesen "
                 "(aufgabe=vorlesen: wörtlich und vollständig vorlesen, nichts erfinden; Unleserliches sagen) oder eine "
@@ -78,7 +82,10 @@ class AlltagPack(Pack):
                     "ort": {"type": "string"},
                     "minuten_vorher": {"type": "integer"},
                     "wiederholung": {"type": "string", "enum": ["taeglich", "werktags", "woechentlich"]},
-                    "art": {"type": "string", "enum": ["timer", "erinnerung", "termin", "todo"]},
+                    "art": {"type": "string", "enum": ["timer", "erinnerung", "termin", "todo", "routine"]},
+                    "tage": {"type": "string", "enum": list(routinen.TAGE)},
+                    "schritte": {"type": "array", "items": {"type": "string", "enum": list(routinen.SCHRITTE)}},
+                    "ansage": {"type": "string"},
                     "id": {"type": "string"},
                     "aufgabe": {"type": "string", "enum": ["beschreiben", "vorlesen", "frage"]},
                     "frage": {"type": "string"},
@@ -115,6 +122,8 @@ class AlltagService:
         self._ack_at: float | None = None
         self._task: asyncio.Task | None = None
         self._mode_lock = asyncio.Lock()
+        self._abo_at = -1e9
+        self._routine_laeuft = False
 
     @property
     def on(self) -> bool:
@@ -158,6 +167,12 @@ class AlltagService:
             return
         for alarm in self.planner.tick():
             await self._ring(alarm)
+        if time.monotonic() - self._abo_at >= kalender_abo.PRUEF_ALLE_S:   # Kalender-Abo (seit 0.42)
+            self._abo_at = time.monotonic()
+            if await asyncio.to_thread(kalender_abo.lesen, self.planner) is not None:
+                await self.push()
+        for r in self.planner.routinen_faellig():                         # Routinen zur Uhrzeit (seit 0.42)
+            spawn(self.routine(r, "zeit"))
         now = time.time()
         for a in list(self.planner.alarms):                  # nicht bestätigt: alle 60 s nochmal melden
             if a.gemeldet < NUDGE_MAX and now - a.seit >= NUDGE_EVERY_S * a.gemeldet:
@@ -226,6 +241,59 @@ class AlltagService:
         if item and not self.planner.alarms:
             self._ack_at = time.monotonic()
         return item
+
+    # ── Routinen (seit 0.42) ─────────────────────────────────────────────
+    def _darf_bewegen(self) -> bool:
+        """Eine Geste nur, wenn sie steht, wach ist, nichts anderes tut und kein Not-Aus nachwirkt."""
+        st = self.rt.backend.state()
+        return bool(st.powered and st.enabled and not st.fallen and not st.picked_up and not self.rt.engine.busy()
+                    and self.since_estop() > self._sperre())
+
+    async def _wetter_satz(self) -> str:
+        from ..wetter import satz
+
+        dienst = getattr(self.rt, "wetter", None)
+        if dienst is None:
+            return ""
+        res = await asyncio.to_thread(dienst.abfrage, str(getattr(self.rt.config, "wetter_ort", "") or ""), "heute")
+        return satz(res)
+
+    async def routine(self, r: dict[str, Any], anlass: str = "zuruf") -> dict[str, Any]:
+        """Schritte in fester Reihenfolge: aufwachen → Geste → eine Ansage mit allem → zur Ruhe."""
+        if self._routine_laeuft:
+            return {"ok": False, "fehler": "Gerade läuft schon eine Routine."}
+        self._routine_laeuft = True
+        try:
+            s = r.get("schritte", [])
+            if "aktiv" in s and self.mode == "ruhe":
+                await self.set_mode("aktiv", f"Routine „{r['name']}“")         # steht nach einem Not-Aus nicht auf
+            if "freuen" in s and self._darf_bewegen():
+                try:
+                    await self.rt.runner.run("emote", {"emotion": "freude"})
+                except Exception:
+                    log.debug("Geste der Routine", exc_info=True)
+            teile = [r.get("ansage", "")]
+            if "ueberblick" in s:
+                teile.append(self.planner.brief())
+            if "wetter" in s:
+                teile.append(await self._wetter_satz())
+            if "todos" in s:
+                offen = [t["text"] for t in self.planner.data["todos"] if not t["erledigt"]]
+                teile.append(("Auf der Liste: " + ", ".join(offen[:8]) + ".") if offen else "Die To-do-Liste ist leer.")
+            text = " ".join(t for t in teile if t) or f"Routine „{r['name']}“ ist durch."
+            speech = self.rt._speech(text) if self.planner.data.get("durchsagen", True) else None
+            await self.rt.broadcast({"type": "alltag_routine", "id": r["id"], "name": r["name"], "anlass": anlass})
+            await self.rt.broadcast({"type": "chat", "role": "duck", "text": text, "source": "alltag", "seconds": 0,
+                                     "sprache": speech})
+            if "ruhe" in s and self.mode != "ruhe":
+                if self.since_estop() < self._sperre():                       # nach einem Not-Aus: nur umschalten
+                    self.planner.set_options(modus="ruhe")
+                    await self.push()
+                else:
+                    await self.set_mode("ruhe", f"Routine „{r['name']}“")
+            return {"ok": True, "antwort": text, "routine": r["name"]}
+        finally:
+            self._routine_laeuft = False
 
     # ── Ruhe und Aktiv ───────────────────────────────────────────────────
     def touch(self, wake: bool = True) -> None:
@@ -343,6 +411,20 @@ class AlltagService:
                 return {"ok": True, "antwort": "Bin wach – nach dem Not-Aus stehe ich aber nicht von selbst auf. "
                                                "Sag „steh auf“, wenn ich soll."}
             return {"ok": True, "antwort": "Bin wach!"}
+        if act == "routine":
+            r = p.routine(str(a.get("id") or text))
+            if not r:
+                namen = ", ".join(x["name"] for x in p.data["routinen"]) or "noch keine"
+                raise ValueError(f"Diese Routine finde ich nicht. Es gibt: {namen}.")
+            return await self.routine(r)
+        if act == "routinen":
+            rs = p.data["routinen"]
+            return {"ok": True, "antwort": ("Routinen: " + "; ".join(routinen.beschreiben(r) for r in rs) + ".") if rs
+                    else "Es gibt noch keine Routinen.", "routinen": [r["name"] for r in rs]}
+        if act == "routine_anlegen":
+            r = p.add_routine(name=text, zeit=a.get("wann") or "", tage=a.get("tage") or "taeglich",
+                              schritte=a.get("schritte") or [], ansage=a.get("ansage") or "")
+            return {"ok": True, "antwort": f"Routine angelegt: {routinen.beschreiben(r)}.", "routine": r}
         if act == "ansehen":
             return await self._look(a)
         if act == "wer_ist_da":
@@ -414,6 +496,12 @@ def quick(text: str) -> dict[str, Any] | None:
         thing = what.group("was") if what else ""
         thing = re.sub(r"\b(in \d+ \w+|in einer? \w+|morgen|heute|übermorgen|um [\w:.]+( uhr)?|jeden tag|täglich|werktags)\b", "", thing).strip(" ,")
         return {"aktion": "erinnerung", "wann": rest, "text": thing or "Erinnerung", **({"wiederholung": rep} if rep else {})}
+    m = re.search(_LEAD + r"(?:start\w*|mach\w*|beginn\w*)\s+(?:die\s+|unsere\s+|meine\s+)?(?P<n>[\wäöüß]+?)[- ]?routine$", t) \
+        or re.search(_LEAD + r"routine\s+(?P<n>[\wäöüß]+)\s+(?:starten|beginnen|bitte)$", t)
+    if m:
+        return {"aktion": "routine", "text": m.group("n")}
+    if re.search(_LEAD + r"(?:welche routinen (?:gibt es|hast du|haben wir)|zeig (?:mir )?(?:die |meine )?routinen|meine routinen)\W*$", t):
+        return {"aktion": "routinen"}
     if _REST.search(t):
         return {"aktion": "ruhe"}
     if _ACTIVE.search(t):

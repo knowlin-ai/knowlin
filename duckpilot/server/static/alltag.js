@@ -1,6 +1,8 @@
 // Seite „Alltag“ und alles, was dazugehört: große Uhr, Ruhe/Aktiv, Timer, Erinnerungen, Termine (auch als
 // .ics-Datei), To-dos. Dazu das Alarmband oben (Erledigt / Später) und der Modus-Schalter in der Kopfzeile.
 // Alle Texte aus Kalenderdateien und Eingaben landen nur über textContent im Dokument.
+// Routinen und Kalender-Abo (seit 0.42) stecken in alltag_routinen.js.
+import { initRoutinen } from './alltag_routinen.js';
 
 const WD = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MON = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -102,6 +104,7 @@ export function initAlltag(h) {
     renderReminders();
     renderEvents();
     renderTodos();
+    routinen.render(data);
     if (!ticking) ticking = setInterval(() => { if (visible()) { renderClock(); tickTimers(); } }, 1000);
   }
 
@@ -216,7 +219,7 @@ export function initAlltag(h) {
       const what = el('span', 'al-what', e.titel);
       const parts = [when, what];
       if (e.ort) parts.push(el('span', 'al-place', e.ort));
-      if (e.quelle === 'ics') parts.push(el('span', 'chip al-rep', 'Kalender'));
+      if (e.quelle === 'ics' || e.quelle === 'abo') parts.push(el('span', 'chip al-rep', e.quelle === 'abo' ? 'Abo' : 'Kalender'));
       ul.append(row(parts, del('termin', e.id), e.titel));
     }
     $('al-events-empty').hidden = evs.length > 0;
@@ -280,6 +283,8 @@ export function initAlltag(h) {
     if (res.nicht_aufgeloest) notes.push(`${res.nicht_aufgeloest} komplizierte Serie${res.nicht_aufgeloest === 1 ? '' : 'n'} nur mit dem ersten Termin`);
     toast(`${res.importiert} Termin${res.importiert === 1 ? '' : 'e'} übernommen${notes.length ? ` – ${notes.join(', ')}` : ''}`);
   });
+
+  const routinen = initRoutinen({ $, el, api, toast, command, row, del });
 
   return { load, update, onAlarm, render };
 }

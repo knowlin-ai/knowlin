@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/static/bereiche/gedaechtnis.css">
   <link rel="stylesheet" href="/static/bereiche/stacki.css">
   <link rel="stylesheet" href="/static/bereiche/mentor.css">
+  <link rel="stylesheet" href="/static/bereiche/alltag.css">
 </head>
 <body class="im-kopf">
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -324,7 +325,18 @@
               <label class="ari-lernen-lehrer"><input type="checkbox" id="ari-lehrer" checked> Lehrer zeigt zusätzlich Beispiele</label>
               <p class="mentor-text">Beim Ausprobieren eingreifen: Hand ins Bild – sie führt Ari, und die Korrektur wird ein neues Beispiel.</p>
               <p class="mentor-text" id="ari-lernen-text" role="status" aria-live="polite"></p>
-              <a class="ari-lernen-export" id="ari-export" href="/api/ari_lernen/export" download>Beispiele für LeRobot (ZIP)</a>
+              <div class="ari-lernen-weiter" id="ari-weiter">
+                <a class="ari-lernen-export" id="ari-export" href="/api/ari_lernen/export" download>Beispiele für LeRobot (ZIP)</a>
+                <button type="button" class="btn btn--ghost btn--sm" id="ari-hub">Auf den Hub …</button>
+              </div>
+              <div class="ari-hub-box" id="ari-hub-box" hidden>
+                <p class="mentor-text">Lädt die Beispiele in ein Dataset-Repo unter deinem Hugging-Face-Konto – nur Gelenkwinkel und die Lage von Würfel und Kiste, keine Bilder. Den Schlüssel nimmt Knowlin aus dem Tresor (Lernen → Training).</p>
+                <label class="ari-lernen-lehrer"><input type="checkbox" id="ari-hub-oeffentlich"> Öffentlich – alle können es finden und laden</label>
+                <div class="ari-lernen-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" id="ari-hub-los">Jetzt hochladen</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="ari-hub-ab">Abbrechen</button>
+                </div>
+              </div>
             </div>
           </section>
           <div class="hud hud-tele">
@@ -1923,6 +1935,42 @@
               <ul class="al-list" id="al-todos"></ul>
               <p class="field-help" id="al-todos-empty">Die Liste ist leer.</p>
             </section>
+            <section class="card al-card" id="al-routinen">
+              <h3>Routinen</h3>
+              <p class="field-help">Mehrere Dinge auf einmal – zur Uhrzeit von selbst oder auf Zuruf („Starte die Morgenroutine“).</p>
+              <form class="al-form al-rt-form" id="al-rt-form" autocomplete="off">
+                <input class="input" id="al-rt-name" maxlength="40" placeholder="Name, z. B. Morgen" aria-label="Name der Routine" required>
+                <input class="input" id="al-rt-zeit" maxlength="12" placeholder="Uhrzeit, z. B. 7:30 (leer = nur auf Zuruf)" aria-label="Uhrzeit">
+                <select class="select" id="al-rt-tage" aria-label="An welchen Tagen"><option value="taeglich">täglich</option><option value="werktags">werktags</option><option value="wochenende">am Wochenende</option></select>
+                <input class="input" id="al-rt-ansage" maxlength="200" placeholder="Ansage zu Beginn (optional), z. B. Guten Morgen!" aria-label="Ansage zu Beginn">
+                <fieldset class="al-rt-schritte"><legend class="field-label">Schritte</legend><div id="al-rt-schritte"></div></fieldset>
+                <button class="btn" type="submit">Anlegen</button>
+              </form>
+              <p class="field-msg" id="al-rt-msg" aria-live="polite"></p>
+              <ul class="al-list" id="al-rt-list"></ul>
+              <p class="field-help" id="al-rt-empty">Noch keine Routine.</p>
+              <p class="field-help">Nach einem Not-Aus, gestürzt oder hochgehoben gibt es keine Geste und kein Aufstehen – nur die Ansage. War der PC zur Uhrzeit aus, holt sie die Routine höchstens 30 Minuten später nach.</p>
+            </section>
+
+            <section class="card al-card" id="al-abo">
+              <h3>Kalender-Abo</h3>
+              <p class="field-help">Eine .ics-Datei auf diesem PC, die dein Kalenderprogramm aktuell hält: Knowlin liest sie neu, sobald sie sich ändert. Keine Anmeldung, nichts geht ins Netz.</p>
+              <form class="al-form al-form--one pc-only" id="al-abo-form" autocomplete="off">
+                <input class="input" id="al-abo-pfad" maxlength="500" placeholder="Pfad, z. B. C:\Users\…\Kalender\privat.ics" aria-label="Pfad zur Kalenderdatei" required>
+                <button class="btn" type="submit">Abonnieren</button>
+              </form>
+              <p class="field-msg" id="al-abo-msg" aria-live="polite"></p>
+              <div id="al-abo-an" hidden>
+                <p class="al-abo-datei"><b id="al-abo-datei"></b></p>
+                <p class="field-help" id="al-abo-stand"></p>
+                <p class="field-msg bad" id="al-abo-fehler" hidden></p>
+                <div class="key-actions pc-only">
+                  <button type="button" class="btn btn--sm" id="al-abo-lesen">Jetzt neu lesen</button>
+                  <button type="button" class="btn btn--sm btn--ghost" id="al-abo-aus">Abo beenden</button>
+                </div>
+              </div>
+              <p class="field-help fern-only">Das Abo richtest du nur direkt am PC ein.</p>
+            </section>
             <section class="card al-card al-nfc" id="al-nfc">
               <div class="card-head">
                 <h3>NFC-Tags</h3>
@@ -1943,7 +1991,7 @@
               <button type="button" class="btn btn--sm al-nfc-add" id="nfc-add">Tag zum Ausprobieren anlegen</button>
             </section>
           </div>
-          <p class="field-help al-say">Das geht auch per Sprache, mit und ohne Sprachmodell: „Wie spät ist es?“, „Stell einen Timer auf 5 Minuten“, „Erinnere mich morgen um 9 an den Arzt“, „Setz Milch auf die Liste“, „Was steht heute an?“, „Ruhemodus“, „Wach auf“.</p>
+          <p class="field-help al-say">Das geht auch per Sprache, mit und ohne Sprachmodell: „Wie spät ist es?“, „Stell einen Timer auf 5 Minuten“, „Erinnere mich morgen um 9 an den Arzt“, „Setz Milch auf die Liste“, „Was steht heute an?“, „Starte die Morgenroutine“, „Ruhemodus“, „Wach auf“.</p>
 
           <section class="card al-buddy" id="al-buddy" aria-labelledby="al-buddy-title">
             <h3 id="al-buddy-title">Was der Buddy darf</h3>

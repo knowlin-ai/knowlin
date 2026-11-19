@@ -1,0 +1,7 @@
+/* Alltag: Routinen und Kalender-Abo (seit 0.42). Nur Tokens. */
+.al-form[hidden], #al-abo-an[hidden], #al-abo-fehler[hidden] { display: none; }
+.al-rt-form .al-rt-schritte { grid-column: 1 / -1; border: 0; margin: 0; padding: 0; min-width: 0; }
+#al-rt-schritte { display: flex; flex-wrap: wrap; gap: var(--spacing-02) var(--spacing-05); }
+#al-rt-list .al-what { flex: 1 1 8rem; }
+.al-rt-an[hidden] { display: none; }
+.al-abo-datei { margin: 0; overflow-wrap: anywhere; }
