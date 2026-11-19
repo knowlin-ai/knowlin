@@ -2099,15 +2099,12 @@ body.im-kopf .geist-pfeil, body.im-kopf #duck-name, body.im-kopf .geist-koerper 
 .knowlin-zeichen { width: 32px; height: 32px; display: block; object-fit: contain; }
 .rail-logo-btn .knowlin-zeichen { margin: var(--spacing-03) auto var(--spacing-02); }
 /* Handy (unten): Knowlin wie die anderen Knöpfe – gleiche Symbolhöhe, Beschriftung auf einer Linie; Beschriftungen eine
-   Stufe kleiner, damit „Einstellungen“ ganz passt (gemeldet nach 0.38.33) */
+   Stufe kleiner (gemeldet nach 0.38.33; seit 0.38.66 heißt der Bereich auch im Kopf „System“) */
 @media (max-width: 671.98px) {
   .rail-logo-btn { flex: 1; min-width: 0; padding: var(--spacing-03) 0; gap: var(--spacing-01); align-content: center; }
   .rail-logo-btn .knowlin-zeichen { width: 20px; height: 20px; margin: 0 auto; }
   .rail-logo-label, .rail-btn span { font-size: var(--t-micro); }
-  .rail-btn .nur-breit { display: none; }
 }
-
-@media (min-width: 672px) { .rail-btn .nur-schmal { display: none; } }
 
 /* Quickstart (seit 0.38.8): links der Kopf als wabernde Form, rechts „Hallo Mensch“ und das Gespräch mit ihm */
 .kopf-start { display: grid; grid-template-columns: minmax(180px, 280px) minmax(0, 1fr); gap: var(--spacing-08);
