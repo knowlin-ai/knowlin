@@ -109,7 +109,10 @@ class Karte:
             # Jetzt ist die Wand die Zellreihe hinter der Grenze, durch die kein Strahl läuft (freigeräumt wird nur bis
             # zum gemessenen Punkt, eingetragen 1 cm dahinter).
             ziel = zelle(px + ux * 0.01, py + uy * 0.01) if pz > BODEN_Z else zelle(px, py)
-            for c in _durchlaufen(x, y, px, py):
+            # freiräumen nur bis 1 cm vor dem Punkt: Liegt er genau auf einer Zellgrenze (Wand bei y = −1,500, auf mm
+            # gerundet), kippte die Rechnung sonst in die Zelle dahinter und räumte draußen frei (Fund bei GitHub 19.11.)
+            kurz = min(0.01, lang / 2)
+            for c in _durchlaufen(x, y, px - ux * kurz, py - uy * kurz):
                 if c == ziel:
                     break
                 if self.zellen.get(c, 0.0) > BELEGT_AB:

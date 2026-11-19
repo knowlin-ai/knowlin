@@ -65,3 +65,18 @@ def test_erkunden_bleibt_im_zimmer_und_die_waende_sind_dicht():
         assert len(wand) > 60 and not [c for c in wand if k.frei(c)]
         assert k.flaeche_m2() > 5.0
     asyncio.run(go())
+
+
+def test_punkt_genau_auf_der_wandgrenze_raeumt_draussen_nichts_frei():
+    """Fund bei GitHub (19.11., 0.38.67): Ein auf mm gerundeter Punkt genau auf der Wand (y = −1,500, x auf einer
+    Zellgrenze) kippte in die Zelle dahinter – der Strahl räumte eine Zelle außerhalb frei."""
+    import random
+
+    rnd = random.Random(1)
+    for _ in range(3000):
+        k = Karte()
+        x, y = rnd.uniform(-1.9, 1.9), rnd.uniform(-1.4, 1.4)
+        px, py = round(rnd.uniform(-1.95, 1.95), 3), rnd.choice((-1.5, 1.5))
+        k.eintragen(x, y, [[px, py, 0.1], [px, py, 0.0]])
+        draussen = [mitte(c) for c, v in k.zellen.items() if abs(mitte(c)[1]) > 1.5 and v < 0]
+        assert not draussen, (x, y, px, py, draussen)

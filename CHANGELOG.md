@@ -9,6 +9,17 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.68 – 2026-11-19 – Karte: auch Punkte genau auf der Wandgrenze bleiben drinnen
+
+### Behoben
+- **Karte:** Lag ein gemessener Punkt genau auf einer Zellgrenze der Wand (auf Millimeter gerundet, z. B. y = −1,500),
+  kippte die Rechnung in die Zelle dahinter, und der Strahl räumte eine Zelle außerhalb des Zimmers frei. Jetzt wird
+  nur bis 1 cm vor dem Punkt freigeräumt. Aufgefallen ist es, weil die Prüfung bei GitHub für 0.38.67 einmal daran
+  scheiterte; Regressionstest mit 3000 Zufallsstrahlen auf die Wandgrenze.
+
+### Nicht geprüft
+- Am echten Tiefensensor (nur Simulator und Zufallsstrahlen).
+
 ## 0.38.67 – 2026-11-19 – Die Hirnaktivität als Galaxie
 
 ### Neu
