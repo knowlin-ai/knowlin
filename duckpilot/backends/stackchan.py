@@ -147,12 +147,20 @@ class StackChanSim(TischPlatz, SimBackend):
         self._tanz_bis = 0.0                                # eine gewählte Farbe beendet den Lichttanz
         return IntentResult(True, f"leuchtet {farbe}")
 
-    def lichttanz(self, sekunden: float = 12.0, bpm: float = 110.0) -> IntentResult:
-        """Tanz mit Licht: die LEDs wechseln im Takt durch die Regenbogenfarben (der Kopf nickt über `dance`)."""
+    def lichttanz(self, sekunden: float = 12.0, bpm: float = 110.0, schlag_in_s: float | None = None) -> IntentResult:
+        """Tanz mit Licht: die LEDs wechseln im Takt durch die Regenbogenfarben (der Kopf nickt über `dance`). Beim Tanzen
+        nach Gehör kommt ein Schlag der Musik mit (`schlag_in_s`, relativ zu jetzt, negativ = gerade vorbei), dann wechselt
+        die Farbe genau auf den Schlägen."""
         if not self.powered:
             return IntentResult(False, "Stack-chan ist aus – nach dem Not-Aus bleiben die LEDs dunkel")
         self._angesprochen = self.t
-        self._tanz_ab, self._tanz_bis = self.t, self.t + max(1.0, min(LICHT_MAX_S, float(sekunden)))
+        if schlag_in_s is None or self.t >= self._tanz_bis:
+            self._tanz_ab = self.t if schlag_in_s is None else self.t + float(schlag_in_s)
+        else:                                               # weiter im Takt der Musik, Farbe läuft weiter
+            periode = 60.0 / max(60.0, min(180.0, float(bpm or 110.0)))
+            n = round((self.t + float(schlag_in_s) - self._tanz_ab) / periode)
+            self._tanz_ab = self.t + float(schlag_in_s) - n * periode
+        self._tanz_bis = self.t + max(1.0, min(LICHT_MAX_S, float(sekunden)))
         self._tanz_bpm = max(60.0, min(180.0, float(bpm or 110.0)))
         return IntentResult(True, "tanzt mit Licht")
 
@@ -160,7 +168,7 @@ class StackChanSim(TischPlatz, SimBackend):
         if not wach:
             return None                                     # stromlos, schläft oder sitzt: dunkel
         if self.t < self._tanz_bis:
-            schlag = int((self.t - self._tanz_ab) * self._tanz_bpm / 60.0)
+            schlag = math.floor((self.t - self._tanz_ab) * self._tanz_bpm / 60.0)
             return TANZ_FARBEN[schlag % len(TANZ_FARBEN)]
         if self._licht and self.t < self._licht_bis:
             return self._licht

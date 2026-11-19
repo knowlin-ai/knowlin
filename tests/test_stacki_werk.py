@@ -20,6 +20,7 @@ from duckpilot.brain.tools import ToolRunner
 from duckpilot.modell import gesicht as G
 from duckpilot.motion.engine import MotionEngine
 from duckpilot.motion.schau import PITCH_HOCH, YAW_MAX, SchauHaltung
+from duckpilot.server.oberflaeche import seite
 from duckpilot.server.routes.schau import blick_aus_bild
 
 STATIC = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
@@ -46,6 +47,13 @@ def test_licht_und_lichttanz_und_not_aus_macht_dunkel():
             _laufen(sim, 0.5)
             farben.add(sim.state().gesicht["led"])
         assert len(farben) >= 4 and farben <= set(TANZ_FARBEN)
+        sim.licht("aus")
+        sim.lichttanz(4.0, 60.0, schlag_in_s=-0.25)                       # nach Gehör: Schlag vor 0,25 s
+        erste = sim.state().gesicht["led"]
+        _laufen(sim, 0.9)                                                  # Schlag nach 0,75 s: Farbe wechselt
+        zweite = sim.state().gesicht["led"]
+        sim.lichttanz(4.0, 60.0, schlag_in_s=-0.15)                       # nächste Messung: gleicher Takt, gleiche Farbe
+        assert erste != zweite and sim.state().gesicht["led"] == zweite
         sim.lichttanz(30.0)
         await sim.relax()                                                  # Not-Aus: dunkel und kein Weitertanzen
         assert sim.state().gesicht["led"] is None
@@ -184,7 +192,7 @@ def test_schau_route_avatar_und_nur_am_pc(tmp_path, monkeypatch):
 
 
 def test_oberflaeche():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert 'id="schau-start"' in html and "/static/schau.js" in html and "/static/stacki_avatar.js" in html
     assert '"tanz":true' in html and 'id="aussehen-gesicht"' in html
     for a in AVATARE:

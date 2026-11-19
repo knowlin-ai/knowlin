@@ -125,7 +125,17 @@ Verkörperung heißt **Stacki** – quirlig, mit heller Stimme. Öffnen über di
   (Spiralaugen) – über die Knöpfe „Streicheln“ und „Schütteln“ oder per Satz („Ich streichel dich mal“). Nach fünf
   Minuten ohne Ansprache schläft er ein (Augen zu, „Zz“); jede Ansprache weckt ihn. Zwei Reihen LEDs über dem
   Bildschirm leuchten grün, wenn er zuhört, und blau, wenn er spricht.
-- **Not-Aus:** wie bei jedem Körper sofort stromlos – der Kopf sinkt, die Augen gehen zu.
+- **Wie ab Werk (seit 0.39):**
+  - **Schau mich an:** Stacki dreht den Kopf zu deinem Gesicht vor der Webcam und freut sich, wenn er dich wiedersieht.
+    Beim ersten Klick lädt Knowlin die Gesichtserkennung (MediaPipe Face Detection, Apache-2.0, 5 MB, fester Stand mit
+    Prüfsummen, nur auf diesem PC). Sie findet nur, *wo* ein Gesicht ist – nicht, *wer* es ist. Das Bild bleibt im
+    Browser; an Knowlin geht nur die Blickrichtung. Aus: noch einmal tippen, Not-Aus oder Fenster verlassen.
+  - **Tanz mit Licht:** Der Kopf wippt im Takt, die LEDs wechseln durch die Regenbogenfarben. Beim Tanzen nach Gehör
+    (Tanzen → Mitwippen mit Mikrofon) wechseln die Farben genau auf den Schlägen der Musik. Per Satz: „Tanz mit Licht“,
+    „Mach dein Licht rot“, „Licht aus“.
+  - **Gesichter:** Standard, Kulleraugen, Pixel oder Katze – unter Charakter → Gesicht, mit Vorschau. Gilt nur für
+    Stacki, alle Gefühle sehen in jedem Gesicht anders aus.
+- **Not-Aus:** wie bei jedem Körper sofort stromlos – der Kopf sinkt, die Augen gehen zu, das Licht geht aus.
 - **Echter Stack-chan:** noch nicht angebunden. Den M5Stack-Kasten mit Bildschirm und das Gesicht zeichnet Knowlin
   selbst; Gehäuse und Füße kommen aus `case/case_SG90` des Projekts (Herkunft in `static/model/LIZENZ-stackchan.md`).
 
@@ -588,6 +598,11 @@ Bereich **Umgebung** (seit 0.38; vorher Steuern → Tricks → Raum kennenlernen
   ist, meint „das“ im Chat genau dieses Ding.
 - **Zuletzt gesehen:** „Wo hast du die Socke zuletzt gesehen?“ – sie nennt Zeit und Stelle. Gemerkt werden nur Dinge und
   Möbel, nie Menschen. Erkundeter Bereich und Sichtungen bleiben auf dem PC.
+- **Was Knowlin über das Zimmer glaubt** (Weltbild, seit 0.39): Zu jedem Ding steht, wo es zuletzt war, wo es
+  **meistens** liegt (ab drei Sichtungen, mindestens 40 % beim selben Möbel), ob es gerade **woanders als sonst**
+  liegt und wie sicher Knowlin ist (sicher unter 10 Minuten, ziemlich sicher unter 2 Stunden, sonst unsicher). Die
+  Antwort auf „Wo ist die Socke?“ sagt dazu „Sonst liegt sie meistens beim Sofa“. Per Satz: „Was weißt du über das
+  Zimmer?“, „Was liegt wo?“. Zieht ein Ding um, wird das ein Erlebnis im Erfahrungsnetz (Ding ↔ Möbel).
 - **Szene zurücksetzen** (seit 0.37.14): Liegt der Ball unerreichbar in einer Ecke, legt „Zurücklegen“ im Anwählen-Menü
   ihn an seinen Platz; „Szene zurücksetzen“ im Ansicht-Menü (oder per Sprache) räumt alle Dinge zurück und stellt die
   Ente wieder an den Start, sofern sie steht. Erkundeter Bereich und Gedächtnis bleiben. Nur im Simulator.
@@ -1017,6 +1032,14 @@ Linien und Leuchten bedeuten.
 oder welche Verkörperung, im Simulator oder echt. Über „Alle Herkünfte“ lässt sich filtern (der Rest wird blass), im
 Knotendetail steht z. B. „Gelernt: 3× Quacki (Simulator), 1× Knowlin (ohne Körper)“. Im Gedächtnis steht bei Wissen
 und Vorlieben „gemerkt von …“. Was vor 0.38.10 gelernt wurde, hat keine Herkunft.
+
+**Tagesrückblick (seit 0.39):** Knowlin führt ein Tagebuch der letzten 14 Tage (höchstens 400 Momente je Tag, die
+stärksten bleiben). Im Gedächtnis steht für heute, gestern oder einen gewählten Tag in ein paar Sätzen, was los war –
+wie viel, worum es am meisten ging, was neu war, Lob und Kritik, die Stimmung – und die stärksten Momente mit Uhrzeit.
+Ein Moment, der nicht stimmt, lässt sich löschen (nur am PC); „In der Galaxie zeigen“ hebt die Sterne dieses Tages
+hervor (Esc hebt es auf). Fragen: „Wie war dein Tag?“, „Was hast du gestern erlebt?“ – auch ohne Sprachmodell. Die
+Sätze entstehen ohne KI aus dem Tagebuch, damit nichts dazuerfunden wird. Liegt nur auf diesem PC; vom Handy aus fehlen
+Momente mit Menschen. „Alles vergessen“ leert auch das Tagebuch.
 
 **Bei Knowlin (seit 0.38.11):** Unter Wissen → Gedächtnis lebt das Netz – es dreht sich langsam von selbst, die Knoten
 schweben, Impulse laufen die Verknüpfungen entlang, dahinter wabert eine weiche Hülle. In der Verkörperung bleibt die

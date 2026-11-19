@@ -5,8 +5,6 @@ Versions are a plan, not a promise.
 
 | Version | Feature | What it means |
 | --- | --- | --- |
-| 0.39 | Experience network 2 | World model and daily review – Knowlin remembers more and learns from experiences. |
-| 0.39 | Stacki as from the factory | Look at me, dance with light and music, avatar: Stacki mirrors your face. |
 | 0.40 | Real-time conversation | Interrupting, tools in conversation such as weather and time. |
 | 0.40 | Reachy as in Pollen’s app | Looking around, following a face and going to sleep. |
 | 0.41 | Mentor 2 | Remember what you demonstrate as a task – with webcam or phone. |

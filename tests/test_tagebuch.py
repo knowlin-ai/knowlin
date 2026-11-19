@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 from duckpilot.brain.erfahrung import key
 from duckpilot.brain.fallback import TAGESRUECKBLICK, WELTBILD, weltbild_text
 from duckpilot.brain.tools_erinnern import tag_aus
+from duckpilot.server.oberflaeche import seite
 from duckpilot.sichtungen import Sichtungen
 from duckpilot.tagebuch import JE_TAG, TAGE, Tagebuch
 
@@ -154,7 +155,7 @@ def test_umzug_wird_erfahrung_und_route_und_alles_vergessen(tmp_path, monkeypatc
 
 
 def test_oberflaeche():
-    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = seite()
     assert 'id="tages-karte"' in html and html.index('id="tages-karte"') < html.index('id="card-brain"')
     assert "Was Knowlin über das Zimmer glaubt" in html and "/static/bereiche/gedaechtnis.css" in html
     assert "initTagesrueckblick" in (STATIC / "gedaechtnis_ui.js").read_text(encoding="utf-8")

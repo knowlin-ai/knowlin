@@ -9,6 +9,45 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.39.0 – 2026-11-19 – Erfahrungsnetz 2 und Stacki wie ab Werk
+
+### Neu
+- **Tagesrückblick:** Knowlin führt ein Tagebuch der letzten 14 Tage (höchstens 400 Momente je Tag, die stärksten
+  bleiben). Im Gedächtnis steht für heute, gestern oder einen gewählten Tag in ein paar Sätzen, was los war – wie viel,
+  worum es am meisten ging, was neu war, Lob und Kritik, die Stimmung – und die stärksten Momente mit Uhrzeit. Ein
+  Moment lässt sich löschen; „In der Galaxie zeigen“ hebt die Sterne dieses Tages hervor. „Wie war dein Tag?“, „Was
+  hast du gestern erlebt?“ beantwortet Knowlin auch ohne Sprachmodell; die Sätze entstehen ohne KI, damit nichts
+  dazuerfunden wird (Werkzeug `tagesrueckblick`).
+- **Weltbild:** Unter Umgebung steht jetzt „Was Knowlin über das Zimmer glaubt“ – je Ding, wo es zuletzt war, wo es
+  meistens liegt, ob es gerade woanders liegt als sonst und wie sicher Knowlin ist. „Wo ist die Socke?“ sagt dazu
+  „Sonst liegt sie meistens beim Sofa“; „Was weißt du über das Zimmer?“ fasst alles zusammen (Werkzeug `weltbild`).
+  Zieht ein Ding um, wird das ein Erlebnis im Erfahrungsnetz.
+- **Stacki: Schau mich an** – der Kopf folgt deinem Gesicht vor der Webcam, und er freut sich, wenn er dich
+  wiedersieht. Die Gesichtserkennung (MediaPipe Face Detection, Apache-2.0, 5 MB) lädt Knowlin erst beim ersten Klick,
+  mit fester Version und Prüfsumme je Datei, und liefert sie vom eigenen Server aus.
+- **Stacki: Tanz mit Licht** – der Kopf wippt im Takt, die LEDs wechseln durch die Regenbogenfarben; beim Tanzen nach
+  Gehör genau auf den Schlägen der Musik. Die LEDs lassen sich auch einfärben („Mach dein Licht rot“, Werkzeug `licht`,
+  neue Fähigkeit `led`).
+- **Stacki: vier Gesichter** – Standard, Kulleraugen, Pixel und Katze, mit Vorschau unter Charakter → Gesicht, je
+  Verkörperung gespeichert (Einstellung `avatar`).
+
+### Geändert
+- Der Fahrplan (Kacheln, Roadmap, Website) beginnt jetzt mit 0.40.
+- „Gelobt wurde ich einmal“ statt „1-mal“.
+
+### Sicherheit
+- Die Gesichtserkennung findet nur, *wo* ein Gesicht ist, nicht *wer* es ist. Das Webcam-Bild bleibt im Browser; an
+  Knowlin gehen nur die Mitte des Gesichts und ob eins zu sehen ist. Laden, Start und Blickziele nur am PC
+  (`/api/schau…` in `remote.PC_ONLY`); nie während der Sperre nach dem Not-Aus oder im Schlaf; der Not-Aus beendet das
+  Schauen sofort, macht die LEDs aus und beendet den Lichttanz.
+- Tagebuch und Weltbild liegen nur auf dem PC; vom Handy aus fehlen Momente mit Menschen, Momente löschen geht nur am
+  PC, „Alles vergessen“ leert auch das Tagebuch. Das Weltbild kennt nur Dinge und Möbel, nie Menschen.
+
+### Nicht geprüft
+- „Schau mich an“ mit einer echten Webcam unter Windows (hier mit einem nachgestellten Kamerabild in Chromium) und
+  auf langsamen PCs; am echten Stack-chan (noch nicht angebunden).
+- Lichttanz zu echter Musik über das Mikrofon (die Schläge sind im Test nachgestellt).
+
 ## 0.38.68 – 2026-11-19 – Karte: auch Punkte genau auf der Wandgrenze bleiben drinnen
 
 ### Behoben

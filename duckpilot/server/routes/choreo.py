@@ -111,6 +111,9 @@ def register(app: FastAPI, runtime: Runtime) -> None:
                 return JSONResponse({"ok": False, "laeuft": False})
             try:
                 tanz.hoeren(float(body.get("bpm") or 110), float(body.get("schlag_vor_s") or 0), float(body.get("energie") or 0))
+                licht = getattr(runtime.backend, "lichttanz", None)       # Stack-chan: LEDs im Takt der Musik (0.39)
+                if licht is not None:
+                    licht(4.0, float(body.get("bpm") or 110), -float(body.get("schlag_vor_s") or 0))
             except (TypeError, ValueError):
                 return JSONResponse({"ok": False, "fehler": "Messung unlesbar"}, status_code=400)
             return JSONResponse({"ok": True, "laeuft": True})
