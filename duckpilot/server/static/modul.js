@@ -19,8 +19,8 @@ export const KOERPER = {
 const OHNE = ['beine', 'tiefensensor', 'schnabel', 'antennen', 'kamera', 'kopf', 'arm'];
 // Unterseiten, die es nur bei der Microduck gibt (Pollens Policies, Hub-Tricks, weitere Microducks)
 const NUR_MICRODUCK = ['tricks/team', 'tricks/hub', 'akrobatik', 'parcours', 'training'];
-// Unterseiten, die es nur bei Reachy Mini gibt (Kamera-Spiele, seit 0.38.13)
-const NUR_REACHY = ['tricks/spiele'];
+// Unterseiten, die es nur bei Reachy Mini gibt (seit 0.44 keine mehr: Spiele gibt es für jeden Körper)
+const NUR_REACHY = [];
 
 export function setzeModul(config, { $, hiddenTabs }) {
   const k = KOERPER[config.modul] || KOERPER.duckpilot;

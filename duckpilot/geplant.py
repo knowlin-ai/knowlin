@@ -16,7 +16,6 @@ from typing import Any
 # (Version, Name, ein Satz). Reihenfolge = Reihenfolge der Kacheln. Neu geordnet am 15.11.2026 (Maintainer: „Mischung je
 # Release“ – je Release ein Thema für den Kopf und eins für einen Körper; echte Roboter erst ab Lieferung).
 GEPLANT: tuple[tuple[str, str, str], ...] = (
-    ("0.44", "Spiele und VR", "Fußball, Verstecken, „Ente sagt“ – und der Roboter mit der Quest im Wohnzimmer."),
     ("0.45", "Haushalt und Smart Home", "Vor dem Saugroboter aufräumen, Licht und Routinen über Home Assistant."),
     ("ab Lieferung", "Ari mit LeRobot", "Mit einem zweiten Arm steuern und fertige Policies laden, sobald ein SO-101 da ist."),
     ("ab Lieferung", "Echte Microduck", "Inbetriebnahme mit Trockenlauf, digitaler Zwilling mit Frühwarnung."),

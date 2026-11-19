@@ -448,7 +448,8 @@ def test_oberflaeche_schickt_keine_bilder():
     app = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "initKameraSpiele({ $, api, toast, scene," in app and "case 'spiel':" in app and "part: 'spiele'" in app
     assert "hand.js" not in app and "vision_bundle" not in app                                   # nichts beim Start
-    assert "'tricks/spiele'" in (STATIC / "modul.js").read_text(encoding="utf-8")
+    assert "const NUR_REACHY = [];" in (STATIC / "modul.js").read_text(encoding="utf-8")   # Spiele für alle (0.44)
+    assert 'ks-raster nur-reachy' in seite()                                    # Reachys Kamera-Spiele bleiben seine
     html = seite()
     for needle in ('data-part="spiele"', 'id="ks-ampel-start"', 'id="ks-folgen-start"', 'id="badge-spiel-cam"',
                    'role="meter"', 'aria-live="assertive"', 'id="ks-hinweis"', 'id="ks-hand-laden"', 'id="ks-hand-an"',

@@ -148,7 +148,8 @@ def test_stacki_tanzt_mit_kopf_gesicht_und_licht():
         drehen = set()
         for _ in range(40):
             await run_for(sim, eng, 0.25)
-            drehen.add(round(sim.state().kopf_lage["yaw"], 2))
+            lage = sim.state().kopf_lage
+            drehen.add((round(lage["yaw"], 2), round(lage["pitch"], 2)))     # drehen oder nicken
         assert len(drehen) > 3                                        # der Kopf bewegt sich im Takt
         assert sim._tanz_bis > sim.t                                  # Licht tanzt mit
         eng.cancel_current("Test")

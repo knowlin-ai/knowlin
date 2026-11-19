@@ -10,7 +10,7 @@ import { Duck } from './ente3d.js';
 import { studio } from './licht3d.js';
 import { boden, himmel, teppich, waende } from './raum3d.js';
 import { allesVerschmelzen, FARBEN } from './formen3d.js';
-import { sockeHaengen, sockeLegen, sockenForm } from './dinge3d.js';
+import { sockeHaengen, sockeLegen, sockenForm, torModell } from './dinge3d.js';
 import { loadReachy, RealReachy } from './reachymodell.js';
 import { ladeArm, RealArm } from './arm3d.js';
 import { StackChan } from './stackchan3d.js';
@@ -1061,6 +1061,12 @@ export class Scene3D {
   update(st, engine) {
     this.state = st;
     this.engine = engine || this.engine;
+    const tor = st && st.spielfeld && st.spielfeld.tor;   // Elfmeter (0.44): Tor an der Wand
+    if (!!tor !== !!this.tor) {
+      if (this.tor) this.scene.remove(this.tor);
+      this.tor = tor ? torModell(tor) : null;
+      if (this.tor) this.scene.add(this.tor);
+    }
   }
 
   // Weitere Enten (seit 0.36.3): eigene Körper aus dem Simulator mit eigener Position – kein Klon der Hauptente

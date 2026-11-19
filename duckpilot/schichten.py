@@ -26,7 +26,7 @@ SCHICHTEN: dict[str, tuple[str, ...]] = {
     "basis": ("aio", "config", "settings", "desktop", "aktualisieren", "qr", "hub", "schichten", "geplant", "i18n", "suite", "figuren", "koerper", "startstatus", "fehlerort", "werte", "aktionen", "antrieb", "gedankenspur", "rueckblick", "arm", "arm_kinematik", "arm_huelle", "werkbank_auftrag", "mentor", "mentor_auftrag"),
     "kern": (
         "brain", "buddy", "erfahrung_service", "voice", "faces", "augen", "nfc", "remote", "tailscale", "mdns",
-        "mcp_server", "mcp_bridge", "skills.alltag", "choreo", "musik_struktur", "sichtungen", "tagebuch", "wetter", "routinen", "kalender_abo", "knowlets", "knowlet_hub", "sicherungspunkte",
+        "mcp_server", "mcp_bridge", "skills.alltag", "choreo", "musik_struktur", "sichtungen", "tagebuch", "wetter", "routinen", "kalender_abo", "ente_sagt", "verstecken", "knowlets", "knowlet_hub", "sicherungspunkte",
     ),
     "motorik": ("motion", "api", "joints", "protest", "laser", "koerper_pruefung"),
     "lab": (

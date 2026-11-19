@@ -761,8 +761,9 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
         page.wait_for_timeout(3000)
         ruhig(page)
         reiter = page.locator("#subnav .subnav-tab").all_text_contents()
-        b.pruefe("Open Duck: nach Neuladen nur ihre Reiter (kein Team, Hub, Spiele)",
-                 not {"Team", "Vom Hub", "Spiele"} & set(reiter), str(reiter))
+        # seit 0.44 gibt es „Spiele“ für jeden Körper (Ente sagt, Verstecken, Elfmeter) – Team und Hub bleiben Microduck
+        b.pruefe("Open Duck: nach Neuladen nur ihre Reiter (kein Team, kein Hub, aber Spiele)",
+                 not {"Team", "Vom Hub"} & set(reiter) and "Spiele" in reiter, str(reiter))
         # Einfache Darstellung passt zur Open Duck (seit 0.38.15: grau, höher, Antennen – nicht die Microduck)
         einstellen(page, {"model_style": "einfach"})
         # seit 0.38.40 wartet die Abnahme bis zu 20 s statt fest 2,5 s (bei langsamem Rechner fiel der Schritt sonst durch)
@@ -1021,6 +1022,20 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
       s.scrollTop = 0; return [ok, Math.round(r.top)]; }""")
     b.pruefe("Tricks: Vorschau bleibt beim Blättern im Bild", bool(mit[0]), f"Oberkante ganz unten gescrollt: {mit[1]} px")
     ansicht(page, "settings")
+
+    # 13l · Seit 0.44: Spiele für jeden Körper – „Ente sagt“ mit Knöpfen, Verstecken und Elfmeter sichtbar bei der Microduck
+    page.evaluate("() => window.duckpilot.showView('tricks', 'spiele')")
+    page.wait_for_timeout(1500)
+    sichtbar = page.evaluate("() => ['sp-sagt', 'sp-versteck', 'sp-elfer'].map((i) => !!document.getElementById(i)?.offsetParent)")
+    b.pruefe("Spiele: „Ente sagt“, Verstecken und Elfmeter bei der Microduck", all(sichtbar), str(sichtbar))
+    page.click("#sp-sagt-start")
+    try:
+        page.wait_for_function("() => /sagt|Zeig|Nimm/.test(document.getElementById('sp-sagt-ansage').textContent)", timeout=10000)
+        ansage = page.text_content("#sp-sagt-ansage")
+    except Exception:  # noqa: BLE001
+        ansage = page.text_content("#sp-sagt-ansage")
+    b.pruefe("Spiele: „Ente sagt“ beginnt mit einer Ansage", any(w in (ansage or "") for w in ("sagt", "Zeig", "Nimm")), ansage)
+    page.click("#sp-sagt-stopp")
 
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")

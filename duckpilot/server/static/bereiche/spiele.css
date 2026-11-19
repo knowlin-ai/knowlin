@@ -1,0 +1,24 @@
+/* Spiele für jeden Körper (seit 0.44): Ente sagt, Verstecken, Elfmeter. Nur Tokens. */
+.sp-karte .sp-ansage { font-size: 1.25rem; font-weight: 600; min-height: 2.6em; padding: var(--spacing-03);
+  border-radius: var(--r-card); background: var(--surface-sunken); }
+.sp-ansage[data-zustand="richtig"] { color: var(--accent-text); }
+.sp-zeichen { display: flex; flex-wrap: wrap; gap: var(--spacing-02); }
+.sp-zeichen button[aria-pressed="true"] { outline: 2px solid var(--accent); }
+.sp-kamera { display: inline-flex; align-items: center; gap: var(--spacing-02); }
+.sp-video { width: 100%; max-height: 180px; border-radius: var(--r-card); transform: scaleX(-1); background: var(--surface-0); }
+.sp-video[hidden], .sp-vorhang[hidden], .sp-torwart[hidden] { display: none; }
+/* Vorhang beim Verstecken: deckt nur die 3D-Ansicht zu – Not-Aus und Leiste bleiben frei */
+.sp-vorhang { position: absolute; inset: 0; z-index: var(--z-hud); display: grid; place-content: center; justify-items: center;
+  gap: var(--spacing-04); padding: var(--spacing-05); background: var(--surface-1); text-align: center; }
+.sp-vorhang-text { font-size: 1.4rem; font-weight: 600; margin: 0; }
+.sp-torwart { position: absolute; left: 50%; bottom: var(--spacing-05); transform: translateX(-50%); z-index: var(--z-hud);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--spacing-02);
+  padding: var(--spacing-03); border-radius: var(--r-card); background: var(--surface-glass); }
+/* VR mit der Quest (seit 0.44): Knopf auf der Bühne, Overlay in der Brille (dom-overlay) */
+.vr-knopf { position: absolute; top: var(--spacing-04); right: var(--spacing-04); z-index: var(--z-hud); }
+.vr-knopf[hidden], .vr-overlay[hidden] { display: none; }
+.vr-overlay { position: fixed; left: 50%; bottom: var(--spacing-06); transform: translateX(-50%); display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: center; gap: var(--spacing-03); padding: var(--spacing-04);
+  border-radius: var(--r-card); background: var(--surface-glass); }
+.vr-overlay p { margin: 0; }
+.vr-notaus { background: var(--critical); color: var(--surface-0); font-weight: 600; min-height: 56px; min-width: 120px; }

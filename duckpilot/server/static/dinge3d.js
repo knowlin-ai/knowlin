@@ -92,3 +92,26 @@ export function sockeHaengen(mesh) {
   mesh.userData.form.rotation.set(0, 0, 0);
   mesh.userData.form.position.set(0, 0, 0);
 }
+
+// Tor für den Elfmeter (seit 0.44): zwei Pfosten, Latte, ein angedeutetes Netz – nur zum Ansehen, hält nichts auf.
+// tor: {x, y, breite} – Mitte der Torlinie an der Wand (Simulator x vorn, y links → three.js X = x, Z = −y).
+export function torModell(tor) {
+  const g = new THREE.Group();
+  const weiss = new THREE.MeshStandardMaterial({ color: 0xf4f4f2, roughness: 0.5 });
+  const hoehe = 0.22, r = 0.008, b = tor.breite;
+  for (const s of [-1, 1]) {
+    const pfosten = new THREE.Mesh(new THREE.CylinderGeometry(r, r, hoehe, 12), weiss);
+    pfosten.position.set(0, hoehe / 2, s * b / 2);
+    g.add(pfosten);
+  }
+  const latte = new THREE.Mesh(new THREE.CylinderGeometry(r, r, b, 12).rotateX(Math.PI / 2), weiss);
+  latte.position.set(0, hoehe, 0);
+  g.add(latte);
+  const netz = new THREE.Mesh(new THREE.PlaneGeometry(b, hoehe, 10, 4).rotateY(Math.PI / 2),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.35 }));
+  netz.position.set(-0.03 * Math.sign(-tor.x || 1), hoehe / 2, 0);
+  g.add(netz);
+  g.position.set(tor.x + (tor.x < 0 ? 0.01 : -0.01), 0, -tor.y);
+  g.traverse((o) => { o.raycast = () => {}; });
+  return g;
+}

@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/static/bereiche/stacki.css">
   <link rel="stylesheet" href="/static/bereiche/mentor.css">
   <link rel="stylesheet" href="/static/bereiche/alltag.css">
+  <link rel="stylesheet" href="/static/bereiche/spiele.css">
 </head>
 <body class="im-kopf">
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -275,6 +276,23 @@
         <div class="stage">
           <div class="auswahl-pop popover" id="auswahl-pop" hidden></div>
           <canvas role="img" id="view" aria-label="3D-Ansicht der Verkörperung"></canvas>
+          <div class="sp-vorhang" id="sp-vorhang" hidden>
+            <p class="sp-vorhang-text" id="sp-vorhang-text" aria-live="polite">Augen zu …</p>
+            <div class="sp-zeichen" id="sp-vorhang-orte" role="group" aria-label="Wo hat er sich versteckt?"></div>
+            <button type="button" class="btn btn--ghost btn--sm" id="sp-vorhang-aufgeben">Aufgeben</button>
+          </div>
+          <button type="button" class="chip vr-knopf" id="vr-start" hidden title="Mit der Meta Quest im eigenen Zimmer ansehen (WebXR, nur über eine sichere Adresse) – nicht geprüft">In VR ansehen</button>
+          <div class="vr-overlay" id="vr-overlay" hidden>
+            <p id="vr-text" aria-live="polite">Auf den Boden zeigen und abdrücken: Dort steht er.</p>
+            <button type="button" class="btn vr-notaus" id="vr-notaus">Not-Aus</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="vr-ende">VR beenden</button>
+          </div>
+          <div class="sp-torwart" id="sp-torwart" role="group" aria-label="Torwart: in eine Ecke hechten" hidden>
+            <span id="sp-torwart-text" aria-live="polite">Du bist im Tor</span>
+            <button type="button" class="btn btn--sm" data-hechten="links">⬅ Linke Ecke</button>
+            <button type="button" class="btn btn--sm" data-hechten="mitte">Mitte</button>
+            <button type="button" class="btn btn--sm" data-hechten="rechts">Rechte Ecke ➡</button>
+          </div>
           <div class="finder" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
           <div class="pov" id="pov" hidden><img id="pov-img" alt="" hidden><canvas id="pov-boxes" hidden></canvas><span id="pov-label">Kopfkamera (Simulator)</span></div>
           <div class="hud hud-state" aria-live="polite">
@@ -751,6 +769,7 @@
       </section>
 
       <!--#teil tricks-->
+      <!--#teil spiele-->
       <!--#teil tanz-->
 
       <!-- Umgebung (seit 0.38): was sie über den Raum weiß – erkundeter Bereich, Dinge, später Karten -->

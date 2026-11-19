@@ -27,6 +27,12 @@ const KOERPER = {
 export const RENDERBAR = Object.keys(KOERPER);
 
 // Rendert das Porträt als PNG (Data-URL) oder wirft, wenn das Modell (noch) nicht da ist.
+// Die Figur eines Körpers für andere Ansichten (VR, seit 0.44): Einstellung `modul` → Figur mit update(st, dt) oder null
+export async function figurFuer(modul) {
+  const k = KOERPER[String(modul || 'duckpilot').replace(/_/g, '-')];
+  return k ? k.bau() : null;
+}
+
 export async function portraet(id, groesse = 256, anders = {}) {
   const k = { ...KOERPER[id], ...anders };
   if (!KOERPER[id]) throw new Error(`kein Porträt für ${id}`);

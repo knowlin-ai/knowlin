@@ -97,6 +97,8 @@ class World:
     # Mensch zum Hinterherlaufen (Follow-me im Simulator): die Maus führt ihn über den Boden
     person: tuple[float, float, float] | None = None      # (x, y, gesetzt um)
     PERSON_TTL = 3.0
+    # Tor für den Elfmeter (seit 0.44): {x, y, breite} – Mitte der Torlinie an der Wand; None = kein Tor aufgestellt
+    tor: dict[str, float] | None = None
 
     def set_laser(self, x: float | None, y: float | None, z: float = 0.0) -> None:
         if x is None or y is None:

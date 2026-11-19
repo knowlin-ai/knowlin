@@ -567,6 +567,7 @@ class SimBackend(DuckBackend):
             ),
             joints=(j := self._joints()),
             display_joints=j,
+            spielfeld={"tor": dict(self.world_model.tor)} if self.world_model.tor else {},
         )
 
     def _shown_pose(self) -> Pose:
@@ -654,6 +655,33 @@ class SimBackend(DuckBackend):
         item.x, item.y = self._dinge_start[item.name]
         item.vx = item.vy = 0.0
         return True, f"{item.name} liegt wieder an seinem Platz"
+
+    # ── Spielfeld (seit 0.44): Tor und Ball für den Elfmeter ────────────
+    TOR_BREITE = 0.7
+
+    def tor_aufstellen(self, an: bool = True) -> dict[str, float] | None:
+        """Ein Tor mitten an der linken Wand aufstellen (oder wegräumen). Es hält nichts auf – es zählt nur."""
+        self.world_model.tor = {"x": -self.world_model.width / 2, "y": 0.0, "breite": self.TOR_BREITE} if an else None
+        return self.world_model.tor
+
+    def _ball(self):
+        return next((i for i in self.world_model.items if i.kind == "ball"), None)
+
+    def ball_hinlegen(self, x: float, y: float) -> tuple[bool, str]:
+        """Den Ball an eine Stelle legen (Elfmeterpunkt) – nicht, wenn ihn gerade jemand im Schnabel hat."""
+        ball = self._ball()
+        if ball is None:
+            return False, "Hier gibt es keinen Ball"
+        if ball.held:
+            return False, "Der Ball ist gerade im Schnabel"
+        w, d = self.world_model.width / 2 - ball.r, self.world_model.depth / 2 - ball.r
+        ball.x, ball.y = max(-w, min(w, float(x))), max(-d, min(d, float(y)))
+        ball.vx = ball.vy = 0.0
+        return True, "Ball liegt bereit"
+
+    def ball_lage(self) -> tuple[float, float, float, float] | None:
+        ball = self._ball()
+        return None if ball is None else (ball.x, ball.y, ball.vx, ball.vy)
 
     def szene_zuruecksetzen(self, ente: bool = True) -> dict[str, Any]:
         """Alle Dinge auf ihre Startplätze, die Ente zurück in die Ausgangsstellung – nur wenn sie steht (liegt sie

@@ -160,7 +160,7 @@ function handle(msg) {
   switch (msg.type) {
     case 'init': kollision?.refresh(); return onInit(msg);
     case 'startfehler': return kv().startfehler?.(msg.grund);
-    case 'state': return onState(msg);
+    case 'state': window.dispatchEvent(new CustomEvent('knowlin:state', { detail: msg.state })); return onState(msg);   // vr.js
     case 'event': laser?.onEvent(msg.event); follow?.onEvent(msg.event); kollision?.onEvent(msg.event); ctl?.onEvent(msg.event); return ereignisse.onEvent(msg.event);
     case 'kollision': return kollision?.onStatus(msg);
     case 'musik': return tanz?.spielen(msg.datei, msg.ab);
@@ -193,6 +193,7 @@ function handle(msg) {
     case 'reachy': case 'reachy_ton': return reachy.nachricht(msg);
     case 'reachy_app': return reachyApps.nachricht(msg);
     case 'spiel': return kameraSpiele.nachricht(msg);
+    case 'spiel_alle': return window.dispatchEvent(new CustomEvent('knowlin:spiel', { detail: msg }));   // spiele_alle.js
     case 'mentor': return mentor.meldung(msg);
   }
 }
