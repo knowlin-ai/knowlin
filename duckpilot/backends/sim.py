@@ -440,15 +440,26 @@ class SimBackend(DuckBackend):
             for col in range(8):
                 az = head_yaw + (3.5 - col) / 8 * TOF_FOV  # Spalte 0 = links
                 dist = TOF_MAX
-                hit = self.world_model.raycast(self.x, self.y, az, TOF_MAX)
-                if hit:
-                    horiz, name = hit
+                # Über niedrige Dinge (Sofa, Ball) hinweg weiterschauen bis zum nächsten Treffer – vorher endete der
+                # Strahl am ersten Ding: lief er darüber, landete der Bodenpunkt hinter der Wand, und die Karte bekam
+                # „freien Boden“ außerhalb des Zimmers (Fund 15.11.: „er schaut durch Wände“, „erkundet außerhalb“).
+                cx, cy, weg = self.x, self.y, 0.0
+                for _ in range(6):
+                    hit = self.world_model.raycast(cx, cy, az, TOF_MAX - weg)
+                    if not hit:
+                        break
+                    horiz = weg + hit[0]
                     z = cam_h + horiz * math.tan(elev)
-                    if 0.0 <= z <= self._height_of(name):
+                    if z < 0.0:
+                        break                                    # vorher schon am Boden (Bodenpunkt unten)
+                    if z <= self._height_of(hit[1]):
                         dist = horiz / max(0.2, math.cos(elev))
                         if row <= 5:
                             prev = cols[col]
                             cols[col] = horiz if prev is None else min(prev, horiz)
+                        break
+                    weg = horiz + 0.005                          # darüber hinweg: dahinter weiter
+                    cx, cy = self.x + weg * math.cos(az), self.y + weg * math.sin(az)
                 if elev < 0:  # Boden
                     floor = cam_h / math.sin(-elev)
                     dist = min(dist, floor)

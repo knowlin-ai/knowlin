@@ -84,8 +84,8 @@ def test_karte_aus_dem_rundgang_und_route_um_den_tisch():
         eng.run(rundgang)
         await run_for(sim, eng, 60, until=messen)
         assert k.flaeche_m2() > 2.0 and len(k.to_dict()["belegt"]) > 30
-        # Wand belegt, Raummitte frei
-        assert any(k.belegt(zelle(x, 1.49)) or k.belegt(zelle(x, -1.49)) for x in (-1.0, 0.0, 1.0))
+        # Wand belegt, Raummitte frei – seit 0.38.66 ist die Wand die Zellreihe hinter der Grenze (y = ±1,5 … ±1,55)
+        assert any(k.belegt(zelle(x, 1.51)) or k.belegt(zelle(x, -1.51)) for x in (-1.0, 0.0, 1.0))
         eng.cancel_current("test")
         r = Route(k, (1.2, 0.6), "Ziel")
         eng.run(r)

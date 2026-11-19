@@ -29,6 +29,7 @@ BELEGT_AB, FREI_AB = 0.6, -0.4
 BODEN_Z, DECKE_Z = 0.03, 0.45          # Punkte dazwischen sind Hindernisse auf Höhe der Ente
 MAX_STRAHL_M = 1.8
 ABSTAND_M = 0.12                       # vom Hindernis frei halten (Rumpfradius + Luft)
+STREIF_M = 0.3 * ZELLE                 # belegte Zellen räumt nur ein Strahl frei, der so nah an ihrer Mitte vorbeigeht
 
 
 def zelle(x: float, y: float) -> tuple[int, int]:
@@ -40,7 +41,7 @@ def mitte(c: tuple[int, int]) -> tuple[float, float]:
 
 
 def _strahl(a: tuple[int, int], b: tuple[int, int]):
-    """Zellen von a bis vor b (Bresenham)."""
+    """Zellen von a bis vor b (Bresenham, zwischen Zellmitten)."""
     x0, y0 = a
     x1, y1 = b
     dx, dy = abs(x1 - x0), -abs(y1 - y0)
@@ -55,6 +56,32 @@ def _strahl(a: tuple[int, int], b: tuple[int, int]):
         if e2 <= dx:
             err += dx
             y0 += sy
+
+
+def _durchlaufen(x0: float, y0: float, x1: float, y1: float):
+    """Die Zellen, durch die der echte Strahl von (x0, y0) bis vor (x1, y1) läuft (Amanatides & Woo).
+
+    Seit 0.38.66 statt Bresenham zwischen den Zellmitten: Bei flachem Winkel zur Wand trat die Linie zwischen den
+    Mitten schon ein, zwei Zellen vor dem Treffer in die Wandreihe ein und räumte dort frei – Lücken in der Wand."""
+    c = zelle(x0, y0)
+    ende = zelle(x1, y1)
+    dx, dy = x1 - x0, y1 - y0
+    sx, sy = (1 if dx > 0 else -1), (1 if dy > 0 else -1)
+    tx = ((c[0] + (sx > 0)) * ZELLE - x0) / dx if dx else math.inf
+    ty = ((c[1] + (sy > 0)) * ZELLE - y0) / dy if dy else math.inf
+    dtx = ZELLE / abs(dx) if dx else math.inf
+    dty = ZELLE / abs(dy) if dy else math.inf
+    i, j = c
+    for _ in range(int((abs(dx) + abs(dy)) / ZELLE) + 3):
+        if (i, j) == ende:
+            return
+        yield (i, j)
+        if tx < ty:
+            t, i, tx = tx, i + sx, tx + dtx
+        else:
+            t, j, ty = ty, j + sy, ty + dty
+        if t >= 1.0:                                   # die nächste Zelle beginnt erst hinter dem Punkt
+            return
 
 
 class Karte:
@@ -74,15 +101,28 @@ class Karte:
             px, py, pz = float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.1
             if math.hypot(px - x, py - y) > MAX_STRAHL_M or pz > DECKE_Z:
                 continue
-            # 1 cm zur Ente hin: Ein Treffer genau auf einer Zellgrenze (Fuß der Wand bei x = 2,000) fiel sonst in die
-            # Zelle hinter der Wand – dort entstand „freier Boden“ außerhalb des Raums (gemeldet nach 0.38.32)
-            weit = math.hypot(px - x, py - y)
-            if weit > 0.02:
-                px, py = px - (px - x) / weit * 0.01, py - (py - y) / weit * 0.01
-            ziel = zelle(px, py)
-            for c in _strahl(start, ziel):
+            lang = math.hypot(px - x, py - y) or 1.0
+            ux, uy = (px - x) / lang, (py - y) / lang
+            # Treffer 1 cm weiter in das Hindernis hinein (seit 0.38.66; vorher 1 cm zur Ente hin): Eine Wand liegt
+            # genau auf einer Zellgrenze. Lag ihr Treffer in der Zelle davor, liefen die Strahlen zu anderen Stellen der
+            # Wand schräg durch genau diese Zellen und räumten sie wieder frei – die Wand bekam Lücken (Fund 15.11.).
+            # Jetzt ist die Wand die Zellreihe hinter der Grenze, durch die kein Strahl läuft (freigeräumt wird nur bis
+            # zum gemessenen Punkt, eingetragen 1 cm dahinter).
+            ziel = zelle(px + ux * 0.01, py + uy * 0.01) if pz > BODEN_Z else zelle(px, py)
+            for c in _durchlaufen(x, y, px, py):
+                if c == ziel:
+                    break
+                if self.zellen.get(c, 0.0) > BELEGT_AB:
+                    # Wand nur freiräumen, wenn der Strahl mitten durch die Zelle geht: Streifschüsse an der Wand entlang
+                    # rissen sonst Lücken hinein (Fund 15.11.: „er denkt, da sind Lücken“)
+                    mx, my = mitte(c)
+                    if abs((mx - x) * uy - (my - y) * ux) > STREIF_M:
+                        continue
                 self._add(c, FREI)
-            self._add(ziel, TREFFER if pz > BODEN_Z else FREI)
+            if pz > BODEN_Z:
+                self._add(ziel, TREFFER)
+            # Bodenpunkt: nur der Weg dorthin ist frei, nicht die Zelle selbst – am Wandfuß liegen Boden und Wand in
+            # derselben Zelle, und der Boden machte die Wand sonst durchlässig (Fund 15.11.: Lücken in der Wand)
         self.messungen += 1
 
     def leeren(self) -> None:
