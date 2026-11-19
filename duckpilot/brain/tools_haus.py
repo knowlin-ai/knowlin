@@ -18,10 +18,11 @@ HAUS_TOOL = {
     "description": "Smart Home im eigenen Netz (Home Assistant oder Hue Bridge): liste = Geräte zeigen; schalten = Licht "
     "an/aus, Saugroboter start/pause/stopp/heim, Szene an (geraet = Kennung aus der Liste oder Raum-/Gerätename, z. B. "
     "„Wohnzimmer“); melden = kurze Nachricht aufs Handy (nur Text); aufraeumen = Kleines vom Boden zu einem Platz tragen "
-    "und danach den Saugroboter starten (ziel = gemerkter Ort oder Möbel, sauger = true/false). " + H.NIE_TEXT +
+    "und danach den Saugroboter starten (ziel = gemerkter Ort oder Möbel, sauger = true/false); rundgang = eine Runde "
+    "durch die Wohnung (Simulator) mit Bericht, was auffällt. " + H.NIE_TEXT +
     " Sag ehrlich, was geschaltet wurde und was nicht.",
     "input_schema": {"type": "object", "properties": {
-        "aktion": {"type": "string", "enum": ["liste", "schalten", "melden", "aufraeumen"]},
+        "aktion": {"type": "string", "enum": ["liste", "schalten", "melden", "aufraeumen", "rundgang"]},
         "geraet": {"type": "string"},
         "art": {"type": "string", "enum": ["licht", "sauger", "szene"]},
         "befehl": {"type": "string", "enum": ["an", "aus", "start", "pause", "stopp", "heim"]},
@@ -47,6 +48,11 @@ class HausWerkzeuge:
             if fn is None:
                 return {"ok": False, "fehler": "Aufräumen geht nur im einfachen Simulator mit einem Körper, der aufheben kann"}
             return await fn(str(a.get("ziel") or ""), a.get("sauger", True) is not False)
+        if aktion == "rundgang":
+            fn = getattr(self, "haus_rundgang", None)
+            if fn is None:
+                return {"ok": False, "fehler": "Den Rundgang gibt es im einfachen Simulator"}
+            return await fn()
         stand = haus.stand()
         if not stand["ha"]["verbunden"] and not stand["hue"]["verbunden"]:
             return {"ok": False, "fehler": "Noch kein Smart Home verbunden – unter Alltag → Smart Home einrichten (am PC)"}
@@ -64,7 +70,7 @@ class HausWerkzeuge:
                 return {"ok": False, "fehler": f"Meldung ging nicht raus: {exc}"}
             return {"ok": ok, **({} if ok else {"fehler": "Kein Meldedienst eingetragen (Home Assistant → Meldungen)"})}
         if aktion != "schalten":
-            return {"ok": False, "fehler": "aktion: liste, schalten, melden oder aufraeumen"}
+            return {"ok": False, "fehler": "aktion: liste, schalten, melden, aufraeumen oder rundgang"}
         befehl = str(a.get("befehl") or "")
         art = str(a.get("art") or "") or None
         wort = str(a.get("geraet") or "").strip()
@@ -107,4 +113,6 @@ class HausWerkzeuge:
             return {"ok": False, "text": H.NIE_TEXT, "fehler": H.NIE_TEXT}
         if getattr(self, "haus", None) is None:
             return None
+        if b.get("rundgang"):
+            return await self.run("haus", {"aktion": "rundgang"})
         return await self.run("haus", {"aktion": "schalten", "art": b["art"], "befehl": b["aktion"], "geraet": text})

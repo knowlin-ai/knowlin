@@ -31,7 +31,7 @@ export function initHaus({ $, el, api, toast }) {
     } else {
       renderGeraete({ geraete: [], fehler: [] });
     }
-    if (s.aufraeumen && s.aufraeumen.laeuft && !warten) warten = setTimeout(() => { warten = null; laden(); }, 3000);
+    if (((s.aufraeumen && s.aufraeumen.laeuft) || (s.rundgang && s.rundgang.laeuft)) && !warten) warten = setTimeout(() => { warten = null; laden(); }, 3000);
   }
 
   function renderStand() {
@@ -56,6 +56,25 @@ export function initHaus({ $, el, api, toast }) {
       s.ladeplatz ? 'Ladeplatz gemerkt' : 'noch kein Ladeplatz'].filter(Boolean);
     const akku = typeof s.akku === 'number' ? ` · Akku ${Math.round(s.akku * 100)} %` : '';
     $('haus-orte').textContent = orte.join(' · ') + akku;
+    $('haus-raeume-box').hidden = !s.kann_heimkehr;
+    $('haus-rundgang').hidden = !s.kann_rundgang;
+    $('haus-licht-folgt').checked = !!s.licht_folgt;
+    $('haus-raum-jetzt').textContent = s.raum_jetzt ? `Gerade: ${s.raum_jetzt}.` : '';
+    $('haus-raumpunkte').replaceChildren(...(s.raumpunkte || []).map((p) => {
+      const li = el('li', 'al-item');
+      const x = el('button', 'btn btn--sm btn--ghost', 'Löschen');
+      x.type = 'button';
+      x.setAttribute('aria-label', `Raumpunkt ${p.raum} löschen`);
+      x.addEventListener('click', async () => {
+        const r = await post(`/api/haus/raum/${encodeURIComponent(p.raum)}`, undefined, 'DELETE');
+        if (r.ok) { stand = { ...stand, ...r }; renderStand(); }
+      });
+      li.append(el('span', 'al-what', p.raum), x);
+      return li;
+    }));
+    const lg = s.rundgang && s.rundgang.laeuft;
+    $('haus-rundgang').disabled = !!lg;
+    $('haus-rundgang').textContent = lg ? `Rundgang … (${s.rundgang.besucht.length}/${s.rundgang.von})` : 'Rundgang';
     const lauf = s.aufraeumen && s.aufraeumen.laeuft;
     $('haus-aufraeumen').disabled = !!lauf;
     $('haus-aufraeumen').textContent = lauf ? `Räumt auf … (${s.aufraeumen.gebracht.length}/${s.aufraeumen.von})`
@@ -90,6 +109,8 @@ export function initHaus({ $, el, api, toast }) {
       li.append(art, name, acts);
       return li;
     }));
+    const raeume = [...new Set(geraete.filter((g) => g.art === 'licht' && g.raum).map((g) => g.raum))];
+    $('haus-raum-liste').replaceChildren(...raeume.map((r) => { const o = el('option'); o.value = r; return o; }));
     const sauger = geraete.filter((g) => g.art === 'sauger');
     const sel = $('haus-sauger');
     const gewaehlt = (stand && stand.sauger_danach) || '';
@@ -152,6 +173,24 @@ export function initHaus({ $, el, api, toast }) {
   $('haus-schwelle').addEventListener('change', async (e) => {
     const r = await post('/api/haus/einstellungen', { akku_schwelle: Number(e.target.value) });
     if (!r.ok) msg(r.fehler, true);
+  });
+  $('haus-raum-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const r = await post('/api/haus/raum', { raum: $('haus-raum-name').value });
+    if (!r.ok) { msg(r.fehler, true); return; }
+    $('haus-raum-name').value = '';
+    stand = { ...stand, ...r };
+    renderStand();
+  });
+  $('haus-licht-folgt').addEventListener('change', async (e) => {
+    const r = await post('/api/haus/einstellungen', { licht_folgt: e.target.checked });
+    if (!r.ok) msg(r.fehler, true);
+  });
+  $('haus-rundgang').addEventListener('click', async () => {
+    const r = await post('/api/haus/rundgang', {});
+    if (!r.ok) { msg(r.fehler, true); return; }
+    msg(r.text);
+    laden();
   });
   $('haus-aufraeumen').addEventListener('click', async () => {
     const r = await post('/api/haus/aufraeumen', { sauger: !!$('haus-sauger').value });

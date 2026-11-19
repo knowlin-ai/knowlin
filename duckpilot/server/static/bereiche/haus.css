@@ -9,3 +9,5 @@
 .haus-haushalt { margin-top: var(--spacing-04); border-top: 1px solid var(--line-soft); padding-top: var(--spacing-03); }
 .haus-haushalt h4 { margin: 0 0 var(--spacing-02); }
 .haus-aufraeumen, .haus-akku { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-03); margin-top: var(--spacing-03); }
+.haus-raeume { margin-top: var(--spacing-04); }
+.haus-raeume .check { display: flex; align-items: center; gap: var(--spacing-02); min-height: 44px; }

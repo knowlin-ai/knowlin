@@ -7,7 +7,10 @@
 - **`Heimkehr`**: zum Ladeplatz gehen, dort hinsetzen (wenn der Körper das kann) und um einen Akkuwechsel bitten –
   die Microduck hat einen Wechselakku, eine Ladestation gibt es nicht.
 
-Der Not-Aus bricht beides sofort ab wie jedes Verhalten (`MotionEngine._cancel_all`).
+- **`Rundgang`** (seit 0.46): nacheinander zu Wegpunkten (Raumpunkte, gemerkte Orte oder die Ecken des Zimmers), an
+  jedem kurz umschauen. Was dabei auffällt, stellt die Laufzeit aus dem Weltbild zusammen (nur Wörter, keine Bilder).
+
+Der Not-Aus bricht alles sofort ab wie jedes Verhalten (`MotionEngine._cancel_all`).
 """
 
 from __future__ import annotations
@@ -16,7 +19,7 @@ import math
 from typing import Any
 
 from .apportieren import Apportieren
-from .behaviors import GoTo, SkillRun
+from .behaviors import GoTo, LookAround, SkillRun
 from .engine import Behavior, Command
 from .faehigkeit import Faehigkeit
 
@@ -142,3 +145,71 @@ class Heimkehr(Behavior):
 
     def describe(self) -> str:
         return f"zum {self.ziel_name}"
+
+
+class Rundgang(Behavior):
+    """Eine Runde über die Wegpunkte, an jedem umschauen; kommt sie an einen nicht heran, geht es zum nächsten."""
+
+    name = "Rundgang"
+    channels = ("base", "head")
+    UMSCHAUEN_S = 4.0
+
+    def __init__(self, punkte: list[tuple[float, float, str]]) -> None:
+        super().__init__()
+        self.punkte = list(punkte)
+        self.timeout = 70.0 * max(1, len(self.punkte)) + 10.0
+        self.nr = -1
+        self.phase = "hin"
+        self.inner: Behavior | None = None
+        self.besucht: list[str] = []
+        self.verpasst: list[str] = []
+
+    def _use(self, b: Behavior) -> None:
+        b.engine = self.engine
+        self.inner = b
+
+    def _weiter(self) -> Command | None:
+        self.nr += 1
+        if self.nr >= len(self.punkte):
+            text = f"Rundgang fertig: {len(self.besucht)} von {len(self.punkte)} Stellen"
+            if self.verpasst:
+                text += f" (nicht erreicht: {', '.join(self.verpasst)})"
+            if not self.besucht:
+                self.failed = True
+            return self.finish(text)
+        x, y, name = self.punkte[self.nr]
+        self.phase = "hin"
+        if self.engine:
+            self.engine.note({"type": "haushalt", "message": f"Rundgang: {name} ({self.nr + 1}/{len(self.punkte)})"})
+        self._use(GoTo(x, y, speed=0.18, label=name))
+        return Command()
+
+    def on_start(self, st) -> None:
+        if not self.punkte:
+            self.failed = True
+            self.finish("Kein Weg für den Rundgang – merk dir erst Orte oder Räume")
+            return
+        self._weiter()
+
+    def tick(self, st, dt):
+        if self.inner is None:
+            return None
+        cmd = self.inner._step(st, dt)
+        if not self.inner.done:
+            return cmd
+        name = self.punkte[self.nr][2]
+        if self.phase == "hin":
+            if getattr(self.inner, "failed", False):
+                self.verpasst.append(name)
+                return self._weiter()
+            self.phase = "schauen"
+            self._use(LookAround(self.UMSCHAUEN_S, seed=self.nr))
+            return Command()
+        self.besucht.append(name)
+        return self._weiter()
+
+    def target(self):
+        return self.punkte[self.nr][:2] if 0 <= self.nr < len(self.punkte) else None
+
+    def describe(self) -> str:
+        return f"Rundgang ({max(0, self.nr) + 1}/{len(self.punkte)})"

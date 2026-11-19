@@ -1573,8 +1573,18 @@ eigenen Netz, ohne Herstellerwolke und ohne Marke, die fest eingebaut wäre.
   Schwelle (10, 15, 20 oder 30 %, Standard 15 %), geht der Körper dorthin, setzt sich, wenn er kann, und bittet um einen
   Akkuwechsel – die Microduck hat einen Wechselakku, eine Ladestation gibt es nicht. Einmal je Entladung; mitten in
   einem Befehl wartet sie, bis er fertig ist. Im Simulator zum Ausprobieren: „Akku knapp spielen“ (nur am PC).
-- **Sicherheit:** Nach einem Not-Aus startet in der Sperre weder ein Saugroboter noch das Aufräumen oder die Heimkehr;
-  hochgehoben oder gestürzt geht sie nicht von selbst los. Der Not-Aus bricht Aufräumen und Heimkehr sofort ab.
+- **Räume und Licht** (seit 0.46): den Roboter in einen Raum stellen, den Raumnamen wählen (Vorschläge aus Home
+  Assistant oder der Hue Bridge) und „Dieser Platz gehört dazu“. Mehrere Punkte je Raum sind erlaubt; der Roboter ist in
+  dem Raum, dessen Punkt ihm am nächsten ist (bis 3 m). Mit **„Licht folgt dem Roboter“** (nur am PC einschaltbar) geht
+  das Licht in dem Raum an, den er betritt, und wieder aus, wenn er ihn verlässt – aber nur, wenn Knowlin es selbst
+  angemacht hat. Licht, das du eingeschaltet hast, bleibt an. Damit nichts flackert, folgt das Licht erst, wenn er ein
+  paar Sekunden im neuen Raum ist.
+- **Rundgang** (seit 0.46, einfacher Simulator): „Rundgang“ drücken oder „Mach einen Rundgang“ sagen. Er geht die
+  Raumpunkte ab (ohne Raumpunkte die gemerkten Orte, sonst die Ecken des Zimmers), schaut sich an jeder Stelle um und
+  sagt danach, was ihm aufgefallen ist: Dinge, die woanders liegen als sonst, und was auf dem Boden liegt. Mit
+  Meldedienst kommt der Bericht auch aufs Handy – nur Text, keine Bilder.
+- **Sicherheit:** Nach einem Not-Aus startet in der Sperre weder ein Saugroboter noch Aufräumen, Rundgang oder Heimkehr;
+  hochgehoben oder gestürzt geht sie nicht von selbst los. Der Not-Aus bricht Aufräumen, Rundgang und Heimkehr sofort ab.
 - **Datenschutz:** Token und Hue-Schlüssel liegen nur im Tresor des Betriebssystems, in `haus.json` stehen nur die
   Adressen. Adressen im Internet (z. B. die Cloud-Adresse von Home Assistant) nimmt Knowlin nicht an. Meldungen sind
   nur Text, nie Bilder. „Trennen“ löscht Token bzw. Schlüssel.

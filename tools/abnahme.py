@@ -1051,6 +1051,8 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     except Exception:  # noqa: BLE001
         pass
     meldung = page.text_content("#haus-msg") or ""
+    raeume = page.evaluate("() => ['haus-raum-form', 'haus-rundgang'].map((i) => !!document.getElementById(i)?.offsetParent)")
+    b.pruefe("Smart Home: Räume und Rundgang bei der Microduck (seit 0.46)", all(raeume), str(raeume))
     b.pruefe("Smart Home: „Vor dem Saugroboter aufräumen“ antwortet ehrlich", any(w in meldung for w in ("Korb", "aufwecken", "räume")),
              meldung)
 

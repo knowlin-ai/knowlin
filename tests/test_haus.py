@@ -378,3 +378,99 @@ def test_oberflaeche_hat_die_karte():
         assert f'id="{i}"' in html, i
     assert 'type="password"' in html.split('id="haus-ha-token"')[0][-200:] + html.split('id="haus-ha-token"')[1][:60]
     assert "pc-only" in html.split('id="haus-einrichten"')[0][-80:]
+
+
+# ── 0.46: Räume, Licht folgt, Rundgang ───────────────────────────────────
+def test_raum_von_naechster_punkt():
+    punkte = [{"raum": "Wohnzimmer", "x": -1.0, "y": 0.0}, {"raum": "Küche", "x": 1.2, "y": 0.0}]
+    assert H.raum_von(-0.5, 0.2, punkte) == "Wohnzimmer"
+    assert H.raum_von(0.9, -0.3, punkte) == "Küche"
+    assert H.raum_von(20.0, 0.0, punkte) is None and H.raum_von(0, 0, []) is None
+
+
+def test_licht_folgt_schaltet_nur_eigenes_aus():
+    lf = H.LichtFolgt()
+    an = {"Küche"}                                                       # dort hat ein Mensch schon Licht an
+    assert lf.takt("Wohnzimmer", lambda r: r in an) == []               # erst verweilen
+    assert lf.takt("Wohnzimmer", lambda r: r in an) == [("an", "Wohnzimmer")]
+    assert lf.takt("Wohnzimmer") == []
+    assert lf.takt("Küche", lambda r: r in an) == []                    # an der Grenze vorbei: nichts
+    assert lf.takt("Wohnzimmer") == []
+    lf.takt("Küche", lambda r: r in an)
+    assert lf.takt("Küche", lambda r: r in an) == [("aus", "Wohnzimmer")]   # Küche war schon an → nicht nochmal
+    lf.takt("Wohnzimmer")
+    assert lf.takt("Wohnzimmer") == [("an", "Wohnzimmer")]              # Küche bleibt an (nicht selbst angemacht)
+    assert lf.ende() == [("aus", "Wohnzimmer")] and lf.ende() == []
+
+
+def test_raumpunkte_und_licht_im_raum(tmp_path):
+    h, _, netz = _haus(tmp_path)
+    assert h.raeume() == ["Küche", "Wohnzimmer"]
+    h.raumpunkt_setzen("Küche", 1.0, 0.5)
+    h.raumpunkt_setzen("Wohnzimmer", -1.0, 0.0)
+    assert [p["raum"] for p in h.raumpunkte()] == ["Küche", "Wohnzimmer"]
+    with pytest.raises(ValueError):
+        h.raumpunkt_setzen("", 0, 0)
+    assert h.licht_raum("küche", "aus") == ["Küchenlampe"]
+    assert netz.anfragen[-1][1].endswith("/light/turn_off") and netz.anfragen[-1][2] == {"entity_id": "light.kueche"}
+    assert h.licht_raum("Bad", "an") == []
+    h.raum_loeschen("Küche")
+    assert [p["raum"] for p in h.raumpunkte()] == ["Wohnzimmer"]
+
+
+def test_befehl_rundgang():
+    assert H.befehl("Mach mal einen Rundgang") == {"rundgang": True}
+    assert H.befehl("go on patrol") == {"rundgang": True}
+
+
+def test_rundgang_besucht_alle_stellen():
+    async def go():
+        from duckpilot.motion.haushalt import Rundgang
+
+        sim, eng = await make()
+        punkte = [(0.6, 0.6, "hinten rechts"), (-0.6, 0.6, "hinten links"), (-0.6, -0.6, "vorne links")]
+        b = Rundgang(punkte)
+        eng.run(b)
+        await run_for(sim, eng, 300, until=lambda: b.done)
+        assert b.done and not getattr(b, "failed", False), b.result
+        assert b.besucht == ["hinten rechts", "hinten links", "vorne links"] and "3 von 3" in b.result
+        leer = Rundgang([])
+        eng.run(leer)
+        await run_for(sim, eng, 1, until=lambda: leer.done)
+        assert leer.failed and "Orte" in leer.result
+    asyncio.run(go())
+
+
+def test_server_rundgang_licht_folgt(client):
+    rt = client.runtime
+    netz = FalschesNetz()
+    t = Tresor()
+    rt.haus.lesen, rt.haus.schreiben, rt.haus.anfrage = t.lesen, t.schreiben, netz
+    rt.haus.ha_verbinden("homeassistant.local", "t" * 40)
+    d = rt.haus_dienst
+    # Wegpunkte ohne Räume und Orte: die vier Ecken
+    assert len(d.wegpunkte()) == 4
+    st = rt.backend.state()
+    r = client.post("/api/haus/raum", json={"raum": "Wohnzimmer"}, headers=O).json()
+    assert r["ok"] and r["raum_jetzt"] == "Wohnzimmer" and [p[2] for p in d.wegpunkte()] == ["Wohnzimmer"]
+    assert not pc_only("POST", "/api/haus/raum") and not pc_only("POST", "/api/haus/rundgang")
+    # Licht folgt erst, wenn eingeschaltet
+    assert asyncio.run(d.licht_takt()) == []
+    assert client.post("/api/haus/einstellungen", json={"licht_folgt": True}, headers=O).json()["licht_folgt"]
+    asyncio.run(d.licht_takt())
+    befehle = asyncio.run(d.licht_takt())
+    assert befehle == [("an", "Wohnzimmer")]
+    assert any(a[1].endswith("/light/turn_on") and a[2] == {"entity_id": "light.wohnzimmer"} for a in netz.anfragen)
+    client.post("/api/haus/einstellungen", json={"licht_folgt": False}, headers=O)
+    assert asyncio.run(d.licht_takt()) == [("aus", "Wohnzimmer")]       # was selbst an war, geht wieder aus
+    # Rundgang: nach dem Not-Aus nicht
+    rt.engine.estop_at = time.monotonic()
+    r = client.post("/api/haus/rundgang", headers=O)
+    assert r.status_code == 400 and ("Not-Aus" in r.json()["fehler"] or "aufwecken" in r.json()["fehler"])
+    assert "Socke" in d.bericht() and st is not None
+
+
+def test_oberflaeche_raeume_und_rundgang():
+    html = seite()
+    for i in ("haus-raum-form", "haus-raumpunkte", "haus-licht-folgt", "haus-rundgang"):
+        assert f'id="{i}"' in html, i

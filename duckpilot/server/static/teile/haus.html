@@ -54,6 +54,19 @@
                   <select class="select pc-only" id="haus-schwelle"><option value="0.1">10 %</option><option value="0.15">15 %</option><option value="0.2">20 %</option><option value="0.3">30 %</option></select>
                   <button type="button" class="btn btn--sm btn--ghost pc-only" id="haus-akku-knapp" hidden>Akku knapp spielen</button>
                 </div>
+                <div class="haus-raeume" id="haus-raeume-box">
+                  <h4 class="field-label">Räume und Licht</h4>
+                  <p class="field-help">Den Roboter in einen Raum stellen und sagen, wozu der Platz gehört – so weiß Knowlin, wo er gerade ist. <span id="haus-raum-jetzt"></span></p>
+                  <form class="al-form al-form--one" id="haus-raum-form" autocomplete="off">
+                    <input class="input" id="haus-raum-name" maxlength="40" list="haus-raum-liste" placeholder="Raum, z. B. Küche" aria-label="Raum für diesen Platz" required>
+                    <datalist id="haus-raum-liste"></datalist>
+                    <button class="btn btn--sm" type="submit">Dieser Platz gehört dazu</button>
+                  </form>
+                  <ul class="al-list" id="haus-raumpunkte"></ul>
+                  <label class="check pc-only"><input type="checkbox" id="haus-licht-folgt"> Licht folgt dem Roboter</label>
+                  <p class="field-help">Betritt er einen Raum, geht dort das Licht an; verlässt er ihn, geht nur aus, was Knowlin selbst angemacht hat.</p>
+                  <button type="button" class="btn" id="haus-rundgang">Rundgang</button>
+                </div>
                 <p class="field-help">Sie trägt Socken, Klötzchen und Bausteine zum Korb, dann startet der Saugroboter. Bei knappem Akku geht sie zum Ladeplatz und bittet um einen Akkuwechsel. Nach einem Not-Aus startet in der Sperre kein Saugroboter.</p>
               </div>
             </section>

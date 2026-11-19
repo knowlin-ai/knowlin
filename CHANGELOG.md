@@ -9,6 +9,32 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.46.0 – 2026-11-19 – Rundgang und Licht folgt
+
+### Neu
+- **Räume als Punkte:** Roboter in einen Raum stellen, „Dieser Platz gehört dazu“ (Raumname aus Home Assistant oder
+  der Hue Bridge vorgeschlagen). Der Raum des Roboters ist der des nächsten Punkts (`haus.raum_von`).
+- **Licht folgt dem Roboter** (Schalter unter Alltag → Smart Home, aus bis eingeschaltet, `haus.LichtFolgt`): betritt er
+  einen Raum, geht dort das Licht an; verlässt er ihn, geht es wieder aus.
+- **Rundgang** (einfacher Simulator, mit Beinen, `motion/haushalt.Rundgang`): eine Runde über die Raumpunkte (sonst
+  gemerkte Orte oder die Ecken des Zimmers), an jeder Stelle umschauen, danach ein Bericht in Worten – was woanders liegt
+  als sonst und was auf dem Boden liegt – im Chat und über Home Assistant aufs Handy. Per Knopf, Werkzeug `haus`
+  (`rundgang`) oder ohne Sprachmodell: „Mach einen Rundgang“.
+
+### Geändert
+- Fahrplan: es stehen nur noch Punkte „ab Lieferung“ an.
+
+### Sicherheit
+- Licht folgt schaltet nur aus, was es selbst eingeschaltet hat – Licht, das ein Mensch angemacht hat, bleibt an; beim
+  Abschalten von „Licht folgt“ geht nur das selbst eingeschaltete Licht wieder aus. Erst nach kurzem Verweilen im
+  Raum, damit nichts flackert.
+- Rundgang nie in der Sperre nach einem Not-Aus und nur im Simulator; der Not-Aus beendet ihn sofort. Der Bericht
+  enthält nur Wörter, nie Bilder.
+
+### Nicht geprüft
+- Licht folgt mit echten Lichtern (geprüft mit nachgebauten Antworten von Home Assistant).
+- Rundgang am echten Roboter (kommt mit R6).
+
 ## 0.45.0 – 2026-11-19 – Haushalt und Smart Home
 
 ### Neu

@@ -290,6 +290,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.runner.haus = self.haus                           # Smart Home (seit 0.45)
         self.runner.haus_sperre = lambda: self.engine.notaus_gesperrt()
         self.runner.haus_aufraeumen = lambda ziel, sauger=True: self.haus_dienst.aufraeumen_start(ziel, sauger)
+        self.runner.haus_rundgang = lambda: self.haus_dienst.rundgang_start()   # Rundgang (seit 0.46)
         self.runner.englisch = lambda: str(getattr(self.config, "sprache", "de")).startswith("en")
         self.runner.pollen = PollenAdapter(self)
         self.runner.free_training = self.free_training

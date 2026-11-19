@@ -18,6 +18,11 @@ Leitplanken (nicht aufweichen):
 - Nach dem Not-Aus startet in der Sperre kein Saugroboter (die Laufzeit prüft das, `sperre`).
 - Meldungen sind nur Text (höchstens 200 Zeichen), nie Bilder.
 
+Seit 0.46 (Entscheidung des Maintainers „Rundgang + Licht folgt“): **Räume als Punkte** – „dieser Platz gehört zur
+Küche“ (`raumpunkte`, höchstens `RAUMPUNKTE_MAX`); der Raum des Roboters ist der des nächsten Punkts (`raum_von`).
+**Licht folgt** (`LichtFolgt`, aus bis eingeschaltet): betritt der Roboter einen Raum, geht dort das Licht an; verlässt er
+ihn, geht es nur aus, wenn Knowlin es selbst angemacht hat – Licht, das ein Mensch eingeschaltet hat, bleibt an.
+
 Home Assistant über die REST-Schnittstelle (`/api/states`, `/api/services/<art>/<dienst>`, Räume über `/api/template`).
 Hue über die lokale Schnittstelle der Bridge (v1, `http://<bridge>/api/<schlüssel>/…`); gekoppelt wird mit dem Knopf an
 der Bridge, ohne Konto bei Philips.
@@ -53,6 +58,10 @@ DIENSTE: dict[str, dict[str, str]] = {
 NIE = ("lock", "alarm_control_panel", "climate", "water_heater", "cover", "switch", "siren", "valve", "humidifier",
        "fan", "button", "script", "automation", "camera", "media_player", "input_boolean", "remote", "lawn_mower")
 NIE_TEXT = "Schlösser, Alarm, Heizung, Rollläden, Garagentore und Steckdosen schalte ich nie – das bleibt bei dir."
+
+RAUMPUNKTE_MAX = 16
+RAUM_RADIUS_M = 3.0            # weiter weg vom nächsten Raumpunkt = in keinem bekannten Raum
+VERWEILEN_TAKTE = 2            # so viele Takte (je ≈ 2 s) muss der Raum gleich bleiben, bevor das Licht folgt
 
 LOKALE_ENDUNGEN = (".local", ".lan", ".home", ".home.arpa", ".internal", ".fritz.box", ".ts.net")
 
@@ -384,6 +393,43 @@ class Haus:
             return namen or treffer
         return kandidaten
 
+    # Räume ---------------------------------------------------------------
+    def raumpunkte(self) -> list[dict[str, Any]]:
+        p = self.einstellungen().get("raumpunkte")
+        return [x for x in p if isinstance(x, dict)] if isinstance(p, list) else []
+
+    def raumpunkt_setzen(self, raum: str, x: float, y: float) -> list[dict[str, Any]]:
+        raum = " ".join(str(raum or "").split())
+        if not raum or len(raum) > 40 or any(ord(c) < 32 for c in raum):
+            raise ValueError("Raum: ein Name mit höchstens 40 Zeichen")
+        punkte = self.raumpunkte()
+        if len(punkte) >= RAUMPUNKTE_MAX:
+            raise ValueError(f"Schon {RAUMPUNKTE_MAX} Raumpunkte – erst einen löschen")
+        punkte.append({"raum": raum, "x": round(float(x), 2), "y": round(float(y), 2)})
+        self._speichern(raumpunkte=punkte)
+        return punkte
+
+    def raum_loeschen(self, raum: str) -> list[dict[str, Any]]:
+        punkte = [p for p in self.raumpunkte() if str(p.get("raum", "")).lower() != str(raum).lower()]
+        self._speichern(raumpunkte=punkte or None)
+        return punkte
+
+    def raeume(self) -> list[str]:
+        """Räume, in denen es Licht gibt (aus Home Assistant oder der Hue Bridge)."""
+        return sorted({g.raum for g in self.geraete()[0] if g.art == "licht" and g.raum})
+
+    def lichter_im(self, raum: str) -> list[Geraet]:
+        r = str(raum or "").lower()
+        return [g for g in self.geraete()[0] if g.art == "licht" and g.raum.lower() == r]
+
+    def licht_raum(self, raum: str, aktion: str) -> list[str]:
+        """Alle Lichter eines Raums an oder aus; gibt die geschalteten Namen zurück."""
+        geschaltet = []
+        for g in self.lichter_im(raum):
+            self.schalten(g.id, aktion)
+            geschaltet.append(g.name)
+        return geschaltet
+
     def melden(self, text: str) -> bool:
         """Meldung über Home Assistant aufs Handy – nur wenn ein Meldedienst eingetragen ist. Nur Text."""
         dienst = self.einstellungen().get("ha_melden")
@@ -392,6 +438,58 @@ class Haus:
             return False
         weg.melden(str(dienst), " ".join(str(text).split()))
         return True
+
+
+def raum_von(x: float, y: float, punkte: list[dict[str, Any]], radius: float = RAUM_RADIUS_M) -> str | None:
+    """Raum des nächsten Raumpunkts (höchstens `radius` entfernt) – oder None."""
+    best, best_d = None, radius
+    for p in punkte:
+        try:
+            d = ((float(p["x"]) - x) ** 2 + (float(p["y"]) - y) ** 2) ** 0.5
+        except (KeyError, TypeError, ValueError):
+            continue
+        if d <= best_d:
+            best, best_d = str(p.get("raum") or ""), d
+    return best or None
+
+
+class LichtFolgt:
+    """Rein rechnend: aus dem Raum je Takt die Schaltbefehle [("an"|"aus", raum)].
+
+    Erst wenn der Raum `VERWEILEN_TAKTE` Takte gleich bleibt, folgt das Licht (kein Flackern beim Vorbeilaufen an der
+    Grenze). Ausgeschaltet wird nur, was diese Klasse selbst eingeschaltet hat; war das Licht schon an, bleibt es an.
+    """
+
+    def __init__(self) -> None:
+        self.raum: str | None = None          # Raum, in dem das Licht gerade folgt
+        self.kandidat: str | None = None
+        self.takte = 0
+        self.selbst_an: set[str] = set()
+
+    def takt(self, raum: str | None, schon_an: Callable[[str], bool] = lambda r: False) -> list[tuple[str, str]]:
+        if raum != self.kandidat:
+            self.kandidat, self.takte = raum, 0
+        self.takte += 1
+        if self.takte < VERWEILEN_TAKTE or raum == self.raum:
+            return []
+        out: list[tuple[str, str]] = []
+        if self.raum and self.raum in self.selbst_an:
+            out.append(("aus", self.raum))
+            self.selbst_an.discard(self.raum)
+        if raum:
+            if not schon_an(raum):
+                out.append(("an", raum))
+                self.selbst_an.add(raum)
+        self.raum = raum
+        return out
+
+    def ende(self) -> list[tuple[str, str]]:
+        """Licht folgt wird ausgeschaltet: was selbst angemacht wurde, wieder aus."""
+        out = [("aus", r) for r in sorted(self.selbst_an)]
+        self.selbst_an.clear()
+        self.raum = self.kandidat = None
+        self.takte = 0
+        return out
 
 
 def als_dict(g: Geraet) -> dict[str, Any]:
@@ -412,9 +510,15 @@ VERBOTEN = re.compile(r"\b(\w*tür(e|en)?|\w*schloss|\w*schlösser|abschließ\w*
                       r"heating|garage|blinds|shutters?|outlets?|plugs?)\b")
 
 
+RUNDGANG = re.compile(r"\b(rundgang|kontrollgang|runde durch (die wohnung|das zimmer|den raum)|patrol|go on patrol)\b")
+
+
 def befehl(text: str) -> dict[str, Any] | None:
-    """Ein Haushaltsbefehl ohne Sprachmodell → {"art", "aktion", "text"} oder {"nie": True}; None = kein Befehl."""
+    """Ein Haushaltsbefehl ohne Sprachmodell → {"art", "aktion", "text"}, {"nie": True} oder {"rundgang": True};
+    None = kein Befehl."""
     t = " " + text.lower().strip(" ?!.") + " "
+    if RUNDGANG.search(t):
+        return {"rundgang": True}
     if VERBOTEN.search(t) and (AN.search(t) or AUS.search(t) or re.search(r"\b(öffne|schließ|abschließ|aufschließ|"
                                                                           r"entsperr|sperr|mach|stell|dreh|open|close|"
                                                                           r"set|turn|lock|unlock|arm|disarm)\w*", t)):

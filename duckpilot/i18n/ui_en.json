@@ -3807,5 +3807,13 @@
  "Sie trägt Socken, Klötzchen und Bausteine zum Korb, dann startet der Saugroboter. Bei knappem Akku geht sie zum Ladeplatz und bittet um einen Akkuwechsel. Nach einem Not-Aus startet in der Sperre kein Saugroboter.": "She carries socks, blocks and bricks to the basket, then the robot vacuum starts. When the battery runs low she goes to the charging spot and asks for a battery swap. After an emergency stop, no robot vacuum starts during the lockout.",
  "Rundgang und Licht": "Patrol and lights",
  "Eine Runde mit Meldung aufs Handy, Licht folgt dem Roboter von Raum zu Raum – im Simulator.": "A patrol with a message to your phone, lights follow the robot from room to room – in the simulator.",
- "Mit einem zweiten Arm steuern und fertige Policies laden, sobald ein SO-101 da ist.": "Control it with a second arm and load ready-made policies, as soon as an SO-101 is here."
+ "Mit einem zweiten Arm steuern und fertige Policies laden, sobald ein SO-101 da ist.": "Control it with a second arm and load ready-made policies, as soon as an SO-101 is here.",
+ "Räume und Licht": "Rooms and lights",
+ "Den Roboter in einen Raum stellen und sagen, wozu der Platz gehört – so weiß Knowlin, wo er gerade ist.": "Put the robot in a room and say which room the spot belongs to – then Knowlin knows where it is.",
+ "Raum für diesen Platz": "Room for this spot",
+ "Raum, z. B. Küche": "Room, e.g. kitchen",
+ "Dieser Platz gehört dazu": "This spot belongs to it",
+ "Licht folgt dem Roboter": "Lights follow the robot",
+ "Betritt er einen Raum, geht dort das Licht an; verlässt er ihn, geht nur aus, was Knowlin selbst angemacht hat.": "When it walks into a room, the light there goes on; when it leaves, only what Knowlin switched on itself goes off.",
+ "Rundgang": "Patrol"
 }

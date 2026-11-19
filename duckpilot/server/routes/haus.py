@@ -9,6 +9,9 @@ Heimkehr zum Ladeplatz.
 - Heimkehr: ist ein Ort „Ladeplatz“ gemerkt und fällt der Akku unter die Schwelle (Standard 15 %), geht der Körper
   dorthin, setzt sich und bittet um einen Akkuwechsel – nie in der Sperre, nie hochgehoben, nie mitten in einem Befehl.
   Einmal je Entladung (erst über Schwelle + 10 % wieder bereit).
+- Seit 0.46: **Räume als Punkte** (`/api/haus/raum`), **Licht folgt** (Einstellung `licht_folgt`, aus bis
+  eingeschaltet; schaltet nur Licht, das es selbst angemacht hat, wieder aus) und **Rundgang** (`/api/haus/rundgang`,
+  einfacher Simulator, mit Beinen): Bericht nur in Worten – was woanders liegt als sonst, was auf dem Boden liegt.
 """
 
 from __future__ import annotations
@@ -23,7 +26,7 @@ from fastapi.responses import JSONResponse
 
 from ... import haus as H
 from ...aio import spawn
-from ...motion.haushalt import Heimkehr, VorDemSauger
+from ...motion.haushalt import Heimkehr, Rundgang, VorDemSauger
 from ..runtime import Runtime
 from ..security import _json_body
 
@@ -47,6 +50,8 @@ class HausDienst:
         self.heimkehr_bereit = True
         self.heimkehr: Heimkehr | None = None
         self._waechter: asyncio.Task | None = None
+        self.licht = H.LichtFolgt()
+        self.rundgang: Rundgang | None = None
 
     # ── Hilfen ───────────────────────────────────────────────────────────
     def gesperrt(self) -> bool:
@@ -85,7 +90,13 @@ class HausDienst:
                "ladeplatz": self.ort(LADEPLATZ) is not None, "korb": self.ort(KORB) is not None,
                "kann_aufraeumen": {"schnabel", "beine"} <= eig and getattr(self.rt.backend, "world_model", None) is not None,
                "kann_heimkehr": bool({"beine", "raeder"} & eig), "simulator": "simulator" in eig,
-               "sauger_danach": self.haus.einstellungen().get("sauger_danach", "")}
+               "sauger_danach": self.haus.einstellungen().get("sauger_danach", ""),
+               "licht_folgt": bool(self.haus.einstellungen().get("licht_folgt")), "raumpunkte": self.haus.raumpunkte(),
+               "raum_jetzt": H.raum_von(st.x, st.y, self.haus.raumpunkte()),
+               "kann_rundgang": bool({"beine", "raeder"} & eig) and "simulator" in eig}
+        if self.rundgang is not None:
+            out["rundgang"] = {"laeuft": not self.rundgang.done, "besucht": list(self.rundgang.besucht),
+                               "von": len(self.rundgang.punkte)}
         if self.aufraeumen is not None:
             out["aufraeumen"] = {"laeuft": not self.aufraeumen.done, **self.aufraeumen.info()}
         return out
@@ -226,12 +237,105 @@ class HausDienst:
         except Exception:  # noqa: BLE001
             pass
 
+    # ── Licht folgt (seit 0.46) ──────────────────────────────────────────
+    async def licht_takt(self) -> list[tuple[str, str]]:
+        """Ein Takt: Raum bestimmen, Licht nachziehen. Ausgeschaltet → einmal aufräumen, was selbst an war."""
+        if not self.haus.einstellungen().get("licht_folgt"):
+            befehle = self.licht.ende() if self.licht.selbst_an else []
+        else:
+            st = self.rt.backend.state()
+            raum = H.raum_von(st.x, st.y, self.haus.raumpunkte())
+
+            def schon_an(r: str) -> bool:
+                return any(g.an for g in self.haus.lichter_im(r))
+
+            befehle = await asyncio.to_thread(self.licht.takt, raum, schon_an)
+        for aktion, raum in befehle:
+            try:
+                await asyncio.to_thread(self.haus.licht_raum, raum, aktion)
+            except Exception:  # noqa: BLE001 – Licht ist nie wichtiger als der Rest
+                pass
+        return befehle
+
+    # ── Rundgang (seit 0.46) ─────────────────────────────────────────────
+    def wegpunkte(self) -> list[tuple[float, float, str]]:
+        punkte = [(float(p["x"]), float(p["y"]), str(p["raum"])) for p in self.haus.raumpunkte()]
+        if not punkte and self.rt.memory is not None:
+            punkte = [(float(p["x"]), float(p["y"]), n) for n, p in self.rt.memory.places_for(self.koerper()).items()]
+        welt = getattr(self.rt.backend, "world_model", None)
+        if not punkte and welt is not None:            # die vier Ecken, 60 cm von den Wänden
+            bx, by = welt.width / 2 - 0.6, welt.depth / 2 - 0.6
+            punkte = [(bx, by, "hinten rechts"), (-bx, by, "hinten links"), (-bx, -by, "vorne links"),
+                      (bx, -by, "vorne rechts")]
+        st = self.rt.backend.state()
+        if punkte:                                     # beim nächsten anfangen, dann der Reihe nach im Kreis
+            i = min(range(len(punkte)), key=lambda k: math.hypot(punkte[k][0] - st.x, punkte[k][1] - st.y))
+            punkte = punkte[i:] + punkte[:i]
+        return punkte[:8]
+
+    async def rundgang_start(self) -> dict[str, Any]:
+        be = self.rt.backend
+        eig = be.eigenschaften()
+        if not ({"beine", "raeder"} & eig) or "simulator" not in eig:
+            return {"ok": False, "fehler": "Den Rundgang gibt es im Simulator mit einem Körper, der laufen kann."}
+        if self.gesperrt():
+            return {"ok": False, "fehler": "Nach dem Not-Aus geht sie noch nicht los – kurz warten."}
+        st = be.state()
+        if not st.powered or st.fallen or st.picked_up:
+            return {"ok": False, "fehler": "Erst aufwecken – sie muss stehen."}
+        b = Rundgang(self.wegpunkte())
+        self.rundgang = b
+        self.rt.engine.run(b)
+        spawn(self._rundgang_warten(b))
+        text = f"Ich mache einen Rundgang über {len(b.punkte)} Stellen."
+        await self.melden(art="rundgang", laeuft=True, text=text)
+        return {"ok": True, "text": text, "stellen": [p[2] for p in b.punkte]}
+
+    def bericht(self) -> str:
+        """Was auffällt – nur aus dem, was sie weiß: Dinge woanders als sonst und was auf dem Boden liegt."""
+        teile: list[str] = []
+        raum = getattr(self.rt, "raum", None)
+        if raum is not None:
+            try:
+                woanders = [g["name"] for g in raum.sichtungen.weltbild() if g.get("woanders")]
+            except Exception:  # noqa: BLE001
+                woanders = []
+            if woanders:
+                teile.append(f"woanders als sonst: {', '.join(woanders[:5])}")
+        welt = getattr(self.rt.backend, "world_model", None)
+        if welt is not None:
+            korb = self.ort(KORB)
+            boden = [i.name for i in welt.items if i.kind in AUFHEBBAR and not i.held
+                     and (korb is None or math.hypot(i.x - korb[0], i.y - korb[1]) > 0.35)]
+            if boden:
+                teile.append(f"auf dem Boden: {', '.join(boden[:6])}")
+        return ("Aufgefallen ist mir " + "; ".join(teile) + ".") if teile else "Mir ist nichts aufgefallen."
+
+    async def _rundgang_warten(self, b: Rundgang) -> None:
+        t0 = time.monotonic()
+        while not b.done and time.monotonic() - t0 < (b.timeout or 600) + 10:
+            await asyncio.sleep(0.5)
+            if self.rt.engine.current is not b and not b.done:
+                await self.melden(art="rundgang", laeuft=False, text="Rundgang abgebrochen.")
+                return
+        text = f"{b.result}. {self.bericht()}"
+        await self.sagen(text)
+        await self.melden(art="rundgang", laeuft=False, text=text)
+        try:
+            await asyncio.to_thread(self.haus.melden, text)
+        except Exception:  # noqa: BLE001
+            pass
+
     async def waechter(self) -> None:
         while True:
             await asyncio.sleep(2.0)
             try:
                 await self.heimkehr_pruefen()
             except Exception:  # noqa: BLE001 – der Wächter darf nie stehen bleiben
+                pass
+            try:
+                await self.licht_takt()
+            except Exception:  # noqa: BLE001
                 pass
 
 
@@ -303,6 +407,10 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             if isinstance(v, bool) or not isinstance(v, (int, float)) or not 0.05 <= v <= 0.5:
                 return _fehler("Schwelle: 5 bis 50 %")
             neu["akku_schwelle"] = round(float(v), 2)
+        if "licht_folgt" in b:
+            if not isinstance(b["licht_folgt"], bool):
+                return _fehler("licht_folgt: an oder aus")
+            neu["licht_folgt"] = b["licht_folgt"] or None
         haus._speichern(**neu)
         return JSONResponse({"ok": True, **dienst.stand()})
 
@@ -332,3 +440,29 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         be.battery = max(0.05, dienst.schwelle() - 0.02)
         dienst.heimkehr_bereit = True
         return JSONResponse({"ok": True, "akku": be.battery, "ladeplatz": dienst.ort(LADEPLATZ) is not None})
+
+
+    @app.post("/api/haus/raum")
+    async def haus_raum(request: Request) -> JSONResponse:
+        """„Dieser Platz gehört zur Küche“: Raumpunkt an der Stelle, wo der Roboter gerade steht (seit 0.46)."""
+        b = await _json_body(request)
+        st = runtime.backend.state()
+        try:
+            haus.raumpunkt_setzen(str(b.get("raum", "")), st.x, st.y)
+        except ValueError as exc:
+            return _fehler(str(exc))
+        return JSONResponse({"ok": True, **dienst.stand()})
+
+    @app.delete("/api/haus/raum/{raum}")
+    async def haus_raum_loeschen(raum: str) -> JSONResponse:
+        haus.raum_loeschen(raum)
+        return JSONResponse({"ok": True, **dienst.stand()})
+
+    @app.get("/api/haus/raeume")
+    async def haus_raeume() -> JSONResponse:
+        return JSONResponse({"ok": True, "raeume": await asyncio.to_thread(haus.raeume)})
+
+    @app.post("/api/haus/rundgang")
+    async def haus_rundgang() -> JSONResponse:
+        r = await dienst.rundgang_start()
+        return JSONResponse(r, status_code=200 if r.get("ok") else 400)
