@@ -116,7 +116,8 @@ class Erfahrungsnetz:
         k = self.knoten.get(kid)
         if k is None:
             art, _, name = kid.partition(":")
-            k = {"art": art if art in ARTEN else "ding", "name": label or name, "n": 0, "zuletzt": 0.0}
+            k = {"art": art if art in ARTEN else "ding", "name": label or name, "n": 0, "zuletzt": 0.0,
+                 "erst": time.time()}           # seit 0.38.67: wann zuerst erlebt (für „Wachsen sehen“)
             self.knoten[kid] = k
             self._trim()
         if label:
@@ -363,7 +364,9 @@ class Erfahrungsnetz:
         return {
             "type": "erfahrung",
             "knoten": [{"id": k, "art": self.knoten[k]["art"], "name": self.knoten[k]["name"], "n": self.knoten[k]["n"],
-                        "akt": round(aktiv.get(k, 0.0), 2), "herkunft": self.knoten[k].get("herkunft") or {}} for k in wahl],
+                        "akt": round(aktiv.get(k, 0.0), 2), "herkunft": self.knoten[k].get("herkunft") or {},
+                        "erst": round(float(self.knoten[k].get("erst") or self.knoten[k].get("zuletzt") or 0), 1)}
+                       for k in wahl],
             "kanten": [{"a": p.split("|")[0], "b": p.split("|")[1], "w": e["w"], "neu": p in frisch}
                        for p, e in kanten if all(x in ids for x in p.split("|"))][:max_kanten],
             "zahlen": {"knoten": len(self.knoten), "verbindungen": len(self.kanten)},

@@ -996,6 +996,13 @@ Was die Ente zusammen erlebt, verknüpft sich – nach dem Prinzip „was zusamm
 - **Ansehen:** System → Zustand → **Hirnaktivität** zeigt das Netz live – aktive Knoten leuchten, frische
   Verknüpfungen blitzen auf; ein Klick zeigt, womit ein Knoten verknüpft ist und zuletzt warum, und lässt ihn vergessen.
   Unter Charakter → Gedächtnis: Überblick und „Netz zurücksetzen“ (zwei Klicks). „Alles vergessen“ leert auch das Netz.
+- **Als Galaxie** (seit 0.38.67): Jede Art – Personen, Orte, Dinge, Tätigkeiten, Sinne, Gefühle, Rückmeldungen, Zeit –
+  ist ein Nebel mit Namen und Anzahl, die Knoten leuchten als Sterne, Verknüpfungen sind Lichtfäden. Klick auf einen
+  Stern fliegt hin, hebt seine Verbindungen hervor und zeigt darunter die Einzelheiten (Esc beendet). Unten in der
+  Bühne – und als Tasten, solange die Karte den Fokus hat: **Leertaste** formt zwischen Galaxie und Netz um,
+  **G** lässt das Netz in der Reihenfolge des Erlebens noch einmal wachsen, **H** blendet Staub und Schilder aus,
+  **/** sucht (Enter fliegt zum Treffer), **R** nimmt 12 Sekunden als Video auf (nur am PC, als `.webm` in die
+  Downloads; Namen von Personen sind darin ausgeblendet). Mit „Bewegung reduzieren“ funkeln die Sterne nicht.
 - **Ehrlich:** ein lernendes Gewichtsnetz, kein Deep Learning und kein Bewusstsein; das Sprachmodell lernt nicht.
   Lernt nur bei eingeschaltetem Gedächtnis, liegt lokal in `erfahrung.json`.
 

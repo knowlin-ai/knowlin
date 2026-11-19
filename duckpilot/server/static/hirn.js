@@ -16,6 +16,7 @@ try {
 } catch { /* ohne DOM (Tests) bleiben die Vorgaben */ }
 const ART = { person: 'Person', ort: 'Ort', ding: 'Ding', taetigkeit: 'Tätigkeit', sinn: 'Sinneseindruck', gefuehl: 'Gefühl', rueckmeldung: 'Rückmeldung', zeit: 'Zeit' };
 
+import * as G from './hirn_galaxie.js';
 import { herkunftListe, herkunftName, passt } from './herkunft.js';
 import { uebersetzeText } from './i18n.js';
 
@@ -43,7 +44,34 @@ export function initHirn(h) {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Drehen und Zoomen wie in 3D (seit 0.37.12, Wunsch des Maintainers): Ziehen dreht, Mausrad/zwei Finger zoomen; nach ein
   // paar Sekunden Ruhe kehrt die Ansicht sanft zurück. Die Knoten haben dafür eine Tiefe (z).
-  const ansicht = { yaw: 0, pitch: 0, zoom: 1 };
+  const ansicht = { yaw: 0, pitch: 0, zoom: 1, px: 0, py: 0 };
+  // Galaxie (seit 0.38.67): Nebel je Art, Sterne, Lichtfäden; Leertaste formt zwischen Galaxie und Netz um, G lässt das
+  // Netz noch einmal wachsen, H blendet Staub und Schilder aus, / sucht, R nimmt 12 s als Video auf (ohne Personennamen)
+  let modus = 'galaxie';
+  try { modus = localStorage.getItem('duckpilot.hirn.ansicht') || 'galaxie'; } catch { /* privat */ }
+  let klar = false;
+  let suche = '';
+  let wachsen = null;                // {t0, dauer, rang: Map id → Platz}
+  let aufnahme = null;               // laufender MediaRecorder
+  const nebel = new Map();           // Art → geglättete Mitte (Welt)
+  const staubVorrat = new Map();
+  const artFarben = new Map();
+  const farbeVon = (art) => {
+    if (!artFarben.has(art)) artFarben.set(art, G.artFarbe(art, FARBE[GRUPPE[art] || 'erleben']));
+    return artFarben.get(art);
+  };
+  function zeigbar(id) {
+    if (!wachsen) return true;
+    const u = (performance.now() - wachsen.t0) / wachsen.dauer;
+    if (u >= 1.05) { wachsen = null; return true; }
+    return (wachsen.rang.get(id) ?? 0) < u * wachsen.rang.size;
+  }
+  function wachsTeil(id) {                       // 0 … 1: wie weit ein Stern schon aufgegangen ist
+    if (!wachsen) return 1;
+    const n = wachsen.rang.size || 1;
+    const u = (performance.now() - wachsen.t0) / wachsen.dauer;
+    return Math.max(0, Math.min(1, (u * n - (wachsen.rang.get(id) ?? 0)) / 2));
+  }
   let zuletztBewegt = 0;
   const RUECKKEHR_MS = 4000;
   const schirm = new Map();          // id → {x, y, f} – projiziert, fürs Treffen per Maus
@@ -140,6 +168,8 @@ export function initHirn(h) {
   function step(w, hgt) {
     const nodes = data.knoten || [];
     const byId = new Map(nodes.map((k) => [k.id, k]));
+    const gal = modus === 'galaxie';
+    const zent = gal ? G.zentren([...new Set(nodes.map((k) => k.art))], w, hgt) : null;
     for (const a of nodes) {
       const pa = pos.get(a.id);
       if (pa.z === undefined) { pa.z = (Math.random() - 0.5) * 200; pa.vz = 0; }
@@ -149,11 +179,13 @@ export function initHirn(h) {
         let dx = pa.x - pb.x; let dy = pa.y - pb.y; const dz = (pa.z || 0) - (pb.z || 0);
         if (Math.abs(dx) + Math.abs(dy) < 0.5) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; }   // genau übereinander: auseinanderschubsen
         const d2 = Math.max(80, dx * dx + dy * dy + dz * dz);
-        const f = 2400 / d2;
+        const f = (gal ? 1100 : 2400) / d2;
         const d = Math.sqrt(d2);
         pa.vx += dx * f / d; pa.vy += dy * f / d; pa.vz += dz * f / d;
       }
       pa.vx += (w / 2 - pa.x) * 0.0012; pa.vy += (hgt / 2 - pa.y) * 0.002; pa.vz += -pa.z * 0.002;
+      const c = zent && zent[a.art];             // Galaxie: jede Art sammelt sich in ihrem Nebel
+      if (c) { pa.vx += (c.x - pa.x) * 0.03; pa.vy += (c.y - pa.y) * 0.03; pa.vz += -pa.z * 0.004; }
     }
     for (const e of data.kanten || []) {
       const pa = pos.get(e.a); const pb = pos.get(e.b);
@@ -161,7 +193,7 @@ export function initHirn(h) {
       const dx = pb.x - pa.x; const dy = pb.y - pa.y; const dz = (pb.z || 0) - (pa.z || 0);
       const d = Math.max(1, Math.hypot(dx, dy, dz));
       const rest = 90 + 110 * (1 - e.w);
-      const f = (d - rest) * 0.004 * (0.4 + e.w);
+      const f = (d - rest) * 0.004 * (0.4 + e.w) * (gal ? 0.2 : 1);
       pa.vx += dx / d * f; pa.vy += dy / d * f; pa.vz += dz / d * f;
       pb.vx -= dx / d * f; pb.vy -= dy / d * f; pb.vz -= dz / d * f;
     }
@@ -175,7 +207,7 @@ export function initHirn(h) {
 
   // Projektion: um die Mitte drehen (yaw um die Hochachse, pitch um die Querachse), Perspektive, Zoom
   function projizieren(p, w, hgt) {
-    let X = p.x - w / 2, Y = p.y - hgt / 2, Z = p.z || 0;
+    let X = p.x - w / 2 - ansicht.px, Y = p.y - hgt / 2 - ansicht.py, Z = p.z || 0;
     if (lebendig() && !p.fest) {                        // schweben: jeder Knoten mit eigener, langsamer Phase
       if (p.ph === undefined) p.ph = Math.random() * Math.PI * 2;
       const t = performance.now() / 1000;
@@ -190,13 +222,26 @@ export function initHirn(h) {
   }
 
   function zurueck() {
-    if (performance.now() - zuletztBewegt < RUECKKEHR_MS || ziehen) return;
+    // Fokus auf einem Stern (Galaxie): Kamera gleitet hin und bleibt, bis die Auswahl endet
+    const fp = selected && modus === 'galaxie' ? pos.get(selected) : null;
+    let ziel = fp ? [fp.x - lastW / 2, fp.y - lastH / 2] : [0, 0];
+    if (!fp && modus === 'galaxie' && pos.size) {     // Galaxie ohne Auswahl: die Mitte aller Sterne in die Bildmitte
+      let mx = 0, my = 0, lo = Infinity, hi = -Infinity, ob = Infinity, un = -Infinity;
+      for (const p of pos.values()) { lo = Math.min(lo, p.x); hi = Math.max(hi, p.x); ob = Math.min(ob, p.y); un = Math.max(un, p.y); }
+      mx = (lo + hi) / 2; my = (ob + un) / 2;
+      ziel = [mx - lastW / 2, my - lastH / 2];
+    }
+    ansicht.px += (ziel[0] - ansicht.px) * (reduced ? 1 : 0.06);
+    ansicht.py += (ziel[1] - ansicht.py) * (reduced ? 1 : 0.06);
+    if (fp && performance.now() - zuletztBewegt > 600) ansicht.zoom += (1.7 - ansicht.zoom) * (reduced ? 1 : 0.05);
+    if (fp || performance.now() - zuletztBewegt < RUECKKEHR_MS || ziehen) return;
     const lebt = lebendig();
     const t = performance.now() / 1000;
     const k = reduced ? 1 : lebt ? 0.015 : 0.06;
     // bei Knowlin: kein Stillstand, sondern ein langsames Kreisen wie Atmen
-    ansicht.yaw += ((lebt ? 0.6 * Math.sin(t * 0.11) : 0) - ansicht.yaw) * k;
-    ansicht.pitch += ((lebt ? 0.22 * Math.sin(t * 0.07 + 1) : 0) - ansicht.pitch) * k;
+    const weit = modus === 'galaxie' ? 0.25 : 1;      // die Galaxie kreist nur leicht, sonst rücken die Nebel zusammen
+    ansicht.yaw += ((lebt ? 0.6 * weit * Math.sin(t * 0.11) : 0) - ansicht.yaw) * k;
+    ansicht.pitch += ((lebt ? 0.22 * weit * Math.sin(t * 0.07 + 1) : 0) - ansicht.pitch) * k;
     ansicht.zoom += (1 - ansicht.zoom) * k;
   }
 
@@ -264,6 +309,7 @@ export function initHirn(h) {
   function radius(k) { return Math.min(14, 4 + Math.sqrt(k.n || 1) * 1.4); }
 
   function draw(w, hgt) {
+    if (modus === 'galaxie') { drawGalaxie(w, hgt); return; }
     ctx.clearRect(0, 0, w, hgt);
     const now = performance.now();
     const lebt = lebendig();
@@ -274,7 +320,7 @@ export function initHirn(h) {
     // Verbindungen
     for (const e of data.kanten || []) {
       const pa = schirm.get(e.a); const pb = schirm.get(e.b);
-      if (!pa || !pb) continue;
+      if (!pa || !pb || !zeigbar(e.a) || !zeigbar(e.b)) continue;
       const lit = Math.max(zeigAkt.get(e.a) || 0, 0) * Math.max(zeigAkt.get(e.b) || 0, 0);
       const fl = flashes.get(`${e.a}|${e.b}`);
       const kopf = kopfModus();
@@ -294,6 +340,7 @@ export function initHirn(h) {
     const labelled = new Set(ranked.slice(0, 16).map((k) => k.id));
     const tiefe = [...nodes].filter((k) => schirm.has(k.id)).sort((a, b) => schirm.get(b.id).z - schirm.get(a.id).z);
     for (const k of tiefe) {                              // hinten zuerst, vorne zuletzt
+      if (!zeigbar(k.id)) continue;
       const p = schirm.get(k.id);
       const col = FARBE[GRUPPE[k.art] || 'erleben'];
       const r = radius(k) * Math.max(0.4, Math.min(2.2, p.f));
@@ -331,6 +378,132 @@ export function initHirn(h) {
         ctx.textAlign = 'center';
         ctx.fillText(zeigName(k.name), p.x, p.y - r - 6);
       }
+    }
+  }
+
+  // ── Galaxie (seit 0.38.67) ─────────────────────────────────────────────
+  function nachbarn(id) {
+    const out = new Set();
+    for (const e of data.kanten || []) { if (e.a === id) out.add(e.b); if (e.b === id) out.add(e.a); }
+    return out;
+  }
+  const anzeigeName = (k) => (aufnahme && k.art === 'person' ? zeigName('Person') : zeigName(k.name));
+
+  function drawGalaxie(w, hgt) {
+    const now = performance.now(), t = now / 1000;
+    G.hintergrund(ctx, w, hgt, t, reduced);
+    const nodes = data.knoten || [];
+    schirm.clear();
+    for (const k of nodes) { const p = pos.get(k.id); if (p) schirm.set(k.id, projizieren(p, w, hgt)); }
+    for (const k of nodes) aktVon(k);
+    const fokus = selected ? nachbarn(selected) : null;
+    const gedimmt = (k) => {                       // Fokus, Suche und Herkunft dimmen, was nicht dazugehört
+      let f = 1;
+      if (fokus && k.id !== selected && !fokus.has(k.id)) f *= 0.22;
+      if (suche && !G.trifft(k, suche, zeigName)) f *= 0.18;
+      if (!passt(k.herkunft, filter)) f *= 0.2;
+      return f;
+    };
+    // Nebel je Art: Mitte gleitet mit ihren Sternen, Staub als Spirale darum
+    const proArt = new Map();
+    for (const k of nodes) {
+      const p = pos.get(k.id);
+      if (!p || !zeigbar(k.id)) continue;
+      if (!proArt.has(k.art)) proArt.set(k.art, []);
+      proArt.get(k.art).push(p);
+    }
+    ctx.globalCompositeOperation = 'lighter';
+    const schilder = [];
+    for (const [art, ps] of proArt) {
+      const m = { x: 0, y: 0, z: 0 };
+      for (const p of ps) { m.x += p.x / ps.length; m.y += p.y / ps.length; m.z += (p.z || 0) / ps.length; }
+      const alt = nebel.get(art);
+      const mitte = alt ? { x: alt.x + (m.x - alt.x) * 0.08, y: alt.y + (m.y - alt.y) * 0.08, z: alt.z + (m.z - alt.z) * 0.08 } : m;
+      nebel.set(art, mitte);
+      const R = 40 + Math.sqrt(ps.length) * 30;
+      const f = farbeVon(art);
+      const dim = suche && !(G.NEBEL_NAME[art] || '').toLocaleLowerCase('de').includes(suche.toLocaleLowerCase('de')) ? 0.45 : 1;
+      const c = projizieren({ ...mitte, fest: true }, w, hgt);
+      if (!klar) {
+        const kern = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, R * c.f * 1.1);
+        kern.addColorStop(0, f(0.2 * dim)); kern.addColorStop(1, f(0));
+        ctx.fillStyle = kern; ctx.beginPath(); ctx.arc(c.x, c.y, R * c.f * 1.1, 0, Math.PI * 2); ctx.fill();
+        const anzahl = Math.min(720, 120 + ps.length * 50);
+        const key = `${art}|${anzahl}`;
+        if (!staubVorrat.has(key)) staubVorrat.set(key, G.staub(art, anzahl));
+        for (const s of staubVorrat.get(key)) {
+          const q = projizieren({ x: mitte.x + s.x * R, y: mitte.y + s.y * R, z: mitte.z + s.z * R, fest: true }, w, hgt);
+          ctx.fillStyle = f(s.a * dim * (reduced ? 0.7 : 0.55 + 0.25 * Math.sin(t * 0.9 + s.ph)));
+          const g = s.s * Math.max(0.6, q.f);
+          ctx.fillRect(q.x, q.y, g, g);
+        }
+      }
+      // Schild über dem Nebel, immer ganz im Bild
+      schilder.push({ x: Math.max(16, Math.min(w - 170, c.x - R * c.f * 0.4)), y: Math.max(16, Math.min(hgt - 70, c.y - R * c.f - 8)),
+        art, n: ps.length, f });
+    }
+    // Lichtfäden: Farbe von Stern zu Stern, im Fokus heller
+    for (const e of data.kanten || []) {
+      if (!zeigbar(e.a) || !zeigbar(e.b)) continue;
+      const pa = schirm.get(e.a), pb = schirm.get(e.b);
+      if (!pa || !pb) continue;
+      const ka = nodes.find((k) => k.id === e.a), kb = nodes.find((k) => k.id === e.b);
+      if (!ka || !kb) continue;
+      const imFokus = selected && (e.a === selected || e.b === selected);
+      const fl = flashes.get(`${e.a}|${e.b}`);
+      const blitz = fl ? Math.max(0, 1 - (now - fl) / 3000) : 0;
+      let a = (0.05 + 0.28 * e.w) * (selected ? (imFokus ? 2.6 : 0.3) : 1) + 0.5 * blitz;
+      if (suche && !(G.trifft(ka, suche, zeigName) || G.trifft(kb, suche, zeigName))) a *= 0.3;
+      const g = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
+      g.addColorStop(0, farbeVon(ka.art)(Math.min(0.9, a))); g.addColorStop(1, farbeVon(kb.art)(Math.min(0.9, a)));
+      ctx.strokeStyle = g;
+      ctx.lineWidth = (0.5 + 1.3 * e.w + (imFokus ? 0.8 : 0) + blitz) * Math.min(1.5, (pa.f + pb.f) / 2);
+      ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+    }
+    if (!reduced) { impulseSetzen(now); impulseMalen(now); }
+    // Sterne, hinten zuerst
+    const tiefe = nodes.filter((k) => schirm.has(k.id) && zeigbar(k.id)).sort((a, b) => schirm.get(b.id).z - schirm.get(a.id).z);
+    for (const k of tiefe) {
+      const p = schirm.get(k.id);
+      const ka = zeigAkt.get(k.id) || 0;
+      const an = glut.get(k.id);
+      const hell = Math.min(1.2, ka + (an && now - an < 2400 ? 0.4 * Math.sin(Math.PI * (now - an) / 2400) : 0)
+        + (k.id === selected || k.id === hover ? 0.6 : 0) + (reduced ? 0 : 0.08 * Math.sin(t * 1.7 + (p.f * 13))));
+      const r = (1.8 + Math.sqrt(k.n || 1) * 0.9) * Math.max(0.5, Math.min(2.2, p.f)) * wachsTeil(k.id);
+      ctx.globalAlpha = gedimmt(k);
+      G.stern(ctx, p.x, p.y, r, farbeVon(k.art), Math.max(0.15, hell));
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    // Ringe, Schilder, Namen
+    for (const k of tiefe) {
+      if (k.id !== selected && k.id !== hover) continue;
+      const p = schirm.get(k.id);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, radius(k) * Math.max(0.6, p.f) + 5, 0, Math.PI * 2); ctx.stroke();
+    }
+    if (!klar) for (const s of schilder) G.nebelSchild(ctx, s.x, s.y, zeigName(G.NEBEL_NAME[s.art] || s.art), s.n, s.f);
+    const ranked = [...tiefe].sort((a, b) => (zeigAkt.get(b.id) - zeigAkt.get(a.id)) || (b.n - a.n));
+    const namen = new Set(klar ? [] : ranked.slice(0, 12).map((k) => k.id));
+    if (fokus) { namen.add(selected); for (const id of fokus) namen.add(id); }
+    if (suche) for (const k of tiefe) if (G.trifft(k, suche, zeigName)) namen.add(k.id);
+    if (hover) namen.add(hover);
+    ctx.font = '400 12px "IBM Plex Sans", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    for (const k of tiefe) {
+      if (!namen.has(k.id)) continue;
+      const p = schirm.get(k.id);
+      ctx.globalAlpha = Math.max(0.35, gedimmt(k));
+      ctx.fillStyle = k.id === selected || k.id === hover ? '#ffffff' : 'rgba(225, 228, 245, 0.85)';
+      ctx.fillText(anzeigeName(k), p.x + radius(k) * Math.max(0.6, p.f) + 6, p.y);
+    }
+    ctx.globalAlpha = 1;
+    if (aufnahme) {                                   // Aufnahme läuft: kleiner roter Punkt oben rechts
+      ctx.fillStyle = '#e5484d';
+      ctx.globalAlpha = 0.6 + 0.4 * Math.sin(t * 4);
+      ctx.beginPath(); ctx.arc(w - 18, 18, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
     }
   }
 
@@ -443,6 +616,100 @@ export function initHirn(h) {
     }
     box.replaceChildren(head, herkunft, r.verbindungen.length ? list : el('p', 'field-help', 'Noch mit nichts verknüpft.'));
   }
+
+  // ── Werkzeugleiste und Tasten (seit 0.38.67) ───────────────────────────
+  const leiste = $('brain-werkzeug');
+  const sucheFeld = $('brain-suche');
+  const knopf = (a) => leiste?.querySelector(`[data-brain-aktion="${a}"]`);
+  function leisteZeigen() {
+    const um = knopf('umformen');
+    if (um) {
+      um.querySelector('.brain-knopf-text').textContent = uebersetzeText(modus === 'galaxie' ? 'Als Netz' : 'Als Galaxie')
+        || (modus === 'galaxie' ? 'Als Netz' : 'Als Galaxie');
+    }
+    knopf('klar')?.setAttribute('aria-pressed', String(klar));
+    knopf('klar')?.toggleAttribute('disabled', modus !== 'galaxie');
+    const rec = knopf('aufnahme');
+    if (rec) {
+      rec.setAttribute('aria-pressed', String(!!aufnahme));
+      rec.querySelector('.brain-knopf-text').textContent = uebersetzeText(aufnahme ? 'Aufnahme beenden' : 'Aufnehmen')
+        || (aufnahme ? 'Aufnahme beenden' : 'Aufnehmen');
+      if (!canvas.captureStream || typeof MediaRecorder === 'undefined') rec.disabled = true;
+    }
+    canvas.closest('.brain-stage')?.classList.toggle('brain-stage--galaxie', modus === 'galaxie');
+  }
+  function umformen() {
+    modus = modus === 'galaxie' ? 'netz' : 'galaxie';
+    try { localStorage.setItem('duckpilot.hirn.ansicht', modus); } catch { /* privat */ }
+    if (modus === 'netz') { ansicht.px = ansicht.py = 0; }
+    leisteZeigen();
+    if (visible() && !running) loop();
+  }
+  function wachsenStarten() {
+    const reihe = G.wachsReihe(data.knoten || []);
+    if (!reihe.length) return;
+    wachsen = { t0: performance.now(), dauer: reduced ? 1 : Math.min(10000, 2500 + reihe.length * 120),
+      rang: new Map(reihe.map((id, i) => [id, i])) };
+    if (visible() && !running) loop();
+  }
+  function aufnehmen() {
+    if (aufnahme) { aufnahme.stop(); return; }
+    if (!canvas.captureStream || typeof MediaRecorder === 'undefined') { toast('Aufnehmen geht in diesem Browser nicht.'); return; }
+    const typ = ['video/webm;codecs=vp9', 'video/webm'].find((x) => MediaRecorder.isTypeSupported?.(x)) || '';
+    let rec;
+    try { rec = new MediaRecorder(canvas.captureStream(30), typ ? { mimeType: typ } : undefined); } catch {
+      toast('Aufnehmen geht in diesem Browser nicht.'); return;
+    }
+    const teile = [];
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) teile.push(e.data); };
+    rec.onstop = () => {
+      aufnahme = null;
+      leisteZeigen();
+      if (!teile.length) return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(teile, { type: 'video/webm' }));
+      a.download = `knowlin-erfahrungsnetz-${new Date().toISOString().slice(0, 10)}.webm`;
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      toast('Aufnahme gespeichert – Namen von Personen sind darin ausgeblendet.');
+    };
+    aufnahme = rec;
+    rec.start(500);
+    setTimeout(() => { if (rec.state === 'recording') rec.stop(); }, 12000);
+    leisteZeigen();
+    wachsenStarten();                               // im Video soll etwas passieren: das Netz wächst noch einmal
+  }
+  const aktionen = {
+    umformen, wachsen: wachsenStarten, aufnahme: aufnehmen,
+    klar: () => { klar = !klar; leisteZeigen(); },
+    suchen: () => sucheFeld?.focus(),
+  };
+  leiste?.addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-brain-aktion]');
+    if (b && aktionen[b.dataset.brainAktion]) aktionen[b.dataset.brainAktion]();
+  });
+  sucheFeld?.addEventListener('input', () => {
+    suche = sucheFeld.value.trim();
+    const treffer = suche ? (data.knoten || []).filter((k) => G.trifft(k, suche, zeigName)) : [];
+    $('brain-such-info').textContent = suche ? `${treffer.length} von ${(data.knoten || []).length}` : '';
+  });
+  sucheFeld?.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') {                      // zum ersten Treffer fliegen
+      const k = (data.knoten || []).filter((x) => G.trifft(x, suche, zeigName)).sort((a, b) => (b.n || 0) - (a.n || 0))[0];
+      if (k) { showDetail(k); ev.preventDefault(); }
+    } else if (ev.key === 'Escape') {
+      sucheFeld.value = ''; sucheFeld.dispatchEvent(new Event('input')); canvas.focus();
+    }
+  });
+  // Tasten, solange der Fokus in der Karte liegt (nicht in Feldern und Knöpfen – dort gelten ihre eigenen Tasten)
+  canvas.tabIndex = 0;
+  $('card-brain')?.addEventListener('keydown', (ev) => {
+    if (ev.target.closest('input, select, textarea, button') || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const taste = ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
+    const was = { ' ': 'umformen', g: 'wachsen', h: 'klar', r: 'aufnahme', '/': 'suchen' }[taste];
+    if (was) { aktionen[was](); ev.preventDefault(); } else if (taste === 'Escape' && selected) { showDetail(null); ev.preventDefault(); }
+  });
+  leisteZeigen();
 
   window.addEventListener('resize', () => { if (visible()) size(); });
 

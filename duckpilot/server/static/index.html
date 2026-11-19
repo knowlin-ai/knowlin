@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/static/bereiche/tricks.css">
   <link rel="stylesheet" href="/static/bereiche/startwaechter.css">
   <link rel="stylesheet" href="/static/bereiche/karten.css">
+  <link rel="stylesheet" href="/static/bereiche/hirn.css">
 </head>
 <body class="im-kopf">
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -850,10 +851,20 @@
             <canvas role="img" id="chart-mood" aria-label="Stimmung über die Zeit, oben freudig, unten frustriert"></canvas>
           </article>
           <article class="card card-brain" id="card-brain">
-            <h2>Hirnaktivität <small>Erfahrungsnetz – leuchtet, was gerade aktiv ist · Ziehen dreht, Mausrad zoomt</small></h2>
+            <h2>Hirnaktivität <small>Erfahrungsnetz – leuchtet, was gerade aktiv ist · Ziehen dreht, Mausrad zoomt, Klick auf einen Stern zeigt seine Verbindungen</small></h2>
             <div class="brain-stage">
               <canvas role="img" id="brain" aria-label="Erfahrungsnetz: Knoten und gelernte Verknüpfungen"></canvas>
               <p class="brain-empty" id="brain-empty" hidden></p>
+              <!-- Galaxie und Werkzeuge (seit 0.38.67, hirn_galaxie.js); dieselben Tasten wirken, solange die Karte den Fokus hat -->
+              <div class="brain-werkzeug" id="brain-werkzeug" role="toolbar" aria-label="Erfahrungsnetz ansehen">
+                <button type="button" class="brain-knopf" data-brain-aktion="umformen"><kbd>Leertaste</kbd><span class="brain-knopf-text">Als Netz</span></button>
+                <button type="button" class="brain-knopf" data-brain-aktion="wachsen"><kbd>G</kbd><span class="brain-knopf-text">Wachsen sehen</span></button>
+                <button type="button" class="brain-knopf" data-brain-aktion="klar" aria-pressed="false"><kbd>H</kbd><span class="brain-knopf-text">Klare Ansicht</span></button>
+                <button type="button" class="brain-knopf pc-only" data-brain-aktion="aufnahme" aria-pressed="false"><kbd>R</kbd><span class="brain-knopf-text">Aufnehmen</span></button>
+                <label class="brain-suche"><span class="sr-only">Im Erfahrungsnetz suchen</span><kbd aria-hidden="true">/</kbd>
+                  <input type="search" id="brain-suche" placeholder="Suchen" autocomplete="off" aria-describedby="brain-such-info"></label>
+                <span class="brain-such-info" id="brain-such-info" role="status" aria-live="polite"></span>
+              </div>
             </div>
             <div class="brain-foot">
               <ul class="brain-legend" aria-label="Farben">

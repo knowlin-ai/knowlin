@@ -3645,5 +3645,17 @@
  "Mit + und − zoomen, mit den Pfeiltasten verschieben, 0 passt ein.": "Zoom with + and −, move with the arrow keys, 0 fits the map.",
  "System: Einstellungen für Knowlin – KI-Modell, Sprache, Datenschutz": "System: settings for Knowlin – AI model, language, privacy",
  "Alle": "All",
- "Quellen": "Sources"
+ "Quellen": "Sources",
+ "Erfahrungsnetz – leuchtet, was gerade aktiv ist · Ziehen dreht, Mausrad zoomt, Klick auf einen Stern zeigt seine Verbindungen": "Experience network – what is active lights up · drag to rotate, scroll to zoom, click a star to see its links",
+ "Erfahrungsnetz ansehen": "View the experience network",
+ "Als Netz": "As network",
+ "Als Galaxie": "As galaxy",
+ "Wachsen sehen": "Watch it grow",
+ "Klare Ansicht": "Clean view",
+ "Im Erfahrungsnetz suchen": "Search the experience network",
+ "Personen": "People",
+ "Sinne": "Senses",
+ "Rückmeldungen": "Feedback",
+ "Aufnehmen geht in diesem Browser nicht.": "Recording does not work in this browser.",
+ "Aufnahme gespeichert – Namen von Personen sind darin ausgeblendet.": "Recording saved – names of people are hidden in it."
 }

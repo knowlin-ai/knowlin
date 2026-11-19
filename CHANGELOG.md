@@ -9,6 +9,31 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.67 – 2026-11-19 – Die Hirnaktivität als Galaxie
+
+### Neu
+- **Hirnaktivität als Galaxie** (Wunsch: „Die Optik fand ich ja ganz cool – vielleicht kann man das noch etwas
+  interaktiver gestalten“): Jede Art – Personen, Orte, Dinge, Tätigkeiten, Sinne, Gefühle, Rückmeldungen, Zeit – ist
+  ein Nebel mit Namen und Anzahl, die Knoten leuchten als Sterne, Verknüpfungen sind farbige Lichtfäden zwischen den
+  Nebeln, im Hintergrund ein Sternenhimmel.
+- **Klick auf einen Stern** fliegt hin, hebt seine Verbindungen hervor und zeigt darunter die Einzelheiten; Esc beendet.
+- Werkzeugleiste unten in der Bühne, dieselben Tasten, solange die Karte den Fokus hat: **Leertaste** formt zwischen
+  Galaxie und Netz um, **G** lässt das Netz in der Reihenfolge des Erlebens noch einmal wachsen, **H** blendet Staub
+  und Schilder aus, **/** sucht (auch ohne Umlaute, Enter fliegt zum Treffer), **R** nimmt 12 Sekunden als Video auf.
+- Knoten merken sich, wann sie zuerst erlebt wurden (`erst`, für „Wachsen sehen“).
+
+### Geändert
+- Die Bühne der Hirnaktivität ist höher (460 px, am Handy 380 px); die gewählte Ansicht bleibt gemerkt.
+- Bilder „Gedächtnis und Erfahrungsnetz“ in README und auf der Website neu (Deutsch und Englisch).
+
+### Sicherheit
+- Die Videoaufnahme läuft nur im Browser und landet in den Downloads; Namen von Personen sind darin ausgeblendet,
+  der Knopf erscheint nur am PC.
+
+### Nicht geprüft
+- Videoaufnahme in Edge unter Windows und in Safari (im Browser hier nachgestellt nur bis zum Start der Aufnahme).
+- Flüssigkeit mit vielen Knoten auf schwächeren Laptops.
+
 ## 0.38.66 – 2026-11-19 – Klare Fehlermeldung statt „verbinde …“, Ballspiel, dichte Karten
 
 ### Neu
