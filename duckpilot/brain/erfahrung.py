@@ -76,6 +76,7 @@ class Erfahrungsnetz:
         self.neu: list[tuple[str, float]] = []  # flüchtig: frisch gestärkte Verbindungen (für die Anzeige)
         self.gelernt_bis = time.time()
         self._dirty = False
+        self.beim_erleben: Any = None           # seit 0.39: das Tagebuch schreibt mit (tagebuch.py)
         self.load()
 
     # ── Speicher ──────────────────────────────────────────────────────────
@@ -152,6 +153,8 @@ class Erfahrungsnetz:
                     continue                      # nur, was jetzt passiert, knüpft neu an
                 self._staerken(a, b, LERNRATE * s * aa * ab, warum, now, herkunft)
         self._dirty = True
+        if self.beim_erleben is not None:
+            self.beim_erleben(ids, warum, salienz, herkunft)
 
     def _staerken(self, a: str, b: str, dw: float, warum: str, now: float, herkunft: str | None = None) -> None:
         p = _pair(a, b)

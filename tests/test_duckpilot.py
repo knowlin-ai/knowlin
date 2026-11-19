@@ -181,12 +181,14 @@ def test_every_tool_executes():
             "schiessen": {"richtung": "links"},
             "szene": {"aktion": "zuruecklegen", "ding": "Ball"},
             "absicht": {"aktion": "zustimmen"}, "selbstbild": {},   # seit 0.38.43: nein mit Grund ist ehrlich
+            "tagesrueckblick": {}, "weltbild": {},                  # seit 0.39: ohne Gedächtnis/Raum ehrlich „nein“
         }
         assert set(calls) == {t["name"] for t in r.tools()}  # ohne Gedächtnis: die Bewegungswerkzeuge
         for name, args in calls.items():
             res = await r.run(name, args)
             assert res.get("ok", True) is not False or name in ("skill", "trick_vom_hub", "choreo", "enten",
-                                                                  "wo_gesehen", "karte", "team", "absicht"), (name, res)
+                                                                  "wo_gesehen", "karte", "team", "absicht",
+                                                                  "tagesrueckblick", "weltbild"), (name, res)
     run(go())
 
 

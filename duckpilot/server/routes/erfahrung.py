@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
@@ -35,6 +37,33 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             kn = netz.knoten.get(other, {})
             out.append({"id": other, "name": kn.get("name", other), "art": kn.get("art"), "w": e["w"], "n": e["n"], "warum": e["warum"]})
         return JSONResponse({"ok": True, "knoten": {"id": kid, **netz.knoten[kid]}, "verbindungen": out})
+
+    @app.get("/api/erfahrung/rueckblick")
+    async def erfahrung_rueckblick(request: Request, tag: str = "") -> JSONResponse:
+        """Tagesrückblick (seit 0.39): Text, worum es ging, Neues, Momente – Personen nie fürs Handy."""
+        if not runtime.erfahrung.on:
+            return JSONResponse({"ok": True, "an": False})
+        if tag and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", tag):
+            return JSONResponse({"ok": False, "fehler": "Tag als JJJJ-MM-TT"}, status_code=400)
+        return JSONResponse({"ok": True, "an": True, **runtime.erfahrung.rueckblick(tag or None, remote=_is_remote(request))})
+
+    @app.post("/api/erfahrung/rueckblick/loeschen")
+    async def erfahrung_rueckblick_loeschen(request: Request) -> JSONResponse:
+        """Einen Moment (tag + t) oder einen ganzen Tag aus dem Tagebuch löschen – nur am PC."""
+        if _is_remote(request):
+            return JSONResponse({"ok": False, "fehler": "Löschen geht nur am PC."}, status_code=403)
+        body = await _json_body(request)
+        tb = runtime.erfahrung.tagebuch
+        tag = str(body.get("tag") or "")
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", tag):
+            return JSONResponse({"ok": False, "fehler": "Tag als JJJJ-MM-TT"}, status_code=400)
+        try:
+            float(body.get("t") or 0)
+        except (TypeError, ValueError):
+            return JSONResponse({"ok": False, "fehler": "t: Zeitstempel"}, status_code=400)
+        ok = tb.loeschen(tag, float(body["t"])) if body.get("t") is not None else tb.tag_loeschen(tag)
+        tb.speichern()
+        return JSONResponse({"ok": ok, **runtime.erfahrung.rueckblick(tag or None)}, status_code=200 if ok else 404)
 
     @app.post("/api/erfahrung/vergessen")
     async def erfahrung_forget(request: Request) -> JSONResponse:

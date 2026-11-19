@@ -51,6 +51,9 @@ export function initHirn(h) {
   try { modus = localStorage.getItem('duckpilot.hirn.ansicht') || 'galaxie'; } catch { /* privat */ }
   let klar = false;
   let suche = '';
+  let tagIds = null;                                   // Sterne eines Tages (Tagesrückblick, seit 0.39)
+  const sichtbar = (k) => G.trifft(k, suche, zeigName) && (!tagIds || tagIds.has(k.id));
+  const filtert = () => Boolean(suche || tagIds);
   let wachsen = null;                // {t0, dauer, rang: Map id → Platz}
   let aufnahme = null;               // laufender MediaRecorder
   const nebel = new Map();           // Art → geglättete Mitte (Welt)
@@ -400,7 +403,7 @@ export function initHirn(h) {
     const gedimmt = (k) => {                       // Fokus, Suche und Herkunft dimmen, was nicht dazugehört
       let f = 1;
       if (fokus && k.id !== selected && !fokus.has(k.id)) f *= 0.22;
-      if (suche && !G.trifft(k, suche, zeigName)) f *= 0.18;
+      if (filtert() && !sichtbar(k)) f *= 0.18;
       if (!passt(k.herkunft, filter)) f *= 0.2;
       return f;
     };
@@ -453,7 +456,7 @@ export function initHirn(h) {
       const fl = flashes.get(`${e.a}|${e.b}`);
       const blitz = fl ? Math.max(0, 1 - (now - fl) / 3000) : 0;
       let a = (0.05 + 0.28 * e.w) * (selected ? (imFokus ? 2.6 : 0.3) : 1) + 0.5 * blitz;
-      if (suche && !(G.trifft(ka, suche, zeigName) || G.trifft(kb, suche, zeigName))) a *= 0.3;
+      if (filtert() && !(sichtbar(ka) || sichtbar(kb))) a *= 0.3;
       const g = ctx.createLinearGradient(pa.x, pa.y, pb.x, pb.y);
       g.addColorStop(0, farbeVon(ka.art)(Math.min(0.9, a))); g.addColorStop(1, farbeVon(kb.art)(Math.min(0.9, a)));
       ctx.strokeStyle = g;
@@ -486,7 +489,7 @@ export function initHirn(h) {
     const ranked = [...tiefe].sort((a, b) => (zeigAkt.get(b.id) - zeigAkt.get(a.id)) || (b.n - a.n));
     const namen = new Set(klar ? [] : ranked.slice(0, 12).map((k) => k.id));
     if (fokus) { namen.add(selected); for (const id of fokus) namen.add(id); }
-    if (suche) for (const k of tiefe) if (G.trifft(k, suche, zeigName)) namen.add(k.id);
+    if (filtert()) for (const k of tiefe) if (sichtbar(k)) namen.add(k.id);
     if (hover) namen.add(hover);
     ctx.font = '400 12px "IBM Plex Sans", sans-serif';
     ctx.textAlign = 'left';
@@ -693,12 +696,17 @@ export function initHirn(h) {
     const treffer = suche ? (data.knoten || []).filter((k) => G.trifft(k, suche, zeigName)) : [];
     $('brain-such-info').textContent = suche ? `${treffer.length} von ${(data.knoten || []).length}` : '';
   });
+  window.addEventListener('knowlin:hirn-tag', (ev) => {     // vom Tagesrückblick: nur die Sterne dieses Tages hell
+    const ids = (ev.detail && ev.detail.ids) || [];
+    tagIds = ids.length ? new Set(ids) : null;
+    $('brain-such-info').textContent = tagIds ? `${ev.detail.name || ''} · ${(data.knoten || []).filter(sichtbar).length}` : '';
+  });
   sucheFeld?.addEventListener('keydown', (ev) => {
     if (ev.key === 'Enter') {                      // zum ersten Treffer fliegen
       const k = (data.knoten || []).filter((x) => G.trifft(x, suche, zeigName)).sort((a, b) => (b.n || 0) - (a.n || 0))[0];
       if (k) { showDetail(k); ev.preventDefault(); }
     } else if (ev.key === 'Escape') {
-      sucheFeld.value = ''; sucheFeld.dispatchEvent(new Event('input')); canvas.focus();
+      sucheFeld.value = ''; tagIds = null; sucheFeld.dispatchEvent(new Event('input')); canvas.focus();
     }
   });
   // Tasten, solange der Fokus in der Karte liegt (nicht in Feldern und Knöpfen – dort gelten ihre eigenen Tasten)
@@ -707,7 +715,10 @@ export function initHirn(h) {
     if (ev.target.closest('input, select, textarea, button') || ev.ctrlKey || ev.metaKey || ev.altKey) return;
     const taste = ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
     const was = { ' ': 'umformen', g: 'wachsen', h: 'klar', r: 'aufnahme', '/': 'suchen' }[taste];
-    if (was) { aktionen[was](); ev.preventDefault(); } else if (taste === 'Escape' && selected) { showDetail(null); ev.preventDefault(); }
+    if (was) { aktionen[was](); ev.preventDefault(); } else if (taste === 'Escape' && (selected || tagIds)) {
+      if (selected) showDetail(null); else { tagIds = null; $('brain-such-info').textContent = ''; }
+      ev.preventDefault();
+    }
   });
   leisteZeigen();
 

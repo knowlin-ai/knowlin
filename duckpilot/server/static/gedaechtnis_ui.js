@@ -6,11 +6,13 @@ import { uebersetzeText } from './i18n.js';
 import { herkunftName } from './herkunft.js';
 import { initWelt } from './welt.js';
 import { initRueckblick } from './rueckblick.js';
+import { initTagesrueckblick } from './tagesrueckblick.js';
 
 export function initGedaechtnis({ $, api, send, showView, toast, scene, map, addLine, num }) {
   let daten = null;                       // letzte Nachricht „memory“ (auch fürs Dashboard)
   const welt = initWelt({ $, api });      // „Was Knowlin über deine Welt weiß“ (G1, 0.38.27)
   initRueckblick({ api, toast });         // „Im Rückblick gelernt“ (G4, 0.38.45)
+  initTagesrueckblick({ api, toast });    // Tagesrückblick (Erfahrungsnetz 2, 0.39)
 
   function memRow(title, detail, buttons) {
     const li = el('li');

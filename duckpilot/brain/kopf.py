@@ -37,7 +37,7 @@ from .tools import ToolRunner, fehlt_dem_koerper
 log = logging.getLogger(__name__)
 
 # Was der Kopf ohne Körper darf: Gedächtnis (ohne Tricks und Orte – die brauchen einen Körper) und Alltag
-KOPF_TOOLS = ("remember", "recall", "forget", "alltag")
+KOPF_TOOLS = ("remember", "recall", "forget", "alltag", "tagesrueckblick")   # Tagesrückblick seit 0.39
 EIGENE_TOOLS = ("koerper_vorschlagen", "figur_wecken", "namen_setzen")
 VORSCHLAG_GILT_S = 180              # so lange zählt ein „ja“ als Antwort auf den Vorschlag
 

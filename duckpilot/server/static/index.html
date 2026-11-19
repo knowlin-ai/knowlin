@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/static/bereiche/startwaechter.css">
   <link rel="stylesheet" href="/static/bereiche/karten.css">
   <link rel="stylesheet" href="/static/bereiche/hirn.css">
+  <link rel="stylesheet" href="/static/bereiche/gedaechtnis.css">
 </head>
 <body class="im-kopf">
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -746,8 +747,9 @@
                   <button type="button" class="chip" data-bring="klemmbaustein">Klemmbaustein</button>
                   <button type="button" class="chip" data-bring="schachfigur">Schachfigur</button>
                 </div></div>
-              <h4 class="raum-unter">Zuletzt gesehen</h4>
-              <ul class="raum-liste" id="raum-liste"><li class="field-help">Noch nichts gesehen.</li></ul>
+              <h4 class="raum-unter">Was Knowlin über das Zimmer glaubt</h4>
+              <p class="field-help">Wo zuletzt gesehen, wo es meistens liegt und wie sicher – nur Dinge und Möbel, nie Menschen.</p>
+              <ul class="raum-liste weltbild-liste" id="raum-liste"><li class="field-help">Noch nichts gesehen.</li></ul>
               <p class="field-help nur-im-koerper braucht-tiefensensor">Per Sprache: „Erkunde das Zimmer“, „Wo hast du die Socke zuletzt gesehen?“, „Bring mir die Socke“.</p>
               </div>
               <figure class="raum-vorschau">
@@ -834,6 +836,18 @@
             <p class="field-help">Aus dem Erfahrungsnetz: worüber Knowlin am meisten weiß, wie es sich anfühlt (aus Verbindungen zu Freude und Lob bzw. Schreck, Sturz und Kritik), wann zuletzt erlebt und wie sicher.</p>
             <div class="welt-gruppen" id="welt-gruppen"></div>
             <p class="field-help" id="welt-leer" hidden>Noch zu wenig erlebt. Zeig Knowlin Orte, spielt zusammen – dann füllt sich das hier.</p>
+          </section>
+          <section class="card tages-karte" id="tages-karte" hidden aria-labelledby="tages-titel">
+            <div class="card-head">
+              <h3 id="tages-titel">Tagesrückblick</h3>
+              <select class="tages-wahl" id="tages-tag" aria-label="Tag wählen"></select>
+            </div>
+            <p class="tages-text" id="tages-text" aria-live="polite"></p>
+            <div id="tages-worum-box" hidden><h4>Worum es ging</h4><ul class="tages-chips" id="tages-worum"></ul></div>
+            <div id="tages-neu-box" hidden><h4>Neu kennengelernt</h4><ul class="tages-chips" id="tages-neu"></ul></div>
+            <div id="tages-momente-box" hidden><h4>Die stärksten Momente</h4><ol class="tages-momente" id="tages-momente"></ol></div>
+            <p class="field-help">Aus dem Tagebuch der letzten 14 Tage, ohne Sprachmodell zusammengefasst. Liegt nur auf diesem PC; vom Handy aus fehlen Momente mit Menschen.</p>
+            <div class="input-row"><button class="btn btn--sm btn--ghost" type="button" id="tages-galaxie">In der Galaxie zeigen</button></div>
           </section>
           <section class="card set-card" id="lehren-karte" aria-labelledby="lehren-titel">
             <h3 id="lehren-titel">Im Rückblick gelernt</h3>

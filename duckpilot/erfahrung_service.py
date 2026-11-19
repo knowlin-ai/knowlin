@@ -54,6 +54,10 @@ class ErfahrungService:
     def __init__(self, rt: "Runtime") -> None:
         self.rt = rt
         self.netz = Erfahrungsnetz(S.settings_path().parent / "erfahrung.json")
+        from .tagebuch import Tagebuch
+
+        self.tagebuch = Tagebuch(S.settings_path().parent / "tagebuch.json")       # Tagesrückblick (seit 0.39)
+        self.netz.beim_erleben = self.tagebuch.notieren
         self._last_push = 0.0
         self._last_save = time.monotonic()
         self._last_drift = 0.0
@@ -172,6 +176,7 @@ class ErfahrungService:
         if now - self._last_save > 60:
             self._last_save = now
             self.netz.save()
+            self.tagebuch.speichern()
         # Schlaf: nach einer Stunde Ruhe einmal festigen und aufräumen
         resting = self.rt.alltag.on and self.rt.alltag.mode == "ruhe"
         self._sleeping_since = (self._sleeping_since or now) if resting else None
@@ -198,6 +203,12 @@ class ErfahrungService:
         if not self.on:
             return {"type": "erfahrung", "an": False}
         return {**self.netz.message(ohne_personen=remote), "an": True, "herkuenfte": self.rt.herkunft_namen()}
+
+    def rueckblick(self, tag: str | None = None, remote: bool = False) -> dict[str, Any]:
+        """Tagesrückblick (seit 0.39) – in der Sprache der Oberfläche, Personen nie fürs Handy."""
+        en = getattr(self.rt.config, "sprache", "de") == "en"
+        erst = {k: float(kn.get("erst") or 0) for k, kn in self.netz.knoten.items()}
+        return self.tagebuch.rueckblick(tag, en=en, ohne_personen=remote, erst=erst)
 
     # ── für Claude ────────────────────────────────────────────────────────
     def context(self, text: str = "") -> dict[str, Any] | None:

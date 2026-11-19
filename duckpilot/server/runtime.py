@@ -304,9 +304,21 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             if alt is not None:
                 alt.kartieren_stopp()
             self._raum = Raum(S.settings_path().parent, k)
+            self._raum.sichtungen.beim_umzug = self._ding_umgezogen      # Weltmodell → Erfahrungsnetz (seit 0.39)
             if getattr(self, "runner", None) is not None:
                 self.runner.raum = self._raum
         return self._raum
+
+    def _ding_umgezogen(self, ding: str, moebel: str) -> None:
+        """Ein Ding liegt jetzt bei einem anderen Möbel: Ding und Ort feuern zusammen – so wächst das Weltmodell im
+        Erfahrungsnetz mit (leise, Salienz 0,6), und der Tagesrückblick weiß, wo was war."""
+        erf = getattr(self, "erfahrung", None)
+        if erf is None or not erf.on:
+            return
+        from ..brain.erfahrung import key
+
+        erf.netz.erleben({key("ding", ding): ding, key("ort", moebel): moebel}, 0.6,
+                         warum=f"{ding} beim {moebel} gesehen", herkunft=erf.herkunft())
 
     def _allein_starten(self) -> None:
         """Jeder Start beginnt mit einer Ente (0.38.24, Hinweis „beim Öffnen waren direkt mehrere – per Default
@@ -367,6 +379,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         ))
         self.agent.usage = self.usage
         self.agent.erfahrung = self.erfahrung.context
+        self.runner.erfahrung_dienst = self.erfahrung          # Tagesrückblick (seit 0.39)
         from ..figuren import gestalt_text
 
         self.agent.gestalt = lambda: gestalt_text(self.config.modul, self.config.eigenschaften)   # seit 0.38.10
@@ -1092,6 +1105,9 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             self.sicherung.vorher("Vor „Alles vergessen“", ["gedaechtnis", "erfahrung"])   # rückgängig machbar (0.38.24)
             self.memory.forget_all()
             self.erfahrung.netz.reset()                 # „alles vergessen“ heißt auch: keine Verknüpfungen mehr
+            self.erfahrung.tagebuch.tage.clear()        # … und kein Tagebuch (seit 0.39)
+            self.erfahrung.tagebuch.geaendert = True
+            self.erfahrung.tagebuch.speichern()
             self.engine.note({"type": "memory", "message": "Gedächtnis komplett gelöscht"})
         elif kind == "memory_run" and self.memory is not None:
             tool = "do_trick" if msg.get("kind") == "trick" else "go_to_place"

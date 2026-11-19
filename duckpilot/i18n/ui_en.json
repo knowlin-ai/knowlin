@@ -3657,5 +3657,21 @@
  "Sinne": "Senses",
  "Rückmeldungen": "Feedback",
  "Aufnehmen geht in diesem Browser nicht.": "Recording does not work in this browser.",
- "Aufnahme gespeichert – Namen von Personen sind darin ausgeblendet.": "Recording saved – names of people are hidden in it."
+ "Aufnahme gespeichert – Namen von Personen sind darin ausgeblendet.": "Recording saved – names of people are hidden in it.",
+ "Was Knowlin über das Zimmer glaubt": "What Knowlin believes about the room",
+ "Wo zuletzt gesehen, wo es meistens liegt und wie sicher – nur Dinge und Möbel, nie Menschen.": "Where last seen, where it usually is and how sure – only things and furniture, never people.",
+ "Tagesrückblick": "Day in review",
+ "Tag wählen": "Choose a day",
+ "Worum es ging": "What it was about",
+ "Neu kennengelernt": "New acquaintances",
+ "Die stärksten Momente": "Strongest moments",
+ "Aus dem Tagebuch der letzten 14 Tage, ohne Sprachmodell zusammengefasst. Liegt nur auf diesem PC; vom Handy aus fehlen Momente mit Menschen.": "From the diary of the last 14 days, summarised without a language model. Stays on this PC only; from a phone, moments with people are left out.",
+ "In der Galaxie zeigen": "Show in the galaxy",
+ "Gestern": "Yesterday",
+ "Moment löschen": "Delete moment",
+ "Moment gelöscht.": "Moment deleted.",
+ "woanders als sonst": "somewhere else than usual",
+ "sicher": "sure",
+ "ziemlich sicher": "fairly sure",
+ "unsicher": "unsure"
 }

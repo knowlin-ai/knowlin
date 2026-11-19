@@ -53,9 +53,22 @@ export function initRaum({ $, api, el, scene, toast, zumCockpit, lagebild }) {
     start.setAttribute('aria-pressed', String(!!d.kartiert));
     $('raum-leeren').hidden = !d.messungen;          // nichts erkundet: nichts zu löschen (statt grauem Text-Knopf)
     const dinge = (d.sichtungen || []).filter((s) => s.art !== 'möbel').slice(0, 12);
+    const glaube = Object.fromEntries((d.weltbild || []).map((g) => [g.name, g]));
     $('raum-liste').replaceChildren(...(dinge.length ? dinge.map((s) => {
-      const li = el('li');
-      li.append(el('strong', '', tr(s.name)), el('span', 'field-help', ` · ${wieLange(s.vor_s)}`));
+      const li = el('li', 'weltbild-ding');
+      li.append(el('strong', 'weltbild-name', tr(s.name)), el('span', 'field-help', ` · ${wieLange(s.vor_s)}`));
+      const g = glaube[s.name];                      // Weltbild (seit 0.39): wo meistens, wie sicher
+      if (g) {
+        const en = (document.documentElement.lang || 'de').startsWith('en');
+        const bei = (m) => (en ? `near the ${tr(m)}` : m.endsWith('e') ? `bei der ${m}` : `beim ${m}`);
+        const wo = g.platz ? bei(g.platz) : '';
+        const sonst = g.typisch && g.typisch !== g.platz ? ` · ${en ? 'usually' : 'meistens'} ${bei(g.typisch)}` : '';
+        if (wo || sonst) li.append(el('span', 'weltbild-wo', `${wo}${sonst}`));
+        if (g.woanders) li.append(el('span', 'chip chip--warn weltbild-anders', tr('woanders als sonst')));
+        const s2 = el('span', 'chip weltbild-sicher', tr(g.gewissheit));
+        s2.dataset.g = g.gewissheit;
+        li.append(s2);
+      }
       return li;
     }) : [el('li', 'field-help', tr('Noch nichts gesehen.'))]));
     scene.setKarte(zeigen3d.checked ? d.karte : null, zeigen3d.checked ? dinge : []);

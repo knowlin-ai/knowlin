@@ -21,6 +21,7 @@ from ..motion import tanz as T
 from ..motion.apportieren import Apportieren
 from ..motion.engine import MotionEngine
 from .tools_absicht import ABSICHT_TOOL, ARM_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge, werkbank_werkzeuge
+from .tools_erinnern import ERINNER_TOOLS, ErinnerWerkzeuge
 from .tools_lab import (  # noqa: F401 – Werkzeuge der Trainingshalle, seit 0.38 eigene Datei
     FREE_TRAINING_TOOL,
     PARCOURS_BUILD_TOOL,
@@ -598,7 +599,7 @@ POLLEN_TOOL = {
 LOGGED_EVENTS = {"fall": "Sturz", "kick_miss": "Kick ins Leere", "pick_miss": "Aufheben ins Leere"}
 
 
-class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
+class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge):
     def __init__(self, engine: MotionEngine, memory: "Memory | None" = None) -> None:
         self.engine = engine
         self.memory = memory
@@ -644,6 +645,7 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
         be = self.engine.backend                  # nur anbieten, was dieser Körper wirklich kann (seit 0.38.6 vollständig)
         tools = [t for t in tools if fehlt_dem_koerper(t["name"], be) is None]
         tools = [*tools, ABSICHT_TOOL, SELBSTBILD_TOOL]      # Aktionskatalog und Selbstbild (seit 0.38.43, G2)
+        tools = [*tools, *ERINNER_TOOLS]                     # Tagesrückblick und Weltbild (seit 0.39)
         if "arm" in eig:
             tools = [*tools, ARM_TOOL, *werkbank_werkzeuge(be)]   # Arm (0.38.47, G5), Werkbank (0.38.48)
         if "antennen" in eig:
@@ -760,6 +762,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge):
                 result = await self._absicht(args or {})
             elif name == "selbstbild":
                 result = self._selbstbild()
+            elif name in ("tagesrueckblick", "weltbild"):
+                result = self._erinnern(name, args or {})
             elif name == "arm":
                 result = await self._arm(args or {})
             elif name in ("greifen", "ablegen"):

@@ -84,4 +84,4 @@ class Raum:
         pose = getattr(self, "_pose", None)
         ente = {"x": pose[0], "y": pose[1], "yaw": pose[2]} if pose else None
         return {**self.status(), "karte": self.karte.to_dict(), "sichtungen": self.sichtungen.fuer_anzeige(),
-                "ente": ente}
+                "weltbild": self.sichtungen.weltbild(), "ente": ente}     # Weltbild seit 0.39

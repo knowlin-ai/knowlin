@@ -160,7 +160,32 @@ def _parse_part_en(p: str) -> tuple[str, dict[str, Any]] | None:
 
 
 # „Wo hast du die Socke zuletzt gesehen?“, „Wo ist der Klemmbaustein?“, „where did you last see the sock?“ (seit 0.37)
+# Erfahrungsnetz 2 (seit 0.39): Tagesrückblick und Weltbild ohne Sprachmodell
+TAGESRUECKBLICK = re.compile(r"\bwie war (dein|euer|der) tag\b|\bwas (hast du|habt ihr) (heute|gestern) (erlebt|gemacht)\b|"
+                             r"\bwas war (heute|gestern) los\b|\berzähl\w* (mir )?(von|vom) (deinem|heute|gestern)\b|"
+                             r"\bhow was (your|the) day\b|\bwhat did you do (today|yesterday)\b|\bwhat happened (today|yesterday)\b")
+WELTBILD = re.compile(r"\bwas (weißt|weisst) du über (das|dieses|dein|unser) zimmer\b|\bwas liegt wo\b|"
+                      r"\bwhat do you know about (the|this|our) room\b|\bwhat is where\b")
 WO_GESEHEN = re.compile(r"\bwo (hast du\b.*\bgesehen|ist|liegt|sind|war)\b|\bwhere (is|are|did you (last )?see|was)\b")
+
+
+def weltbild_text(r: dict[str, Any], en: bool = False) -> str:
+    """Das Weltbild in zwei, drei Sätzen: was wo liegt, was woanders liegt als sonst."""
+    if not r.get("ok"):
+        return r.get("fehler") or ""
+    if not r.get("dinge"):
+        return r.get("text") or ("I haven't seen anything in the room yet." if en else "Ich habe im Zimmer noch nichts gesehen.")
+    from ..sichtungen import bei
+
+    teile = [f"{g['name']} {bei(g['platz'], en)}" for g in r["dinge"][:5] if g.get("platz")]
+    woanders = [g for g in r["dinge"] if g.get("woanders")]
+    text = ((f"What I know: {', '.join(teile)}." if en else f"Was ich weiß: {', '.join(teile)}.") if teile else
+            ("I've seen things, but not near any furniture yet." if en else "Ich habe Dinge gesehen, aber noch nicht bei Möbeln."))
+    if woanders:
+        g = woanders[0]
+        text += (f" The {g['name']} is somewhere else than usual – usually it is {bei(g['typisch'], en)}." if en else
+                 f" {g['name']} liegt gerade woanders als sonst – meistens {bei(g['typisch'])}.")
+    return text
 
 
 def _ding(p: str, sonst: str = "socke") -> str:
@@ -645,6 +670,14 @@ class FallbackBrain:
                                "frei": "Off you go!"}[modus]
                 return Reply(antwort if r.get("ok") else (r.get("fehler") or "Geht gerade nicht"),
                              [{"tool": "enten", "input": {"modus": modus}, "result": r}], "einfach")
+        if TAGESRUECKBLICK.search(low):
+            tag = "gestern" if re.search(r"\b(gestern|yesterday)\b", low) else "heute"
+            r = await self.runner.run("tagesrueckblick", {"tag": tag})
+            return Reply(r.get("text") or r.get("fehler") or "", [{"tool": "tagesrueckblick", "input": {"tag": tag},
+                                                                   "result": r}], "einfach")
+        if WELTBILD.search(low) and getattr(self.runner, "raum", None) is not None:
+            r = await self.runner.run("weltbild", {})
+            return Reply(weltbild_text(r, _en()), [{"tool": "weltbild", "input": {}, "result": r}], "einfach")
         if WO_GESEHEN.search(low) and getattr(self.runner, "raum", None) is not None:
             r = await self.runner.run("wo_gesehen", {"ding": text})
             return Reply(r.get("text") or r.get("fehler") or "Weiß ich nicht.",
