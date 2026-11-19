@@ -10,6 +10,11 @@ Die Rechnung steckt in `arm_lernen.py`, das Paket für LeRobot in `arm_export.py
 - **Ausprobieren** (A3): das gelernte Netz steuert Ari im Simulator, Takt für Takt über `nachmachen` – dieselbe
   Wegprüfung wie beim Vormachen. Jeder Stopp und der Not-Aus beenden es sofort (`engine.stopped_at`/`estop_at`).
 - **Export** (A4): ZIP für LeRobot.
+- **Üben** (Stufe B, seit 0.41, `arm_ueben.py`): Ari probiert es selbst in unsichtbaren Simulatoren, lernt aus eigenen
+  Erfolgen und behält das Ergebnis nur, wenn es mindestens so gut ist wie vorher.
+- **Eingreifen** (seit 0.41, Mensch im Kreis wie bei HIL-SERL): Ist beim Ausprobieren deine Hand im Bild (Vormachen
+  offen), führt sie statt des Netzes; diese Takte werden als Korrektur-Beispiel gespeichert und fließen ins Lernen und
+  Üben ein.
 
 Nur im Simulator: Am echten Arm kennt Knowlin die Lage der Würfel nicht (dafür bräuchte es Kamerabilder).
 Gespeichert wird unter `data_dir()/ari_lernen/` – nur Zahlen aus dem Simulator, keine Bilder, nichts über Personen.
@@ -81,7 +86,7 @@ class ArmSchule:
     def __init__(self, rt: "Runtime") -> None:
         self.rt = rt
         self.aufgabe = L.aufgabe("roter Würfel", "linke Kiste")
-        self.taetigkeit: str | None = None          # "aufnahme" | "lernen" | "ausprobieren"
+        self.taetigkeit: str | None = None          # "aufnahme" | "lernen" | "ausprobieren" | "ueben"
         self.meldung = ""
         self.fortschritt = ""
         self._netz: L.Netz | None = None
@@ -219,7 +224,7 @@ class ArmSchule:
                 self.taetigkeit = None
 
     def abbrechen(self) -> dict[str, Any]:
-        if self.taetigkeit in ("aufnahme", "ausprobieren"):
+        if self.taetigkeit in ("aufnahme", "ausprobieren", "ueben"):
             self.taetigkeit = None
         return {"ok": True, **self.status()}
 
@@ -284,6 +289,7 @@ class ArmSchule:
 
     async def _ausprobieren(self, netz: L.Netz) -> None:
         a, be, marke = dict(self.aufgabe), self.body, self._stopp_marke()
+        eingriffe: list[list[list[float]]] = []           # Takte, in denen deine Hand geführt hat (HIL, seit 0.41)
         try:
             for _ in range(int(L.DAUER_S / L.SCHRITT_S)):
                 if self.taetigkeit != "ausprobieren":
@@ -293,7 +299,13 @@ class ArmSchule:
                     self.meldung = "Angehalten."
                     return
                 obs = L.beobachtung(be.gelenke, be.werkbank, a)
-                r = await be.nachmachen(L.aktion_zu_ziel(obs, netz(obs)))
+                m = getattr(self.rt, "_mentor_ziel", None)
+                if m and time.monotonic() - m[0] < 0.3:   # deine Hand ist im Bild: sie führt, Ari merkt sich das
+                    ziel = m[1]
+                    eingriffe.append(L.schritt_daten(obs, ziel, be.gelenke))
+                else:
+                    ziel = L.aktion_zu_ziel(obs, netz(obs))
+                r = await be.nachmachen(ziel)
                 if not r.accepted and not getattr(be, "powered", True):
                     self.meldung = r.reason
                     return
@@ -304,10 +316,55 @@ class ArmSchule:
                 if L.geschafft(be.werkbank, a):
                     self.meldung = f"Geschafft – {wuerfel_nom(a['wuerfel'])} liegt in {kiste_dativ(a['kiste'])}."
                     return
-            self.meldung = "Nicht geschafft – mehr Beispiele vormachen und neu lernen."
+            self.meldung = "Nicht geschafft – mehr Beispiele vormachen und neu lernen, oder üben lassen."
         finally:
             if self.taetigkeit == "ausprobieren":
                 self.taetigkeit = None
+            if len(eingriffe) >= MIN_TAKTE:
+                self._anhaengen("beispiele.jsonl", [{"aufgabe": a["name"], "von": "eingriff", "schritte": eingriffe,
+                                                      "wann": datetime.now().isoformat(timespec="seconds")}])
+                self.meldung += f" Deine Korrektur ({len(eingriffe)} Takte) ist als Beispiel gespeichert."
+
+    # ── Üben (Stufe B, seit 0.41) ────────────────────────────────────────
+    def ueben(self) -> dict[str, Any]:
+        if (f := self._frei()) is not None:
+            return f
+        if self._netz is None or not self._meta or self._meta.get("aufgabe") != self.aufgabe["name"]:
+            return {"ok": False, "fehler": "Erst lernen – üben kann Ari nur, was er schon ungefähr kann"}
+        self.taetigkeit = "ueben"
+        self.meldung, self.fortschritt = "Ari übt im Simulator …", ""
+        spawn(self._ueben(self._netz, dict(self._meta)))
+        return {"ok": True, **self.status()}
+
+    async def _ueben(self, netz: L.Netz, meta: dict[str, Any]) -> None:
+        from . import arm_ueben as U
+
+        a = dict(self.aufgabe)
+        beispiele = [*self._lesen("beispiele.jsonl"), *self._lesen("lehrer.jsonl")]
+        try:
+            neu, bericht = await asyncio.to_thread(
+                U.ueben, netz, a, beispiele, bescheid=lambda t: setattr(self, "fortschritt", t),
+                weiter=lambda: self.taetigkeit == "ueben")
+            if self.taetigkeit != "ueben":
+                self.meldung = "Üben abgebrochen – Ari bleibt, wie er war."
+                return
+            if bericht["nachher"] > bericht["vorher"]:
+                meta = {**meta, "geschafft": bericht["nachher"], "geuebt": bericht,
+                        "wann": datetime.now().isoformat(timespec="seconds")}
+                neu.speichern(self.ordner / "netz.npz", meta)
+                self._netz, self._meta = neu, meta
+                self.meldung = (f"Geübt – vorher {bericht['vorher']}, jetzt {bericht['nachher']} von {bericht['versuche']} "
+                                f"im Test ({bericht['eigene_erfolge']} eigene Erfolge als Lernstoff).")
+            else:
+                self.meldung = (f"Geübt, aber nicht besser geworden ({bericht['vorher']} von {bericht['versuche']}) – "
+                                "Ari bleibt, wie er war. Greif beim Ausprobieren mit der Hand ein, wo es hakt.")
+        except Exception as exc:  # noqa: BLE001
+            log.exception("Üben fehlgeschlagen")
+            self.meldung = f"Üben fehlgeschlagen: {exc}"
+        finally:
+            if self.taetigkeit == "ueben":
+                self.taetigkeit = None
+            self.fortschritt = ""
 
     # ── Export (A4) ──────────────────────────────────────────────────────
     def export(self) -> tuple[bytes, str] | None:

@@ -286,9 +286,12 @@ def test_not_aus_beendet_vorfuehrung_und_sperre_aus_der_engine(reachy_rt):
 
 def test_kamera_spiele_nur_am_pc():
     for methode, pfad in (("POST", "/api/spiele/start"), ("POST", "/api/spiele/blick"), ("GET", "/api/spiele"),
-                          ("POST", "/api/spiele/spiegel"), ("POST", "/api/spiele/ssp"), ("GET", "/api/spiele/hand"),
-                          ("POST", "/api/spiele/hand/laden"), ("GET", "/api/spiele/hand/dateien/hand_landmarker.task")):
+                          ("POST", "/api/spiele/spiegel"), ("POST", "/api/spiele/ssp"),
+                          ("POST", "/api/spiele/hand/laden")):
         assert R.pc_only(methode, pfad), pfad
+    # seit 0.41 (Vormachen vom Handy über die sichere Adresse): Stand und geprüfte Dateien der Handerkennung lesen
+    for pfad in ("/api/spiele/hand", "/api/spiele/hand/dateien/hand_landmarker.task"):
+        assert not R.pc_only("GET", pfad), pfad
 
 
 # ── Handerkennung: nur auf Klick, Prüfsummen, vom eigenen Server ──────

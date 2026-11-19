@@ -3699,5 +3699,16 @@
  "Nur die Stadt, nie dein Standort. Fragst du nach dem Wetter, geht der Stadtname an Open-Meteo (ohne Konto, ohne Schlüssel); sonst nichts.": "Only the city, never your location. When you ask about the weather, the city name is sent to Open-Meteo (no account, no key); nothing else.",
  "Ins Wort fallen": "Interrupt",
  "Sprichst du dazwischen, hört sie sofort auf und dir zu. Nur, wenn du gerade mit der Stimme sprichst; gemessen wird nur die Lautstärke, nichts wird aufgenommen.": "If you talk over her, she stops right away and listens to you. Only while you are speaking by voice; only the loudness is measured, nothing is recorded.",
- "Schaut sich eine Weile in Ruhe um – wie in Pollens App": "Looks around calmly for a while – like in Pollen's app"
+ "Schaut sich eine Weile in Ruhe um – wie in Pollens App": "Looks around calmly for a while – like in Pollen's app",
+ "Selbst üben": "Practise alone",
+ "Ari probiert es im Simulator selbst, lernt aus eigenen Erfolgen und behält es nur, wenn er besser wird": "Ari tries on its own in the simulator, learns from its own successes and only keeps it if it gets better",
+ "Beim Ausprobieren eingreifen: Hand ins Bild – sie führt Ari, und die Korrektur wird ein neues Beispiel.": "Step in while it tries: put your hand in view – it guides Ari, and the correction becomes a new example.",
+ "Vorgemacht": "Demonstrated",
+ "Name, z. B. Rot nach links": "Name, e.g. Red to the left",
+ "Name des Auftrags": "Name of the task",
+ "Als Auftrag merken": "Remember as a task",
+ "Danach macht Ari es selbst – sauber geplant, nicht deine Handbewegung nach. Zu finden unter Tricks bei seinen Aufträgen.": "Afterwards Ari does it on its own – cleanly planned, not copying your hand movement. You'll find it under Tricks with its tasks.",
+ "Üben anhalten": "Stop practising",
+ "Vom Handy geht Vormachen nur über die sichere Adresse (Tailscale, https) – sonst gibt der Browser die Kamera nicht frei.": "From the phone, demonstrating only works via the secure address (Tailscale, https) – otherwise the browser won't release the camera.",
+ "Die Handerkennung einmal am PC laden (Vormachen) – danach geht es auch am Handy.": "Load hand detection once on the PC (Demonstrate) – afterwards it works on the phone too."
 }

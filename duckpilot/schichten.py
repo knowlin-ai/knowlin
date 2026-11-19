@@ -23,7 +23,7 @@ Testlauf. Neues Modul → hier eintragen.
 from __future__ import annotations
 
 SCHICHTEN: dict[str, tuple[str, ...]] = {
-    "basis": ("aio", "config", "settings", "desktop", "aktualisieren", "qr", "hub", "schichten", "geplant", "i18n", "suite", "figuren", "koerper", "startstatus", "fehlerort", "werte", "aktionen", "antrieb", "gedankenspur", "rueckblick", "arm", "arm_kinematik", "arm_huelle", "werkbank_auftrag", "mentor"),
+    "basis": ("aio", "config", "settings", "desktop", "aktualisieren", "qr", "hub", "schichten", "geplant", "i18n", "suite", "figuren", "koerper", "startstatus", "fehlerort", "werte", "aktionen", "antrieb", "gedankenspur", "rueckblick", "arm", "arm_kinematik", "arm_huelle", "werkbank_auftrag", "mentor", "mentor_auftrag"),
     "kern": (
         "brain", "buddy", "erfahrung_service", "voice", "faces", "augen", "nfc", "remote", "tailscale", "mdns",
         "mcp_server", "mcp_bridge", "skills.alltag", "choreo", "musik_struktur", "sichtungen", "tagebuch", "wetter", "knowlets", "knowlet_hub", "sicherungspunkte",
@@ -31,7 +31,7 @@ SCHICHTEN: dict[str, tuple[str, ...]] = {
     "motorik": ("motion", "api", "joints", "protest", "laser", "koerper_pruefung"),
     "lab": (
         "physics", "training", "kaggle_training", "lernschleife", "mission", "acrobatics_service",
-        "stossreihe_service", "kollision_service", "arm_lernen", "arm_export", "arm_schule",
+        "stossreihe_service", "kollision_service", "arm_lernen", "arm_export", "arm_schule", "arm_ueben",
     ),
     "koerper": (
         "backends", "modell", "care", "vision", "skills.app_moves", "skills.gaits", "skills.talent", "skills.community",

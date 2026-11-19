@@ -1,0 +1,11 @@
+/* Mentor 2 (seit 0.41): Vorgemachtes als Auftrag merken – im Vormach-Fenster unter dem Bild. Nur Tokens. */
+
+.mentor-auftrag { display: grid; gap: var(--spacing-03); border-top: 1px solid var(--line); padding-top: var(--spacing-03); }
+.mentor-auftrag[hidden] { display: none; }
+.mentor-auftrag h4 { margin: 0; font-size: var(--t-caption); }
+.mentor-schritte { margin: 0; padding-left: var(--spacing-06); display: grid; gap: var(--spacing-01); font-size: var(--t-caption); }
+.mentor-auftrag-reihe { display: flex; flex-wrap: wrap; gap: var(--spacing-02); }
+.mentor-auftrag-reihe .input { flex: 1 1 12ch; min-width: 0; }
+
+/* Vom Handy nur über die sichere Adresse (https, Tailscale) – sonst gibt der Browser die Kamera nicht frei */
+body.is-fern:not(.ist-sicher) .pc-oder-sicher { display: none !important; }

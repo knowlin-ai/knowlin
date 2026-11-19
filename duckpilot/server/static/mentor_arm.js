@@ -1,4 +1,5 @@
-// Vormachen (seit 0.38.57, erster Schritt zum Mentor aus 0.44): Ari folgt deiner Hand vor der Webcam.
+// Vormachen (seit 0.38.57, erster Schritt zum Mentor aus 0.44): Ari folgt deiner Hand vor der Webcam. Seit 0.41 (Mentor 2)
+// auch vom Handy über die sichere Adresse, und das Vorgemachte lässt sich als Auftrag merken.
 // Maintainer: „dann bin ich sozusagen die Körperschnittstelle“. Wie die Kamera-Spiele (kamera_spiele.js):
 // - Webcam nur am PC, nur solange das Fenster offen ist, sichtbar „● Webcam“; beim Schließen ist sie aus.
 // - Erkannt wird hier im Browser (hand.js, MediaPipe, nur nach Klick geladen). An Knowlin gehen nur 21 Handpunkte –
@@ -25,6 +26,7 @@ export function initMentor(h) {
   const text = $('mentor-text');
   const laden = $('mentor-laden');
   const erkenner = new HandErkenner();
+  document.body.classList.toggle('ist-sicher', window.isSecureContext);   // Vormachen am Handy nur mit https (0.41)
   const lernen = initAriLernen(h);                          // Lernen durch Vormachen (seit 0.38.64)
   let stream = null;
   let takt = null;
@@ -32,6 +34,22 @@ export function initMentor(h) {
   let ohneHand = 0;
 
   function sagen(t) { text.textContent = t; }
+
+  // Mentor 2 (seit 0.41): die vorgemachten Schritte – als Auftrag merken oder verwerfen
+  function vorgemacht(liste) {
+    const box = $('mentor-auftrag');
+    if (!box || !Array.isArray(liste)) return;
+    box.hidden = !liste.length;
+    $('mentor-schritte').replaceChildren(...liste.map((t) => { const li = document.createElement('li'); li.textContent = t; return li; }));
+  }
+  async function vorgemachtTun(nutzlast) {
+    const r = await api('/api/mentor/vorgemacht', 'POST', nutzlast).catch(() => null);
+    if (!r || r.ok === false) { toast((r && r.fehler) || 'Keine Antwort', true); return; }
+    if (r.name) { toast(`Gemerkt: „${r.titel}“ (${r.schritte} Schritte) – unter Tricks bei Aris Aufträgen.`); $('mentor-auftrag-name').value = ''; vorgemacht([]); }
+    else vorgemacht(r.vorgemacht);
+  }
+  $('mentor-merken')?.addEventListener('click', () => vorgemachtTun({ aktion: 'merken', titel: $('mentor-auftrag-name').value }));
+  $('mentor-verwerfen')?.addEventListener('click', () => vorgemachtTun({ aktion: 'verwerfen' }));
 
   function zeichnen(punkte) {
     const c = punkteBild.getContext('2d');
@@ -50,7 +68,7 @@ export function initMentor(h) {
   async function kameraAn() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { sagen('Diese Ansicht kann keine Webcam öffnen.'); return false; }
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false });
+      stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' }, audio: false });
     } catch (e) {
       sagen(e && e.name === 'NotAllowedError' ? 'Webcam nicht erlaubt – im Browser freigeben.' : 'Keine Webcam gefunden.');
       return false;
@@ -87,8 +105,14 @@ export function initMentor(h) {
   }
 
   async function starten() {
-    if (isRemote()) { sagen('Vormachen geht nur am PC – die Webcam bleibt am Handy aus.'); return; }
+    // Vom Handy (seit 0.41): nur über die sichere Adresse (Tailscale, https) – sonst gibt der Browser die Kamera nicht frei
+    if (isRemote() && !window.isSecureContext) {
+      sagen('Vom Handy geht Vormachen nur über die sichere Adresse (Tailscale, https) – sonst gibt der Browser die Kamera nicht frei.');
+      return;
+    }
+    api('/api/mentor/vorgemacht').then((r) => vorgemacht(r && r.vorgemacht)).catch(() => {});
     const s = await api('/api/spiele/hand').catch(() => null);
+    if (isRemote() && (!s || !s.bereit)) { sagen('Die Handerkennung einmal am PC laden (Vormachen) – danach geht es auch am Handy.'); return; }
     if (!s || !s.bereit) {
       laden.hidden = false;
       laden.disabled = !!(s && (s.offline || (s.job && s.job.laeuft)));
@@ -138,6 +162,9 @@ export function initMentor(h) {
 
   return {
     aus,                                                     // Not-Aus, Körperwechsel, Seitenwechsel
-    meldung(m) { if (!panel.hidden && m && !m.ok && m.grund) sagen(m.grund); },
+    meldung(m) {
+      if (m && m.vorgemacht) vorgemacht(m.vorgemacht);
+      if (!panel.hidden && m && !m.ok && m.grund) sagen(m.grund);
+    },
   };
 }

@@ -73,7 +73,10 @@ PC_ONLY: list[tuple[str, re.Pattern[str]]] = [(m, re.compile(p)) for m, p in [
     ("DELETE", r"^/api/rueckblick/"),
     ("POST", r"^/api/portraet/"),             # seit 0.38.51: gerenderte Porträts ablegen nur am PC
     ("*", r"^/api/fehlerbericht(/|$)"),     # enthält Einstellungen und Protokollzeilen – nur am PC (seit 0.38.6)
-    ("*", r"^/api/spiele(/|$)"),            # Kamera-Spiele mit Reachy: Webcam nur am PC (seit 0.38.13)
+    # Kamera-Spiele mit Reachy: Webcam nur am PC (seit 0.38.13). Ausgenommen (seit 0.41, Vormachen vom Handy über die
+    # sichere Adresse): der Stand der Handerkennung und ihre geprüften Dateien lesen – laden geht weiter nur am PC
+    # (für diese beiden Pfade gibt es nur GET; alles andere unter /api/spiele bleibt gesperrt)
+    ("*", r"^/api/spiele(?!/hand$|/hand/dateien/[\w.\-]+$)(/|$)"),
     ("*", r"^/api/schau(/|$)"),             # „Schau mich an“: Webcam und Gesichtserkennung nur am PC (seit 0.39)
     ("*", r"^/api/verbindungstest$"),       # prüft Adressen im Heimnetz – nur am PC (seit 0.38.16)
     ("POST", r"^/api/update(/|$)"),          # Updates prüfen und installieren nur am PC (seit 0.38.32)

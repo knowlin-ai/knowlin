@@ -1023,23 +1023,38 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         hand = hand_aus(msg)
         if nachmachen is None or hand is None:
             return
-        if getattr(getattr(self, "ari_schule", None), "taetigkeit", None) == "ausprobieren":
-            return                                 # Ari probiert gerade selbst (arm_schule.py)
+        probiert = getattr(getattr(self, "ari_schule", None), "taetigkeit", None) == "ausprobieren"
         jetzt = time.monotonic()
         if jetzt - getattr(self, "_mentor_zuletzt", 0.0) < 0.05:
             return
         self._mentor_zuletzt = jetzt
         if getattr(self, "_mentor", None) is None:
+            from ..mentor_auftrag import Beobachter
+
             self._mentor = Nachmacher()
+            if getattr(self, "mentor_beob", None) is None:
+                self.mentor_beob = Beobachter()    # Mentor 2 (seit 0.41): Vorgemachtes als Auftrag merken
         self.alltag.touch()
         self.engine.kontakt("Vormachen")
         ziel = self._mentor.weiter(hand, jetzt)
+        if probiert:                               # Ari probiert selbst: deine Hand greift ein (arm_schule.py, 0.41)
+            self._mentor_ziel = (jetzt, ziel)
+            return
         r = await nachmachen(ziel)
         if r.accepted:
             self._mentor_ziel = (jetzt, ziel)      # für die Aufnahme beim Lernen durch Vormachen (arm_schule.py)
+        wb = getattr(self.backend, "werkbank", None)
+        if wb is not None and self.mentor_beob.schauen(wb) is not None:
+            await self.broadcast(self.mentor_vorgemacht())
         if not r.accepted and jetzt - getattr(self, "_mentor_absage", 0.0) > 2.0:
             self._mentor_absage = jetzt
             await self.broadcast({"type": "mentor", "ok": False, "grund": r.reason})
+
+    def mentor_vorgemacht(self) -> dict[str, Any]:
+        from ..mentor_auftrag import beschreiben
+
+        beob = getattr(self, "mentor_beob", None)
+        return {"type": "mentor", "ok": True, "vorgemacht": [beschreiben(s) for s in (beob.schritte if beob else [])]}
 
     async def handle_client_message(self, msg: dict[str, Any], remote: bool = False) -> None:
         kind = msg.get("type")

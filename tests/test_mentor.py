@@ -124,13 +124,16 @@ def test_auftrag_und_spiel_gehen_vor():
     asyncio.run(go())
 
 
-def test_webcam_nur_am_pc_sichtbar_und_nur_punkte():
+def test_webcam_nur_am_pc_oder_sicher_sichtbar_und_nur_punkte():
     html = (STATIC / "index.html").read_text(encoding="utf-8")
-    assert 'class="chip pc-only" id="vormachen-btn"' in html and 'class="hud hud-mentor pc-only" id="mentor-panel"' in html
+    # seit 0.41: am PC oder am Handy über die sichere Adresse (sonst gibt der Browser die Kamera nicht frei)
+    assert 'class="chip pc-oder-sicher" id="vormachen-btn"' in html and 'class="hud hud-mentor pc-oder-sicher" id="mentor-panel"' in html
+    assert "body.is-fern:not(.ist-sicher) .pc-oder-sicher { display: none !important; }" in \
+        (STATIC / "bereiche" / "mentor.css").read_text(encoding="utf-8")
     assert 'id="badge-mentor-cam"' in html
     js = (STATIC / "mentor_arm.js").read_text(encoding="utf-8")
     assert "type: 'mentor_hand'" in js and "toDataURL" not in js and "getImageData" not in js   # kein Bild geht raus
-    assert "if (isRemote())" in js and "for (const t of stream.getTracks()) t.stop()" in js
+    assert "if (isRemote() && !window.isSecureContext)" in js and "for (const t of stream.getTracks()) t.stop()" in js
     app = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "mentor.aus(); send({ type: 'stop' })" in app                     # Not-Aus schließt Fenster und Webcam
     runtime = (STATIC.parent / "runtime.py").read_text(encoding="utf-8")

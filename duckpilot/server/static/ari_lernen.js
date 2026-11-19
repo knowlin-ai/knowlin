@@ -8,6 +8,7 @@ export function initAriLernen({ $, api, toast }) {
   const text = $('ari-lernen-text');
   const knopf = {
     aufnehmen: $('ari-aufnehmen'), neu: $('ari-neu'), lernen: $('ari-lernen-los'), probieren: $('ari-probieren'),
+    ueben: $('ari-ueben'),                                   // Stufe B: selbst üben (seit 0.41)
   };
   let poll = null;
   let stand = null;
@@ -29,8 +30,14 @@ export function initAriLernen({ $, api, toast }) {
     knopf.aufnehmen.disabled = !!t && t !== 'aufnahme';
     knopf.probieren.disabled = (!!t && t !== 'ausprobieren') || (!s.gelernt && t !== 'ausprobieren');
     knopf.neu.disabled = knopf.lernen.disabled = !!t;
+    if (knopf.ueben) {
+      knopf.ueben.textContent = t === 'ueben' ? 'Üben anhalten' : 'Selbst üben';
+      knopf.ueben.disabled = (!!t && t !== 'ueben') || (!s.gelernt && t !== 'ueben');
+    }
     $('ari-wuerfel').disabled = $('ari-kiste').disabled = !!t;
-    const g = s.gelernt ? `Gelernt: ${s.gelernt.geschafft} von ${s.gelernt.versuche} im Test.` : 'Noch nichts gelernt.';
+    const u = s.gelernt && s.gelernt.geuebt;
+    const g = s.gelernt ? `Gelernt: ${s.gelernt.geschafft} von ${s.gelernt.versuche} im Test${u ? ` (nach dem Üben, vorher ${u.vorher})` : ''}.`
+      : 'Noch nichts gelernt.';
     text.textContent = [s.meldung, s.fortschritt, `${s.beispiele} eigene Beispiele. ${g}`].filter(Boolean).join(' ');
     $('ari-export').hidden = !s.beispiele && !s.gelernt;
     clearTimeout(poll);
@@ -54,6 +61,7 @@ export function initAriLernen({ $, api, toast }) {
   knopf.aufnehmen.addEventListener('click', () => tun(stand && stand.taetigkeit === 'aufnahme' ? 'abbrechen' : 'aufnehmen'));
   knopf.neu.addEventListener('click', () => tun('neu_legen'));
   knopf.lernen.addEventListener('click', () => tun('lernen', { lehrer: $('ari-lehrer').checked }));
+  knopf.ueben?.addEventListener('click', () => tun(stand && stand.taetigkeit === 'ueben' ? 'abbrechen' : 'ueben'));
   knopf.probieren.addEventListener('click', () => tun(stand && stand.taetigkeit === 'ausprobieren' ? 'abbrechen' : 'ausprobieren'));
 
   return {

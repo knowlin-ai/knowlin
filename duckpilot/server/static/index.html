@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/static/bereiche/hirn.css">
   <link rel="stylesheet" href="/static/bereiche/gedaechtnis.css">
   <link rel="stylesheet" href="/static/bereiche/stacki.css">
+  <link rel="stylesheet" href="/static/bereiche/mentor.css">
 </head>
 <body class="im-kopf">
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -282,8 +283,8 @@
             <ol class="hud-queue" id="queue"></ol>
             <p class="hud-reflex" id="reflex" hidden></p>
           </div>
-          <!-- Vormachen (seit 0.38.57): Ari folgt deiner Hand; nur am PC, Webcam nur solange offen (mentor_arm.js) -->
-          <section class="hud hud-mentor pc-only" id="mentor-panel" aria-labelledby="mentor-titel" hidden>
+          <!-- Vormachen (seit 0.38.57): Ari folgt deiner Hand; am PC oder am Handy über die sichere Adresse (seit 0.41), Webcam nur solange offen (mentor_arm.js) -->
+          <section class="hud hud-mentor pc-oder-sicher" id="mentor-panel" aria-labelledby="mentor-titel" hidden>
             <div class="mentor-kopf">
               <h3 id="mentor-titel">Vormachen</h3>
               <span class="mentor-kamera" id="mentor-kamera" hidden>● Webcam</span>
@@ -295,6 +296,17 @@
             </div>
             <p class="mentor-text" id="mentor-text" role="status" aria-live="polite"></p>
             <button type="button" class="btn btn--primary btn--sm" id="mentor-laden" hidden>Handerkennung laden</button>
+            <!-- Mentor 2 (seit 0.41): was du vormachst, als Auftrag merken (mentor_arm.js, mentor_auftrag.py) -->
+            <div class="mentor-auftrag" id="mentor-auftrag" hidden>
+              <h4>Vorgemacht</h4>
+              <ol class="mentor-schritte" id="mentor-schritte"></ol>
+              <div class="mentor-auftrag-reihe">
+                <input class="input" type="text" id="mentor-auftrag-name" maxlength="40" placeholder="Name, z. B. Rot nach links" aria-label="Name des Auftrags">
+                <button type="button" class="btn btn--secondary btn--sm" id="mentor-merken">Als Auftrag merken</button>
+                <button type="button" class="btn btn--ghost btn--sm" id="mentor-verwerfen">Verwerfen</button>
+              </div>
+              <p class="mentor-text">Danach macht Ari es selbst – sauber geplant, nicht deine Handbewegung nach. Zu finden unter Tricks bei seinen Aufträgen.</p>
+            </div>
             <!-- Lernen durch Vormachen (seit 0.38.64, ari_lernen.js): Beispiele aufnehmen, lernen, selbst probieren -->
             <div class="ari-lernen" id="ari-lernen" hidden>
               <h4>Ari lernt die Aufgabe</h4>
@@ -307,8 +319,10 @@
                 <button type="button" class="btn btn--ghost btn--sm" id="ari-neu">Neu legen</button>
                 <button type="button" class="btn btn--secondary btn--sm" id="ari-lernen-los">Lernen</button>
                 <button type="button" class="btn btn--primary btn--sm" id="ari-probieren">Ausprobieren</button>
+                <button type="button" class="btn btn--secondary btn--sm" id="ari-ueben" title="Ari probiert es im Simulator selbst, lernt aus eigenen Erfolgen und behält es nur, wenn er besser wird">Selbst üben</button>
               </div>
               <label class="ari-lernen-lehrer"><input type="checkbox" id="ari-lehrer" checked> Lehrer zeigt zusätzlich Beispiele</label>
+              <p class="mentor-text">Beim Ausprobieren eingreifen: Hand ins Bild – sie führt Ari, und die Korrektur wird ein neues Beispiel.</p>
               <p class="mentor-text" id="ari-lernen-text" role="status" aria-live="polite"></p>
               <a class="ari-lernen-export" id="ari-export" href="/api/ari_lernen/export" download>Beispiele für LeRobot (ZIP)</a>
             </div>
@@ -523,7 +537,7 @@
             <button class="chip" data-tool="auftrag" data-args='{"auftrag":"turm"}'><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="15" width="8" height="6" rx="1"/><rect x="8" y="9" width="8" height="6" rx="1"/><rect x="8" y="3" width="8" height="6" rx="1"/></svg>Turm bauen</button>
             <button class="chip" data-tool="auftrag" data-args='{"auftrag":"aufraeumen"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 20l2-9h6l2 9M10 11V4h4v7"/></svg>Aufräumen</button>
             <button class="chip" data-tool="tictactoe" data-args='{"aktion":"start"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>Tic-Tac-Toe</button>
-            <button class="chip pc-only" id="vormachen-btn" type="button" aria-controls="mentor-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V6a2 2 0 0 1 4 0v5M11 10V4a2 2 0 0 1 4 0v6M15 10V6a2 2 0 0 1 4 0v8a7 7 0 0 1-14 0v-3a2 2 0 0 1 4 0"/><circle cx="19" cy="4" r="2"/></svg>Vormachen</button>
+            <button class="chip pc-oder-sicher" id="vormachen-btn" type="button" aria-controls="mentor-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V6a2 2 0 0 1 4 0v5M11 10V4a2 2 0 0 1 4 0v6M15 10V6a2 2 0 0 1 4 0v8a7 7 0 0 1-14 0v-3a2 2 0 0 1 4 0"/><circle cx="19" cy="4" r="2"/></svg>Vormachen</button>
             <button class="chip nur-ttt" data-tool="tictactoe" data-args='{"aktion":"ende"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Spiel beenden</button>
           </div>
           <div class="quick braucht-beine" role="group" aria-label="Schnellbefehle">

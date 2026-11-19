@@ -35,6 +35,8 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             res = svc.lernen(bool(body.get("lehrer", True)))
         elif aktion == "ausprobieren":
             res = svc.ausprobieren()
+        elif aktion == "ueben":                    # Stufe B (seit 0.41)
+            res = svc.ueben()
         else:
             res = {"ok": False, "fehler": "Unbekannte Aktion"}
         return JSONResponse(res, status_code=200 if res.get("ok") else 400)
