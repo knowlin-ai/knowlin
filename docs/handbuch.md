@@ -107,6 +107,13 @@ mit eigener Stimme und eigenem Charakter. Öffnen über die Kachel auf der Start
 - **Kamera-Spiele (seit 0.38.13):** Steuern → Spiele: „Rotes Licht, grünes Licht“ und „Hand folgen“. Die Webcam läuft
   nur während eines Spiels, ausgewertet wird nur im Browser (64 × 48 graue Punkte – wie viel und wo sich etwas bewegt);
   kein Bild verlässt den PC, keine Gesichts- oder Personenerkennung. Not-Aus beendet Spiel und Webcam sofort.
+- **Wie in Pollens App (seit 0.40):** „Umschauen“ lässt ihn sich 20 Sekunden in Ruhe umsehen – Blick hin, verweilen,
+  weiter, zum Schluss wieder geradeaus (das gilt jetzt für jeden Körper mit Kopf). „Schau mich an“ dreht den Kopf zu
+  deinem Gesicht vor der Webcam wie bei Stacki (Gesichtserkennung auf Klick, nur am PC, nur die Blickrichtung geht an
+  Knowlin); sieht er dich wieder, stellt er die Antennen auf. Nach zehn Minuten ohne Ansprache schläft er von selbst
+  ein (Kopf sinkt, Antennen legen sich an – am echten Reachy über Pollens `goto_sleep`); zuhören, sprechen, ein
+  Gesicht vor der Kamera oder eine Bewegung wecken ihn wieder. Leerlauf-Gesten halten ihn nicht wach, und nach einem
+  Not-Aus weckt ihn nichts von selbst. „Gute Nacht“ schickt ihn gleich schlafen.
 
 ### Stack-chan (seit 0.38.58)
 
@@ -973,6 +980,19 @@ Feinheiten kommen ungenauer an. Die Ente spricht in jedem Fall Deutsch.
   Sprechmodell. Nach dem Übernehmen lädt duckpilot das Sprechmodell (beim ersten Mal ≈ 2,4 GB, Anzeige
   auf der Stimme-Seite); bis es da ist, spricht die Browser-Stimme. Braucht ein Satz länger als
   15 Sekunden, springt für ihn ebenfalls die Browser-Stimme ein – das Gespräch wartet nie.
+- **Streaming (seit 0.40):** Rechnet Qwen auf deinem PC etwas langsamer, als gesprochen wird, wechselt Knowlin nicht
+  mehr gleich auf Piper oder die Browser-Stimme: Er rechnet so lange vor (höchstens 10 Sekunden), dass die Antwort
+  danach ohne Lücke durchläuft, und teilt einen langen ersten Satz am Komma, damit es schneller losgeht.
+- **Ins Wort fallen (seit 0.40):** Sprichst du dazwischen, während Knowlin spricht, verstummt die Stimme sofort und er
+  hört dir zu. Das geht nur, wenn du gerade mit der Stimme sprichst (nach getippten Befehlen bleibt das Mikrofon aus),
+  nur am PC und abschaltbar (Charakter → Stimme → Gespräch → „Ins Wort fallen“). Gemessen wird nur die Lautstärke im
+  Browser, mit Echo-Unterdrückung; die eigene Stimme aus den Lautsprechern zählt nicht. Mit Kopfhörern klappt es am
+  besten.
+- **Wetter (seit 0.40):** „Wie wird das Wetter morgen?“, „Brauche ich einen Schirm?“, „Wetter in Wien“ – auch ohne
+  Sprachmodell. Die Daten kommen von Open-Meteo (ohne Konto, ohne Schlüssel). Die Stadt trägst du unter System →
+  Einstellungen → Knowlin ein, oder du nennst sie in der Frage; Knowlin ermittelt nie deinen Standort. An Open-Meteo
+  gehen nur der Stadtname und dessen Koordinaten, und nur, wenn du fragst (15 Minuten zwischengespeichert, nicht auf
+  der Platte). Im Offline-Modus gibt es kein Wetter. Die Uhrzeit kennt Knowlin ohnehin.
 - **Fortschritt und Fortsetzen:** Beim Herunterladen zeigt die Stimme-Seite, wie weit es ist. Bricht es
   ab, geht es beim nächsten Start an derselben Stelle weiter.
 - **Eigener Prozess:** Qwen rechnet in einem eigenen Arbeitsprozess – die Oberfläche bleibt bedienbar, auch

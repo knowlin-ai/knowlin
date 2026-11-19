@@ -9,6 +9,42 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.40.0 – 2026-11-19 – Gespräch in Echtzeit und Reachy wie in Pollens App
+
+### Neu
+- **Ins Wort fallen:** Sprichst du dazwischen, während Knowlin spricht, verstummt die Stimme sofort und er hört dir zu.
+  Nur, wenn du gerade mit der Stimme sprichst, nur am PC, abschaltbar (Charakter → Stimme → Gespräch). Gemessen wird nur
+  die Lautstärke im Browser, mit Echo-Unterdrückung; die eigene Stimme lernt Knowlin in den ersten 0,6 s als Grundpegel
+  und zählt sie nicht als Unterbrechung.
+- **Wetter:** „Wie wird das Wetter morgen?“, „Brauche ich einen Schirm?“, „Wetter in Wien“ – über Open-Meteo, ohne Konto
+  und Schlüssel, auch ohne Sprachmodell (Werkzeug `wetter`, Sätze ohne KI). Stadt unter System → Einstellungen →
+  Knowlin (`wetter_ort`) oder in der Frage.
+- **Reachy wie in Pollens App:** „Umschauen“ 20 s mit natürlichen Blicken (hin, verweilen, weiter – für jeden Körper mit
+  Kopf), „Schau mich an“ auch für Reachy (stellt die Antennen auf, wenn er dich wiedersieht), nach zehn Minuten ohne
+  Ansprache schläft er von selbst ein und wacht beim Ansprechen wieder auf (am echten Reachy über `goto_sleep` und
+  `wake_up`). „Gute Nacht“ schickt jeden Körper schlafen.
+
+### Geändert
+- **Qwen3-TTS mit Streaming:** Rechnet die entworfene Stimme etwas langsamer als gesprochen wird, rechnet Knowlin bis zu
+  10 s vor und spricht dann ohne Lücke, statt auf Piper oder die Browser-Stimme zu wechseln; ein langer erster Satz wird
+  am Komma geteilt.
+- Umschauen springt nicht mehr in einer festen Schleife, sondern von Ziel zu Ziel und endet geradeaus.
+- Der Fahrplan beginnt jetzt mit 0.41.
+
+### Sicherheit
+- Wetter: An Open-Meteo gehen nur der Stadtname und dessen Koordinaten, nur auf Nachfrage; nie eine Standortermittlung.
+  Die Stadt ist eine Einstellung nur am PC. Im Offline-Modus wird nichts abgefragt.
+- Ins Wort fallen nimmt nichts auf und schickt nichts weg; das Mikrofon läuft nur, während Knowlin nach einer
+  gesprochenen Eingabe antwortet.
+- Reachy wacht nach einem Not-Aus nie von selbst auf; Einschlafen nicht während einer Aufnahme oder App von Pollen.
+
+### Nicht geprüft
+- Ins Wort fallen mit echten Lautsprechern und Mikrofonen (Echo im Raum), unter Windows in Edge.
+- Wetter gegen den echten Dienst (hier ist Open-Meteo nicht erreichbar; geprüft mit nachgestellten Antworten im
+  Format von Open-Meteo).
+- Streaming mit echter Qwen-Stimme auf einer Grafikkarte; Einschlafen und Aufwachen am echten Reachy Mini.
+- Chatterbox als zweite Stimme: noch nicht eingebaut (siehe Releaseplan).
+
 ## 0.39.0 – 2026-11-19 – Erfahrungsnetz 2 und Stacki wie ab Werk
 
 ### Neu

@@ -5,8 +5,6 @@ Versions are a plan, not a promise.
 
 | Version | Feature | What it means |
 | --- | --- | --- |
-| 0.40 | Real-time conversation | Interrupting, tools in conversation such as weather and time. |
-| 0.40 | Reachy as in Pollen’s app | Looking around, following a face and going to sleep. |
 | 0.41 | Mentor 2 | Remember what you demonstrate as a task – with webcam or phone. |
 | 0.41 | Ari practises on his own | Reinforcement learning in the simulator refines what you showed him. |
 | 0.42 | Everyday | Routines and schedules, a calendar subscription from a local file. |
