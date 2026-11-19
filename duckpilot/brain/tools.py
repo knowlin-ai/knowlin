@@ -31,6 +31,7 @@ from .tools_lab import (  # noqa: F401 – Werkzeuge der Trainingshalle, seit 0.
     TRAINING_TOOL,
     LabWerkzeuge,
 )
+from .tools_licht import LICHT_TOOL, LichtWerkzeuge
 from .tools_raum import RaumWerkzeuge
 
 if TYPE_CHECKING:
@@ -537,7 +538,7 @@ BEINE_TOOLS = {"walk", "drive", "go_to", "approach", "umrunden", "apportieren", 
 BRAUCHT_EIGENSCHAFT = {"explore": {"tiefensensor"}, "karte": {"tiefensensor"}, "apportieren": {"schnabel"},
                        "team": {"schnabel"}, "kopf_ruhig": {"beine"}, "sound": {"stimmbank"}, "arm": {"arm"},
                        # seit 0.38.47: ein Arm ohne Kopf (SO-101) bekommt keine Kopf-Werkzeuge
-                       "head": {"kopf"}, "look_around": {"kopf"}, "emote": {"kopf"}, "dance": {"kopf"},
+                       "head": {"kopf"}, "look_around": {"kopf"}, "licht": {"led"}, "emote": {"kopf"}, "dance": {"kopf"},
                        "choreo": {"kopf"}, "choreography": {"kopf"}, "auftrag": {"greifer"},   # Werkbank-Aufträge (0.38.54)
                        "tictactoe": {"greifer"},
                        # seit 0.38.64: Laserpunkt und Mensch sieht der Körper nur mit eigener Kamera (Bello hat keine)
@@ -599,7 +600,7 @@ POLLEN_TOOL = {
 LOGGED_EVENTS = {"fall": "Sturz", "kick_miss": "Kick ins Leere", "pick_miss": "Aufheben ins Leere"}
 
 
-class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge):
+class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge, LichtWerkzeuge):
     def __init__(self, engine: MotionEngine, memory: "Memory | None" = None) -> None:
         self.engine = engine
         self.memory = memory
@@ -652,6 +653,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
             tools = [*tools, ANTENNEN_TOOL]
         if "beruehrung" in eig:                   # Berührung (seit 0.38.62, Stack-chan)
             tools = [*tools, BERUEHREN_TOOL]
+        if "led" in eig:                          # LEDs und Tanz mit Licht (seit 0.39, Stack-chan)
+            tools = [*tools, LICHT_TOOL]
         if getattr(be, "koerper_art", "") == "reachy_mini":   # Reachys eigener Tanz (seit 0.38.13): nur seine Bewegungen
             from ..choreo import reachy_werkzeug
 
@@ -764,6 +767,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
                 result = self._selbstbild()
             elif name in ("tagesrueckblick", "weltbild"):
                 result = self._erinnern(name, args or {})
+            elif name == "licht":
+                result = await self._licht(args or {})
             elif name == "arm":
                 result = await self._arm(args or {})
             elif name in ("greifen", "ablegen"):

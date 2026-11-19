@@ -42,7 +42,10 @@ def test_rueckblick_fasst_den_tag_ohne_sprachmodell_zusammen():
     assert r["neu"] == ["Küche"] and r["lob"] == 1 and r["stimmung"] == "froh"
     assert r["text"].startswith("Heute habe ich 5 Dinge erlebt.") and "Ball" in r["text"] and "Küche" in r["text"]
     assert [m["zeit"] for m in r["momente"]] == ["09:00", "09:01", "09:02", "10:00", "11:00"]   # die stärksten, nach Uhrzeit
-    assert key("ding", "Ball") in r["ids"]
+    assert key("ding", "Ball") in r["ids"] and "Gelobt wurde ich einmal." in r["text"]
+    eins = Tagebuch()
+    eins.notieren({"ding:x": "x"}, jetzt=_ts(9))
+    assert eins.rueckblick(TAG, heute=date(2026, 11, 18))["text"].startswith("Heute habe ich eine Sache erlebt.")
     en = tb.rueckblick(TAG, en=True, heute=date(2026, 11, 18))["text"]
     assert en.startswith("Today I experienced 5 things.")
 
@@ -133,6 +136,10 @@ def test_umzug_wird_erfahrung_und_route_und_alles_vergessen(tmp_path, monkeypatc
     finally:
         R.REMOTE_TURN.reset(tok)
     assert r["ok"] and "Anna" not in json.dumps(r, ensure_ascii=False)
+    from duckpilot.brain.fallback import FallbackBrain
+
+    antwort = asyncio.run(FallbackBrain(rt.runner).handle("Wie war dein Tag?"))
+    assert antwort.text.startswith("Heute habe ich") and antwort.actions[0]["tool"] == "tagesrueckblick"
     with TestClient(create_app(rt), base_url="http://127.0.0.1:8765") as c:
         d = c.get("/api/erfahrung/rueckblick").json()
         assert d["an"] and d["tag"] == heute and d["anzahl"] >= 1

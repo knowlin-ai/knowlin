@@ -15,6 +15,9 @@ Gerät endlos – im Simulator bis ±170°; Nicken hat 80° Spielraum, fast nur 
 Schale gibt den Platz frei), nach unten 10°. Dazu wie beim Original: Berührung oben auf dem Kopf (streicheln → froh,
 schütteln → schwindelig), nach fünf Minuten ohne Ansprache schläft er ein, und die LEDs zeigen grün beim Zuhören und
 blau beim Sprechen (state().gesicht.led). Der echte Stack-chan ist noch nicht angebunden.
+
+Seit 0.39 „wie ab Werk“: die LEDs lassen sich frei färben (`licht`) und tanzen im Takt mit (`lichttanz`, beim
+Tanz mit Licht), und das Gesicht hat mehrere Avatare (`avatar`, je Verkörperung gespeichert, siehe `AVATARE`).
 """
 
 from __future__ import annotations
@@ -26,7 +29,12 @@ from ..api import DuckState, Head, IntentResult, Perception, Twist
 from .sim import SimBackend
 from .tischplatz import STANDARD_FLAECHE, TischPlatz
 
-EIGENSCHAFTEN = frozenset({"kopf", "gesicht", "beruehrung", "kamera", "mikrofon", "lautsprecher"})
+EIGENSCHAFTEN = frozenset({"kopf", "gesicht", "beruehrung", "kamera", "mikrofon", "lautsprecher", "led"})
+# LED-Farben (Namen, die Oberfläche kennt die Töne) und Avatare fürs Gesicht (seit 0.39)
+FARBEN = ("gruen", "blau", "rot", "gelb", "lila", "tuerkis", "orange", "weiss")
+TANZ_FARBEN = ("rot", "orange", "gelb", "gruen", "tuerkis", "blau", "lila")
+AVATARE = ("standard", "kulleraugen", "pixel", "katze")
+LICHT_MAX_S = 120.0
 KOPF_DREH = math.radians(170)            # echt: endlos drehbar
 KOPF_HOCH = math.radians(80)             # nicken nach oben (pitch negativ)
 KOPF_RUNTER = math.radians(10)           # nicken nach unten (pitch positiv)
@@ -81,6 +89,12 @@ class StackChanSim(TischPlatz, SimBackend):
         self._angesprochen = 0.0                 # letzte Ansprache (Gespräch, Gefühl, Berührung, Befehl)
         self._beruehrt: str | None = None
         self._beruehrt_ab = 0.0
+        self._licht: str | None = None           # frei gesetzte LED-Farbe …
+        self._licht_bis = 0.0
+        self._tanz_bis = 0.0                     # … oder Lichttanz (Farben im Takt)
+        self._tanz_ab = 0.0
+        self._tanz_bpm = 110.0
+        self.avatar = "standard"                 # setzt die Laufzeit aus den Einstellungen der Verkörperung
         self.platzieren(STANDARD_FLAECHE)
 
     # ── Körper ───────────────────────────────────────────────────────────
@@ -119,6 +133,43 @@ class StackChanSim(TischPlatz, SimBackend):
         self._ausdruck_bis = self.t + max(0.5, min(15.0, float(sekunden) + 0.5))
         return self._ausdruck
 
+    def licht(self, farbe: str | None, sekunden: float = 5.0) -> IntentResult:
+        """LEDs eine Weile in einer Farbe leuchten lassen (None/„aus“: wieder nach Zustand)."""
+        if farbe in (None, "", "aus"):
+            self._licht, self._licht_bis, self._tanz_bis = None, 0.0, 0.0
+            return IntentResult(True, "LEDs wieder nach Zustand")
+        if farbe not in FARBEN:
+            return IntentResult(False, f"Farben: {', '.join(FARBEN)}")
+        if not self.powered:
+            return IntentResult(False, "Stack-chan ist aus – nach dem Not-Aus bleiben die LEDs dunkel")
+        self._angesprochen = self.t
+        self._licht, self._licht_bis = farbe, self.t + max(0.5, min(LICHT_MAX_S, float(sekunden)))
+        self._tanz_bis = 0.0                                # eine gewählte Farbe beendet den Lichttanz
+        return IntentResult(True, f"leuchtet {farbe}")
+
+    def lichttanz(self, sekunden: float = 12.0, bpm: float = 110.0) -> IntentResult:
+        """Tanz mit Licht: die LEDs wechseln im Takt durch die Regenbogenfarben (der Kopf nickt über `dance`)."""
+        if not self.powered:
+            return IntentResult(False, "Stack-chan ist aus – nach dem Not-Aus bleiben die LEDs dunkel")
+        self._angesprochen = self.t
+        self._tanz_ab, self._tanz_bis = self.t, self.t + max(1.0, min(LICHT_MAX_S, float(sekunden)))
+        self._tanz_bpm = max(60.0, min(180.0, float(bpm or 110.0)))
+        return IntentResult(True, "tanzt mit Licht")
+
+    def _led(self, wach: bool, spricht: bool) -> str | None:
+        if not wach:
+            return None                                     # stromlos, schläft oder sitzt: dunkel
+        if self.t < self._tanz_bis:
+            schlag = int((self.t - self._tanz_ab) * self._tanz_bpm / 60.0)
+            return TANZ_FARBEN[schlag % len(TANZ_FARBEN)]
+        if self._licht and self.t < self._licht_bis:
+            return self._licht
+        return "gruen" if self._gespraech == "zuhoeren" else "blau" if spricht else None
+
+    async def relax(self) -> IntentResult:
+        self.licht(None)                                    # Not-Aus: auch das Licht aus, kein Weitertanzen danach
+        return await super().relax()
+
     async def sound(self, tag: str) -> IntentResult:
         return IntentResult(False, "Stack-chan hat keine Entenlaute – er spricht mit seiner Stimme")
 
@@ -156,10 +207,11 @@ class StackChanSim(TischPlatz, SimBackend):
         if self._gespraech == "zuhoeren" and self.t >= self._gespraech_bis:
             self._gespraech = None
         spricht = wach and self.mouth_now > 0.02
-        led = "gruen" if wach and self._gespraech == "zuhoeren" else "blau" if spricht else None
+        led = self._led(wach, spricht)
         zustand = self._gespraech if wach else "schlaeft" if self.schlaeft() else None
         return {"ausdruck": self._ausdruck if wach else "muede", "mund": round(self.mouth_now if wach else 0.0, 3),
-                "wach": wach, "zustand": zustand, "led": led}
+                "wach": wach, "zustand": zustand, "led": led,
+                "avatar": self.avatar if self.avatar in AVATARE else "standard"}
 
     def _beruehrt_lage(self, lage: dict[str, float]) -> dict[str, float]:
         """Kurz nach einer Berührung: Kopf hebt sich (streicheln) oder wackelt (schütteln)."""

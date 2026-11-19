@@ -46,6 +46,8 @@ FAEHIGKEITEN: dict[str, str] = {
     "greifer": "Greifer am Arm: Gelenk 'greifer' in haltung(), 0 = zu, 1 = offen.",
     "antennen": "Antennen als Ausdruck (Reachy Mini, Open Duck Mini).",
     "augen_leds": "Leuchtende Augen als Ausdruck (Open Duck Mini, je nach Bau).",
+    "led": "Farbige LEDs am Körper: licht(farbe, sekunden), lichttanz(sekunden, bpm) – Farben im Takt "
+           "(state().gesicht.led; Stack-chan, seit 0.39).",
     "gesicht": "Gesicht auf einem Bildschirm: Augen und Mund zeigen Gefühle, der Mund bewegt sich beim Sprechen "
                "(state().gesicht).",
     "beruehrung": "Berührungsfläche: beruehren('streicheln' | 'schuetteln') – der Körper reagiert sichtbar "
@@ -70,7 +72,7 @@ def eigene_stimme(eigenschaften: frozenset[str] | set[str]) -> bool:
 KURZ: dict[str, str] = {
     "beine": "laufen", "raeder": "fahren", "kopf": "Kopf und Blick bewegen", "koerperdrehung": "sich auf der Stelle drehen",
     "schnabel": "mit dem Schnabel greifen", "arm": "einen Arm bewegen", "greifer": "greifen", "antennen": "Antennen bewegen",
-    "augen_leds": "die Augen leuchten lassen", "gesicht": "ein Gesicht zeigen", "beruehrung": "Berührung spüren", "stimmbank": "eigene Laute", "tiefensensor": "Abstände messen",
+    "augen_leds": "die Augen leuchten lassen", "led": "farbige LEDs leuchten lassen", "gesicht": "ein Gesicht zeigen", "beruehrung": "Berührung spüren", "stimmbank": "eigene Laute", "tiefensensor": "Abstände messen",
     "kamera": "sehen", "mikrofon": "hören", "lautsprecher": "Töne ausgeben", "pollen_bewegungen": "Pollens Bewegungen abspielen",
 }
 assert KURZ.keys() == FAEHIGKEITEN.keys()
@@ -175,7 +177,7 @@ EINGEBAUT: tuple[Koerper, ...] = (
     # Stack-chan (seit 0.38.58): Schreibtisch-Roboter der Community (Apache-2.0), heute auch von M5Stack – Kopf mit Gesicht
     # auf dem Bildschirm, zwei Servos (drehen, nicken), Kamera, Mikrofone, Lautsprecher. Erst einmal nur im Simulator.
     Koerper("stackchan", "Stack-chan", "Stack-chan-Community / M5Stack", "stationaer",
-            frozenset({"kopf", "gesicht", "beruehrung", "kamera", "mikrofon", "lautsprecher"}),
+            frozenset({"kopf", "gesicht", "beruehrung", "kamera", "mikrofon", "lautsprecher", "led"}),
             "duckpilot.backends:baue_stackchan", quelle="https://github.com/stack-chan/stack-chan", lizenz="Apache-2.0",
             eingebaut=True),
     # Bittle X (seit 0.38.59): Petois offener Roboterhund (OpenCat, MIT) – vier Beine, Kopf dreht seitlich, Mikrofon für

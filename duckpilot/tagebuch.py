@@ -43,6 +43,12 @@ def _aufzaehlung(namen: list[str], en: bool) -> str:
     return f"{', '.join(namen[:-1])} {'and' if en else 'und'} {namen[-1]}"
 
 
+def _mal(n: int) -> str:
+    """1 → „einmal“, 2 → „zweimal“ … 12 → „zwölfmal“, sonst „13-mal“."""
+    worte = ("ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf")
+    return f"{worte[n - 1]}mal" if 1 <= n <= len(worte) else f"{n}-mal"
+
+
 class Tagebuch:
     def __init__(self, pfad: Path | None = None) -> None:
         self.pfad = pfad
@@ -161,7 +167,10 @@ class Tagebuch:
             wann = (f"On {d.strftime('%d %B')}" if en else f"Am {d.day}.{d.month}.")
         if not anzahl:
             return f"{wann} nothing much happened yet." if en else f"{wann} ist noch nicht viel passiert."
-        saetze = [f"{wann} I experienced {anzahl} things." if en else f"{wann} habe ich {anzahl} Dinge erlebt."]
+        if en:
+            saetze = [f"{wann} I experienced {'one thing' if anzahl == 1 else f'{anzahl} things'}."]
+        else:
+            saetze = [f"{wann} habe ich {'eine Sache' if anzahl == 1 else f'{anzahl} Dinge'} erlebt."]
         oben = [f"{h['name']} ({h['n']}×)" for h in haeufig[:3] if h["n"] > 1]
         if oben:
             saetze.append(f"It was mostly about {_aufzaehlung(oben, en)}." if en
@@ -170,10 +179,10 @@ class Tagebuch:
             saetze.append(f"New to me: {_aufzaehlung(neu[:3], en)}." if en else f"Neu kennengelernt: {_aufzaehlung(neu[:3], en)}.")
         if lob:
             saetze.append(f"I was praised {lob} {'time' if lob == 1 else 'times'}." if en
-                           else f"Gelobt wurde ich {lob}-mal.")
+                           else f"Gelobt wurde ich {_mal(lob)}.")
         if kritik:
             saetze.append(f"I was criticised {kritik} {'time' if kritik == 1 else 'times'} – I'll keep it in mind." if en
-                           else f"Kritik gab es {kritik}-mal – das merke ich mir.")
+                           else f"Kritik gab es {_mal(kritik)} – das merke ich mir.")
         stimmungen = ({"froh": "All in all, a happy day.", "schwer": "All in all, a bumpy day.",
                        "gemischt": "Ups and downs.", "ruhig": "A calm day."} if en else
                       {"froh": "Alles in allem ein froher Tag.", "schwer": "Alles in allem ein holpriger Tag.",

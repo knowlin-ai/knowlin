@@ -32,6 +32,7 @@ class Config:
     sim_physik: bool = False                   # Simulator mit echter Physik (MuJoCo + Pollens Policies)
     model_style: str = "original"              # 3D: "original" (Pollens CAD) oder "einfach"
     farbe: str = "cream"                       # Farbe der Microduck wie bei Pollen: cream, graphite, lavender, sky (0.38.19)
+    avatar: str = "standard"                   # Gesicht von Stack-chan: standard, kulleraugen, pixel, katze (0.39)
     head_signs: list[float] = field(default_factory=lambda: [1.0, 1.0, 1.0, 1.0])  # Kalibrierung echter Kopf
     # [claude]
     api_key: str | None = None
@@ -155,6 +156,7 @@ class Config:
             "grund_humor": self.grund_humor,      # die Gestalt-Eigenschaften gehen als „gestalt“ mit (Init-Nachricht)
             "model_style": self.model_style,
             "farbe": self.farbe,
+            "avatar": self.avatar,
             "sim_physik": self.sim_physik,
             "pakete": list(self.pakete),
             "auto_recover": self.auto_recover,

@@ -258,6 +258,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         ))
         self.engine.listeners.append(self._on_event)
         self.backend.set_stabilize(cfg.kopf_stabil)
+        if hasattr(self.backend, "avatar"):                 # Gesicht der Verkörperung (Stack-chan, seit 0.39)
+            self.backend.avatar = cfg.avatar
         self._schwarm()
         self._new_runner()
 
@@ -492,6 +494,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                     self.erfahrung.apply_praegung()      # Prägung bleibt auf dem neuen Anker
             if "kopf_stabil" in changed:
                 self.backend.set_stabilize(clean["kopf_stabil"])
+            if "avatar" in changed and hasattr(self.backend, "avatar"):
+                self.backend.avatar = clean["avatar"]
             if "stt" in changed or "whisper_model" in changed or "sprache" in changed:
                 self._setup_stt()
             if "memory" in changed:

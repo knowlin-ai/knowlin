@@ -27,7 +27,7 @@ def test_profil_figur_und_pruefung():
 
     p = koerper.holen("stackchan")
     assert p.fehler() == [] and p.familie == "stationaer" and "gesicht" in koerper.FAEHIGKEITEN
-    assert p.faehigkeiten == {"kopf", "gesicht", "beruehrung", "kamera", "mikrofon", "lautsprecher"}
+    assert p.faehigkeiten == {"kopf", "gesicht", "beruehrung", "kamera", "mikrofon", "lautsprecher", "led"}
     assert koerper.eigene_stimme(p.faehigkeiten)                     # Lautsprecher: spricht selbst
     assert p.lizenz == "Apache-2.0" and p.quelle == "https://github.com/stack-chan/stack-chan" and not p.echt
     assert figur("stackchan")["name"] == "Stacki" and not ist_ente("stackchan")
@@ -62,7 +62,7 @@ def test_gesicht_gefuehle_mund_und_not_aus():
         await sim.init()
         _laufen(sim, 3.0)
         g = sim.state().gesicht
-        assert g == {"ausdruck": "ruhig", "mund": 0.0, "wach": True, "zustand": None, "led": None}
+        assert g == {"ausdruck": "ruhig", "mund": 0.0, "wach": True, "zustand": None, "led": None, "avatar": "standard"}
         assert sim.gefuehl_zeigen("freude", 1.0) == "froh"
         assert sim.state().gesicht["ausdruck"] == "froh"
         _laufen(sim, 2.0)

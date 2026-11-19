@@ -46,6 +46,7 @@ EDITABLE: dict[str, Any] = {
     "pakete": "packs",
     "model_style": ("original", "einfach"),
     "farbe": ("cream", "graphite", "lavender", "sky"),   # Microduck-Farben wie bei Pollen (seit 0.38.19)
+    "avatar": ("standard", "kulleraugen", "pixel", "katze"),   # Gesichter von Stack-chan (seit 0.39)
     "sim_physik": bool,
     "head_signs": "signs",
     "model": tuple(MODELS),

@@ -55,6 +55,8 @@ export function initTagesrueckblick({ api, toast }) {
       return li;
     }));
     document.getElementById('tages-momente-box').hidden = !(r.momente || []).length;
+    const galaxie = document.getElementById('tages-galaxie');
+    if (galaxie) galaxie.hidden = !ids.length;
   }
 
   async function laden(tag = aktuell) {

@@ -9,6 +9,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { FINISH, loadModel } from './duckmodel.js';
 import { allesVerschmelzen, rundKasten, stoff, teil } from './formen3d.js';
+import { ZEICHNER } from './stackchan_gesichter.js';
 
 export const STACKCHAN_URL = '/static/model/stackchan.dpm';
 const F = { schale: 0xf2f1ee, m5: 0x2b2d31, glas: 0x0c0d0f, knopf: 0x8a8d93 };
@@ -19,12 +20,27 @@ const M5_X = 0.023, M5_T = 0.018;            // M5Stack-Kasten vor der Schale: M
 const BILD_B = 0.0408, BILD_H = 0.0306;      // sichtbarer Bildschirm (2 Zoll, 4:3)
 const BILD_X = M5_X + M5_T / 2 + 0.0004, BILD_Y = KOPF_Y + 0.004;
 const PX = 160;               // Breite der Gesichts-Textur (Höhe 3/4)
-const LED = { gruen: 0x34d27a, blau: 0x3d8bff };
+// LED-Farben: grün beim Zuhören, blau beim Sprechen; seit 0.39 frei wählbar und im Lichttanz (backends/stackchan.FARBEN)
+const LED = { gruen: 0x34d27a, blau: 0x3d8bff, rot: 0xff4a4a, gelb: 0xffd23f, lila: 0xb36bff, tuerkis: 0x2ee6d6,
+  orange: 0xff9a3c, weiss: 0xf4f6ff };
+
+function zzMalen(ctx, w, h) {                                // schläft (seit 0.38.62): „Z z“ oben rechts
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 18px sans-serif';
+  ctx.fillText('Z', w * 0.8, h * 0.2);
+  ctx.font = 'bold 12px sans-serif';
+  ctx.fillText('z', w * 0.89, h * 0.11);
+}
 
 // Gesicht auf die Zeichenfläche: schwarzer Grund, weiße Augen und Mund wie das Standardgesicht des Projekts.
-// a = Ausdruck, m = Mund offen 0…1, auf = Augen offen 0…1, bx/by = Blick (−1…1)
-export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by = 0, zz = false }) {
+// a = Ausdruck, m = Mund offen 0…1, auf = Augen offen 0…1, bx/by = Blick (−1…1), s = Avatar (seit 0.39)
+export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by = 0, zz = false, s = 'standard' }) {
   const w = PX, h = PX * 0.75;
+  if (ZEICHNER[s]) {
+    ZEICHNER[s](ctx, { a, m, auf, bx, by }, w, h);
+    if (zz) zzMalen(ctx, w, h);
+    return;
+  }
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = ctx.strokeStyle = '#fff';
@@ -94,12 +110,7 @@ export function gesichtZeichnen(ctx, { a = 'ruhig', m = 0, auf = 1, bx = 0, by =
     ctx.moveTo(mx - breit / 2, my); ctx.lineTo(mx + breit / 2, my);
     ctx.stroke();
   }
-  if (zz) {                                                  // schläft (seit 0.38.62): „Z z“ oben rechts
-    ctx.font = 'bold 18px sans-serif';
-    ctx.fillText('Z', w * 0.8, h * 0.2);
-    ctx.font = 'bold 12px sans-serif';
-    ctx.fillText('z', w * 0.89, h * 0.11);
-  }
+  if (zz) zzMalen(ctx, w, h);
 }
 
 export class StackChan {
@@ -212,6 +223,7 @@ export class StackChan {
       bx: denkt ? 0.7 : 0, by: denkt ? -0.7 : (g.ausdruck === 'verlegen' ? 0.6 : 0) };
     if (g.zustand === 'zuhoeren' && f.a === 'ruhig') f.a = 'neugierig';
     if (g.zustand === 'schlaeft') f.zz = true;
+    if (g.avatar && g.avatar !== 'standard') f.s = g.avatar;
     const led = LED[g.led] ?? 0;                               // LEDs nach Zustand
     if (led !== this._led) {
       this._led = led;

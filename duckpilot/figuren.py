@@ -32,7 +32,7 @@ VERSION = 3          # 2 = seit 0.38.6 (Reparatur geerbter Reachy-Profile), 3 = 
 # eigenständig sie sich ohne Befehle beschäftigt (`eigenstaendig`).
 FIGUR_KEYS = ("duck_name", "wake_word", "energie", "humor", "eigenschaften", "idle_life", "eigenstaendig", "plaudern", "tts",
               "stimme_motor", "stimme_piper", "stimme_qwen", "qwen_qualitaet", "entenhaft", "entenlaute", "klang_hoehe",
-              "klang_farbe", "weitere_enten", "model_style", "farbe")
+              "klang_farbe", "weitere_enten", "model_style", "farbe", "avatar")
 
 # Verkörperungen je Körper (Modul): Name, Art, Gruß (i18n-Schlüssel) und womit eine neue Verkörperung beginnt. Charakter passend zum Körper
 # (5.11.): Quacki lebhaft-verspielt, Reachy ruhig-neugierig, Odi tollpatschig-verspielt.

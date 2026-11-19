@@ -399,6 +399,15 @@ def _hundetrick(p: str, koennen: frozenset[str] | set[str]) -> tuple[str, dict[s
             return ("beruehren", {"art": "streicheln"})
         if re.search(r"sch(ü|ue)ttel|\bshake\b", p):
             return ("beruehren", {"art": "schuetteln"})
+    if "led" in koennen:                              # Stack-chan (seit 0.39): Tanz mit Licht, LED-Farben
+        if re.search(r"\btanz\w* mit (dem )?licht|\blichtshow|\bdance with (the )?light|\blight show", p):
+            return ("licht", {"tanz": True, "sekunden": 12})
+        m = re.search(r"\b(?:licht|leds?|lights?)\b.*\b(rot|gr(?:ü|ue)n|blau|gelb|lila|t(?:ü|ue)rkis|orange|wei(?:ß|ss)|aus|red|green|"
+                      r"blue|yellow|purple|off)\b", p)
+        if m:
+            farbe = {"red": "rot", "green": "gruen", "grün": "gruen", "blue": "blau", "yellow": "gelb", "purple": "lila",
+                     "türkis": "tuerkis", "weiß": "weiss", "off": "aus"}.get(m.group(1), m.group(1))
+            return ("licht", {"farbe": farbe})
     return None
 
 

@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/static/bereiche/karten.css">
   <link rel="stylesheet" href="/static/bereiche/hirn.css">
   <link rel="stylesheet" href="/static/bereiche/gedaechtnis.css">
+  <link rel="stylesheet" href="/static/bereiche/stacki.css">
 </head>
 <body class="im-kopf">
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -507,7 +508,10 @@
             <button class="chip" data-tool="dance" data-args='{"style":"nicken","seconds":12}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Mitwippen</button>
             <button class="chip" data-tool="beruehren" data-args='{"art":"streicheln"}' title="Über die Berührungsfläche oben auf dem Kopf streichen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14c2-3 5-4 8-4s6 1 8 4M6 18c1.5-2 3.6-3 6-3s4.5 1 6 3"/></svg>Streicheln</button>
             <button class="chip" data-tool="beruehren" data-args='{"art":"schuetteln"}' title="Stacki schütteln – ihm wird schwindelig"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l-3 8 3 8M17 4l3 8-3 8M10 8h4v8h-4z"/></svg>Schütteln</button>
+            <button class="chip" data-tool="licht" data-args='{"tanz":true,"sekunden":12}' title="Der Kopf wippt im Takt, die LEDs wechseln durch die Regenbogenfarben"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><path d="M3 3l2 2M3 9h2M7 3v2"/></svg>Tanz mit Licht</button>
+            <button class="chip pc-only braucht-kamera" type="button" id="schau-start" aria-pressed="false" title="Der Kopf folgt deinem Gesicht vor der Webcam. Beim ersten Mal lädt Knowlin die Gesichtserkennung (5 MB, nur auf diesem PC); sie erkennt nicht, wer du bist."><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/><path d="M9 15c1.7 1.3 4.3 1.3 6 0"/></svg>Schau mich an</button>
           </div>
+          <p class="schau-info nur-stackchan pc-only" id="schau-info" hidden aria-live="polite"></p>
           <div class="quick nur-so101" role="group" aria-label="Schnellbefehle">
             <button class="chip" data-tool="power" data-args='{"action":"stand_up"}'><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>Aufwecken</button>
             <button class="chip" data-tool="power" data-args='{"action":"rest"}'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>Ruhelage</button>
@@ -1367,6 +1371,19 @@
                 <p class="field-help">Die vier Farben von Pollen – jedes Bild zeigt deine Microduck in dieser Farbe, gleich im Cockpit und im Trainingsfeld zu sehen. Auch unter System → Einstellungen.</p>
               </div>
             </section>
+            <section class="card set-card nur-stackchan" id="aussehen-gesicht">
+              <h3>Gesicht</h3>
+              <div class="field">
+                <span class="field-label" id="avatar-label">Gesicht auf Stackis Bildschirm</span>
+                <div class="farbwahl farbwahl--bilder" role="radiogroup" aria-labelledby="avatar-label">
+                  <label class="farbkarte"><input type="radio" name="avatar" value="standard" data-set="avatar"><span><canvas class="farbbild avatarbild" data-avatar="standard" width="160" height="120" aria-hidden="true"></canvas><span class="farbkarte-name">Standard</span></span></label>
+                  <label class="farbkarte"><input type="radio" name="avatar" value="kulleraugen" data-set="avatar"><span><canvas class="farbbild avatarbild" data-avatar="kulleraugen" width="160" height="120" aria-hidden="true"></canvas><span class="farbkarte-name">Kulleraugen</span></span></label>
+                  <label class="farbkarte"><input type="radio" name="avatar" value="pixel" data-set="avatar"><span><canvas class="farbbild avatarbild" data-avatar="pixel" width="160" height="120" aria-hidden="true"></canvas><span class="farbkarte-name">Pixel</span></span></label>
+                  <label class="farbkarte"><input type="radio" name="avatar" value="katze" data-set="avatar"><span><canvas class="farbbild avatarbild" data-avatar="katze" width="160" height="120" aria-hidden="true"></canvas><span class="farbkarte-name">Katze</span></span></label>
+                </div>
+                <p class="field-help">Vier Gesichter mit denselben Gefühlen – gilt nur für diese Verkörperung und gleich in der 3D-Ansicht zu sehen.</p>
+              </div>
+            </section>
             <section class="card set-card set-rows">
               <h3>Verhalten</h3>
               <label class="switch"><input type="checkbox" data-set="idle_life"><span>Lebendig im Leerlauf <small>umschauen, atmen, neugierig hingucken</small></span></label>
@@ -2184,5 +2201,7 @@
   <!-- Startwächter (seit 0.38.66): kein Modul – meldet den Grund auch dann, wenn die Oberfläche nicht startet -->
   <script src="/static/startwaechter.js"></script>
   <script type="module" src="/static/app.js"></script>
+  <script type="module" src="/static/stacki_avatar.js"></script>
+  <script type="module" src="/static/schau.js"></script>
 </body>
 </html>
