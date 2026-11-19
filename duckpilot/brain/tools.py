@@ -133,11 +133,14 @@ TOOLS: list[dict[str, Any]] = [
         "description": "Die anderen Enten um Hilfe bitten (nur einfacher Simulator mit weiteren Enten). aufraeumen: "
         "Dinge gemeinsam zu einem Ziel bringen – ziel: Möbel (z. B. 'Sofa'), gemerkter Ort oder 'mir'; dinge: 'socken', "
         "'klötzchen', 'bausteine', 'figuren' oder 'alles'. suchen: ein Ding gemeinsam suchen (ding) – wer es zuerst "
-        "sieht, meldet sich und bringt es. stopp, status.",
+        "sieht, meldet sich und bringt es. ballspiel: die Enten spielen sich den Ball zu (mitspielen: die Ente selbst "
+        "spielt mit, Standard ja; mit_mir: auch dem Menschen zuspielen) – ohne weitere Enten spielt sie dem Menschen zu. "
+        "Nur „schieß mir den Ball zu“: lieber schiessen mit ziel='mir'. stopp, status.",
         "input_schema": {
             "type": "object",
-            "properties": {"aktion": {"type": "string", "enum": ["aufraeumen", "suchen", "stopp", "status"]},
-                           "ziel": {"type": "string"}, "dinge": {"type": "string"}, "ding": {"type": "string"}},
+            "properties": {"aktion": {"type": "string", "enum": ["aufraeumen", "suchen", "ballspiel", "stopp", "status"]},
+                           "ziel": {"type": "string"}, "dinge": {"type": "string"}, "ding": {"type": "string"},
+                           "mitspielen": {"type": "boolean"}, "mit_mir": {"type": "boolean"}},
             "required": ["aktion"],
         },
     },

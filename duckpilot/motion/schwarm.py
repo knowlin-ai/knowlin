@@ -116,9 +116,11 @@ class Schwarm:
         for e in self.enten:
             a = self.auftrag
             lage = a.lage.get(e.nummer) if a is not None and not a.fertig else None
+            if lage is None and a is not None and not a.fertig and a.art == "ballspiel" and not e.fallen:
+                lage = {"phase": "spielt"}
             if lage is not None:
                 tun = {"hin": f"holt {lage.get('ding', '')}", "tragen": f"trägt {lage.get('ding', '')}",
-                       "suchen": "sucht", "gucken": "kommt gucken"}.get(lage.get("phase"), "hilft")
+                       "suchen": "sucht", "gucken": "kommt gucken", "ball": "ist am Ball", "spielt": "spielt Ball"}.get(lage.get("phase"), "hilft")
                 out.append({"id": e.kennung, "name": e.ente_name, "klang": list(e.klang), "tut": tun})
                 continue
             tun = ("liegt" if e.fallen else "sitzt" if e.sitting
@@ -142,6 +144,8 @@ class Schwarm:
 
     def auftrag_stopp(self) -> str | None:
         a, self.auftrag = self.auftrag, None
+        if a is not None:
+            a.fertig = True                              # auch die Hauptente hört dann auf (Ballspiel)
         for e in self.enten:
             if e.holding:
                 e._pick_or_drop()                        # was sie tragen, legen sie ab
@@ -158,6 +162,8 @@ class Schwarm:
                     self._auftrag_ende = self.t
                 elif self.t - self._auftrag_ende > 4.0:  # Meldung stehen lassen, dann wieder frei
                     self.auftrag, self._auftrag_ende = None, 0.0
+            elif hasattr(a, "schritt"):
+                a.schritt(dt)                            # Ballspiel (seit 0.38.66): Ball annehmen, wer ist dran
             elif hasattr(a, "haupt_sieht") and self.t - self._haupt_blick > 0.2:
                 self._haupt_blick = self.t
                 a.haupt_sieht(self.haupt._visible_objects())

@@ -39,6 +39,8 @@ class RaumWerkzeuge:
 
         sw = getattr(self, "schwarm", None)
         aktion = str(a.get("aktion") or "status")
+        if aktion == "ballspiel":
+            return await self._ballspiel(a, eng, started)
         if sw is None or not sw.enten:
             return {"ok": False, "fehler": "Keine weiteren Enten da – im einfachen Simulator unter Steuern → Team "
                                            "einstellen"}
@@ -89,6 +91,31 @@ class RaumWerkzeuge:
         sw.beauftragen(auftrag)
         return {"ok": True, "auftrag": "aufraeumen", "ziel": ziel_name, "dinge": [i.name for i in frei],
                 "helfer": [e.ente_name for e in sw.enten]}
+
+    async def _ballspiel(self, a: dict[str, Any], eng, started) -> dict[str, Any]:
+        """Ballspiel (seit 0.38.66): die Enten spielen sich den Ball zu; ohne weitere Enten spielt sie dem Menschen zu."""
+        from ..motion.ballspiel import Ballspiel, MitBallSpielen
+
+        sw = getattr(self, "schwarm", None)
+        mit_mir = bool(a.get("mit_mir", False))
+        if sw is None or not sw.enten:
+            if not mit_mir:
+                return {"ok": False, "fehler": "Keine weiteren Enten da – im einfachen Simulator unter Steuern → Team "
+                                               "einstellen, oder sag „spiel mir den Ball zu“"}
+            out = await self._schiessen({"ziel": "mir"}, eng, started)
+            return {**out, "hinweis": "Ohne weitere Enten spielt sie dir zu."} if isinstance(out, dict) else out
+        mitspielen = a.get("mitspielen", True) is not False
+        spiel = Ballspiel(sw, haupt_spielt=mitspielen, mit_mir=mit_mir)
+        if spiel.fertig:
+            return {"ok": False, "fehler": spiel.ergebnis}
+        sw.beauftragen(spiel)
+        if mitspielen:
+            started(MitBallSpielen(spiel))
+        return {"ok": True, "auftrag": "ballspiel", "dran": spiel.name(spiel.dran),
+                "mitspieler": [e.ente_name for e in sw.enten] + (["die Ente selbst"] if mitspielen else [])
+                + (["du"] if mit_mir and spiel._mensch() is not None else []),
+                **({"hinweis": "Wo du bist, weiß sie gerade nicht – sie spielen erst mal unter sich."}
+                   if mit_mir and spiel._mensch() is None else {})}
 
     RICHTUNGEN = {"geradeaus": 0.0, "vor": 0.0, "vorne": 0.0, "links": 90.0, "rechts": -90.0, "zurück": 180.0,
                   "zurueck": 180.0, "hinten": 180.0, "straight": 0.0, "left": 90.0, "right": -90.0, "back": 180.0}

@@ -18,6 +18,9 @@ export function initEnten({ $, api, el }) {
       b.setAttribute('aria-pressed', String(d.verfuegbar && d.anzahl > 0 && b.dataset.entenModus === d.modus));
       b.disabled = !d.verfuegbar || !d.anzahl;
     }
+    const ball = $('enten-ballspiel');        // Ballspiel (seit 0.38.66)
+    ball.disabled = !d.verfuegbar || !d.anzahl;
+    ball.setAttribute('aria-pressed', String(!!d.auftrag && d.auftrag.art === 'ballspiel' && !d.auftrag.fertig));
     $('enten-mittanzen').checked = d.mittanzen !== false;
     for (const sel of document.querySelectorAll('[data-set="weitere_enten"]')) {
       if (sel.type === 'radio') sel.checked = sel.value === String(d.anzahl || 0);   // Zahlenreihe 0 … 8 (seit 0.38.24)
@@ -37,7 +40,8 @@ export function initEnten({ $, api, el }) {
     $('enten-auftrag').hidden = !a;
     if (a) {
       const letzte = a.fertig ? a.ergebnis : (a.meldungen || []).slice(-1)[0] || '';
-      $('enten-auftrag-text').textContent = `${tr(a.art === 'suchen' ? 'Suchtrupp' : 'Aufräum-Team')}: ${tr(letzte)}`;
+      const art = { suchen: 'Suchtrupp', ballspiel: 'Ballspiel' }[a.art] || 'Aufräum-Team';
+      $('enten-auftrag-text').textContent = `${tr(art)}: ${tr(letzte)}`;
       $('enten-auftrag-stopp').hidden = !!a.fertig;
     }
     const ul = $('enten-liste');
@@ -54,6 +58,16 @@ export function initEnten({ $, api, el }) {
   for (const b of karte.querySelectorAll('[data-enten-modus]')) {
     b.addEventListener('click', async () => { const d = await api('/api/enten', 'POST', { modus: b.dataset.entenModus }); zeigen(d); });
   }
+  $('enten-ballspiel').addEventListener('click', async () => {
+    const d = await api('/api/enten', 'POST', { auftrag: 'ballspiel' }).catch(() => null);
+    if (!d) return;
+    zeigen(d);
+    if (d.ok === false && d.fehler) {                                   // z. B. „Kein Ball im Zimmer“
+      $('enten-auftrag').hidden = false;
+      $('enten-auftrag-text').textContent = `${tr('Ballspiel')}: ${tr(d.fehler)}`;
+      $('enten-auftrag-stopp').hidden = true;
+    }
+  });
   $('enten-auftrag-stopp').addEventListener('click', async () => zeigen(await api('/api/enten', 'POST', { auftrag: 'stopp' })));
   $('enten-mittanzen').addEventListener('change', async (e) => zeigen(await api('/api/enten', 'POST', { mittanzen: e.target.checked })));
   for (const s of document.querySelectorAll('[data-set="weitere_enten"]')) s.addEventListener('change', () => setTimeout(laden, 400));

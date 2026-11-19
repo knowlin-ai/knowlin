@@ -25,7 +25,8 @@ from typing import Any
 from .fallback import NOT_QUICK, parse
 
 # Vorführungen, die der Mensch sehen will – Gehen/Drehen/Kopf zählen nicht (die macht das Modell oft absichtlich anders)
-VORFUEHRUNG = {"skill", "_kick", "schiessen", "dance", "apportieren", "_pick", "laser_folgen", "mir_folgen", "karte"}
+VORFUEHRUNG = {"skill", "_kick", "schiessen", "dance", "apportieren", "_pick", "laser_folgen", "mir_folgen", "karte",
+               "team"}
 # Welche Werkzeuge eine verlangte Vorführung erfüllen (Werkzeug der Befehlsregel → Werkzeuge des Modells)
 ERFUELLT = {
     "skill": {"skill"},
@@ -36,7 +37,8 @@ ERFUELLT = {
     "_pick": {"skill", "approach", "apportieren", "handeln"},
     "laser_folgen": {"laser_folgen"},
     "mir_folgen": {"mir_folgen"},
-    "karte": {"karte"},
+    "karte": {"karte", "explore"},
+    "team": {"team", "enten"},
 }
 MAX_WOERTER = 14
 # Antwort kündigt eine Bewegung in der Gegenwart an
@@ -45,8 +47,9 @@ KUENDIGT_AN = re.compile(
     r"ich (mache|mach|zeige|zeig|führe|rolle|tanze|schieße|schiesse|hole|drehe|springe|lege los)\b|"
     r"here (it )?comes|watch (this|me)|i'?m (doing|rolling|dancing|kicking|showing)|let'?s go)", re.I)
 # Antwort sagt ehrlich, dass sie es nicht macht
-LEHNT_AB = re.compile(r"\b(geht (gerade |leider )?nicht|kann ich (gerade |leider )?nicht|mache ich (lieber )?nicht|"
-                      r"lieber nicht|nicht sicher|zu gefährlich|erst aufstehen|can'?t|won'?t|not safe|rather not)\b", re.I)
+LEHNT_AB = re.compile(r"\b(geht (gerade |leider |hier |so )?nicht|(kann|darf|werde|mache|mach) ich\b[^.!?]{0,40}\bnicht|"
+                      r"lieber nicht|nicht sicher|nicht möglich|unmöglich|zu gefährlich|erst aufstehen|fehlt mir|"
+                      r"can'?t|cannot|won'?t|unable|not (possible|safe)|rather not)\b", re.I)
 BEWEGUNGS_WERKZEUGE = {"skill", "schiessen", "dance", "choreography", "walk", "turn", "approach", "apportieren",
                        "handeln", "laser_folgen", "mir_folgen", "explore", "karte", "do_trick", "go_to_place",
                        "look_around", "emote", "head", "power", "team", "choreo", "drive", "go_to", "enten"}
@@ -66,8 +69,11 @@ def erfuellt(schritte: list[tuple[str, dict[str, Any]]], actions: list[dict[str,
     for name, args in schritte:
         passend = ERFUELLT.get(name, {name})
         if name == "skill":
-            want = args.get("name")
-            if not any(a.get("tool") == "skill" and (a.get("input") or {}).get("name") == want for a in actions):
+            # auch als gelernter Trick oder Pollen-Bewegung gleichen Namens (das eigene Modell nimmt oft diese Werkzeuge)
+            want = str(args.get("name") or "").lower()
+            if not any(a.get("tool") == "skill" and (a.get("input") or {}).get("name") == args.get("name")
+                       or a.get("tool") in ("do_trick", "pollen_bewegung") and want and want in str(a.get("input")).lower()
+                       for a in actions):
                 return False
             continue
         if not any(g in passend for g in gelaufen):

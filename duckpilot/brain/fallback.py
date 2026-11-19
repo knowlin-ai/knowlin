@@ -55,7 +55,7 @@ def parse(text: str, koennen: frozenset[str] | set[str] = frozenset()) -> list[t
         p = part.strip()
         if not p or WIE_GEHTS.search(p):                      # Frage nach dem Befinden, kein Befehl
             continue
-        cmd = (_hundetrick(p, koennen) or _szene(p) or _team(p) or _schuss(p) or _handeln(p) or _parse_part_en(p)
+        cmd = (_hundetrick(p, koennen) or _szene(p) or _ballspiel(p) or _team(p) or _schuss(p) or _handeln(p) or _parse_part_en(p)
                or _parse_part(p))
         if cmd:
             steps.append(cmd)
@@ -219,6 +219,35 @@ def _gemeint(p: str) -> str | None:
     if m:
         return m.group(1).strip()
     return next((n for n in ENTEN_NAMEN if re.search(rf"\b{n}\b", p)), None)
+
+
+# Ball zuspielen und Ballspiel (seit 0.38.66, Fund 15.11.: „mir zuschießen oder mit den anderen Enten spielen – macht
+# er hier nicht, was ich will“; „schieß mir den Ball zu“ wurde zu einem Schuss ins Blaue)
+BALL_ZU_MIR = re.compile(r"\b(schie(ß|ss)\w*|spiel\w*|pass\w*|kick\w*|roll\w*)\b.*\bmir\b.*\bzu\b|\bzu mir\b|"
+                         r"\b(pass|kick|shoot|roll|throw)\b.*\b(to )?me\b")
+BALLSPIEL = re.compile(r"\bball\s?spiel|\bspiel\w*\b.*\bball\b|\bball\b.*\bspiel\w*|fu(ß|ss)ball|\bkicken\b|"
+                       r"\bplay\b.*\b(ball|catch|football|soccer)\b|\bpass\w* (euch|each other|it around)\b|"
+                       r"\bspielt euch\b")
+MIT_ANDEREN = re.compile(r"\b(anderen|andere|allen|alle|euch|zusammen|gemeinsam|team|others|together|everyone|each other|"
+                         + "|".join(ENTEN_NAMEN) + r"|enten)\b")
+
+
+def _ballspiel(p: str) -> tuple[str, dict[str, Any]] | None:
+    """„Schieß mir den Ball zu“ → gezielt zu mir; „spielt Ball mit den anderen“, „Ballspiel“, „spiel mit mir Ball“ →
+    Ballspiel der Enten (ohne weitere Enten spielt die Ente dem Menschen zu)."""
+    ball = re.search(r"\b(b[aä]ll\w*|schie(ß|ss)\w*|kick\w*|shoot|pass\w*)\b|fu(ß|ss)ball", p)
+    if not ball:
+        return None
+    mit_anderen = bool(MIT_ANDEREN.search(p))
+    zu_mir = BALL_ZU_MIR.search(p) or re.search(r"\b(pass\w*|bring\w*|hol\w*) mir\b|\bbring me\b", p)
+    if zu_mir and re.search(r"\bb[aä]ll", p) is None and not SCHUSS.search(p):
+        return None                                          # „bring mir die Socke“ bleibt Apportieren
+    if zu_mir and not mit_anderen:
+        return ("schiessen", {"ziel": "mir"})
+    if BALLSPIEL.search(p):
+        mit_mir = bool(re.search(r"\b(mir|mich|uns|me|us|with me)\b", p)) or not mit_anderen
+        return ("team", {"aktion": "ballspiel", "mit_mir": mit_mir})
+    return None
 
 
 TEAM_AUFRAEUMEN = re.compile(r"\b(räumt|raeumt|aufräum|aufraeum|bringt (alle|die|alles)|tidy up|clean up|"

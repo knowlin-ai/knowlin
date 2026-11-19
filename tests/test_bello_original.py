@@ -166,5 +166,7 @@ def test_roll_den_ball_ist_kein_purzelbaum():
     """Fund beim Bauen (15.11.): „roll den Ball“ wurde wegen des englischen Worts „roll“ zum Purzelbaum."""
     from duckpilot.brain.fallback import parse
 
-    assert parse("roll den Ball") == [] and parse("roll the ball to me") == []
+    assert parse("roll den Ball") == []
+    # seit 0.38.66 ein Zuspiel: „roll the ball to me“ = gezielt zum Menschen (Fund 15.11. Ballspielen)
+    assert parse("roll the ball to me") == [("schiessen", {"ziel": "mir"})]
     assert parse("do a roll") == [("skill", {"name": "roulade"})]

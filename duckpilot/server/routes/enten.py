@@ -33,6 +33,10 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             return JSONResponse({"ok": False, "fehler": "unbekannter Modus"}, status_code=400)
         if body.get("auftrag") == "stopp":
             sw.auftrag_stopp()
+        if body.get("auftrag") == "ballspiel":           # seit 0.38.66: die Enten spielen sich den Ball zu
+            r = await runtime.runner.run("team", {"aktion": "ballspiel", "mit_mir": bool(body.get("mit_mir"))})
+            if not r.get("ok"):
+                return JSONResponse({"ok": False, "fehler": r.get("fehler"), **info()}, status_code=409)
         if "mittanzen" in body:
             sw.mittanzen = bool(body["mittanzen"])
         return JSONResponse({"ok": True, **info()})

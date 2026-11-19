@@ -3622,5 +3622,19 @@
  "Traben": "Trot",
  "diagonale Beinpaare im Wechsel – seine Grundgangart": "diagonal leg pairs in turn – his default gait",
  "Hoppeln": "Bound",
- "Vorder- und Hinterbeine im Wechsel, wie ein Hase": "front and hind legs in turn, like a hare"
+ "Vorder- und Hinterbeine im Wechsel, wie ein Hase": "front and hind legs in turn, like a hare",
+ "Ball spielen": "Play ball",
+ "Ballspiel": "Ball game",
+ "Ball spielen: „Spielt euch den Ball zu“, „Spiel mit den anderen Ball“, „Lass uns Ball spielen“ (dann spielen sie auch dir zu) – oder nur „Schieß mir den Ball zu“.": "Play ball: “Pass the ball to each other”, “Play ball with the others”, “Let’s play ball” (then they pass to you too) – or just “Kick the ball to me”.",
+ "Kein Ball im Zimmer": "No ball in the room",
+ "Zum Ballspielen braucht es mindestens zwei": "A ball game needs at least two",
+ "Der Ball ist bei dir!": "The ball is with you!",
+ "* spielt * zu": "* passes to *",
+ "* spielt dir zu": "* passes to you",
+ "* kommt nicht an den Ball": "* can't reach the ball",
+ "Ballspiel vorbei – # Pässe": "Ball game over – # passes",
+ "Der Ball liegt zu ungünstig – Ballspiel beendet": "The ball is in an awkward spot – ball game ended",
+ "Ballspiel beendet": "Ball game ended",
+ "spielt Ball": "plays ball",
+ "ist am Ball": "has the ball"
 }
