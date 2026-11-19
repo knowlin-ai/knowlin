@@ -159,6 +159,8 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 | Wetter | `wetter.py` (Open-Meteo, Sätze ohne KI) + `brain/tools_gespraech.py` + Einstellung `wetter_ort` | nur auf Nachfrage, nur Stadt und Koordinaten nach außen; nie Standort ermitteln; Offline-Modus achten |
 | Ins Wort fallen | `static/ins_wort.js` (`Pegel` rein rechnend, `Unterbrecher` im Browser), verdrahtet in `app.js` `vorlesen` | nur nach gesprochener Eingabe, nur am PC, nur Lautstärke; Einstellung `ins_wort_fallen` |
 | Selbst einschlafen (Reachy, Stacki) | Backend: `angesprochen()`, `schlaeft()`, beim Daemon `_muede()` | Leerlauf-Gesten zählen nicht als Ansprache; nach dem Not-Aus nie von selbst wecken |
+| Vorgemachtes als Auftrag (Mentor 2) | `mentor_auftrag.py` (`Beobachter`, rein rechnend) + `Runtime._mentor_hand` + `server/routes/mentor.py` | Schritte nur aus Werkbank-Ständen, nie aus Bildern; Auftrag über `werkbank_auftrag.speichern` |
+| Ari übt selbst (Stufe B) | `arm_ueben.py` + `ArmSchule.ueben` / Eingriffe in `ArmSchule._ausprobieren` | nur im Simulator; behalten nur bei mindestens gleicher Quote (feste Prüflagen) |
 | Karte von oben (Zoom, Zeichnen) | `static/kartenzoom.js` | `KartenZoom(canvas, neu)` + `ansicht(cx, cy, s, w, h)`; Zellen mit `zeichneZellen`, Raster mit `zeichneRaster` |
 | Meldung, wenn das Fenster nicht verbindet | `static/startwaechter.js` (klassisches Skript, kein Modul) + `server/startdiagnose.py` + `/api/startdiagnose` | neue Ursache: Befund in `befund()` und Text in DE/EN; im Start-Paket nie die Verbindung schließen |
 | Absicherung „angekündigt, aber nicht ausgeführt“ | `brain/zusage.py` | neue Vorführung in `VORFUEHRUNG` und `ERFUELLT` eintragen (seit 0.37.14) |

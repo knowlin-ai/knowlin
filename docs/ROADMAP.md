@@ -5,8 +5,6 @@ Versions are a plan, not a promise.
 
 | Version | Feature | What it means |
 | --- | --- | --- |
-| 0.41 | Mentor 2 | Remember what you demonstrate as a task – with webcam or phone. |
-| 0.41 | Ari practises on his own | Reinforcement learning in the simulator refines what you showed him. |
 | 0.42 | Everyday | Routines and schedules, a calendar subscription from a local file. |
 | 0.42 | Ari with LeRobot | Control him with a second arm, load ready-made policies, share demonstrations on the Hub. |
 | 0.43 | Choreography | Build dances in the editor – for every body. |

@@ -9,6 +9,33 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.41.0 – 2026-11-19 – Mentor 2 und Ari übt selbst
+
+### Neu
+- **Vorgemachtes als Auftrag merken (Mentor 2):** Beim Vormachen schaut Knowlin auf die Werkbank; jeder Würfel, den Ari
+  greift und woanders loslässt, wird ein Schritt (Kiste, auf einen Würfel, an seinen Platz oder eine freie Stelle). Im
+  Vormach-Fenster: Name eingeben, „Als Auftrag merken“ – danach führt Ari ihn selbst aus, geplant mit allen
+  Wegprüfungen (`mentor_auftrag.py`, `/api/mentor/vorgemacht`).
+- **Vormachen vom Handy:** über die sichere Adresse (Tailscale, https) mit der Handykamera; die Handerkennung wird
+  einmal am PC geladen, das Handy liest nur ihren Stand und ihre geprüften Dateien.
+- **Ari übt selbst (Stufe B):** „Selbst üben“ – vier Runden in unsichtbaren Simulatoren, mit Zufall in den Bewegungen,
+  Lernen aus eigenen Erfolgen (Self-Imitation, Belohnung = Würfel in der Kiste). Behalten nur, wenn der Test mindestens
+  so gut ist wie vorher (`arm_ueben.py`).
+- **Eingreifen beim Ausprobieren:** Hand im Bild führt statt des Netzes; die Takte werden ein Korrektur-Beispiel für
+  das nächste Lernen und Üben (Mensch im Kreis, wie bei HIL-SERL).
+
+### Geändert
+- Der Fahrplan beginnt jetzt mit 0.42.
+
+### Sicherheit
+- Auch vom Handy gehen nur Handpunkte an Knowlin, nie ein Bild. Laden der Handerkennung, die Kamera-Spiele und das
+  Lernen bleiben am PC; ohne sichere Adresse ist Vormachen am Handy ausgeblendet.
+- Üben und Lernen laufen nur im Simulator; der Not-Aus beendet Ausprobieren sofort.
+
+### Nicht geprüft
+- Vormachen mit einer echten Handykamera über Tailscale (hier nur die Freigaben und die Oberfläche geprüft).
+- Üben mit vielen eigenen, ungenauen Beispielen (geprüft mit Lehrer-Beispielen); echter SO-101.
+
 ## 0.40.0 – 2026-11-19 – Gespräch in Echtzeit und Reachy wie in Pollens App
 
 ### Neu

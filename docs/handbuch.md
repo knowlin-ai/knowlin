@@ -182,8 +182,10 @@ Prüfen: `python -m duckpilot.koerper_pruefung [id]`. Spezifikation: [Körpersch
   Er fährt nicht durch Türme oder Kistenwände: Ist kein Weg frei, dreht er das Handgelenk, öffnet weniger weit oder
   hebt den Würfel darüber – und wenn gar nichts geht, sagt er, was im Weg steht. Hält er etwas, legt er es auch an
   eine **freie Stelle**: Klick auf die Werkbank → „Hier ablegen“, oder „leg ihn vorne links ab“ (aus deiner Sicht).
-  Unter **Tricks** stehen seine Gesten und Aufträge. **Vormachen** (nur am PC): Ari folgt deiner Hand vor der Webcam
+  Unter **Tricks** stehen seine Gesten und Aufträge. **Vormachen**: Ari folgt deiner Hand vor der Webcam
   wie ein Spiegelbild; Daumen und Zeigefinger zusammen schließen den Greifer. Es gehen nur Handpunkte an Knowlin.
+  Seit 0.41 auch **vom Handy** – über die sichere Adresse (Tailscale, https), sonst gibt der Browser die Kamera nicht
+  frei; die Handerkennung wird einmal am PC geladen.
   Er grüßt mit Winken statt Nicken, freut sich mit dem Greifer und sagt ehrlich, was er anders macht. Der Not-Aus lässt
   ihn in die Ruhelage sacken und beendet jeden Auftrag. Am echten Arm läuft er über LeRobot (`so101_follower`, noch
   ungeprüft).
@@ -192,6 +194,18 @@ Prüfen: `python -m duckpilot.koerper_pruefung [id]`. Spezifikation: [Körpersch
     er ist („Nach Farben sortieren 2/5“). Mit Sprachmodell gehen eigene Regeln („sortier rot nach links, den Rest nach
     rechts“); mit „merk dir das als …“ wird daraus ein eigener Auftrag. Aufträge sind nur Daten und lassen sich als
     **Knowlet** teilen und laden (Tricks → Knowlets → „Aufträge an der Werkbank“).
+  - **Vorgemachtes als Auftrag merken** (Mentor 2, seit 0.41): Während du vormachst, schaut Knowlin auf die Werkbank.
+    Jeder Würfel, den Ari greift und woanders loslässt, wird ein Schritt („roter Würfel → linke Kiste“, „gelber Würfel →
+    auf blauer Würfel“, „→ an seinen Platz“ oder eine freie Stelle). Im Vormach-Fenster stehen die Schritte; mit Name
+    und „Als Auftrag merken“ wird daraus ein eigener Auftrag. Danach macht Ari ihn selbst – sauber geplant, mit allen
+    Wegprüfungen, nicht deine Handbewegung nach. Hochheben und an derselben Stelle wieder hinlegen zählt nicht.
+  - **Lernen durch Vormachen** (seit 0.38.64): im Vormach-Fenster eine Aufgabe wählen (Würfel → Kiste), Beispiele
+    aufnehmen, „Lernen“ (ein kleines Netz, auf Wunsch mit Beispielen vom Lehrer), „Ausprobieren“, Export für LeRobot.
+  - **Selbst üben** (Stufe B, seit 0.41): Ari probiert es in unsichtbaren Simulatoren in vier Runden selbst, mit etwas
+    Zufall in den Bewegungen, und lernt aus den Versuchen, die gelingen. Behalten wird das Ergebnis nur, wenn er im Test
+    (zehn feste Lagen) mindestens so gut ist wie vorher; die Meldung sagt „vorher 6, jetzt 9 von 10“.
+  - **Eingreifen** (seit 0.41, Mensch im Kreis): Ist beim Ausprobieren deine Hand im Bild, führt sie statt des Netzes.
+    Diese Takte werden ein Korrektur-Beispiel und fließen ins nächste Lernen und Üben ein.
   - **Tic-Tac-Toe** (seit 0.38.54, nach dem Vorbild „LeX-O“): Knopf „Tic-Tac-Toe“ oder „lass uns Tic-Tac-Toe spielen“.
     Du fängst an und klickst ein Feld (oder sagst „Feld 5“), dein roter Stein erscheint; dann greift Ari einen seiner
     blauen Steine und setzt. „Spiel beenden“ räumt die Werkbank wieder auf.

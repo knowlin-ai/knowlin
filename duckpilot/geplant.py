@@ -16,8 +16,6 @@ from typing import Any
 # (Version, Name, ein Satz). Reihenfolge = Reihenfolge der Kacheln. Neu geordnet am 15.11.2026 (Maintainer: „Mischung je
 # Release“ – je Release ein Thema für den Kopf und eins für einen Körper; echte Roboter erst ab Lieferung).
 GEPLANT: tuple[tuple[str, str, str], ...] = (
-    ("0.41", "Mentor 2", "Vorgemachtes als Auftrag merken – mit Webcam oder Handy."),
-    ("0.41", "Ari übt selbst", "Reinforcement Learning im Simulator verfeinert, was du ihm vorgemacht hast."),
     ("0.42", "Alltag", "Routinen und Zeitpläne, Kalender-Abo aus einer lokalen Datei."),
     ("0.42", "Ari mit LeRobot", "Mit einem zweiten Arm steuern, fertige Policies laden, Beispiele auf den Hub."),
     ("0.43", "Choreografie", "Tänze im Editor bauen – für jeden Körper."),
