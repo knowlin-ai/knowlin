@@ -9,6 +9,31 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.43.0 – 2026-11-19 – Jeder Körper tanzt, Bello lernt laufen
+
+### Neu
+- **Choreografie für jeden Körper:** Tänze planen, im Editor bauen, nach Gehör und kurz – jetzt auch für Stacki (Kopf,
+  Gesicht, LEDs im Takt), Ari (Arm oben über der Werkbank) und Bello (Tricks am Platz). Der Wortschatz kommt je Bauart
+  aus `motion/tanzstile.py`, das Abspielen aus `motion/koerper_tanz.py`, die Körper spielen ihre Schritte mit
+  `tanz_schritt`. Ari hat einen „Tanzen“-Knopf.
+- **Bello lernt laufen:** MuJoCo-Modell nach Petois Maßen und eine Evolutionsstrategie (ARS) über die Gangart-Parameter
+  (`physics/bello.py`, `bello_schule.py`). Im Modell von etwa 13 auf 36 cm/s bei viel weniger Neigung; übernommen nur,
+  wenn es auf neuen Prüfläufen besser ist – dann gibt es die Gangart „Gelernt“.
+
+### Geändert
+- Der Tanz fragt den Körper nicht mehr über seinen Namen ab, sondern über das Profil (`koerper.tanzstil`); gespeicherte
+  Tänze merken sich die Bauart (`stil`), ältere mit `koerper` werden übernommen. Acht Namensabfragen weniger.
+- Der Tanzbereich der Seite ist ein eigener Teil (`teile/tanz.html`).
+
+### Sicherheit
+- Ari tanzt nicht mit einem Würfel im Greifer und nur, wenn kein Würfel oder keine Kiste im Weg wäre; Bello tanzt nur
+  Tricks am Platz (keine Salti, nichts, was ihn mitnimmt). Der Not-Aus beendet jeden Tanz, Arm, Hund und Licht halten an.
+- Bello lernt nur auf Knopfdruck am PC; die gelernte Gangart ist im einfachen Simulator nie schneller als Petois Trab.
+
+### Nicht geprüft
+- Die gelernte Gangart an einem echten Bittle X (nur im MuJoCo-Modell, mit geschätzten Massen und Servowerten).
+- Tanzen mit echtem Stack-chan, SO-101 oder Bittle X.
+
 ## 0.42.0 – 2026-11-19 – Alltag mit Routinen und Kalender-Abo, Aris Beispiele auf den Hub
 
 ### Neu

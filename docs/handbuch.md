@@ -163,6 +163,15 @@ dazu der Hals. Seine Verkörperung heißt **Bello** – verspielt wie ein junger
 - **Gangarten (seit 0.38.65):** Krabbeln (langsam und tief), Traben (Grundgangart) und Hoppeln (schnell). Unter Tricks →
   „Bellos Gangarten“ oder per Zuruf „Krabbel!“, „Trab!“, „Hoppel!“; die Wahl gilt, bis du eine andere wählst.
   „Komm her“ und „Geh rückwärts“ bleiben Laufbefehle – die Tricks heißen beim Zuruf „Wink mich her“ und „Trab rückwärts“.
+- **Bello lernt laufen (seit 0.43):** Unter Tricks → „Bello lernt laufen“ → „Lernen“. In einem MuJoCo-Modell nach Petois
+  Maßen (Servos mit dem Drehmoment und Tempo der P1S) probiert er seine Gangart immer wieder leicht verändert aus –
+  Takt, Schrittlänge, Fußhub, Luftanteil, Ducken, Fußstand – und behält, was schneller und ruhiger läuft
+  (Evolutionsstrategie ARS, reines NumPy, etwa eine halbe Minute auf einem Kern). Jede Probe läuft mit etwas Zufall
+  bei Reibung, Masse und Servostärke. Übernommen wird nur, was auf neuen Prüfläufen besser abschneidet, nicht öfter
+  stürzt, nicht stärker wackelt und nicht langsamer ist – dann gibt es die Gangart **„Gelernt“**, sonst bleibt alles,
+  wie es war. Schneller als Petois Trab (≈ 1,8 Körperlängen je Sekunde, 0,36 m/s) zählt nicht. „Weiterlernen“ macht
+  beim Gelernten weiter, „Gelernte Gangart vergessen“ nimmt sie zurück. Starten nur am PC, gespeichert in
+  `bello_gang.json` (nur Zahlen). Ehrlich: Das ist Simulation – am echten Bittle X läuft weiter Petois Gangart.
 - **Ohne Schnabel und eigene Stimme:** Aufheben, Purzelbaum, Entenlaute und Erkunden mit Tiefensensor gibt es nicht.
   Knowlin spricht für ihn – mit seiner eigenen Stimme vom PC.
 - **Not-Aus:** sofort stromlos, Bello legt sich flach hin.
@@ -677,6 +686,13 @@ Datei bleibt im Datenordner dieses PCs (`musik/`).
   YouTube) und tanzt spontan. Das Audio bleibt im Browser, nur Tempo und Lautstärke gehen an duckpilot.
 - **Weitere Enten** (seit 0.36.3): tanzen jede an ihrem Platz im selben Takt mit – siehe „Mehrere Enten“.
 - **Klangsignatur** (seit 0.36.1): Charakter → Stimme → Klang – Tonhöhe und Klangfarbe ihrer Laute.
+- **Jeder Körper tanzt** (seit 0.43): Der Tanz nimmt den Wortschatz der Bauart – aus dem Profil (Familie und
+  Fähigkeiten), nicht aus dem Namen. Enten mit Beinen und Posen wie oben; **Reachy** mit Kopf, Antennen und
+  Körperdrehung; **Stacki** mit Drehen und Nicken, Gefühlen im Gesicht und LEDs im Takt; **Ari** oben über der
+  Werkbank mit Schulter, Handgelenk und Greifer (nicht mit einem Würfel im Greifer, und nur, wenn auf dem Weg nichts im
+  Weg ist); **Bello** mit seinen Tricks am Platz (nicken, boxen, jubeln, springen – keine Salti, nichts, was ihn
+  mitnimmt). Der Editor bietet je Körper nur seine Bausteine an; ältere Tänze anderer Körper werden übersetzt. Nach Gehör
+  und das kurze „Tanzen“ gehen genauso. Der Not-Aus beendet jeden Tanz sofort, Arm, Hund und Licht halten mit an.
 
 ## Training
 
