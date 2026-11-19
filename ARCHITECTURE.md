@@ -10,6 +10,7 @@ Oberfläche (server/static/*.js, eine Seite, ES-Module)
    │  WebSocket /ws (state 20 Hz, Ereignisse, Chat) + HTTP /api/*
 Server  server/app.py  ── setzt zusammen ──  server/routes/<bereich>.py  (je Bereich register(app, runtime))
    │                                         server/security.py         (Herkunft, Host, Handys, Weiterleiter)
+   │                                         server/startdiagnose.py    (Startfehler, Abweisung, Schleifenwächter; seit 0.38.66)
 Laufzeit server/runtime.py: Runtime hält alles zusammen (Körper, Engine, Claude, Stimme, Training …)
    │
 Gehirn   brain/agent.py (Claude, Tool-Use)  brain/tools.py (Werkzeuge)  brain/fallback.py (ohne Claude)
@@ -76,6 +77,10 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 - **Not-Aus wartet auf nichts** (seit 0.38.63): Die Oberfläche schickt alles über eine WebSocket-Verbindung; der
   Server arbeitet die Nachrichten je Verbindung der Reihe nach ab (`routes/verbindung.py`), nur `stop` läuft sofort
   daneben, und was davor bestellt und noch nicht dran war, verfällt. Test: `test_not_aus_wartet_nicht_auf_ein_langsames_werkzeug`.
+- **Die Oberfläche sagt, warum sie nicht verbindet** (seit 0.38.66): Statische Dateien haben einen festen Typ je
+  Endung (`server/app.py` `FESTE_TYPEN`, `FesteTypen`) – nie aus der Windows-Registry; das ETag unter `/static` trägt die
+  Version (`security.py`). Das Start-Paket eines Fensters schließt bei einem Fehler nie die Verbindung, sondern schickt
+  `startfehler`. `static/startwaechter.js` bleibt ein klassisches Skript ohne Importe. Tests: `tests/test_startdiagnose.py`.
 - **Gelerntes steuert nur über die geprüften Wege** (seit 0.38.64): Ari führt ein gelerntes Netz Takt für Takt über
   `nachmachen` aus – dieselbe Reichweiten- und Wegprüfung wie beim Vormachen. Jeder Stopp und der Not-Aus beenden es im
   nächsten Takt (`arm_schule.py`, Marke aus `engine.estop_at`/`stopped_at`); nur im Simulator, nie am echten Arm.
@@ -145,6 +150,9 @@ lernen = PPO am PC, acrobatics). Skill-Pakete: `skills/`. Stimme: `voice/`.
 | Text der Oberfläche auf Englisch | `i18n/ui_en.json` | deutscher Text → Englisch; `#` = Zahl, `*` = Name; `python tools/i18n_texte.py` zeigt Lücken; `translate="no"` schützt einen Bereich (seit 0.34) |
 | Geplante Funktion (Kachel) | `geplant.py` GEPLANT | (Version, Name, ein Satz); bei jedem Release mit dem Releaseplan abgleichen |
 | Fähigkeit mit Vorbedingung, Ergebnisprüfung, Plan B | eigene Datei in `motion/` (z. B. `apportieren.py`, `schuss.py`, `purzelbaum.py`, `erkunden.py`) | innere Verhalten über `_use(b)` + `b._step`; ehrliches Ergebnis, `failed = True` bei Ablehnung; ab 0.38 gemeinsame Grundklasse (siehe `docs/befund-architektur-design.md`) |
+| Teamarbeit der Begleitenten (Aufräumen, Suchen, Ballspiel) | `motion/team.py` (Auftrag), `motion/ballspiel.py` | Unterklasse von `Auftrag` mit `regel(e)`; je Schritt `schritt(dt)`, wenn nötig; Hauptente über ein eigenes Verhalten; Not-Aus beendet über `Schwarm.auftrag_stopp` |
+| Karte von oben (Zoom, Zeichnen) | `static/kartenzoom.js` | `KartenZoom(canvas, neu)` + `ansicht(cx, cy, s, w, h)`; Zellen mit `zeichneZellen`, Raster mit `zeichneRaster` |
+| Meldung, wenn das Fenster nicht verbindet | `static/startwaechter.js` (klassisches Skript, kein Modul) + `server/startdiagnose.py` + `/api/startdiagnose` | neue Ursache: Befund in `befund()` und Text in DE/EN; im Start-Paket nie die Verbindung schließen |
 | Absicherung „angekündigt, aber nicht ausgeführt“ | `brain/zusage.py` | neue Vorführung in `VORFUEHRUNG` und `ERFUELLT` eintragen (seit 0.37.14) |
 | Nur im Simulator (Szene zurücksetzen, Fassung der Policy) | `backends/sim.py` (+ `physics.py`) | Werkzeug prüft `eigenschaften()` (z. B. „zuruecksetzen“) und lehnt am Roboter ehrlich ab |
 

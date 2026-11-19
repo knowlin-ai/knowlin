@@ -206,6 +206,11 @@ verschwinden aus den Reitern statt leere Seiten zu zeigen.
 | **Lernen** | Akrobatik · Parcours · Training | die Ente als Gliederpuppe mit Drehringen, Gleichgewichts-Ampel und Übungen; Aufträge mit Hindernisparcours in der Physik; Reinforcement Learning **kostenlos am PC** (mit Lernschleife) oder **auf Kaggle**, bezahlt auf Hugging Face Jobs. Ein Punkt am Symbol zeigt, dass gerade etwas läuft. |
 | **System** | Körper · Einstellungen · Erweiterungen | Lagebild, Akku, Live-Diagramme, Tiefensensor, **Gelenk-Check** (alle 15 Gelenke mit Sollwert, Nachlauf, Last und Ampel), Ereignisse und Roboter-Pflege; Einstellungen (Claude, **KI-Modell**, Körper, 3D-Darstellung, **Handy-Fernbedienung**, Über); Skill-Pakete zum Ein- und Ausschalten |
 
+Auf der Seite **Tricks** (seit 0.38.66) steht unter dem Suchfeld je Quelle ein Reiter – Pollens Emotionen, die
+eingeschalteten Erweiterungen, eigene Gesten, Leerlauf, Bellos Tricks, die Gesten am Arm … – mit der Zahl der Kacheln;
+„Alle“ zeigt alles untereinander. Die Suche geht immer über alle Quellen. Im Kopf heißt der Bereich Einstellungen in
+der Leiste wie im Körper **System**.
+
 Oben rechts zeigt **„N Aufgaben laufen“** alles, was im Hintergrund arbeitet – Installationen,
 Modell-Downloads, Stimmentwürfe, Trainingsläufe, Parcours-Versuche – mit Fortschritt; ein Klick
 springt zur passenden Seite. Direkt verlinkbar sind Seiten als `#seite/reiter`, z. B. `#tricks/hub`.
@@ -556,6 +561,13 @@ eine selbst trainierte Fassung, sagt sie das; ausprobierte eigene Policies bleib
 „Helft mir die Schachfigur suchen“ – jede sucht in ihrem Teil des Zimmers, wer sie zuerst sieht, ruft „Gefunden!“ und
 bringt sie.
 
+**Ballspiel** (seit 0.38.66): „Spielt euch den Ball zu“, „Lass uns Ball spielen“ oder „Ball spielen“ unter Steuern →
+Team. Wer dem liegenden Ball am nächsten ist, sucht sich eine Mitspielerin aus, läuft hinter den Ball (außen herum,
+wenn sie davor steht), richtet sich aus und schießt; die Empfängerin nimmt den Ball an und ist als Nächste dran, die
+anderen schauen zu und machen Platz. Die eigene Ente spielt mit; weiß sie, wo du bist, spielen sie auch dir zu
+(„Der Ball ist bei dir!“ – nach ein paar Sekunden holt ihn die Nächste). Zwei Minuten, „Auftrag beenden“ oder Not-Aus
+beenden es. Ohne weitere Enten spielt sie dir zu; „Schieß mir den Ball zu“ ist immer ein gezielter Schuss zu dir.
+
 ## Raum kennenlernen: Apportieren, Raum erkunden, Wo zuletzt gesehen (Simulator)
 
 Bereich **Umgebung** (seit 0.38; vorher Steuern → Tricks → Raum kennenlernen):
@@ -566,6 +578,11 @@ Bereich **Umgebung** (seit 0.38; vorher Steuern → Tricks → Raum kennenlernen
   sieht sich dort um; mit dem Tiefensensor hält sie fest, wo frei ist und wo etwas steht – der **erkundete Bereich**.
   Gemerkte Orte erreicht sie danach um Hindernisse herum. Der erkundete Bereich lässt sich auf dem Boden der 3D-Ansicht
   einblenden (Ansicht-Menü → „Erkundeter Bereich“) und erscheint im Lagebild. Per Sprache „Erkunde das Zimmer“.
+  Wände bleiben dicht (seit 0.38.66): Ein Treffer zählt 1 cm im Hindernis, freigeräumt wird nur der echte Weg des
+  Strahls, und Bodenpunkte am Wandfuß machen die Wand nicht durchlässig.
+- **Zoomen** (seit 0.38.66): Die Karte von oben und das Lagebild lassen sich mit Mausrad, zwei Fingern, Doppelklick,
+  Tastatur (+, −, 0 und Pfeiltasten) und den Knöpfen unten rechts zoomen und verschieben; Raster und Maßstab
+  wechseln zwischen 1 m, 50 cm und 10 cm.
 - **Anwählen und Handeln** (seit 0.37.3): Klick auf ein Ding, ein Möbel oder eine andere Ente – ein Menü zeigt, was
   die Ente damit tun kann (aufheben, bringen, schießen, begrüßen, ärgern, hinterherlaufen …). Solange etwas angewählt
   ist, meint „das“ im Chat genau dieses Ding.
@@ -1258,6 +1275,13 @@ Handy aus weckst du sie. Ausschalten (oder die Fernbedienung ausschalten) entfer
   `duckpilot.log` („Start nach … s“).
 - **Nachinstallieren mit Fortschritt (seit 0.38.38):** Physik, Stimmen, Gesichter und PyTorch zeigen beim Herunterladen
   Datei, „… MB von … MB“ und einen Balken; danach „richtet die geladenen Pakete ein …“.
+- **Wenn das Fenster bei „verbinde …“ stehen bleibt (seit 0.38.66):** Nach 10 Sekunden ohne Verbindung meldet ein
+  Startwächter den wahrscheinlichsten Grund – Skripte mit falschem Typ (Windows-Registry, Schlüssel
+  `HKEY_CLASSES_ROOT\.js` → „Content Type“), Oberfläche startet nicht, Knowlin antwortet nicht, Fehler beim Start,
+  Verbindung abgewiesen (VPN, Proxy, Web-Schutz) oder blockiert – mit Rat, den letzten Warnungen aus dem Protokoll,
+  „Neu laden“ und „Protokollordner öffnen“. Das Protokoll `duckpilot.log` liegt unter `%LOCALAPPDATA%\duckpilot`;
+  vor dem Weitergeben kurz durchsehen. Ab 0.38.66 liefert Knowlin Skripte immer mit festem Typ aus, egal was in der
+  Registry steht.
 
 ## Wenn der Roboter kommt
 

@@ -9,6 +9,57 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.38.66 – 2026-11-19 – Klare Fehlermeldung statt „verbinde …“, Ballspiel, dichte Karten
+
+### Neu
+- **Startwächter:** Kommt das Fenster nach 10 Sekunden nicht mit Knowlin in Verbindung, steht dort jetzt, warum, und
+  was hilft – statt endlos „verbinde …“ und toter Knöpfe. Unterschieden werden: Skripte mit falschem Typ, Oberfläche
+  startet nicht (mit dem ersten Skriptfehler), Knowlin antwortet nicht, Fehler beim Start, Verbindung abgewiesen
+  (VPN, Proxy, Web-Schutz) und Verbindung blockiert. Dazu die letzten Warnungen aus dem Protokoll, „Neu laden“ und
+  „Protokollordner öffnen“. Das Skript ist kein Modul und läuft auch, wenn die Oberfläche selbst nicht startet.
+- `/api/startdiagnose` sagt dasselbe ohne laufende Verbindung; ein Wächter schreibt ins Protokoll, wenn der Dienst
+  hängt, und woran.
+- **Ballspiel:** Die Enten spielen sich den Ball zu – sie nehmen ihn an, laufen außen herum an, statt ihn
+  wegzuschubsen, und machen der am Ball Platz. Die eigene Ente spielt mit; weiß sie, wo du bist, spielen sie auch dir
+  zu. Start per Sprache („Spielt euch den Ball zu“, „Lass uns Ball spielen“) oder mit „Ball spielen“ unter
+  Steuern → Team; ohne weitere Enten spielt sie dir zu.
+- **Karten zoomen:** Lagebild und „Raum kennenlernen“ lassen sich mit Mausrad, zwei Fingern, Doppelklick, Tastatur
+  (+ − 0 und Pfeile) und Knöpfen zoomen und verschieben. Raster und Maßstab passen sich an (1 m, 50 cm, 10 cm).
+- **Tricks: Reiter je Quelle** (Pollens Emotionen, Erweiterungen, eigene Gesten, Leerlauf, Bellos Tricks …) mit
+  Anzahl; die Suche geht weiter über alle Quellen.
+
+### Geändert
+- Die Leiste heißt auch im Kopf **„System“** (vorher „Einstellungen“, das nicht hineinpasste).
+- „Schieß/spiel/pass/bring mir den Ball (zu)“ ist jetzt ein gezielter Schuss zu dir; „roll the ball to me“ ebenso.
+- Das eigene Sprachmodell (Ollama, LM Studio) darf jetzt auch schießen, apportieren, mit Dingen handeln, das Team
+  und die anderen Enten steuern, kartieren und nach Gesehenem fragen.
+- Karten: freie Fläche weich, Hindernisse als Kontur ohne Fugen; scharf auf jedem Bildschirm.
+- Unter `/static` trägt das ETag die Version: Nach einem Update holt das Fenster alles einmal frisch.
+
+### Behoben
+- **Fenster blieb bei „verbinde …“ stehen** (Bericht vom 19.11.): Unter Windows liest Python die Dateitypen aus der
+  Registry; stand dort `.js` als `text/plain`, lud Edge kein einziges Modul. Skripte, Stile und Co. haben jetzt einen
+  festen Typ. Ein einmal falsch zwischengespeichertes Skript bleibt durch das ETag mit Version nicht mehr hängen.
+- Scheiterte das Start-Paket für das Fenster, wurde die Verbindung kommentarlos geschlossen; jetzt bleibt sie offen
+  und das Fenster nennt den Grund.
+- **„Jetzt mache ich es wirklich.“ hing beim eigenen Modell ständig an:** Ihm fehlten die Werkzeuge für Ball, Dinge
+  und Team, also sprang jedes Mal die Absicherung ein. Außerdem zählt ein gleichnamiger Trick oder eine
+  Pollen-Bewegung als erfüllt, und ehrliche Absagen („das kann ich als Bello leider nicht“) werden erkannt.
+- **Erkunden außerhalb des Zimmers, Löcher in den Wänden der Karte:** Im Simulator endete ein Tiefenstrahl am
+  ersten Ding – lief er über das Sofa, landete sein Bodenpunkt hinter der Wand. Und die Karte räumte Wandzellen frei,
+  wenn Strahlen schräg an der Wand entlangliefen. Jetzt: Strahl über niedrige Dinge hinweg, Treffer 1 cm ins Hindernis,
+  freigeräumt nur der echte Strahlweg (Amanatides & Woo statt Bresenham), Bodenpunkte machen die Wand nicht durchlässig.
+
+### Sicherheit
+- Not-Aus beendet das Ballspiel für alle Enten wie jede Teamarbeit (stromlos, Sperre wie eingestellt).
+- `/api/startdiagnose` liefert keine Pfade mit Benutzernamen und keine Gespräche, nur Version, Gründe und Warnungen.
+
+### Nicht geprüft
+- Startwächter an einem Windows-PC mit verbogener Registry (nachgestellt im Browser mit `text/plain` und blockierter
+  Verbindung); ob Sicherheitssoftware die Verbindung so blockiert wie nachgestellt.
+- Ballspiel mit echten Microducks (nur einfacher Simulator mit weiteren Enten).
+- Die neue Kartenlogik am echten Tiefensensor (nur Simulator).
+
 ## 0.38.65 – 2026-11-15 – Bello wie das Original, Website aktuell
 
 ### Neu
