@@ -1,6 +1,7 @@
 // Raum kennenlernen (seit 0.37): Kartierungsmodus, „Zuletzt gesehen“ und „Bring mir …“ – seit 0.38 im Bereich Umgebung.
 // Die Karte erscheint auf Wunsch als Raster auf dem Boden der 3D-Ansicht (nur am PC – remote.PC_ONLY).
 
+import { KartenZoom, zeichneRaster, zeichneZellen } from './kartenzoom.js';
 import { uebersetzeText } from './i18n.js';
 
 const tr = (text) => uebersetzeText(text) || text;
@@ -65,53 +66,52 @@ export function initRaum({ $, api, el, scene, toast, zumCockpit, lagebild }) {
   // ── 2D-Karte von oben mit Piktogrammen für Dinge und Möbel ──
   const leinwand = $('raum-plan');
   function farbe(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || 'gray'; }
+  const zoom = leinwand ? new KartenZoom(leinwand, () => { if (letzte) plan(letzte); }) : null;
   function plan(d) {
     if (!leinwand) return;
     const ctx = leinwand.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const css = leinwand.clientWidth || 360;
-    if (leinwand.width !== Math.round(css * dpr)) { leinwand.width = leinwand.height = Math.round(css * dpr); }
-    const W = leinwand.width;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = leinwand.clientWidth || 360;
+    if (leinwand.width !== Math.round(W * dpr)) { leinwand.width = leinwand.height = Math.round(W * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);          // gezeichnet wird in CSS-Pixeln, scharf auf jedem Bildschirm
     ctx.clearRect(0, 0, W, W);
     const k = d.karte || {};
     const z = k.zelle_m || 0.05;
     const dinge = d.sichtungen || [];
-    // Ausschnitt: alles Bekannte, mindestens 2 m, etwas Rand
+    // Ausschnitt: alles Bekannte, mindestens 2 m, etwas Rand – dann gezoomt und verschoben (seit 0.38.66)
     const xs = [], ys = [];
     for (const [i, j] of [...(k.frei || []), ...(k.belegt || [])]) { xs.push((i + 0.5) * z); ys.push((j + 0.5) * z); }
     for (const s of dinge) { xs.push(s.x); ys.push(s.y); }
     if (d.ente) { xs.push(d.ente.x); ys.push(d.ente.y); }
     if (!xs.length) { xs.push(0); ys.push(0); }
-    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
     const span = Math.max(2, Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) + 0.6;
-    const m = W / span;                                  // Pixel je Meter
-    const px = (x) => W / 2 + (x - cx) * m;
-    const py = (y) => W / 2 - (y - cy) * m;              // Norden oben
-    const zp = Math.max(1, z * m);
-    ctx.fillStyle = farbe('--raum-frei');
-    for (const [i, j] of k.frei || []) ctx.fillRect(px(i * z), py((j + 1) * z), zp + 0.5, zp + 0.5);
-    ctx.fillStyle = farbe('--raum-belegt');
-    for (const [i, j] of k.belegt || []) ctx.fillRect(px(i * z), py((j + 1) * z), zp + 0.5, zp + 0.5);
+    const v = zoom.ansicht((Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2, W / span, W, W);
+    const m = v.s;                                       // Pixel je Meter
+    const px = (x) => W / 2 + (x - v.cx) * m;
+    const py = (y) => W / 2 - (y - v.cy) * m;            // Norden oben
+    zeichneZellen(ctx, k, v, { frei: farbe('--raum-frei'), belegt: farbe('--raum-belegt'), kante: farbe('--ink-2') });
+    const raster = zeichneRaster(ctx, v, farbe('--line-soft') || farbe('--surface-3'));   // über der Fläche, ganz leicht
     // Dinge und Möbel: Kreis als Markierung, Piktogramm, Name
-    const schrift = Math.round(11 * dpr);
+    const nah = Math.min(1.6, Math.max(1, Math.sqrt(zoom.zoom)));      // beim Hineinzoomen etwas größer
     for (const s of dinge) {
       const x = px(s.x), y = py(s.y);
+      if (x < -40 || y < -40 || x > W + 40 || y > W + 40) continue;
       const moebel = s.art === 'möbel';
+      const r = (moebel ? 13 : 10) * nah;
       ctx.beginPath();
-      ctx.arc(x, y, (moebel ? 13 : 10) * dpr, 0, Math.PI * 2);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fillStyle = moebel ? 'rgba(0,0,0,.35)' : farbe('--raum-ding');
       ctx.globalAlpha = moebel ? 1 : 0.85;
       ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.font = `${Math.round((moebel ? 15 : 12) * dpr)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+      ctx.font = `${Math.round((moebel ? 15 : 12) * nah)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(piktogramm(s), x, y + dpr);
-      ctx.font = `${schrift}px "IBM Plex Sans", sans-serif`;
+      ctx.fillText(piktogramm(s), x, y + 1);
+      ctx.font = `${Math.round(11 * nah)}px "IBM Plex Sans", sans-serif`;
       ctx.fillStyle = farbe('--ink-2');
       ctx.textBaseline = 'top';
-      ctx.fillText(tr(s.name), x, y + (moebel ? 15 : 12) * dpr);
+      ctx.fillText(tr(s.name), x, y + r + 2);
     }
     // die Ente mit Blickrichtung
     if (d.ente) {
@@ -119,23 +119,25 @@ export function initRaum({ $, api, el, scene, toast, zumCockpit, lagebild }) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(w);
+      ctx.scale(nah, nah);
       ctx.beginPath();
-      ctx.moveTo(11 * dpr, 0);
-      ctx.lineTo(-7 * dpr, 7 * dpr);
-      ctx.lineTo(-4 * dpr, 0);
-      ctx.lineTo(-7 * dpr, -7 * dpr);
+      ctx.moveTo(11, 0);
+      ctx.lineTo(-7, 7);
+      ctx.lineTo(-4, 0);
+      ctx.lineTo(-7, -7);
       ctx.closePath();
       ctx.fillStyle = farbe('--raum-ente');
       ctx.fill();
       ctx.restore();
     }
-    // Maßstab: 1 m
+    // Maßstab passend zum Raster
+    const laenge = raster * m;
     ctx.fillStyle = farbe('--ink-3');
-    ctx.fillRect(8 * dpr, W - 10 * dpr, m, 2 * dpr);
-    ctx.font = `${schrift}px "IBM Plex Sans", sans-serif`;
+    ctx.fillRect(8, W - 10, laenge, 2);
+    ctx.font = '11px "IBM Plex Sans", sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('1 m', 8 * dpr, W - 13 * dpr);
+    ctx.fillText(raster >= 1 ? '1 m' : `${Math.round(raster * 100)} cm`, 8, W - 13);
     const n = dinge.filter((s) => s.art !== 'möbel').length;
     leinwand.setAttribute('aria-label', d.messungen
       ? tr(`Erkundeter Bereich von oben: ${(d.flaeche_m2 || 0).toLocaleString(document.documentElement.lang || 'de', { maximumFractionDigits: 1 })} m², ${n} Dinge und ${dinge.length - n} Möbel eingezeichnet`)

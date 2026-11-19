@@ -3636,5 +3636,11 @@
  "Der Ball liegt zu ungünstig – Ballspiel beendet": "The ball is in an awkward spot – ball game ended",
  "Ballspiel beendet": "Ball game ended",
  "spielt Ball": "plays ball",
- "ist am Ball": "has the ball"
+ "ist am Ball": "has the ball",
+ "Karte zoomen": "Zoom map",
+ "Herauszoomen": "Zoom out",
+ "Hineinzoomen": "Zoom in",
+ "Einpassen": "Fit",
+ "Ganze Karte zeigen": "Show whole map",
+ "Mit + und − zoomen, mit den Pfeiltasten verschieben, 0 passt ein.": "Zoom with + and −, move with the arrow keys, 0 fits the map."
 }

@@ -3,6 +3,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
 import { CloudLayer } from './pointcloud.js';
+import { KartenZoom, zeichneRaster, zeichneZellen } from './kartenzoom.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -173,6 +174,7 @@ export class MapView {
     this.state = null;
     this.target = null;
     this.pings = [];
+    this.zoom = new KartenZoom(canvas, () => {});      // zoomen und verschieben (seit 0.38.66); gezeichnet wird ohnehin laufend
   }
 
   setWorld(world) { this.world = world; }
@@ -219,25 +221,18 @@ export class MapView {
       x0 = Math.min(...xs) - 1; x1 = Math.max(...xs) + 1; y0 = Math.min(...ys) - 1; y1 = Math.max(...ys) + 1;
     }
     const m = 18;
-    const s = Math.min((w - 2 * m) / (x1 - x0), (h - 2 * m) / (y1 - y0));
-    const ox = (w - s * (x1 - x0)) / 2, oy = (h - s * (y1 - y0)) / 2;
+    const fit = Math.min((w - 2 * m) / (x1 - x0), (h - 2 * m) / (y1 - y0));
+    // eingepasst, dann gezoomt und verschoben (seit 0.38.66)
+    const v = this.zoom.ansicht((x0 + x1) / 2, (y0 + y1) / 2, fit, w, h);
+    const s = v.s;
     // x nach rechts, y nach oben (links der Ente = oben im Bild, Blick nach rechts zu Beginn)
-    const P = (x, y) => [ox + (x - x0) * s, h - oy - (y - y0) * s];
-
-    // 10-cm-Raster
-    g.strokeStyle = css('--surface-2'); g.lineWidth = 1;
-    for (let gx = Math.ceil(x0 * 2) / 2; gx <= x1; gx += 0.5) { const [a] = P(gx, 0); g.beginPath(); g.moveTo(a, P(0, y0)[1]); g.lineTo(a, P(0, y1)[1]); g.stroke(); }
-    for (let gy = Math.ceil(y0 * 2) / 2; gy <= y1; gy += 0.5) { const [, b] = P(0, gy); g.beginPath(); g.moveTo(P(x0, 0)[0], b); g.lineTo(P(x1, 0)[0], b); g.stroke(); }
+    const P = (x, y) => [w / 2 + (x - v.cx) * s, h / 2 - (y - v.cy) * s];
 
     if (this.karte) {                        // was sie selbst erkundet hat: frei hell, Hindernis dunkel
-      const z = this.karte.zelle_m, zp = Math.max(1, z * s) + 0.5;
-      g.globalAlpha = this.world ? 0.55 : 0.9;
-      g.fillStyle = css('--raum-frei');
-      for (const [i, j] of this.karte.frei) { const [a, b] = P(i * z, (j + 1) * z); g.fillRect(a, b, zp, zp); }
-      g.fillStyle = css('--raum-belegt');
-      for (const [i, j] of this.karte.belegt) { const [a, b] = P(i * z, (j + 1) * z); g.fillRect(a, b, zp, zp); }
-      g.globalAlpha = 1;
+      zeichneZellen(g, this.karte, v, { frei: css('--raum-frei'), belegt: css('--raum-belegt'), kante: css('--ink-2') },
+        this.world ? 0.55 : 0.9);
     }
+    zeichneRaster(g, v, css('--line-soft'));           // Raster: 1 m, nah dran 50 und 10 cm
     if (this.world) {
       const [ax, ay] = P(x0, y1);
       g.strokeStyle = css('--ink-3'); g.lineWidth = 2;

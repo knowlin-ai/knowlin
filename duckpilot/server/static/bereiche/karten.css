@@ -1,0 +1,19 @@
+/* Karten von oben zoomen und verschieben (seit 0.38.66): Lagebild und „Raum kennenlernen“. Nur Tokens. */
+
+.karten-zoom { position: relative; display: block; min-width: 0; }
+.karten-zoom > canvas { display: block; width: 100%; }
+.karten-zoom > canvas:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.card-map .karten-zoom { flex: 1; display: flex; flex-direction: column; }
+.card-map .karten-zoom > canvas { flex: 1; }
+.karten-zoom-leiste {
+  position: absolute; bottom: var(--spacing-03); right: var(--spacing-03); display: flex; align-items: center;
+  gap: var(--spacing-01); padding: var(--spacing-01); border-radius: var(--r-control);
+  background: var(--surface-1); border: 1px solid var(--line); box-shadow: var(--shadow-float);
+}
+.karten-zoom-knopf { min-width: 32px; min-height: 32px; padding: 0 var(--spacing-03); font-size: var(--t-body); line-height: 1; }
+.karten-zoom-passen { font-size: var(--t-caption); }
+.karten-zoom-wert { min-width: 4.5ch; text-align: center; font-size: var(--t-caption); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+@media (forced-colors: active) {
+  .karten-zoom-leiste { border-color: CanvasText; }
+}
