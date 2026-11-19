@@ -113,12 +113,45 @@ class SameOriginMiddleware(BaseHTTPMiddleware):
         if path.startswith("/api/") and request.headers.get("sec-fetch-site") == "cross-site":
             # auch Abrufe (GET) mit Nebenwirkung, etwa Lernkurven vom Hub holen, nur aus der eigenen Oberfläche
             return JSONResponse({"error": "fremde Herkunft"}, status_code=403)
+        statisch = request.url.path.startswith("/static/")
+        if statisch:
+            _etag_ohne_stand(request)
         response = await call_next(request)
-        if request.url.path.startswith("/static/"):
+        if statisch:
+            _etag_mit_stand(response)
             # nach einem Update nie alte Skripte aus dem Browser-Cache mit neuer Seite mischen (kostet lokal nichts:
             # der Browser fragt nach und bekommt bei Gleichstand nur „304 unverändert“)
             response.headers["Cache-Control"] = "no-cache"
         return response
+
+
+def _etag_stand() -> str:
+    from .. import __version__
+    return f"-v{__version__}"
+
+
+def _etag_ohne_stand(request: Request) -> None:
+    """Nachfrage des Browsers („If-None-Match“) gilt nur für Antworten dieser Version (seit 0.38.66).
+
+    Fund 19.11.: Hatte der Browser ein Skript einmal mit falschem Typ (text/plain) zwischengespeichert, bekam er beim
+    Nachfragen nur „304 unverändert“ – und behielt den falschen Typ, auch nachdem der Server richtig lieferte. Darum
+    trägt das ETag die Version: nach jedem Update holt das Fenster alles einmal frisch."""
+    stand = _etag_stand()
+    kopf = []
+    for name, wert in request.scope["headers"]:
+        if name == b"if-none-match":
+            text = wert.decode("latin-1")
+            if f'{stand}"' not in text:
+                continue                           # alter Stand: nicht nachfragen, ganz neu liefern
+            wert = text.replace(f'{stand}"', '"').encode("latin-1")
+        kopf.append((name, wert))
+    request.scope["headers"] = kopf
+
+
+def _etag_mit_stand(response) -> None:
+    etag = response.headers.get("etag")
+    if etag and etag.endswith('"'):
+        response.headers["etag"] = etag[:-1] + _etag_stand() + '"'
 
 
 def _open_folder(path: Path) -> None:

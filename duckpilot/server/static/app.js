@@ -104,16 +104,18 @@ const SKILL_DE = {
 // ── Verbindung ─────────────────────────────────────────────────────────
 const outbox = [];
 const offeneChats = new Map();    // Nachrichten ohne Echo vom Server – nach einem Abbruch erneut senden (Fund 6.11.)
+const kv = () => window.knowlinVerbindung || {};   // Startwächter: Grund, wenn keine Verbindung (0.38.66)
 function connect() {
+  kv().versuch?.();
   ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);
   ws.onopen = () => {
-    setLink(true);
+    setLink(true); kv().offen?.();
     const raus = new Set(outbox);
     while (outbox.length) ws.send(outbox.shift());
     for (const t of offeneChats.values()) if (!raus.has(t)) ws.send(t);   // der Server kennt die cid und nimmt sie nur einmal
   };
-  ws.onclose = () => {
-    setLink(false);
+  ws.onclose = (e) => {
+    setLink(false); kv().zu?.(e.code);
     // Handy: abgemeldet oder Fernbedienung am PC aus? Dann zeigt der Server statt der App einen Hinweis.
     if (fern.remote) fetch('/api/ping').then((r) => { if (r.status === 401 || r.status === 403) location.reload(); }).catch(() => {});
     setTimeout(connect, 1500);
@@ -156,6 +158,7 @@ function renderLink() {
 function handle(msg) {
   switch (msg.type) {
     case 'init': kollision?.refresh(); return onInit(msg);
+    case 'startfehler': return kv().startfehler?.(msg.grund);
     case 'state': return onState(msg);
     case 'event': laser?.onEvent(msg.event); follow?.onEvent(msg.event); kollision?.onEvent(msg.event); ctl?.onEvent(msg.event); return ereignisse.onEvent(msg.event);
     case 'kollision': return kollision?.onStatus(msg);

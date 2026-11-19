@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/static/style.css">
   <!-- Stile je Bereich (seit 0.38.39, Architektur-Etappe A2) – Teile der Seite stehen unter static/teile/ -->
   <link rel="stylesheet" href="/static/bereiche/tricks.css">
+  <link rel="stylesheet" href="/static/bereiche/startwaechter.css">
 </head>
 <body class="im-kopf">
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -2153,6 +2154,8 @@
     </section>
   </section>
   <div class="toasts" id="toasts" aria-live="polite"></div>
+  <!-- Startwächter (seit 0.38.66): kein Modul – meldet den Grund auch dann, wenn die Oberfläche nicht startet -->
+  <script src="/static/startwaechter.js"></script>
   <script type="module" src="/static/app.js"></script>
 </body>
 </html>

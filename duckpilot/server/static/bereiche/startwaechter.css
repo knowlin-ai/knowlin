@@ -1,0 +1,24 @@
+/* Startwächter (seit 0.38.66): Meldung, wenn das Fenster keine Verbindung zu Knowlin bekommt. Baut auf .quit-dialog
+   aus style.css auf; nur Tokens. */
+
+.startwaechter { width: min(560px, calc(100vw - 32px)); box-shadow: inset 4px 0 0 var(--critical); }
+.startwaechter-text { margin: 0 0 var(--spacing-04); color: var(--ink); }
+.startwaechter-grund {
+  margin: 0 0 var(--spacing-04); padding: var(--spacing-03) var(--spacing-04); border-radius: var(--r-control);
+  background: var(--surface-sunken); color: var(--ink); font: 400 var(--t-small) / 1.45 var(--font-mono); overflow-wrap: anywhere;
+}
+.startwaechter-grund b { font-weight: 600; }
+.startwaechter-rat { margin: 0 0 var(--spacing-04); color: var(--ink-2); font-size: var(--t-small); }
+.startwaechter-klein { margin: 0 0 var(--spacing-03); color: var(--ink-2); font-size: var(--t-caption); overflow-wrap: anywhere; }
+.startwaechter-klein:empty { display: none; }
+.startwaechter-warn { margin: 0 0 var(--spacing-04); font-size: var(--t-caption); color: var(--ink-2); }
+.startwaechter-warn summary { cursor: pointer; }
+.startwaechter-warn pre {
+  margin: var(--spacing-03) 0 0; padding: var(--spacing-03); max-height: 160px; overflow: auto; border-radius: var(--r-control);
+  background: var(--surface-sunken); color: var(--ink); font: 400 var(--t-caption) / 1.4 var(--font-mono); white-space: pre-wrap;
+}
+.startwaechter-fuss { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--spacing-03); }
+
+@media (forced-colors: active) {
+  .startwaechter { border: 2px solid CanvasText; box-shadow: none; }
+}

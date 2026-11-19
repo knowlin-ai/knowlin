@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 from ... import __version__, i18n
 from ... import remote as R
 from ... import settings as S
+from .. import fehlerbericht as F
 from ..runtime import (
     Runtime,
     _json_default,
@@ -33,6 +34,20 @@ def register(app: FastAPI, runtime: Runtime) -> None:
     @app.get("/api/ping")
     async def ping() -> JSONResponse:
         return JSONResponse({"app": "duckpilot", "version": __version__})
+
+    @app.get("/api/startdiagnose")
+    async def startdiagnose() -> JSONResponse:
+        """Warum ein Fenster keine Verbindung bekommt (seit 0.38.66) – braucht selbst keine WebSocket-Verbindung.
+
+        Nur Version, Startfehler, Abweisungsgrund und die letzten Warnungen aus dem Protokoll (dort stehen keine
+        Gespräche) – kein Pfad mit Benutzernamen."""
+        werte = getattr(runtime, "startfehler", None)
+        waechter = getattr(runtime, "schleifenwaechter", None)
+        zeilen = F.log_zeilen(S.data_dir() / "duckpilot.log", n=200)[-6:]
+        return JSONResponse({"version": __version__, "sprache": runtime.config.sprache,
+                             **(werte.bericht(waechter) if werte else {}),
+                             "warnungen": [z[-300:] for z in zeilen]},
+                            headers={"Cache-Control": "no-store"})
 
     @app.get("/api/status")
     async def status() -> JSONResponse:

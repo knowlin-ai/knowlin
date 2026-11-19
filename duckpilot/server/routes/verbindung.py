@@ -37,19 +37,47 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             return JSONResponse({"error": f"{type(exc).__name__}: {exc}"}, status_code=500)
         return JSONResponse({"text": text, "seconds": round(time.monotonic() - t0, 2)})
 
+    async def start_paket(ws: WebSocket, device: dict | None) -> None:
+        teile = (("Grundausstattung", runtime.init_message), ("Gedächtnis", runtime.memory_message),
+                 ("Alltag", runtime.alltag.message),
+                 ("Verbindung", lambda: {"type": "verbindung", "fern": device is not None,
+                                         "geraet": device["name"] if device else None}),
+                 ("Erfahrung", lambda: runtime.erfahrung.message(remote=device is not None)))
+        fehler = []
+        for name, bauen in teile:
+            try:
+                text = json.dumps(bauen(), ensure_ascii=False, default=_json_default)
+            except Exception as exc:
+                log.exception("Start-Paket für das Fenster: %s", name)
+                fehler.append(f"{name}: {runtime.startfehler.merken(exc)}")
+                continue
+            await runtime.send_to(ws, text)
+        if fehler:
+            await runtime.send_to(ws, json.dumps({"type": "startfehler", "grund": " · ".join(fehler)[:600]},
+                                                 ensure_ascii=False))
+        else:
+            runtime.startfehler.loeschen()
+
     @app.websocket("/ws")
     async def ws_endpoint(ws: WebSocket) -> None:
         via_ts = bool(runtime.remote.data.get("tailscale") and R.ts_hostname(ws.headers.get("host")))
+        diagnose = runtime.startfehler
         if not origin_allowed(ws.headers.get("origin"), ws.headers.get("host"), via_ts):
+            # Herkunft und Adresse sind Seiten-Adressen (z. B. http://127.0.0.1:8765), keine Personendaten
+            diagnose.abgelehnt(f"Herkunft passt nicht zur Adresse (Herkunft {str(ws.headers.get('origin'))[:60]}, "
+                               f"Adresse {str(ws.headers.get('host'))[:60]})")
             await ws.close(code=1008)
             return
         client = ws.client.host if ws.client else None
         device = None
         if via_ts and not R.is_local(client):
+            diagnose.abgelehnt("Tailscale-Adresse, aber nicht vom eigenen PC weitergeleitet")
             await ws.close(code=1008)
             return
         if not via_ts and R.is_local(client) and R.proxied(ws.headers):
-            await ws.close(code=1008)          # anderer Weiterleiter auf diesem PC: nie „der PC selbst“
+            # anderer Weiterleiter auf diesem PC: nie „der PC selbst“ – oft ein Web-Schutz oder VPN, der mitliest
+            diagnose.abgelehnt("über einen Weiterleiter (Proxy) auf diesem PC – z. B. Web-Schutz der Sicherheitssoftware oder VPN")
+            await ws.close(code=1008)
             return
         if via_ts or not R.is_local(client):
             if runtime.remote.check(client, ws.cookies.get(R.COOKIE), "GET", "/ws", via_tailscale=via_ts) is not None:
@@ -61,11 +89,10 @@ def register(app: FastAPI, runtime: Runtime) -> None:
         if device is None:
             runtime.keep_open = False        # neues Fenster am PC: Schließen beendet wieder wie gewohnt
         try:
-            # erst die Grundausstattung, dann in die Verteilerliste – so kommt nie ein Zustand vor dem Start-Paket
-            for first in (runtime.init_message(), runtime.memory_message(), runtime.alltag.message(),
-                          {"type": "verbindung", "fern": device is not None, "geraet": device["name"] if device else None},
-                          runtime.erfahrung.message(remote=device is not None)):
-                await runtime.send_to(ws, json.dumps(first, ensure_ascii=False, default=_json_default))
+            # erst die Grundausstattung, dann in die Verteilerliste – so kommt nie ein Zustand vor dem Start-Paket.
+            # Scheitert ein Teil, bleibt die Verbindung offen und das Fenster bekommt den Grund (Fund 19.11.: vorher
+            # schloss die Verbindung kommentarlos, und das Fenster blieb bei „verbinde …“ stehen).
+            await start_paket(ws, device)
             runtime.clients.add(ws)
             fern = device is not None
 
