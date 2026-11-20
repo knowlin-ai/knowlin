@@ -34,6 +34,7 @@ from .tools_lab import (  # noqa: F401 – Werkzeuge der Trainingshalle, seit 0.
 )
 from .tools_licht import LICHT_TOOL, LichtWerkzeuge
 from .tools_raum import RaumWerkzeuge
+from .tools_zubehoer import ZUBEHOER_TOOL, ZubehoerWerkzeuge
 
 if TYPE_CHECKING:
     from .memory import Memory
@@ -563,6 +564,10 @@ def fehlt_dem_koerper(name: str, backend: Any) -> str | None:
         return f"{profil.name if profil else 'Dieser Körper'} hat keine Beine – laufen, schießen und aufheben geht nicht"
     if name in NUR_MICRODUCK and not (profil and profil.lab):            # Trainingshalle laut Profil (seit 0.38.35)
         return "Das gibt es nur für die Microduck (Pollens Policies und Trainingshalle)."
+    if name == "zubehoer" and not (profil and profil.zubehoer and hasattr(backend, "rollen_anlegen")):
+        return ("Das Zubehör (Rollen, Rennen, Polaroid) gibt es für die Microduck im einfachen Simulator – im "
+                "Physikmodell noch nicht, am Gerät ab Lieferung." if profil and profil.zubehoer
+                else "Für diesen Körper gibt es kein Zubehör.")
     if name == "turn" and not DREHEN & eig:
         return "Dieser Körper kann sich nicht drehen."
     if name in ("dance", "choreo") and not TANZEN & eig:
@@ -606,7 +611,7 @@ LOGGED_EVENTS = {"fall": "Sturz", "kick_miss": "Kick ins Leere", "pick_miss": "A
 
 
 class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge, LichtWerkzeuge,
-                 GespraechWerkzeuge, HausWerkzeuge):
+                 GespraechWerkzeuge, HausWerkzeuge, ZubehoerWerkzeuge):
     def __init__(self, engine: MotionEngine, memory: "Memory | None" = None) -> None:
         self.engine = engine
         self.memory = memory
@@ -655,7 +660,7 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
             tools = [*tools, FREE_TRAINING_TOOL]
         eig = self.engine.backend.eigenschaften()
         be = self.engine.backend                  # nur anbieten, was dieser Körper wirklich kann (seit 0.38.6 vollständig)
-        tools = [t for t in tools if fehlt_dem_koerper(t["name"], be) is None]
+        tools = [t for t in [*tools, ZUBEHOER_TOOL] if fehlt_dem_koerper(t["name"], be) is None]   # Zubehör 0.47
         tools = [*tools, ABSICHT_TOOL, SELBSTBILD_TOOL]      # Aktionskatalog und Selbstbild (seit 0.38.43, G2)
         tools = [*tools, *ERINNER_TOOLS, WETTER_TOOL]        # Tagesrückblick und Weltbild (0.39), Wetter (0.40)
         if getattr(self, "haus", None) is not None:
@@ -787,6 +792,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
                 result = await self._wetter(args or {})
             elif name == "haus":
                 result = await self._haus(args or {})
+            elif name == "zubehoer":
+                result = await self._zubehoer(args or {})
             elif name == "arm":
                 result = await self._arm(args or {})
             elif name in ("greifen", "ablegen"):

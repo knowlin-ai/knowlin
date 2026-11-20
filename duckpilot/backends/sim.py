@@ -34,6 +34,7 @@ from ..api import (
     wrap_angle,
 )
 from .world import World
+from .zubehoer import DUCKEN_M, ZubehoerMixin
 
 TICK_HZ = 50
 DEADMAN_S = 0.5
@@ -68,7 +69,7 @@ def _approach(current: float, target: float, dt: float, tau: float) -> float:
 SIM_AKKU_MIN = 0.25         # so leer wird der simulierte Akku höchstens
 
 
-class SimBackend(DuckBackend):
+class SimBackend(ZubehoerMixin, DuckBackend):
     name = "sim"
 
     def __init__(self, world: World | None = None, realtime: bool = True, seed: int | None = None) -> None:
@@ -185,10 +186,12 @@ class SimBackend(DuckBackend):
         bewegt = self._skill_twist()
         if bewegt is not None:
             target = bewegt
+        target = self._rollen_ziel(target)                  # auf Rollen schneller, nie seitwärts (seit 0.47)
         # Trägheit: Beschleunigung begrenzt
         a_lin, a_yaw = 0.8, 4.0
         for attr, acc in (("vx", a_lin), ("vy", a_lin), ("vyaw", a_yaw)):
             cur, tgt = getattr(self.applied, attr), getattr(target, attr)
+            acc = self._rollen_beschleunigung(attr, cur, tgt, acc)
             delta = max(-acc * dt, min(acc * dt, tgt - cur))
             setattr(self.applied, attr, cur + delta)
 
@@ -216,6 +219,8 @@ class SimBackend(DuckBackend):
         moving = math.hypot(v.vx, v.vy) > 0.01 or abs(v.vyaw) > 0.08
         if moving and self._can_drive():
             freq = (2.0 + 2.0 * min(1.0, math.hypot(v.vx, v.vy) / 0.25)) * self._schritt_takt()
+            if self.rollen:
+                freq = self._rollen_takt(math.hypot(v.vx, v.vy))
             self.gait_phase = (self.gait_phase + 2 * math.pi * freq * dt) % (2 * math.pi)
         else:
             # Füße kommen zur Ruhe
@@ -569,11 +574,13 @@ class SimBackend(DuckBackend):
             joints=(j := self._joints()),
             display_joints=j,
             spielfeld={"tor": dict(self.world_model.tor)} if self.world_model.tor else {},
+            zubehoer={"rollen": self.rollen, "geduckt": self.rollen_geduckt} if self.rollen else {},
         )
 
     def _shown_pose(self) -> Pose:
         sway_r, sway_p = self._gait_sway()
-        return Pose(self.pose_now.z, self.pose_now.roll + sway_r, self.pose_now.pitch + sway_p)
+        z = self.pose_now.z - (DUCKEN_M if self.rollen and self.rollen_geduckt else 0.0)
+        return Pose(z, self.pose_now.roll + sway_r, self.pose_now.pitch + sway_p)
 
     def skill_progress(self) -> float:
         return self._skill_progress()
@@ -723,6 +730,8 @@ class SimBackend(DuckBackend):
             return IntentResult(False, f"'{self.skill}' läuft gerade noch")
         if self.sitting and skill != "sit_toggle":
             return IntentResult(False, "sitzt – erst aufstehen (sit_toggle)")
+        if (nein := self._rollen_verboten(skill)) is not None:
+            return IntentResult(False, nein)
         self.requested = Twist()
         self.applied = Twist()
         self._start_skill(skill)
@@ -737,6 +746,8 @@ class SimBackend(DuckBackend):
     def lahm(self) -> None:
         """Not-Aus: Motoren sofort aus. Aus dem Stand sackt sie zusammen (0,35 s, nur fürs Bild); aufstehen erst auf Befehl."""
         self.requested = Twist()
+        if self.rollen:                     # auf Rollen nicht weiterrollen: Not-Aus heißt Stillstand (seit 0.47)
+            self.applied = Twist()
         self.enabled = False
         stand = self.powered and not self.fallen and not self.sitting
         self.skill = None

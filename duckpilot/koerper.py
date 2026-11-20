@@ -112,6 +112,7 @@ class Koerper:
     schnittstelle: str = SCHNITTSTELLE
     eingebaut: bool = False                 # gehört zu Knowlin selbst (sonst Erweiterung aus einem Paket)
     lab: bool = False                       # hat eine Trainingshalle (Policies vom Hub, Parcours, Training, Akrobatik)
+    zubehoer: tuple[str, ...] = ()          # Zubehör des Herstellers, das Knowlin kennt (seit 0.47: „rollen“, „polaroid“)
 
     @property
     def koerper_zustand(self) -> str:
@@ -150,7 +151,7 @@ class Koerper:
                 "faehigkeiten": sorted(self.faehigkeiten), "skills": list(self.skills), "echt": self.echt,
                 "simulator": self.simulator, "quelle": self.quelle, "lizenz": self.lizenz,
                 "schnittstelle": self.schnittstelle, "eingebaut": self.eingebaut, "zustand": self.koerper_zustand,
-                "lab": self.lab}
+                "lab": self.lab, "zubehoer": list(self.zubehoer)}
 
 
 # ── Die Körper, die Knowlin mitbringt ────────────────────────────────────────
@@ -160,7 +161,7 @@ EINGEBAUT: tuple[Koerper, ...] = (
             "duckpilot.backends:baue_microduck", zustand="microduck",
             skills=("sit_toggle", "ground_pick", "kick_left", "kick_right", "roulade"),
             echt="Pollens robotd (JSON-RPC)", quelle="https://github.com/pollen-robotics/microduck",
-            lizenz="Apache-2.0", eingebaut=True, lab=True),
+            lizenz="Apache-2.0", eingebaut=True, lab=True, zubehoer=("rollen", "polaroid")),
     Koerper("reachy_mini", "Reachy Mini", "Pollen Robotics / Hugging Face", "stationaer",
             frozenset({"kopf", "antennen", "koerperdrehung", "kamera", "mikrofon", "lautsprecher", "pollen_bewegungen"}),
             "duckpilot.backends:baue_reachy_mini", echt="Pollens Daemon (HTTP)",
