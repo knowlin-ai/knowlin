@@ -32,7 +32,7 @@ class Rennfahrt(Behavior):
 
     def tick(self, st, dt):
         if self.fahrt.fertig is not None:
-            return self.finish(f"im Ziel nach {self.fahrt.fertig:.1f} s")
+            return self.finish(f"im Ziel nach {self.fahrt.fertig:.1f} s".replace(".", ","))
         if self.phase == "aufstellen":
             ax, ay, ar = self.anlauf
             dx, dy = ax - st.x, ay - st.y

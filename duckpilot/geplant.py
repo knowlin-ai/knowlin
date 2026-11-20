@@ -16,9 +16,15 @@ from typing import Any
 # (Version, Name, ein Satz). Reihenfolge = Reihenfolge der Kacheln. Neu geordnet am 15.11.2026 (Maintainer: „Mischung je
 # Release“ – je Release ein Thema für den Kopf und eins für einen Körper; echte Roboter erst ab Lieferung).
 GEPLANT: tuple[tuple[str, str, str], ...] = (
-    ("ab Lieferung", "Ari mit LeRobot", "Mit einem zweiten Arm steuern und fertige Policies laden, sobald ein SO-101 da ist."),
+    ("0.48", "Mentor als eigenes Modul", "Der Mentor bekommt eine eigene Seite: Lernziele, Fortschritt und Übungen an einem Ort."),
+    ("0.48", "Marionette und VR-Vormachen", "Mit dem Handy führen oder in der Quest mit Kopf und Händen vormachen – sie macht es nach."),
+    ("0.49", "Aufmerksamkeit suchen", "Wenn lange niemand mit ihr spricht, kommt sie vorsichtig näher und macht auf sich aufmerksam."),
+    ("0.49", "Knowlin Lab als Bereich", "Die Trainingshalle als eigener Bereich – dazu der Raum aus der Quest im Simulator."),
+    ("0.50", "Websuche und Routinen", "Knowlets dürfen im Netz nachschlagen und feste Abläufe zu einer Uhrzeit starten."),
+    ("0.50", "Choreografie zum Ziehen", "Tänze auf einer Zeitleiste bauen: Bewegungen hineinziehen, verschieben, anhören."),
     ("ab Lieferung", "Echte Microduck", "Inbetriebnahme mit Trockenlauf, digitaler Zwilling mit Frühwarnung."),
-    ("ab Lieferung", "Zubehör der Microduck", "Rollschuh-Gangarten und das NFC-Polaroid, sobald Pollen liefert."),
+    ("ab Lieferung", "Ari mit LeRobot", "Mit einem zweiten Arm steuern und fertige Policies laden, sobald ein SO-101 da ist."),
+    ("ab Lieferung", "Rollen und Polaroid am Gerät", "Pollens Rollschuh-Policies auf der echten Microduck und das Polaroid über NFC."),
 )
 
 

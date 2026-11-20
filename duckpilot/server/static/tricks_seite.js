@@ -4,6 +4,8 @@ import { initBelloLernt } from './bello_lernt.js';
 import { setIdleRepertoire } from './personality.js';
 import { initAlleSpiele } from './spiele_alle.js';
 import { initVR } from './vr.js';
+import { initZubehoer } from './zubehoer.js';
+import { initLeistungsmodus } from './leistung.js';
 import { vorschauKachel } from './skills.js';
 import { initTricksReiter } from './tricks_reiter.js';
 import { initTricksSuche } from './tricks_suche.js';
@@ -80,10 +82,13 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   let emotionsLoaded = false;
   const belloLernt = initBelloLernt({ $, api, toast });   // Bello lernt laufen (seit 0.43)
   const alleSpiele = initAlleSpiele({ $, api, toast, showView });   // Spiele für jeden Körper (seit 0.44)
-  initVR({ $, send, toast, getConfig });   // VR mit der Quest (seit 0.44, nicht geprüft)
+  initVR({ $, send, toast, getConfig });
+  const zubehoer = initZubehoer({ $, api, toast, showView });   // Zubehör der Microduck (seit 0.47)
+  initLeistungsmodus();   // VR mit der Quest (seit 0.44, nicht geprüft)
   async function loadTricks(p = 'tricks') {
     if (p === 'tricks' && document.body.classList.contains('koerper-bittle')) belloLernt.zeigen();
     if (p === 'spiele') alleSpiele?.laden();
+    if (p === 'zubehoer') zubehoer.laden();
     if (!emotionsLoaded) {
       emotionsLoaded = true;
       const list = await catalog();

@@ -9,6 +9,42 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.47.0 – 2026-11-20 – Zubehör der Microduck: Rollen, Arena-Rennen, Polaroid
+
+### Neu
+- **Rollen zum Anklemmen** (Steuern → Zubehör, einfacher Simulator): Mit Pollens Rollen an den Füßen fährt die Microduck
+  Rollschuh – schneller als zu Fuß, rollt nach (bremst sanfter, als sie anfährt), lenkt weicher und kann nicht
+  seitwärts trippeln; **geduckt** ist sie noch schneller und tiefer. Aufheben, Schuss und Rolle lehnt sie mit Rollen
+  ehrlich ab. Anklemmen und abnehmen nur im Stand. In der 3D-Ansicht sitzen die Rollen unter den Füßen und drehen sich
+  mit. Auch per Werkzeug `zubehoer` oder ohne Sprachmodell: „Rollen an“, „fahr Rollschuh“, „duck dich“, „Rollen ab“.
+- **Arena-Rennen mit Zeitmessung:** eine Runde um den Couchtisch durch fünf Tore (rote Startlinie, blaue Tore). Sie
+  fährt selbst oder du lenkst sie im Cockpit; die Uhr läuft ab der Startlinie, Tore zählen nur der Reihe nach.
+  Bestzeiten zu Fuß, auf Rollen und geduckt; zur besten Fahrt fährt beim nächsten Mal die **Geisterente** mit (ein
+  heller Punkt). Selbst fahrend bremst sie auf Rollen vor scharfen Kurven.
+- **NFC-Polaroid:** „An den Kopf halten“ (oder „Wovon träumst du?“) – sie erzählt, wovon sie geträumt hat, und das Bild
+  erscheint wie auf Pollens 1,54-Zoll-Farb-E-Ink-Karte (200 × 200 Punkte, sechs Farben mit Fehlerstreuung), zum
+  Herunterladen. Der Traum entsteht ohne Sprachmodell aus dem Tagesrückblick: was heute am häufigsten vorkam, und
+  die Stimmung des Tages – nichts wird erfunden.
+- **Leistungsmodus „Sparsam“** (Einstellungen → Darstellung): 30 Bilder pro Sekunde ohne Schatten und Verdeckung, das
+  Gehirn-Bild zeichnet seltener, die Oberfläche bewegt sich weniger. Für schwache Rechner oder wenn das lokale
+  Sprachmodell auf derselben Grafikkarte läuft.
+- Körperprofile nennen ihr Zubehör (`Koerper.zubehoer`); der Reiter „Zubehör“ erscheint nur, wo das Profil es nennt.
+
+### Geändert
+- Geplant (Kacheln und Roadmap): 0.48 Mentor als eigenes Modul, Marionette und VR-Vormachen; 0.49 Aufmerksamkeit
+  suchen, Knowlin Lab als Bereich; 0.50 Websuche und Routinen in Knowlets, Choreografie zum Ziehen. Rollen und Polaroid
+  am Gerät ab Lieferung.
+
+### Sicherheit
+- Der Not-Aus auf Rollen heißt sofortiger Stillstand: Sie rollt nicht weiter, auch nicht mit Schwung.
+- Kein Rennen in der Sperre nach dem Not-Aus, nicht hochgehoben, nicht gestürzt; ein Sturz beendet die Fahrt ohne Zeit.
+- Fährt sie auf Rollen mit Schwung gegen ein Möbel, fällt sie um – wie zu Fuß über der Sturzgeschwindigkeit.
+- Polaroid: Personen nur am PC und nur mit Namen; das Bild entsteht im Browser, nichts wird hochgeladen.
+
+### Nicht geprüft
+- Rollen und Polaroid an der echten Microduck (kommt mit Pollens Policies `roller`/`roller_crouch` und der Karte).
+- Rollen im Physikmodell – dort gibt es sie noch nicht; Knowlin sagt das.
+
 ## 0.46.2 – 2026-11-20 – Flüssiger, schneller sprechen, keine Enten bei anderen Robotern
 
 ### Geändert

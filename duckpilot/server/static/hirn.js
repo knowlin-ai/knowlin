@@ -518,7 +518,7 @@ export function initHirn(h) {
       const [w, hgt] = size();
       if (!reduced) step(w, hgt); else for (let i = 0; i < 3; i++) step(w, hgt);
       zurueck();
-      if (t - zuletzt >= 30) {          // gezeichnet wird ≈ 30-mal je Sekunde (seit 0.46.2), gerechnet wie bisher
+      if (t - zuletzt >= (document.body.classList.contains('sparsam') ? 66 : 30)) {   // sparsam: ≈ 15 Bilder/s (0.47)          // gezeichnet wird ≈ 30-mal je Sekunde (seit 0.46.2), gerechnet wie bisher
         zuletzt = t;
         draw(w, hgt);
       }

@@ -424,6 +424,14 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         if local is not None and local.configured:
             spawn(local.vorwaermen())
 
+    def zubehoer_stand(self) -> dict[str, Any]:
+        """Zubehör des Körpers laut Profil – und warum es gerade nicht geht (z. B. im Physikmodell)."""
+        from ..brain.tools import fehlt_dem_koerper
+
+        k = koerper.zu_zustand(getattr(self.backend, "koerper_art", "") or koerper.holen("duckpilot").koerper_zustand)
+        liste = list(k.zubehoer) if k else []
+        return {"zubehoer": liste, "zubehoer_grund": fehlt_dem_koerper("zubehoer", self.backend) if liste else None}
+
     def gestalt_liste(self) -> list[dict[str, Any]]:
         from ..figuren import GESTALT, gestalt_standard
 
@@ -849,6 +857,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                 "skills": self.backend.skills(),
                 "physik": bool(getattr(self.backend, "runs_policies", False)) and self.config.backend == "sim",
                 "eigenschaften": sorted(self.backend.eigenschaften()),     # Körpermodus der Oberfläche (seit 0.38.4)
+                **self.zubehoer_stand(),                                  # Zubehör laut Profil (seit 0.47)
                 "gestalt": self.gestalt_liste(),                          # Eigenschaften der Gestalt (seit 0.38.10)
                 "verkoerperungen": self.kopf_figuren(),                    # Punkte im Charakterfeld bei Knowlin
                 "im_koerper": self.im_koerper,

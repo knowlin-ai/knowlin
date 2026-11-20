@@ -311,9 +311,12 @@ export class Scene3D {
   // 'hoch' | 'schnell' | 'auto' (startet hoch, schaltet bei ruckelnder Ansicht selbst herunter)
   setQuality(q, remember = false) {
     this.quality = q;
-    this.useComposer = q !== 'schnell';
-    this.renderer.setPixelRatio(q === 'schnell' ? 1 : Math.min(window.devicePixelRatio, 2));
-    this.renderer.shadowMap.type = q === 'schnell' ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
+    const s = q === 'schnell' || q === 'sparsam', sp = q === 'sparsam';   // sparsam: 30 Bilder/s, ohne Schatten (0.47)
+    this.useComposer = !s;
+    this.bildabstand = sp ? 33 : 1000 / 60;
+    this.renderer.shadowMap.enabled = !sp;
+    this.renderer.setPixelRatio(s ? 1 : Math.min(window.devicePixelRatio, 2));
+    this.renderer.shadowMap.type = s ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
     this.resize();
     if (remember) { try { localStorage.setItem(QUALITY_KEY, q); } catch { /* egal */ } }
   }

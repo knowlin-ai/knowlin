@@ -1456,6 +1456,9 @@ Schalen, Servos, Gummisohlen, Kugellager, Kameralinse), Khronos-Neutral-Tonwerte
 farbtreu), einem scharfen Schatten, dessen Ausschnitt mit der Ente wandert, und Umgebungsverdeckung (GTAO)
 in Fugen und unter der Ente. System → Einstellungen → 3D-Darstellung: **Automatisch** (schaltet bei ruckelnder
 Ansicht auf Schnell), **Hoch** oder **Schnell** (ohne Verdeckung, einfache Schatten, einfache Pixeldichte).
+**Sparsam** (seit 0.47) ist der Leistungsmodus: 30 Bilder pro Sekunde, keine Schatten, keine Verdeckung, das Gehirn-Bild
+zeichnet seltener und die Oberfläche bewegt sich weniger – für schwache Rechner oder wenn das lokale Sprachmodell
+auf derselben Grafikkarte rechnet.
 
 **Farbe der Microduck** (seit 0.38.19): Cream, Graphite, Lavender oder Sky wie bei Pollen – unter System →
 Einstellungen → 3D-Darstellung und unter Charakter → Persönlichkeit → Aussehen. Gilt für das Original und die einfache
@@ -1597,6 +1600,30 @@ eigenen Netz, ohne Herstellerwolke und ohne Marke, die fest eingebaut wäre.
 - **Datenschutz:** Token und Hue-Schlüssel liegen nur im Tresor des Betriebssystems, in `haus.json` stehen nur die
   Adressen. Adressen im Internet (z. B. die Cloud-Adresse von Home Assistant) nimmt Knowlin nicht an. Meldungen sind
   nur Text, nie Bilder. „Trennen“ löscht Token bzw. Schlüssel.
+
+## Zubehör der Microduck (seit 0.47)
+
+Pollens Zubehörpaket bringt zwei Rollen zum Anklemmen, einen Laserpointer, einen Ball, NFC-Tags und ein NFC-Polaroid.
+Laser, Ball und NFC-Tags kann Knowlin schon länger; unter **Steuern → Zubehör** kommen jetzt die Rollen, ein Rennen und
+das Polaroid dazu – vorerst im einfachen Simulator. Der Reiter erscheint nur bei Körpern, deren Profil Zubehör nennt.
+
+- **Rollen:** anklemmen und abnehmen nur im Stand. Auf Rollen ist sie schneller als zu Fuß, rollt nach, lenkt weicher und
+  kann nicht seitwärts trippeln; **geduckt** ist sie noch schneller. Aufheben, Schuss und Rolle gehen mit Rollen nicht –
+  sie sagt das. Sprache ohne Sprachmodell: „Rollen an“, „fahr Rollschuh“, „duck dich“, „richte dich auf“, „Rollen ab“.
+- **Arena-Rennen:** eine Runde um den Couchtisch – über die rote Startlinie, durch die blauen Tore der Reihe nach, zurück
+  ins Ziel. „Selbst fahren lassen“ oder „Ich lenke“ (dann im Cockpit mit Steuerkreuz oder Tastatur). Die Uhr läuft ab
+  der Startlinie; Bestzeiten gibt es zu Fuß, auf Rollen und geduckt. Zur besten Fahrt wird der Weg gespeichert, beim
+  nächsten Rennen fährt die **Geisterente** (ein heller Punkt) mit.
+- **NFC-Polaroid:** „An den Kopf halten“ oder „Wovon träumst du?“ – sie erzählt, wovon sie geträumt hat, und das Bild
+  erscheint wie auf der 1,54-Zoll-Farb-E-Ink-Karte (200 × 200 Punkte, sechs Farben). „Bild speichern“ lädt es herunter.
+  Der Traum kommt aus dem Tagesrückblick (was heute am häufigsten vorkam, die Stimmung des Tages), nicht aus einem
+  Sprachmodell.
+- **Im Physikmodell** gibt es noch keine Rollen (Pollens Modell hat keine) – Knowlin sagt das. Am echten Roboter kommen
+  Rollen und Polaroid mit Pollens Policies `roller`/`roller_crouch` und der Karte.
+- **Sicherheit:** Not-Aus auf Rollen heißt sofort Stillstand. Kein Rennen in der Sperre nach dem Not-Aus, hochgehoben
+  oder gestürzt; ein Sturz beendet die Fahrt ohne Zeit. Mit Schwung gegen ein Möbel fällt sie um.
+- **Datenschutz:** Das Polaroid-Bild malt der Browser, nichts wird hochgeladen. Personen erscheinen nur am PC und nur mit
+  Namen, nie mit Gesicht. Gespeichert werden nur Bestzeiten und der Weg der besten Fahrt (`rennen.json`).
 
 ## Punktwolke des Tiefensensors
 

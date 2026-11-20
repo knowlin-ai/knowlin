@@ -1,0 +1,17 @@
+/* Zubehör der Microduck (seit 0.47): Rollen, Arena-Rennen, NFC-Polaroid – und der Leistungsmodus „Sparsam“. Nur Tokens. */
+[data-part="zubehoer"] [hidden] { display: none; }
+.zb-grund { padding: var(--spacing-03); border-radius: var(--r-card); background: var(--surface-raised); }
+.zb-stand { font-weight: 600; padding: var(--spacing-03) 0; }
+.zb-uhr { font: 600 var(--t-h2) / 1.2 var(--font-mono); font-variant-numeric: tabular-nums; padding: var(--spacing-03) 0; }
+.zb-best { display: grid; grid-template-columns: auto 1fr; gap: var(--spacing-02) var(--spacing-04); margin: var(--spacing-04) 0 0; }
+.zb-best dt { color: var(--ink-2); }
+.zb-best dd { margin: 0; font-variant-numeric: tabular-nums; }
+.zb-polaroid { display: inline-grid; justify-self: start; width: max-content; gap: var(--spacing-02); padding: var(--spacing-03) var(--spacing-03) var(--spacing-05);
+  background: var(--surface-raised); border-radius: var(--r-control); box-shadow: var(--e-1); margin: var(--spacing-03) 0; }
+.zb-polaroid canvas { width: 200px; height: 200px; image-rendering: pixelated; border-radius: var(--r-control); background: var(--surface-0); }
+.zb-polaroid-text { margin: 0; max-width: 200px; font-size: var(--t-small); color: var(--ink-2); }
+
+/* Leistungsmodus: weniger Bewegung in der Oberfläche */
+body.sparsam *, body.sparsam *::before, body.sparsam *::after {
+  animation-duration: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0s !important;
+}

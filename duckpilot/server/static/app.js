@@ -195,6 +195,7 @@ function handle(msg) {
     case 'spiel': return kameraSpiele.nachricht(msg);
     case 'spiel_alle': return window.dispatchEvent(new CustomEvent('knowlin:spiel', { detail: msg }));   // spiele_alle.js
     case 'mentor': return mentor.meldung(msg);
+    case 'rennen': case 'polaroid': return window.dispatchEvent(new CustomEvent('knowlin:zubehoer', { detail: msg }));   // zubehoer.js
   }
 }
 
@@ -334,7 +335,8 @@ function modelShort(m) {
 const GROUPS = [
   { id: 'steuern', tabs: [{ view: 'cockpit', label: 'Cockpit' }, { view: 'tricks', part: 'tricks', label: 'Tricks' },
     { view: 'tricks', part: 'tanz', label: 'Tanzen' }, { view: 'tricks', part: 'team', label: 'Team' },
-    { view: 'tricks', part: 'hub', label: 'Vom Hub' }, { view: 'tricks', part: 'spiele', label: 'Spiele' }] },
+    { view: 'tricks', part: 'hub', label: 'Vom Hub' }, { view: 'tricks', part: 'spiele', label: 'Spiele' },
+    { view: 'tricks', part: 'zubehoer', label: 'Zubehör' }] },
   { id: 'alltag', tabs: [{ view: 'alltag' }] },
   { id: 'umgebung', tabs: [{ view: 'umgebung' }] },                 // seit 0.38: eigener Bereich (Befund, Wahl)
   { id: 'charakter', tabs: [{ view: 'persoenlichkeit', label: 'Persönlichkeit' }, { view: 'stimme', part: 'stimme', label: 'Stimme' },
@@ -760,7 +762,7 @@ const unterbrecher = new Unterbrecher();
 let lastUserSpoke = false;   // Gesprächsfenster nur nach gesprochenen Sätzen
 
 function setThinking(on) {
-  scene.bildabstand = on ? 33 : 1000 / 60;   // beim Nachdenken 30 Bilder/s: Rechenzeit fürs Sprachmodell (0.46.2)
+  scene.bildabstand = on || scene.quality === 'sparsam' ? 33 : 1000 / 60;   // beim Nachdenken 30 Bilder/s: Rechenzeit fürs Sprachmodell (0.46.2)
   if (on && !thinkingEl) {
     thinkingEl = document.createElement('p');
     thinkingEl.className = 'thinking';

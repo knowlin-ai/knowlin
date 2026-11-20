@@ -73,10 +73,19 @@ def test_3d_hoechstens_60_bilder_und_langsamer_beim_nachdenken():
     duck3d = (STATIC / "duck3d.js").read_text(encoding="utf-8")
     assert "this.bildabstand = 1000 / 60" in duck3d and "document.hidden" in duck3d
     app = (STATIC / "app.js").read_text(encoding="utf-8")
-    assert "scene.bildabstand = on ? 33" in app
+    assert "scene.bildabstand = on || scene.quality === 'sparsam' ? 33" in app        # sparsam (0.47): immer 30
 
 
 def test_charaktere_ohne_ente_bei_anderen_robotern():
     js = (STATIC / "personality.js").read_text(encoding="utf-8")
     assert "'Chaos-Ente': 'Wirbelwind'" in js and "keine-ente" in js
     assert "lesbar(nameIn(this.namen" not in js or "lesbar(intern)" in js
+
+
+def test_leistungsmodus_sparsam():
+    """0.47: Darstellung „Sparsam“ – 30 Bilder/s, ohne Schatten und Verdeckung, Gehirn-Bild seltener, Body-Klasse."""
+    d3 = (STATIC / "duck3d.js").read_text(encoding="utf-8")
+    assert "this.bildabstand = sp ? 33" in d3 and "shadowMap.enabled = !sp" in d3
+    assert 'value="sparsam"' in (STATIC / "index.html").read_text(encoding="utf-8")
+    assert "'sparsam'" in (STATIC / "leistung.js").read_text(encoding="utf-8")
+    assert "sparsam') ? 66 : 30" in (STATIC / "hirn.js").read_text(encoding="utf-8")

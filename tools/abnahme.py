@@ -163,12 +163,12 @@ ENTE_ERLAUBT = re.compile(r"Open Duck|Microduck|Duck Mini|Quacki|\b(intelligente
 DUCKPILOT_ERLAUBT = re.compile(r"Python-Paket duckpilot|Python package duckpilot|Codenamen der Module: duckpilot|"
                                r"module code names: duckpilot|%LOCALAPPDATA%\\duckpilot|duckpilot\.toml|-m duckpilot")
 KOERPER_ANSICHTEN = [("cockpit", None), ("tricks", "tricks"), ("tricks", "tanz"), ("tricks", "team"), ("tricks", "hub"),
-                     ("tricks", "spiele"), ("alltag", None), ("umgebung", None), ("persoenlichkeit", None),
+                     ("tricks", "spiele"), ("tricks", "zubehoer"), ("alltag", None), ("umgebung", None), ("persoenlichkeit", None),
                      ("stimme", "stimme"), ("stimme", "gespraech"), ("memory", None), ("knowlets", None),
                      ("akrobatik", None), ("parcours", None), ("training", None), ("dashboard", None),
                      ("settings", None), ("tricks", "pakete")]
 KOPF_ANSICHTEN = [("start", None), ("memory", None), ("knowlets", None), ("settings", None), ("stimme", "stimme")]
-NUR_MICRODUCK = {"akrobatik", "parcours", "training", "team", "hub"}      # wie static/modul.js
+NUR_MICRODUCK = {"akrobatik", "parcours", "training", "team", "hub", "zubehoer"}   # wie static/modul.js (Zubehör: Profil)
 SICHTBARER_TEXT = """() => {
   for (const d of document.querySelectorAll('details')) d.open = true;      // auch zugeklappte Erklärungen
   const zeilen = document.body.innerText.split('\\n');                       // innerText: nur, was gerendert ist
@@ -1061,6 +1061,33 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Smart Home: Räume und Rundgang bei der Microduck (seit 0.46)", all(raeume), str(raeume))
     b.pruefe("Smart Home: „Vor dem Saugroboter aufräumen“ antwortet ehrlich", any(w in meldung for w in ("Korb", "aufwecken", "räume")),
              meldung)
+
+    # 13n · Seit 0.47: Zubehör der Microduck – Rollen anklemmen, Polaroid malt einen Traum, Rennen stellt sich auf
+    page.evaluate("() => window.duckpilot.showView('tricks', 'zubehoer')")
+    page.wait_for_timeout(1500)
+    page.click("#zb-rollen-an")
+    try:
+        page.wait_for_function("() => /dran/.test(document.getElementById('zb-rollen-stand').textContent)", timeout=6000)
+    except Exception:  # noqa: BLE001
+        pass
+    rollen = page.text_content("#zb-rollen-stand") or ""
+    page.click("#zb-polaroid-halten")
+    try:
+        page.wait_for_function("() => !document.getElementById('zb-polaroid-laden').hidden", timeout=6000)
+    except Exception:  # noqa: BLE001
+        pass
+    traum = page.text_content("#zb-polaroid-text") or ""
+    b.foto(page, "13n-zubehoer", "Steuern → Zubehör: Rollen, Arena-Rennen, NFC-Polaroid")
+    b.pruefe("Zubehör: Rollen angeklemmt, Polaroid zeigt einen Traum", "dran" in rollen and "geträumt" in traum,
+             f"{rollen} · {traum}")
+    rennen = page.evaluate("() => fetch('/api/zubehoer/rennen', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                           " body: JSON.stringify({aktion: 'start'})}).then(r => r.json())")
+    page.evaluate("() => fetch('/api/zubehoer/rennen', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                  " body: JSON.stringify({aktion: 'stopp'})})")
+    page.evaluate("() => fetch('/api/zubehoer/rollen', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                  " body: JSON.stringify({an: false})})")
+    b.pruefe("Zubehör: Arena-Rennen startet oder sagt ehrlich, warum nicht",
+             bool(rennen.get("ok")) or any(w in (rennen.get("fehler") or "") for w in ("aufwecken", "Not-Aus")), str(rennen))
 
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")

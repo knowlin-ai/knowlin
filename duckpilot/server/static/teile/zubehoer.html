@@ -1,0 +1,54 @@
+          <div data-part="zubehoer" hidden>
+            <header class="page-head">
+              <h2>Zubehör</h2>
+              <p>Pollens Zubehörpaket für die Microduck: Rollen zum Anklemmen, eine Rennrunde mit Zeitmessung und das NFC-Polaroid.
+                Vorerst im einfachen Simulator – im Physikmodell gibt es noch keine Rollen, am Gerät kommt alles mit der Lieferung.</p>
+              <details class="explain"><summary>Was passiert mit dem Polaroid-Bild?</summary>
+                <p>Das Bild entsteht hier im Browser aus dem Tagesrückblick: was heute am häufigsten vorkam, und die Stimmung des Tages.
+                  Nichts wird erfunden und nichts hochgeladen. Personen erscheinen nur am PC und nur mit ihrem Namen, nie mit
+                  einem Gesicht. Gespeichert werden nur deine Bestzeiten und der Weg der besten Fahrt (fürs Mitfahren beim nächsten Rennen).</p>
+              </details>
+            </header>
+            <p class="zb-grund field-help" id="zb-grund" hidden></p>
+            <div class="grid grid--halves zb-karten" id="zb-karten">
+              <section class="card set-card g-half" aria-labelledby="zb-rollen-titel">
+                <h3 id="zb-rollen-titel">Rollen</h3>
+                <p class="field-help">Zwei Rollen an die Füße klemmen – dann fährt sie Rollschuh: schneller, rollt nach, lenkt weicher und kann
+                  nicht seitwärts trippeln. Geduckt ist sie noch schneller. Aufheben, Schuss und Rolle gehen mit Rollen nicht.
+                  An- und abklemmen nur im Stand. Der Not-Aus wirkt wie immer: sofort Stillstand.</p>
+                <div class="zb-stand" id="zb-rollen-stand" aria-live="polite">Rollen ab</div>
+                <div class="input-row ks-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" id="zb-rollen-an">Rollen anklemmen</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="zb-rollen-ab" hidden>Rollen abnehmen</button>
+                  <label class="switch" id="zb-geduckt-feld" hidden><input type="checkbox" id="zb-geduckt"><span>geduckt</span></label>
+                </div>
+              </section>
+              <section class="card set-card g-half braucht-beine" aria-labelledby="zb-rennen-titel">
+                <h3 id="zb-rennen-titel">Arena-Rennen</h3>
+                <p class="field-help">Eine Runde um den Couchtisch: über die rote Startlinie, durch die blauen Tore der Reihe nach, zurück ins
+                  Ziel. Sie fährt selbst – oder du lenkst sie im Cockpit. Bestzeiten gibt es zu Fuß, auf Rollen und geduckt; zur
+                  besten Fahrt fährt beim nächsten Mal die Geisterente mit. Nach einem Not-Aus startet kein Rennen.</p>
+                <div class="zb-uhr" id="zb-uhr" aria-live="polite" aria-atomic="true">0,0 s</div>
+                <p class="field-help" id="zb-rennen-text">Bereit?</p>
+                <div class="input-row ks-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" id="zb-rennen-selbst">Selbst fahren lassen</button>
+                  <button type="button" class="btn btn--sm" id="zb-rennen-lenken">Ich lenke</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="zb-rennen-stopp" hidden>Abbrechen</button>
+                </div>
+                <dl class="zb-best" id="zb-best"></dl>
+              </section>
+              <section class="card set-card g-half" aria-labelledby="zb-polaroid-titel">
+                <h3 id="zb-polaroid-titel">NFC-Polaroid</h3>
+                <p class="field-help">Die kleine Farb-E-Ink-Karte an ihren Kopf halten – dann zeigt sie, wovon sie träumt. Bis die Karte da ist,
+                  malt Knowlin das Bild hier (200 × 200 Punkte, wenige Farben wie auf E-Ink).</p>
+                <div class="zb-polaroid">
+                  <canvas id="zb-polaroid-bild" width="200" height="200" role="img" aria-label="Polaroid: noch kein Traum"></canvas>
+                  <p class="zb-polaroid-text" id="zb-polaroid-text" aria-live="polite">Noch kein Traum.</p>
+                </div>
+                <div class="input-row ks-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" id="zb-polaroid-halten">An den Kopf halten</button>
+                  <a class="btn btn--ghost btn--sm" id="zb-polaroid-laden" download="knowlin-traum.png" href="#" hidden>Bild speichern</a>
+                </div>
+              </section>
+            </div>
+          </div>

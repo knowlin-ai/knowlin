@@ -32,6 +32,10 @@ from ..security import _is_remote, _json_body
 RENNEN_MAX_S = 180.0
 
 
+def _s(x: float) -> str:
+    return f"{x:.1f}".replace(".", ",") + " s"
+
+
 class ZubehoerDienst:
     def __init__(self, rt: Runtime) -> None:
         self.rt = rt
@@ -83,7 +87,7 @@ class ZubehoerDienst:
             self.rt.engine.run(self.renner)
         spawn(self._messen(fahrt))
         best = self.best.ueberblick().get(art)
-        text = (f"Arena-Rennen {R.ART_NAME[art]}" + (f" – Bestzeit {best:.1f} s" if best else "") +
+        text = (f"Arena-Rennen {R.ART_NAME[art]}" + (f" – Bestzeit {_s(best)}" if best else "") +
                 (". Ich stelle mich an die Startlinie." if selbst else ". Fahr mich über die Startlinie!"))
         await self.melden(phase="bereit", art=art, selbst=selbst, tore=R.tore(), geist=self.best.geist(art),
                           best=best, text=text)
@@ -123,7 +127,7 @@ class ZubehoerDienst:
                 await self.melden(phase="tor", **ev, art=fahrt.art)
                 continue
             neu = self.best.eintragen(fahrt)
-            text = f"Im Ziel nach {fahrt.fertig:.1f} s" + (" – neue Bestzeit!" if neu else ".")
+            text = f"Im Ziel nach {_s(fahrt.fertig)}" + (" – neue Bestzeit!" if neu else ".")
             self.fahrt, self.renner = None, None
             await self.melden(phase="ziel", zeit=fahrt.fertig, neu=neu, art=fahrt.art, text=text,
                               bestzeiten=self.best.ueberblick())
