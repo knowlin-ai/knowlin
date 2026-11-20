@@ -760,6 +760,7 @@ const unterbrecher = new Unterbrecher();
 let lastUserSpoke = false;   // Gesprächsfenster nur nach gesprochenen Sätzen
 
 function setThinking(on) {
+  scene.bildabstand = on ? 33 : 1000 / 60;   // beim Nachdenken 30 Bilder/s: Rechenzeit fürs Sprachmodell (0.46.2)
   if (on && !thinkingEl) {
     thinkingEl = document.createElement('p');
     thinkingEl.className = 'thinking';

@@ -144,10 +144,8 @@ async def to_english(text: str, agent: Any = None) -> tuple[str, str]:
     local = getattr(agent, "local", None) if agent is not None else None
     if local is not None and getattr(local, "configured", False):
         try:
-            data = await local._post("/api/chat", {
-                "model": local.model, "stream": False, "think": False,
-                "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
-                "options": {"temperature": 0.2}}, timeout=90.0)
+            data = await local.chat([{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}],
+                                    temperature=0.2)     # dieselben Optionen: kein Neuladen des Modells (0.46.2)
             return _clean((data.get("message") or {}).get("content", ""), text), "lokal"
         except Exception as exc:
             log.warning("Stimmbeschreibung übersetzen (lokal): %s", exc)

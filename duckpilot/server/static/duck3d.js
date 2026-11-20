@@ -177,7 +177,16 @@ export class Scene3D {
     this.povFrame = null;      // HTML-Rahmen mit Beschriftung, setzt app.js
     this.resize();
     new ResizeObserver(() => this.resize()).observe(canvas);
-    const loop = () => { if (!this.paused) this._frame(); requestAnimationFrame(loop); };
+    // Höchstens 60 Bilder pro Sekunde (seit 0.46.2, „die App läuft teilweise träge“): Bildschirme mit 120 oder 144 Hz
+    // rechneten sonst doppelt so oft – mit Verdeckung und weichen Schatten. Im Hintergrund-Tab rechnet nichts.
+    this.bildabstand = 1000 / 60;
+    let naechstes = 0;
+    const loop = (t) => {
+      requestAnimationFrame(loop);
+      if (this.paused || document.hidden || t < naechstes - 2) return;
+      naechstes = Math.max(naechstes + this.bildabstand, t);
+      this._frame();
+    };
     requestAnimationFrame(loop);
   }
 
@@ -316,12 +325,15 @@ export class Scene3D {
     if (p.frames < 60) return;          // Laden und Aufbau nicht mitzählen
     p.ms += dtMs;
     if (p.frames < 240) return;
-    p.checked = true;
     if (p.ms / 180 > 28) {               // unter ~35 Bildern pro Sekunde: Verdeckung aus
+      p.checked = true;
       this.useComposer = false;
       this.renderer.setPixelRatio(1);
       this.resize();
       this.onQualityDrop?.();
+    } else {                             // seit 0.46.2 laufend weiter prüfen: rechnet z. B. das lokale Sprachmodell
+      p.frames = 0;                      // gerade auf derselben Grafikkarte, wird es später eng
+      p.ms = 0;
     }
   }
 

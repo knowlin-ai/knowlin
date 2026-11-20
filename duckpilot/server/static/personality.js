@@ -44,6 +44,18 @@ export const KNOWLIN_TEXTE = {
   'Übermütig': 'Maximal lebhaft und verspielt.',
 };
 
+// Körper ohne Entengestalt (seit 0.46.2, Fund des Maintainers: „wieso sind immer noch bei den anderen Robotern Enten-
+// ‚Rückstände' in den Einstellungen“): dieselben Charaktere, aber ohne Ente und Gackern. Intern (Server, Leerlauf-Gesten)
+// bleibt der Schlüssel „Chaos-Ente“ – nur das, was man liest, ändert sich.
+const OHNE_ENTE = { 'Chaos-Ente': 'Wirbelwind' };
+const OHNE_ENTE_TEXT = [[/gackert/g, 'kichert'], [/Chaos-Ente/g, 'Wirbelwind'], [/,? ?quak!/gi, '']];
+const ohneEnte = () => typeof document !== 'undefined' && document.body.classList.contains('keine-ente');
+const ENTEN = new Set(['duckpilot', 'open_duck_mini']);      // Verkörperungen mit Entengestalt (wie modul.js KOERPER)
+export function lesbar(text, keineEnte = ohneEnte()) {
+  if (!text || !keineEnte) return text;
+  return OHNE_ENTE_TEXT.reduce((t, [a, b]) => t.replace(a, b), OHNE_ENTE[text] || text);
+}
+
 function nameIn(namen, x, y) {
   const row = y < 0.25 ? 0 : y < 0.5 ? 1 : y < 0.75 ? 2 : 3;
   const col = x < 0.34 ? 0 : x < 0.67 ? 1 : 2;
@@ -51,9 +63,9 @@ function nameIn(namen, x, y) {
 }
 
 export function personaName(x, y) {
-  return nameIn(NAMES, x, y);
+  return lesbar(nameIn(NAMES, x, y));
 }
-export const personaText = (name) => DESCRIBE[name] || '';
+export const personaText = (name) => lesbar(DESCRIBE[name] || DESCRIBE[Object.keys(OHNE_ENTE).find((k) => OHNE_ENTE[k] === name)] || '');
 
 // Was der Charakter im Leerlauf tut – kommt vom Server (/api/emotions), bis dahin leer
 const idleByPersona = new Map();
@@ -173,18 +185,18 @@ export class PersonalityPad {
       const d = document.createElement(ziehbar ? 'button' : 'span');
       d.className = `pad-mark${m.aktiv ? ' is-aktiv' : ''}`;
       d.textContent = m.name;
-      this.markeSetzen(d, m.name, m.x, m.y);
+      this.markeSetzen(d, m.name, m.x, m.y, m.id);
       if (ziehbar) this.markeZiehbar(d, m);
       return d;
     }));
     if (fokus) { const d = this.marksEl.querySelector(`[data-marke="${CSS.escape(fokus)}"]`); if (d) d.focus(); }
   }
 
-  markeSetzen(d, name, x, y) {
+  markeSetzen(d, name, x, y, id = null) {
     d.style.left = `${Math.min(1, Math.max(0, x)) * 100}%`;
     d.style.top = `${(1 - Math.min(1, Math.max(0, y))) * 100}%`;
     if (d.tagName === 'BUTTON') {
-      d.setAttribute('aria-label', `${name}: ${nameIn(NAMES, x, y)}, ${Math.round(x * 100)} Prozent ${this.achsen.rechts}, `
+      d.setAttribute('aria-label', `${name}: ${lesbar(nameIn(NAMES, x, y), id ? !ENTEN.has(id) : ohneEnte())}, ${Math.round(x * 100)} Prozent ${this.achsen.rechts}, `
         + `${Math.round(y * 100)} Prozent ${this.achsen.oben}. Ziehen oder mit den Pfeiltasten verschieben.`);
     }
   }
@@ -207,7 +219,7 @@ export class PersonalityPad {
       if (!zieht) return;
       e.stopPropagation();
       pos = this.at(e);
-      this.markeSetzen(d, m.name, ...pos);
+      this.markeSetzen(d, m.name, ...pos, m.id);
     });
     const ende = (e) => {
       if (!zieht) return;
@@ -225,7 +237,7 @@ export class PersonalityPad {
       if (!r) return;
       e.preventDefault();
       pos = [Math.min(1, Math.max(0, pos[0] + r[0])), Math.min(1, Math.max(0, pos[1] + r[1]))];
-      this.markeSetzen(d, m.name, ...pos);
+      this.markeSetzen(d, m.name, ...pos, m.id);
       clearTimeout(d._kbd);
       d._kbd = setTimeout(melde, 450);
     });
@@ -234,10 +246,11 @@ export class PersonalityPad {
   render() {
     this.puck.style.left = `${this.x * 100}%`;
     this.puck.style.top = `${(1 - this.y) * 100}%`;
-    const name = nameIn(this.namen, this.x, this.y);
+    const intern = nameIn(this.namen, this.x, this.y);
+    const name = lesbar(intern);
     this.nameEl.textContent = name;
-    this.descEl.textContent = this.texte[name] || '';
-    this.idleEl.textContent = this.leerlauf ? idleText(name) : '';
+    this.descEl.textContent = lesbar(this.texte[intern] || '');
+    this.idleEl.textContent = this.leerlauf ? idleText(intern) : '';
     this.idleEl.hidden = !this.leerlauf;
     this.puck.classList.toggle('goofy', this.goofy && this.y >= 0.5);
     this.puck.setAttribute('aria-label', `${name}: ${Math.round(this.x * 100)} Prozent ${this.achsen.rechts}, `

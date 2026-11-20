@@ -11,7 +11,7 @@ export function initKopfleiste({ $, api, toast, send, showView, getConfig, getVi
     const r = await api('/api/settings', 'POST', values);
     if (!r.ok) { toast(r.fehler || 'Nicht gespeichert'); return; }
     const goofyNow = values.humor >= 0.5;
-    toast(`${personaName(values.energie, values.humor)}${goofyNow && !wasGoofy ? (config.modul === 'reachy_mini' ? ' – verspielt an' : ' – Goofy-Modus an, quak!') : !goofyNow && wasGoofy ? ' – Goofy-Modus aus' : ''}`);
+    toast(`${personaName(values.energie, values.humor)}${goofyNow && !wasGoofy ? (document.body.classList.contains('keine-ente') ? ' – verspielt an' : ' – Goofy-Modus an, quak!') : !goofyNow && wasGoofy ? ' – Goofy-Modus aus' : ''}`);
     if (goofyNow && !wasGoofy) send({ type: 'tool', name: 'emote', args: { emotion: 'schuetteln' } });
     if (r.einstellungen) einst.uebernehmen(r.einstellungen, getView() === 'settings' || getView() === 'persoenlichkeit');
   }

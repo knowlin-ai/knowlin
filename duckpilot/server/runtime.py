@@ -405,6 +405,22 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.kopf = KopfAgent(self.agent, self.kopf_figuren, einstellen=self.apply_settings,
                               namen=lambda: (self.config.kopf_name, self.config.nutzer_name),
                               charakter=lambda: (self.config.grund_energie, self.config.grund_humor))
+        self.lokal_vorwaermen()
+
+    def lokal_vorwaermen(self) -> None:
+        """Eigenes Sprachmodell schon laden und den Systemtext lesen lassen (seit 0.46.2) – für den, der gerade spricht:
+        die Verkörperung, sobald jemand sie betreten hat, sonst Knowlins Kopf. Ohne laufende Schleife (beim Aufbau) später
+        aus `start()`."""
+        if getattr(self.config, "gehirn", "") != "lokal" or not hasattr(self, "kopf"):
+            return
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return
+        wer = self.agent if getattr(self, "im_koerper", False) else self.kopf
+        local = getattr(wer, "local", None)
+        if local is not None and local.configured:
+            spawn(local.vorwaermen())
 
     def gestalt_liste(self) -> list[dict[str, Any]]:
         from ..figuren import GESTALT, gestalt_standard
@@ -440,6 +456,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.reachy_beim_zuweisen()
         self._tasks.append(asyncio.create_task(self._reachy_leerlauf(), name="reachy-leerlauf"))
         self._tasks.append(asyncio.create_task(self._eigenstaendig(), name="eigenstaendig"))
+        self.lokal_vorwaermen()                                 # eigenes Sprachmodell schon laden (seit 0.46.2)
         if self.haus_dienst is not None:                        # Heimkehr zum Ladeplatz (seit 0.45)
             self._tasks.append(asyncio.create_task(self.haus_dienst.waechter(), name="haushalt"))
         self.alltag.start()
@@ -588,6 +605,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                 and not (self.alltag.on and self.alltag.mode == "ruhe"):
             await self.engine.stand_up()
         await self.broadcast({"type": "koerper", "an": True})
+        self.lokal_vorwaermen()                                 # jetzt spricht die Verkörperung (seit 0.46.2)
         await self._begruessen()
 
     async def _begruessen(self) -> None:

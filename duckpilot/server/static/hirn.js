@@ -512,12 +512,16 @@ export function initHirn(h) {
 
   function loop() {
     running = true;
-    const tick = () => {
+    let zuletzt = 0;
+    const tick = (t) => {
       if (!visible()) { running = false; return; }
       const [w, hgt] = size();
       if (!reduced) step(w, hgt); else for (let i = 0; i < 3; i++) step(w, hgt);
       zurueck();
-      draw(w, hgt);
+      if (t - zuletzt >= 30) {          // gezeichnet wird ≈ 30-mal je Sekunde (seit 0.46.2), gerechnet wie bisher
+        zuletzt = t;
+        draw(w, hgt);
+      }
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);

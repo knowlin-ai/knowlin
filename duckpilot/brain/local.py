@@ -43,9 +43,17 @@ LOCAL_TOOLS = {
 }
 LOCAL_NOTE = """
 - Du läufst gerade als lokales Sprachmodell auf dem PC (ohne Internet). Bleib bei kurzen, freundlichen Antworten \
-und nimm Werkzeuge nur, wenn der Mensch etwas Bewegtes möchte. Erfinde keine Werkzeuge.
+(meist ein bis zwei Sätze – alles wird vorgelesen) und nimm Werkzeuge nur, wenn der Mensch etwas Bewegtes möchte. \
+Erfinde keine Werkzeuge.
 - Schreib keine Befehle in eckigen Klammern in deine Antwort – Bewegungen und Gefühle nur über die Werkzeuge."""
 THINK = re.compile(r"<think>.*?</think>", re.S)
+# Schneller antworten (seit 0.46.2, Hinweis des Maintainers: „Die App läuft teilweise träge. Auch das Sprechen ist super
+# langsam“): Ollama wirft ein Modell nach 5 min ohne Anfrage aus dem Speicher – die nächste Antwort wartet dann viele
+# Sekunden aufs Neuladen. Es bleibt jetzt 30 min geladen. Alle Anfragen nutzen dieselben Optionen: ein anderes
+# `num_ctx` (z. B. beim Übersetzen der Stimmbeschreibung) lädt das Modell sonst ebenfalls neu.
+# `num_predict` begrenzt ausufernde Antworten: alles, was geschrieben wird, muss danach auch vorgelesen werden.
+OPTIONEN: dict[str, Any] = {"num_ctx": 16384, "temperature": 0.7, "num_predict": 400}
+KEEP_ALIVE = "30m"
 # Kleine lokale Modelle schreiben Werkzeuge manchmal als Text: „[emote: staunen] [head: yaw deg=15, seconds=2]“
 # (gemeldet 11.11. mit qwen3.5:9b). Solche Marken werden ausgeführt, wenn es das Werkzeug gibt, und nie gezeigt oder
 # vorgelesen. Nur [wort: …] – normale Klammern im Text bleiben.
@@ -105,6 +113,8 @@ class LocalBrain:
         self.history: list[dict[str, Any]] = []
         self.last_error: str | None = None
         self.max_rounds = 4
+        self.zeiten: dict[str, float] = {}         # letzte Antwort: laden, lesen, schreiben (s) – fürs Protokoll
+        self.vorgewaermt: str | None = None        # für welches Modell und welchen Systemtext schon vorgeladen
 
     @property
     def configured(self) -> bool:
@@ -123,24 +133,66 @@ class LocalBrain:
             r.raise_for_status()
             return r.json()
 
+    async def chat(self, messages: list[dict[str, Any]], tools: list[dict[str, Any]] | None = None,
+                   **optionen: Any) -> dict[str, Any]:
+        """Eine Runde mit Ollama – immer mit denselben Optionen und `keep_alive`; Zeiten landen in `zeiten`."""
+        body: dict[str, Any] = {"model": self.model, "messages": messages, "stream": False, "think": False,
+                                "keep_alive": KEEP_ALIVE, "options": {**OPTIONEN, **optionen}}
+        if tools:
+            body["tools"] = tools
+        data = await self._post("/api/chat", body)
+        ns = 1e-9
+        z = {"laden_s": (data.get("load_duration") or 0) * ns, "lesen_s": (data.get("prompt_eval_duration") or 0) * ns,
+             "lesen_token": data.get("prompt_eval_count") or 0, "schreiben_s": (data.get("eval_duration") or 0) * ns,
+             "schreiben_token": data.get("eval_count") or 0}
+        for k, v in z.items():
+            self.zeiten[k] = self.zeiten.get(k, 0) + v
+        return data
+
+    def _vorlage(self) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        runner = self.agent.runner
+        erlaubt = getattr(self.agent, "local_tools", LOCAL_TOOLS)     # der Kopf hat eigene (seit 0.38.8)
+        tools = [_tool_spec(t) for t in runner.tools() if t["name"] in erlaubt]
+        return [{"role": "system", "content": self.agent._system() + LOCAL_NOTE}], tools
+
+    async def vorwaermen(self) -> float | None:
+        """Modell laden und Systemtext samt Werkzeugen schon einmal lesen lassen (seit 0.46.2). Ollama merkt sich den
+        gelesenen Anfang; die erste echte Antwort muss dann nur noch die Frage lesen. Fehler sind egal."""
+        if not self.configured:
+            return None
+        try:
+            system, tools = self._vorlage()
+            schluessel = f"{self.model}|{hash(system[0]['content'])}|{len(tools)}"
+            if self.vorgewaermt == schluessel:
+                return 0.0
+            t0 = time.monotonic()
+            self.zeiten = {}
+            await self.chat([*system, {"role": "user", "content": "."}], tools, num_predict=1)
+            self.vorgewaermt = schluessel
+            dauer = time.monotonic() - t0
+            log.info("Lokales Modell %s vorgewärmt in %.1f s (laden %.1f s, %d Token gelesen in %.1f s)", self.model, dauer,
+                     self.zeiten.get("laden_s", 0), self.zeiten.get("lesen_token", 0), self.zeiten.get("lesen_s", 0))
+            return dauer
+        except Exception as exc:  # noqa: BLE001 – Vorwärmen ist nur ein Gefallen
+            log.info("Lokales Modell nicht vorgewärmt: %s", exc)
+            return None
+
     async def handle(self, text: str, notify: "Notify | None" = None) -> "Reply":
         from .agent import Reply
 
         t0 = time.monotonic()
+        self.zeiten = {}
         runner = self.agent.runner
         erlaubt = getattr(self.agent, "local_tools", LOCAL_TOOLS)     # der Kopf hat eigene (seit 0.38.8)
-        tools = [_tool_spec(t) for t in runner.tools() if t["name"] in erlaubt]
-        messages: list[dict[str, Any]] = [{"role": "system", "content": self.agent._system() + LOCAL_NOTE}]
+        system, tools = self._vorlage()
+        messages: list[dict[str, Any]] = [*system]
         messages += self.history[-16:]
         user = {"role": "user", "content": f"{text}\n\n{self.agent._context(text)}"}
         messages.append(user)
         actions: list[dict[str, Any]] = []
         final = ""
         for _ in range(self.max_rounds):
-            data = await self._post("/api/chat", {
-                "model": self.model, "messages": messages, "tools": tools, "stream": False, "think": False,
-                "options": {"num_ctx": 16384, "temperature": 0.7},
-            })
+            data = await self.chat(messages, tools)
             msg = data.get("message") or {}
             content = THINK.sub("", str(msg.get("content") or "")).strip()
             if content:
@@ -187,6 +239,10 @@ class LocalBrain:
         self.history += [{"role": "user", "content": text}, {"role": "assistant", "content": final}]
         self.history = self.history[-16:]
         self.last_error = None
+        z = self.zeiten
+        log.info("Lokale Antwort in %.1f s: laden %.1f s, %d Token lesen %.1f s, %d Token schreiben %.1f s",
+                 time.monotonic() - t0, z.get("laden_s", 0), z.get("lesen_token", 0), z.get("lesen_s", 0),
+                 z.get("schreiben_token", 0), z.get("schreiben_s", 0))
         return Reply(final, actions, "lokal", time.monotonic() - t0)
 
     async def status(self) -> dict[str, Any]:

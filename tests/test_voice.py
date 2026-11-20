@@ -491,12 +491,17 @@ def test_voice_description_is_translated_for_the_model():
         out, weg = await D.to_english(text, agent)
         assert weg == "claude" and out == "A sleepy old duck: deep, slow, warm voice." and seen["messages"][0]["content"] == text
 
+        from duckpilot.brain.local import OPTIONEN, LocalBrain
+
         class Local:
             configured = True
             model = "qwen3.5:9b"
+            zeiten: dict = {}
+            chat = LocalBrain.chat                   # dieselben Optionen wie im Gespräch (0.46.2: kein Neuladen)
 
             async def _post(self, path, body, timeout=0):
                 assert path == "/api/chat" and body["messages"][1]["content"] == text
+                assert body["options"]["num_ctx"] == OPTIONEN["num_ctx"] and body["keep_alive"]
                 return {"message": {"content": "Translation: A sleepy old duck with a deep voice."}}
 
         out, weg = await D.to_english(text, SimpleNamespace(client=None, local=Local()))

@@ -1079,6 +1079,15 @@ Gedächtnis**: Was die Ente mit Claude gelernt hat (Tricks, Wissen, Vorlieben), 
 Bewegen kann es sich mit einer Auswahl der Werkzeuge. Ist Claude nicht erreichbar, springt es
 automatisch ein, danach die einfachen Befehle.
 
+**Schneller mit dem lokalen Modell** (seit 0.46.2): Knowlin lädt das Modell schon beim Start und beim Betreten einer
+Verkörperung und lässt den langen Anfang (Persönlichkeit und Werkzeuge) einmal lesen – die erste Antwort muss dann nur
+noch deine Frage lesen. Das Modell bleibt 30 Minuten geladen (Ollama wirft es sonst nach 5 Minuten aus dem Speicher).
+Antworten sind kurz gehalten, weil alles vorgelesen wird. Im Protokoll steht je Antwort, wie lange Laden, Lesen und
+Schreiben gedauert haben. Während das Modell nachdenkt, zeichnet die 3D-Ansicht nur 30 statt 60 Bilder pro Sekunde, damit
+die Grafikkarte mehr fürs Sprachmodell übrig hat; mehr als 60 sind es nie, auch an Bildschirmen mit 120 oder 144 Hz.
+Läuft die Ansicht später zäh (etwa weil das Sprachmodell auf derselben Grafikkarte rechnet), schaltet „Auto“ jetzt auch
+dann noch auf „schnell“ herunter.
+
 ## Erfahrungsnetz und Hirnaktivität
 
 Was die Ente zusammen erlebt, verknüpft sich – nach dem Prinzip „was zusammen feuert, verdrahtet sich“ (Hebb).

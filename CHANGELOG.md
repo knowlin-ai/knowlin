@@ -9,6 +9,27 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.46.2 – 2026-11-20 – Flüssiger, schneller sprechen, keine Enten bei anderen Robotern
+
+### Geändert
+- **Lokales Sprachmodell schneller:** Knowlin lädt das Modell beim Start und beim Betreten einer Verkörperung vor und
+  lässt Persönlichkeit und Werkzeuge schon einmal lesen (`LocalBrain.vorwaermen`); das Modell bleibt 30 min geladen
+  (`keep_alive`, vorher Ollamas 5 min); alle Anfragen mit denselben Optionen (das Übersetzen der Stimmbeschreibung lud
+  das Modell sonst neu); Antworten auf 400 Token begrenzt und als „ein bis zwei Sätze“ erbeten, weil alles vorgelesen
+  wird. Im Protokoll steht je Antwort: Laden, Lesen, Schreiben.
+- **3D höchstens 60 Bilder pro Sekunde** (vorher so viele, wie der Bildschirm kann – 120 oder 144), im Hintergrund-Tab
+  gar keine, beim Nachdenken des Sprachmodells 30. „Auto“ prüft die Bildrate laufend und schaltet auch später noch auf
+  „schnell“. Die Hirnaktivität zeichnet ≈ 30 Bilder pro Sekunde.
+
+### Behoben
+- **Enten-Wörter bei Robotern ohne Entengestalt:** Der Charakter oben rechts im Feld hieß bei Stacki, Reachy, Ari und
+  Bello „Chaos-Ente“, „Tollpatschig“ „gackert“, und der Hinweis beim Umschalten sagte „quak!“. Jetzt „Wirbelwind“ und
+  „kichert“; in Knowlins Feld bekommt jede Verkörperung ihren eigenen Namen. Die Abnahme prüft die Inhalte jetzt auch
+  mit dem Charakter ganz oben rechts.
+
+### Nicht geprüft
+- Mit echtem Ollama (geprüft mit nachgebauten Antworten); wie viel schneller es auf deinem PC wird, zeigt das Protokoll.
+
 ## 0.46.1 – 2026-11-19 – Pflege: ruhige Tests, neue Bilder
 
 ### Geändert

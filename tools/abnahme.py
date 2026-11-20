@@ -205,6 +205,10 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
                             ("bittle", "Bittle X")):   # Arm 0.38.47, Stack-chan .58, Bittle .59
             einstellen(page, {"modul": modul, "backend": "sim", "sim_physik": False, "sprache": sprache})
             oeffnen(page, base)                                 # Startseite; showView einer Körperseite weckt den Körper
+            # Charakter ganz oben rechts (seit 0.46.2, Fund des Maintainers: Stacki hieß dort „Chaos-Ente“) – danach zurück
+            vorher = page.evaluate("() => fetch('/api/settings').then((r) => r.json())"
+                                   ".then((s) => [s.werte.energie, s.werte.humor])")
+            einstellen(page, {"energie": 0.95, "humor": 0.95})
             reihen = [("Körper", KOERPER_ANSICHTEN)] + ([("Knowlin", KOPF_ANSICHTEN)] if modul == "duckpilot" else [])
             for wo, ansichten in reihen:
                 if wo == "Knowlin":
@@ -237,6 +241,8 @@ def inhalte_je_koerper(page, base: str, b: Bericht) -> None:
                 if sprache == "de":
                     b.pruefe(f"Ansichten {name if wo == 'Körper' else 'Knowlin (Kopf)'}: keine Karten ohne Abstand",
                              not stoesse, " · ".join(stoesse[:6]))
+            if vorher and None not in vorher:
+                einstellen(page, {"energie": vorher[0], "humor": vorher[1]})
     einstellen(page, {"modul": "duckpilot", "backend": "sim", "sim_physik": False, "sprache": "de"})
 
 

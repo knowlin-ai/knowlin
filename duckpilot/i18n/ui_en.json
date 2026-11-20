@@ -3815,5 +3815,7 @@
  "Dieser Platz gehört dazu": "This spot belongs to it",
  "Licht folgt dem Roboter": "Lights follow the robot",
  "Betritt er einen Raum, geht dort das Licht an; verlässt er ihn, geht nur aus, was Knowlin selbst angemacht hat.": "When it walks into a room, the light there goes on; when it leaves, only what Knowlin switched on itself goes off.",
- "Rundgang": "Patrol"
+ "Rundgang": "Patrol",
+ "Wirbelwind": "Whirlwind",
+ "Sehr goofy, aber langsam: stolpert, schüttelt sich, kichert.": "Very goofy but slow: stumbles, shakes itself, giggles."
 }
