@@ -889,9 +889,12 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     gesehen = []
     # jeden Ausdruck mitschreiben, der im Zustand ankommt: Das Gesicht zeigt ihn nur rund 3 s – unter Last (Prüfkette,
     # Software-Grafik) verpasste das Warten auf Bildwiederholungen das Fenster manchmal (Fund 15.11., 0.38.65)
+    # Seit 0.47 je Zustandsnachricht statt alle 40 ms: Unter Last kommen die Zustände gestaut und im Schwall an – ein 2-s-
+    # Ausdruck lief dann zwischen zwei Abfragen durch (beide Klicks „ruhig“, obwohl Stacki sich freute).
     page.evaluate("""() => { window.__ausdruecke = new Set(); clearInterval(window.__ausdruckUhr);
-        window.__ausdruckUhr = setInterval(() => { const st = window.duckpilot.state || {}; const a = (st.gesicht || {}).ausdruck;
-          window.__simZeit = st.t; if (a) window.__ausdruecke.add(a); }, 40); }""")
+        if (!window.__ausdruckHorcher) { window.__ausdruckHorcher = (ev) => { const st = ev.detail || {};
+          const a = (st.gesicht || {}).ausdruck; window.__simZeit = st.t; if (a) window.__ausdruecke.add(a); };
+          window.addEventListener('knowlin:state', window.__ausdruckHorcher); } }""")
     for art, erwartet in (("streicheln", "froh"), ("schuetteln", "schwindelig")):
         # Unter Last ging der erste Klick gelegentlich ins Leere (0.38.67, 0.40.0: Gesicht blieb „ruhig“): nach 20 s ein
         # zweiter Klick, wie ein Mensch es täte – im Bericht vermerkt. Scheitern beide, ist es ein echter Fehler.
@@ -913,7 +916,7 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
         gesehen.append(ergebnis)
     b.pruefe("Stacki: Streicheln macht froh, Schütteln schwindelig (Knöpfe im Cockpit)",
              [g.split(" ")[0] for g in gesehen] == ["froh", "schwindelig"], " · ".join(gesehen))
-    page.evaluate("() => clearInterval(window.__ausdruckUhr)")
+    page.evaluate("() => window.removeEventListener('knowlin:state', window.__ausdruckHorcher)")
     einstellen(page, {"modul": "duckpilot", "backend": "sim"})
 
     # 13d · Seit 0.38.19: Farbe der Microduck, Trainingsfeld mit vielen Enten
