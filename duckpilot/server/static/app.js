@@ -160,7 +160,7 @@ function handle(msg) {
   switch (msg.type) {
     case 'init': kollision?.refresh(); return onInit(msg);
     case 'startfehler': return kv().startfehler?.(msg.grund);
-    case 'state': window.dispatchEvent(new CustomEvent('knowlin:state', { detail: msg.state })); return onState(msg);   // vr.js
+    case 'state': window.dispatchEvent(new CustomEvent('knowlin:state', { detail: msg.state })); onState(msg); return send({ type: 'state_ok' });   // vr.js; Quittung 0.47
     case 'event': laser?.onEvent(msg.event); follow?.onEvent(msg.event); kollision?.onEvent(msg.event); ctl?.onEvent(msg.event); return ereignisse.onEvent(msg.event);
     case 'kollision': return kollision?.onStatus(msg);
     case 'musik': return tanz?.spielen(msg.datei, msg.ab);

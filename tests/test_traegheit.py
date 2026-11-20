@@ -89,3 +89,14 @@ def test_leistungsmodus_sparsam():
     assert 'value="sparsam"' in (STATIC / "index.html").read_text(encoding="utf-8")
     assert "'sparsam'" in (STATIC / "leistung.js").read_text(encoding="utf-8")
     assert "sparsam') ? 66 : 30" in (STATIC / "hirn.js").read_text(encoding="utf-8")
+
+
+def test_zustand_nach_quittung():
+    """0.47: Fenster quittieren jeden Zustand; der Server schickt den nächsten erst danach (spätestens nach 2 s) – sonst
+    stauten sich bei langsamen Rechnern Zustände, und Laute und Antworten kamen bis zu 50 s zu spät."""
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "send({ type: 'state_ok' })" in app
+    rt = (STATIC.parents[0] / "runtime.py").read_text(encoding="utf-8")
+    assert 'getattr(ws, "state_quittiert", False) and tick - getattr(ws, "state_tick", 0) < 40' in rt
+    vb = (STATIC.parents[0] / "routes" / "verbindung.py").read_text(encoding="utf-8")
+    assert 'msg.get("type") == "state_ok"' in vb

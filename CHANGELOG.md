@@ -31,6 +31,11 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
 - Körperprofile nennen ihr Zubehör (`Koerper.zubehoer`); der Reiter „Zubehör“ erscheint nur, wo das Profil es nennt.
 
 ### Geändert
+- **Zustand nach Quittung:** Jedes Fenster bestätigt einen Zustand, bevor es den nächsten bekommt (spätestens nach 2 s).
+  Auf langsamen Rechnern stauten sich sonst Zustände in der Verbindung, und Laute, Antworten und Ergebnisse kamen bis zu
+  50 s zu spät. Schnelle Rechner merken nichts.
+- Abnahme: Stackis Berührung zählt auch, wenn der Server „freut sich“ meldet und der kurze Ausdruck zwischen zwei
+  Zuständen lag.
 - Geplant (Kacheln und Roadmap): 0.48 Mentor als eigenes Modul, Marionette und VR-Vormachen; 0.49 Aufmerksamkeit
   suchen, Knowlin Lab als Bereich; 0.50 Websuche und Routinen in Knowlets, Choreografie zum Ziehen. Rollen und Polaroid
   am Gerät ab Lieferung.

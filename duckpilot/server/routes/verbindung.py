@@ -121,6 +121,9 @@ def register(app: FastAPI, runtime: Runtime) -> None:
                         continue
                     if not isinstance(msg, dict):
                         continue
+                    if msg.get("type") == "state_ok":     # Quittung für einen Zustand (seit 0.47, Fluss nach Quittung)
+                        ws.state_quittiert, ws.state_offen = True, False
+                        continue
                     if msg.get("type") == "stop":
                         while not schlange.empty():
                             schlange.get_nowait()

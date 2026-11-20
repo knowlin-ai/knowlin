@@ -881,6 +881,14 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
 
     # 13c4 · Stacki spürt Berührung (seit 0.38.62): Knopf „Streicheln“ → froh, „Schütteln“ → schwindelig
     einstellen(page, {"modul": "stackchan", "backend": "sim"})
+    # Seit 0.47 zählt auch die Antwort des Servers auf den Knopf („freut sich“ / „ist schwindelig“): Ein langsamer Rechner
+    # (Software-Grafik in der Prüfkette) bekommt dank Quittung nur alle paar Sekunden einen Zustand – der 2-s-Ausdruck
+    # kann dazwischen liegen, obwohl Stacki ihn gezeigt hat.
+    antworten: list[str] = []
+
+    def _horchen(ws) -> None:
+        ws.on("framereceived", lambda f: antworten.append(str(f)) if '"tool": "beruehren"' in str(f) else None)
+    page.on("websocket", _horchen)
     oeffnen(page, base)
     page.evaluate("() => window.duckpilot.showView('cockpit')")
     page.wait_for_function("() => (window.duckpilot.state || {}).koerper === 'stackchan'", timeout=20000)
@@ -899,15 +907,22 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
         # Unter Last ging der erste Klick gelegentlich ins Leere (0.38.67, 0.40.0: Gesicht blieb „ruhig“): nach 20 s ein
         # zweiter Klick, wie ein Mensch es täte – im Bericht vermerkt. Scheitern beide, ist es ein echter Fehler.
         ergebnis = None
+        grund = {"froh": "freut sich", "schwindelig": "ist schwindelig"}[erwartet]
         for versuch in (1, 2):
             page.evaluate("() => window.__ausdruecke.clear()")   # nur, was nach diesem Knopf kommt
+            vorher = len(antworten)
             page.evaluate(f"() => document.querySelector('.quick.nur-stackchan [data-tool=beruehren][data-args*={art}]').click()")
-            try:
-                page.wait_for_function(f"() => window.__ausdruecke.has('{erwartet}')", timeout=20000 if versuch == 1 else 40000)
-                ergebnis = erwartet if versuch == 1 else f"{erwartet} (erst beim 2. Klick)"
+            ende = time.monotonic() + (20 if versuch == 1 else 40)
+            while time.monotonic() < ende and ergebnis is None:
+                if page.evaluate(f"() => window.__ausdruecke.has('{erwartet}')"):
+                    ergebnis = erwartet
+                elif any(grund in a for a in antworten[vorher:]):
+                    ergebnis = f"{erwartet} (Antwort des Servers)"
+                else:
+                    page.wait_for_timeout(250)
+            if ergebnis is not None:
+                ergebnis += " (erst beim 2. Klick)" if versuch == 2 else ""
                 break
-            except Exception:  # noqa: BLE001
-                continue
         if ergebnis is None:
             # Befund für den Bericht: kam überhaupt Zustand an, und was stand im Gesicht und im Verlauf?
             befund = page.evaluate("""() => [window.__simZeit, [...window.__ausdruecke].join('/'),
@@ -917,6 +932,7 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Stacki: Streicheln macht froh, Schütteln schwindelig (Knöpfe im Cockpit)",
              [g.split(" ")[0] for g in gesehen] == ["froh", "schwindelig"], " · ".join(gesehen))
     page.evaluate("() => window.removeEventListener('knowlin:state', window.__ausdruckHorcher)")
+    page.remove_listener("websocket", _horchen)
     einstellen(page, {"modul": "duckpilot", "backend": "sim"})
 
     # 13d · Seit 0.38.19: Farbe der Microduck, Trainingsfeld mit vielen Enten

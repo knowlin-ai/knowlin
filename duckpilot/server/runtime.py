@@ -918,7 +918,14 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                     continue
                 if getattr(ws, "state_busy", False):
                     continue
-                ws.state_busy = True
+                # Fluss nach Quittung (seit 0.47): Ein Fenster, das quittiert, bekommt den nächsten Zustand erst nach der
+                # Quittung des vorigen (spätestens nach 2 s). Sonst stauten sich bei einem langsamen Rechner Zustände im
+                # Puffer der Verbindung, und Laute, Antworten und Ergebnisse kamen bis zu 50 s zu spät.
+                if getattr(ws, "state_quittiert", False) and tick - getattr(ws, "state_tick", 0) < 40 \
+                        and getattr(ws, "state_offen", False):
+                    continue
+                ws.state_busy = ws.state_offen = True
+                ws.state_tick = tick
                 spawn(self._send_state(ws, text))
 
     async def _send_state(self, ws, text: str) -> None:
