@@ -106,6 +106,7 @@ class SpielDienst:
         self.rt = rt
         self.art: str | None = None
         self.haltung: SpielHaltung | None = None
+        self._ssp_zuege = 0                           # Züge bei Schere, Stein, Papier (beendet das Zählnicken)
         self.seit = 0.0
         self.runde = 0
         self.phase: str | None = None
@@ -464,13 +465,16 @@ class SpielDienst:
         return {"ok": True, "zaehl_s": SSP_ZAEHL_S}
 
     async def _nicken(self, h: SpielHaltung) -> None:
+        """Dreimal im Takt nicken – hört auf, sobald der Mensch seine Hand gezeigt hat (seit 0.46.1: vorher nickte es
+        weiter und überschrieb Reachys Antwort-Haltung, im Test bei GitHub unter Last sichtbar)."""
         takt = SSP_ZAEHL_S / 3
+        zug = self._ssp_zuege
         for _ in range(3):
-            if not self._darf(h, "ssp"):
+            if not self._darf(h, "ssp") or self._ssp_zuege != zug:
                 return
             h.setze(0.0, math.radians(10), koerper=0.0)
             await asyncio.sleep(takt * 0.5)
-            if not self._darf(h, "ssp"):
+            if not self._darf(h, "ssp") or self._ssp_zuege != zug:
                 return
             h.setze(0.0, math.radians(-4), koerper=0.0)
             await asyncio.sleep(takt * 0.5)
@@ -482,6 +486,7 @@ class SpielDienst:
         h = self.haltung
         assert h is not None
         h.lebt()
+        self._ssp_zuege += 1                          # das Zählen ist vorbei
         if geste_mensch not in SSP:
             await self._sagen(self._satz(SSP_SAETZE, "unklar"))
             return {"ok": True, "unklar": True, "stand": dict(self.stand)}

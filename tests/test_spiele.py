@@ -252,6 +252,31 @@ def test_schere_stein_papier_nur_mit_handerkennung(reachy_rt, monkeypatch):
     assert json.loads((rt_daten(rt) / "spiele.json").read_text(encoding="utf-8"))["ssp"]["alle"] == {"siege": 1}
 
 
+def test_ssp_zaehlnicken_endet_mit_dem_zug(reachy_rt, monkeypatch):
+    """Regression 0.46.1: Das Zählnicken lief nach dem Zug weiter und überschrieb Reachys Antwort (−4° statt 0°)."""
+    import time
+
+    rt, c, _ = reachy_rt
+    c.post("/api/settings", json={"modul": "reachy_mini", "backend": "sim", "sim_physik": False})
+    _wach(rt, c)
+
+    class Bereit:
+        def bereit(self):
+            return True
+    monkeypatch.setattr(rt, "hand", Bereit())
+    echt = random.choice
+    monkeypatch.setattr(SP.random, "choice", lambda seq: "schere" if tuple(seq) == SP.SSP else echt(seq))
+    assert c.post("/api/spiele/start", json={"art": "ssp"}).json()["ok"]
+    c.post("/api/spiele/ssp", json={"aktion": "zaehlen"})
+    c.post("/api/spiele/ssp", json={"aktion": "zug", "geste": "stein"})
+    h = rt.spiele.haltung
+    for _ in range(8):                                  # über mehrere Nicktakte (je 0,3 s), vor der Reaktion (1,2 s)
+        time.sleep(0.1)
+        if h is rt.spiele.haltung and h is not None:
+            assert h.pitch == pytest.approx(0.0), h.pitch          # Schere: Kopf gerade, kein Nicken mehr
+    c.post("/api/spiele/stopp")
+
+
 def test_saetze_ohne_stopp_und_ohne_entenlaute():
     """Reachy sagt nie „Stopp“ (das Mikrofon würde es als Not-Aus hören) und quakt nicht."""
     for tabelle in (SP.SAETZE, SP.SPIEGEL_SAETZE, SP.SSP_SAETZE):

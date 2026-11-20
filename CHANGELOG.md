@@ -9,6 +9,21 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.46.1 – 2026-11-19 – Pflege: ruhige Tests, neue Bilder
+
+### Geändert
+- Alle Bilder auf knowlin.de neu aufgenommen (deutsch und englisch) – auch Akrobatik, Training und die englischen
+  Fassungen, die seit 0.38.65 auf altem Stand waren.
+
+### Behoben
+- Schere, Stein, Papier mit Reachy: Das Zählnicken („Schnick, Schnack, Schnuck“) lief nach deinem Zug weiter und
+  überschrieb Reachys Antwort-Haltung. Jetzt hört es mit dem Zug auf (Regressionstest).
+- Ein Test für Sicherungspunkte war unter Last wackelig (Sichtungen aus dem laufenden Simulator landeten nach dem
+  Zurücksetzen wieder im Erfahrungsnetz) – der Test hält sie jetzt fern.
+
+### Nicht geprüft
+- Nichts Neues gegenüber 0.46.0.
+
 ## 0.46.0 – 2026-11-19 – Rundgang und Licht folgt
 
 ### Neu

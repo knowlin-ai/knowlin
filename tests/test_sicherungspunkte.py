@@ -26,6 +26,9 @@ def client(tmp_settings, vault, tmp_path, monkeypatch):  # noqa: F811
 
 
 def _erleben(rt):
+    # Sichtungen aus dem laufenden Simulator dürfen nicht dazwischenfunken (seit 0.46.1: bei GitHub unter Last landete
+    # „Schachfigur beim Couchtisch gesehen“ kurz nach dem Zurücksetzen wieder im Netz)
+    rt.raum.sichtungen.beim_umzug = lambda *a, **k: None
     rt.memory.remember_fact("Alex trinkt gern Tee")
     rt.memory.remember_preference("mag ruhige Musik")
     rt.erfahrung.netz.staerken = getattr(rt.erfahrung.netz, "staerken", None)
