@@ -4,11 +4,12 @@
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>
-  // Sprache vor dem ersten Bild festlegen: gespeicherte Wahl, sonst die des Browsers (Deutsch als Vorgabe)
+  // Sprache vor dem ersten Bild festlegen: gespeicherte Wahl, sonst die der Adresse – „/en/“ ist Englisch, sonst
+  // Deutsch (seit 0.51: Suchmaschinen sehen je Adresse eine Sprache; hreflang verbindet beide)
   (function () {
     var l = null;
     try { l = localStorage.getItem('knowlin.sprache'); } catch (e) { /* egal */ }
-    if (l !== 'de' && l !== 'en') l = (navigator.language || 'de').slice(0, 2) === 'de' ? 'de' : 'en';
+    if (l !== 'de' && l !== 'en') l = /\/en\/?$/.test(location.pathname) ? 'en' : 'de';
     document.documentElement.lang = l;
   })();
 </script>
@@ -863,6 +864,7 @@ profil = Koerper(
 (() => {
   const $ = (id) => document.getElementById(id);
   const sprache = () => (document.documentElement.lang === 'en' ? 'en' : 'de');
+  const BILDER = /\/en\/?$/.test(location.pathname) ? '../bilder/' : 'bilder/';   // englische Seite liegt unter /en/
   let netz = null;                         // Knowlins neuronales Netz auf der Bühne (unten angelegt)
 
   // Steckbriefe der Verkörperungen – nur, was heute stimmt
@@ -923,7 +925,7 @@ profil = Koerper(
     },
   };
 
-  const quelle = (name, w) => `bilder/${name}-${sprache()}-${w}.webp`;
+  const quelle = (name, w) => `${BILDER}${name}-${sprache()}-${w}.webp`;
   function bildSetzen(img, name) {
     const klein = 900, gross = 1600;
     img.src = quelle(name, gross);
@@ -1064,7 +1066,18 @@ profil = Koerper(
     document.title = l === 'en' ? 'Knowlin – self-learning companion for Microduck, Reachy Mini, Open Duck and SO-101'
       : 'Knowlin – selbstlernender Begleiter für Microduck, Reachy Mini, Open Duck und SO-101';
   }
-  for (const b of document.querySelectorAll('[data-sprache]')) b.addEventListener('click', () => spracheSetzen(b.dataset.sprache));
+  // Umschalten (seit 0.51): auf knowlin.de zur Seite der anderen Sprache (/ bzw. /en/), damit Adresse, Titel und Links
+  // stimmen; in einer Vorschau ohne diese Pfade wie bisher an Ort und Stelle
+  const SEITE = { de: '/', en: '/en/' };
+  for (const b of document.querySelectorAll('[data-sprache]')) b.addEventListener('click', () => {
+    const l = b.dataset.sprache;
+    if (location.protocol.startsWith('http') && /^\/(en\/?)?$/.test(location.pathname) && location.pathname !== SEITE[l]) {
+      try { localStorage.setItem('knowlin.sprache', l); } catch (e) { /* egal */ }
+      location.href = SEITE[l] + location.hash;
+      return;
+    }
+    spracheSetzen(l);
+  });
   spracheSetzen(sprache());
 
   $('kopieren').addEventListener('click', async () => {

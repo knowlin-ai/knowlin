@@ -84,3 +84,32 @@ def test_bilder_mit_pollens_modellen_tragen_den_nachweis():
             assert nachweis, name
             assert "© Pollen Robotics" in nachweis.group(1) and "creativecommons.org/licenses/by-nc-sa/4.0" in nachweis.group(1)
     assert "id=\"buehne-nachweis\"" in quelle and "NACHWEIS = {" in quelle
+
+
+def test_englische_seite_mit_eigener_adresse_und_hreflang(tmp_path):
+    # seit 0.51 („mache weiter SEO-Optimierung“): /en/ mit eigenem Titel, Beschreibung, Adresse; beide per hreflang verbunden
+    from website import ADRESSE_EN, BESCHREIBUNG_EN
+
+    ziel = bauen(tmp_path / "seite")
+    de = (ziel / "index.html").read_text(encoding="utf-8")
+    en = (ziel / "en" / "index.html").read_text(encoding="utf-8")
+    assert '<html lang="en">' in en and f'<link rel="canonical" href="{ADRESSE_EN}">' in en
+    assert "Microduck" in re.search(r"<title>([^<]+)</title>", en).group(1)
+    assert BESCHREIBUNG_EN in en and 70 <= len(BESCHREIBUNG_EN) <= 160
+    for seite in (de, en):
+        assert 'hreflang="de" href="https://knowlin.de/"' in seite and 'hreflang="en" href="https://knowlin.de/en/"' in seite
+        assert 'hreflang="x-default"' in seite
+    daten = json.loads(re.search(r'<script type="application/ld\+json">(.+?)</script>', en).group(1))
+    assert daten["inLanguage"] == "en" and daten["url"] == ADRESSE_EN and daten["softwareVersion"]
+    assert daten["downloadUrl"].endswith(".exe") and len(daten["screenshot"]) >= 3 and daten["featureList"]
+    # alle Dateien eine Ebene höher – keine relativen Pfade, die unter /en/ ins Leere zeigen
+    lose = re.findall(r'(?:src|href|srcset)="(?!\.\./|https?:|#|mailto|data:|/)[^"]+"', en)
+    assert not lose, lose[:5]
+    assert not re.findall(r'url\("(?!\.\./)', en)
+    karte = (ziel / "sitemap.xml").read_text(encoding="utf-8")
+    assert f"<loc>{ADRESSE_EN}</loc>" in karte and 'xmlns:xhtml=' in karte
+
+
+def test_sprache_folgt_der_adresse_nicht_dem_browser():
+    quelle = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+    assert "navigator.language" not in quelle and "location.href = SEITE[l]" in quelle

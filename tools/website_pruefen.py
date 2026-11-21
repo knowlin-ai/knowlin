@@ -110,9 +110,18 @@ def main() -> int:
         for name in ("reachy", "odi", "microduck"):
             p.click(f"[data-koerper={name}]")
             p.wait_for_timeout(400)
-        p.click("#sprache-en"); p.wait_for_timeout(400); p.click("#sprache-de"); p.wait_for_timeout(300)
+        p.click("#sprache-en"); p.wait_for_load_state(); p.wait_for_timeout(600)
+        # seit 0.51: EN führt auf /en/ – dort alles da (Bilder, Schrift, Körper umschalten)?
+        auf_en = p.url.rstrip("/").endswith("/en")
+        for name in ("reachy", "microduck"):
+            p.click(f"[data-koerper={name}]")
+            p.wait_for_timeout(300)
+        p.evaluate("window.scrollTo(0, document.body.scrollHeight)"); p.wait_for_timeout(600)
+        p.click("#sprache-de"); p.wait_for_load_state(); p.wait_for_timeout(400)
+        zurueck = not p.url.rstrip("/").endswith("/en")
         p.evaluate("window.scrollTo(0, document.body.scrollHeight)"); p.wait_for_timeout(600)
         ctx.close()
+        b.pruefe("Sprachumschalter führt auf /en/ und zurück", auf_en and zurueck, p.url)
         b.pruefe("Keine Skriptfehler", not obs["fehler"], "; ".join(obs["fehler"][:3]))
         b.pruefe("Keine fehlenden Dateien", not obs["fehlend"], ", ".join(obs["fehlend"][:3]))
         fremd = sorted({u for u in obs["anfragen"] if not u.startswith(url) and not u.startswith(("data:", "blob:"))})

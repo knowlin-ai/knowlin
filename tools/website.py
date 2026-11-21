@@ -22,6 +22,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 QUELLE = ROOT / "website"
 ADRESSE = "https://knowlin.de/"
+ADRESSE_EN = ADRESSE + "en/"
+# Englische Seite (seit 0.51, Maintainer: „mache weiter SEO-Optimierung“): gleicher Inhalt, eigene Adresse, eigener
+# Titel und Beschreibung – Suchmaschinen sehen je Adresse eine Sprache, hreflang verbindet beide
+TITEL_EN = "Knowlin – self-learning companion for Microduck, Reachy Mini, Open Duck and SO-101"   # wie der Titel im Seitenskript
+BESCHREIBUNG_EN = ("Free open-source companion for small robots: simulate Microduck, Reachy Mini, Open Duck and SO-101 "
+                   "on your PC, control them by voice, teach dances.")
 
 KOPF = """<!doctype html>
 <html lang="de">
@@ -32,6 +38,9 @@ KOPF = """<!doctype html>
 <meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="{adresse}">
+<link rel="alternate" hreflang="de" href="https://knowlin.de/">
+<link rel="alternate" hreflang="en" href="https://knowlin.de/en/">
+<link rel="alternate" hreflang="x-default" href="https://knowlin.de/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{adresse}">
 <meta property="og:title" content="Knowlin – ein Kopf, viele Körper">
@@ -54,15 +63,25 @@ KOPF = """<!doctype html>
 
 
 # Suchmaschinen (seit 0.38.30): strukturierte Daten als Software-Eintrag – ohne Personennamen, Herausgeber ist „Knowlin“
-def strukturiert(beschreibung: str) -> str:
+def strukturiert(beschreibung: str, adresse: str = ADRESSE, sprache: str = "de") -> str:
+    # seit 0.51: Version, Download, Bildschirmfotos und Funktionen – was Suchmaschinen für Software-Einträge auswerten
+    bilder = [f"{ADRESSE}bilder/{n}-{sprache}-1600.webp" for n in ("start", "cockpit", "tanz", "training")]
+    funktionen = (("Microduck, Reachy Mini, Open Duck Mini, SO-101, Stack-chan und Bittle X im Simulator",
+                   "Simulate Microduck, Reachy Mini, Open Duck Mini, SO-101, Stack-chan and Bittle X"),
+                  ("Sprachsteuerung mit Claude, lokalen Modellen oder ganz ohne KI", "Voice control with Claude, local models or no AI"),
+                  ("Tänze auf einer Zeitleiste, Tricks, Ablauf-Baukasten und Duck Cards",
+                   "Dance timeline, tricks, sequence builder and Duck Cards"),
+                  ("Gedächtnis, Lernen, Training und Policies", "Memory, learning, training and policies"))
     return json.dumps({
         "@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Knowlin",
-        "alternateName": "duckpilot", "url": ADRESSE, "description": beschreibung,
+        "alternateName": "duckpilot", "url": adresse, "description": beschreibung,
+        "softwareVersion": version(), "downloadUrl": download_url(), "screenshot": bilder,
+        "featureList": [f[0] if sprache == "de" else f[1] for f in funktionen],
         "applicationCategory": "DeveloperApplication", "operatingSystem": "Windows, macOS, Linux",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
         "license": "https://www.apache.org/licenses/LICENSE-2.0",
         "codeRepository": "https://github.com/knowlin-ai/knowlin", "image": ADRESSE + "bilder/vorschau.png",
-        "inLanguage": ["de", "en"], "isAccessibleForFree": True,
+        "inLanguage": sprache, "isAccessibleForFree": True,
         "keywords": "Microduck, Open Duck Mini, Reachy Mini, SO-101, Stack-chan, Bittle X, LeRobot, Roboter, Simulator, Claude, Sprachsteuerung, Open Source",
         "publisher": {"@type": "Organization", "name": "Knowlin", "url": ADRESSE},
     }, ensure_ascii=False)
@@ -73,8 +92,35 @@ ROBOTS = "User-agent: *\nAllow: /\nSitemap: {adresse}sitemap.xml\n"
 
 def sitemap() -> str:
     tag = time.strftime("%Y-%m-%d")
-    return ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-            f"  <url><loc>{ADRESSE}</loc><lastmod>{tag}</lastmod></url>\n</urlset>\n")
+    paar = (f'<xhtml:link rel="alternate" hreflang="de" href="{ADRESSE}"/>'
+            f'<xhtml:link rel="alternate" hreflang="en" href="{ADRESSE_EN}"/>')
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+            'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+            f"  <url><loc>{ADRESSE}</loc><lastmod>{tag}</lastmod>{paar}</url>\n"
+            f"  <url><loc>{ADRESSE_EN}</loc><lastmod>{tag}</lastmod>{paar}</url>\n</urlset>\n")
+
+
+def englisch(seite: str) -> str:
+    """Die deutsche Startseite als englische unter /en/: Sprache, Titel, Beschreibung, Adresse – und Pfade eine Ebene hoch."""
+    de_titel = re.search(r"<title>([^<]+)</title>", seite).group(1)
+    de_beschr = re.search(r'<meta name="description" content="([^"]+)"', seite).group(1)
+    s = seite.replace('<html lang="de">', '<html lang="en">', 1)
+    s = s.replace(f"<title>{de_titel}</title>", f"<title>{html.escape(TITEL_EN)}</title>", 1)
+    s = s.replace(f'<link rel="canonical" href="{ADRESSE}">', f'<link rel="canonical" href="{ADRESSE_EN}">', 1)
+    s = s.replace(f'<meta property="og:url" content="{ADRESSE}">', f'<meta property="og:url" content="{ADRESSE_EN}">', 1)
+    s = s.replace("Knowlin – ein Kopf, viele Körper", "Knowlin – one mind, many bodies")
+    s = s.replace('<meta property="og:locale" content="de_DE">\n<meta property="og:locale:alternate" content="en_US">',
+                  '<meta property="og:locale" content="en_US">\n<meta property="og:locale:alternate" content="de_DE">')
+    s = s.replace(de_beschr, html.escape(BESCHREIBUNG_EN))
+    alt = re.search(r'<script type="application/ld\+json">(.+?)</script>', s).group(1)
+    s = s.replace(alt, strukturiert(BESCHREIBUNG_EN, ADRESSE_EN, "en"), 1)
+    for a, b in (('"bilder/', '"../bilder/'), (", bilder/", ", ../bilder/"), ('url("schrift/', 'url("../schrift/'),
+                 ('href="schrift/', 'href="../schrift/'), ('href="favicon.png"', 'href="../favicon.png"'),
+                 ('href="apple-touch-icon.png"', 'href="../apple-touch-icon.png"'),
+                 ('href="impressum.html"', 'href="../impressum.html"'), ('href="datenschutz.html"', 'href="../datenschutz.html"'),
+                 ('href="./"', 'href="../"')):
+        s = s.replace(a, b)
+    return s
 
 
 # Download-Knopf (seit 0.38.31): direkt auf den Installer der aktuellen Version. Die Website baut bei jedem Release neu
@@ -220,6 +266,8 @@ def bauen(ziel: Path) -> Path:
     beschreibung = re.search(r'<meta name="description" content="([^"]+)"', kopf).group(1)
     seite = KOPF.format(adresse=ADRESSE, basis=ADRESSE, beschreibung=beschreibung, daten=strukturiert(beschreibung)) + kopf + "</head>\n<body>\n" + koerper + "\n</body>\n</html>\n"
     (ziel / "index.html").write_text(seite, encoding="utf-8")
+    (ziel / "en").mkdir(exist_ok=True)
+    (ziel / "en" / "index.html").write_text(englisch(seite), encoding="utf-8")      # seit 0.51
     fuss = koerper[koerper.index("<footer>"):koerper.index("</footer>") + len("</footer>")] + "\n"
     adresse = anschrift()
     for name in RECHT:
