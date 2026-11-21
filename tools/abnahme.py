@@ -1143,6 +1143,37 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     page.evaluate("""() => fetch('/api/mentor').then(r => r.json()).then(d => Promise.all(d.ziele.filter(z => z.eigen)
         .map(z => fetch('/api/mentor/ziel/' + z.id, {method: 'DELETE'}))))""")
 
+    # 13p · Seit 0.49: Ablauf-Baukasten – zwei Karten anklicken, abspielen; Duck-Cards-Leser erkennt erzeugte AprilTags
+    page.evaluate("() => window.duckpilot.showView('tricks', 'ablauf')")
+    page.wait_for_timeout(1500)
+    page.click("#ab-leeren")
+    page.locator("#ab-palette button", has_text="Links drehen").first.click()
+    page.locator("#ab-palette button", has_text="Juhu").first.click()
+    page.click("#ab-start")
+    try:
+        page.wait_for_function("() => /fertig|Übersprungen/.test(document.getElementById('ab-stand').textContent)", timeout=30000)
+    except Exception:  # noqa: BLE001
+        pass
+    lauf = page.text_content("#ab-stand") or ""
+    erkannt = page.evaluate("""async () => {
+        const { AR } = await import('/static/vendor/aruco36h11.js');
+        const svg = (id) => new AR.Dictionary('APRILTAG_36h11').generateSVG(id);
+        const c = Object.assign(document.createElement('canvas'), { width: 640, height: 320 });
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 640, 320);
+        for (const [i, id] of [[0, 2], [1, 84]]) {
+            const img = new Image();
+            img.src = 'data:image/svg+xml,' + encodeURIComponent(svg(id));
+            await img.decode();
+            ctx.drawImage(img, 60 + i * 300, 60, 200, 200);
+        }
+        const d = new AR.Detector({ dictionaryName: 'APRILTAG_36h11' });
+        return d.detectImage(640, 320, ctx.getImageData(0, 0, 640, 320).data).map((m) => m.id).sort((a, b) => a - b);
+    }""")
+    b.foto(page, "13p-ablauf", "Steuern → Ablauf: Baukasten und Duck Cards")
+    b.pruefe("Ablauf: Baukasten spielt ab, Duck-Cards-Leser erkennt die Karten", "fertig" in lauf and erkannt == [2, 84],
+             f"{lauf} · erkannt {erkannt}")
+
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")
     lm = page.evaluate("() => fetch('/api/anbieter/modelle', {method: 'POST', headers: {'Content-Type': 'application/json'},"

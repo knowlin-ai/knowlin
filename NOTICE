@@ -75,6 +75,15 @@ Open Duck Mini v2 – 3D-Modell (duckpilot/server/static/model/open_duck_mini.dp
 three.js (duckpilot/server/static/vendor/three*.js, BufferGeometryUtils.js)
   Copyright 2010-2024 three.js authors – MIT License (vendor/THREE-LICENSE).
 
+js-aruco2 (duckpilot/server/static/vendor/aruco36h11.js, seit 0.49)
+  Copyright Juan Mellado, Damiano Falcioni und Mitwirkende – MIT License (vendor/ARUCO-LICENSE.txt). Enthält das
+  AprilTag-Wörterbuch tag36h11 (Copyright The Regents of the University of Michigan, BSD 2-Clause). Geändert: cv.js,
+  aruco.js und das Wörterbuch zu einem ES-Modul zusammengefasst, andere Wörterbücher entfernt.
+
+Duck Cards (nur verlinkt und gelesen, nicht enthalten)
+  Format duck-cards/0 von Microduck Studio (https://microduckstudio.com/cards/), CC BY 4.0 – ein unabhängiges Projekt,
+  nicht von Pollen Robotics. Knowlin liest nur die Kartennummern; Karten und Druckvorlagen liegen bei Microduck Studio.
+
 IBM Plex Sans und IBM Plex Mono (duckpilot/server/static/vendor/plex/)
   Copyright IBM Corp. – SIL Open Font License 1.1 (vendor/plex/LICENSE-OFL.txt).
 

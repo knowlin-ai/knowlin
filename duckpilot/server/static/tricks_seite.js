@@ -5,6 +5,7 @@ import { setIdleRepertoire } from './personality.js';
 import { initAlleSpiele } from './spiele_alle.js';
 import { initVR } from './vr.js';
 import { initZubehoer } from './zubehoer.js';
+import { initAblauf } from './ablauf.js';
 import { initLeistungsmodus } from './leistung.js';
 import { initMentorSeite } from './mentor_seite.js';
 import { vorschauKachel } from './skills.js';
@@ -85,6 +86,7 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   const alleSpiele = initAlleSpiele({ $, api, toast, showView });   // Spiele für jeden Körper (seit 0.44)
   initVR({ $, send, toast, getConfig });   // VR mit der Quest (seit 0.44; Vormachen seit 0.48)
   const zubehoer = initZubehoer({ $, api, toast, showView });   // Zubehör der Microduck (seit 0.47)
+  initAblauf({ $, api, toast });   // Ablauf-Baukasten und Duck Cards (seit 0.49)
   initLeistungsmodus();
   initMentorSeite({ $, api, el, toast, send, showView });         // Mentor als eigenes Modul (seit 0.48)
   async function loadTricks(p = 'tricks') {

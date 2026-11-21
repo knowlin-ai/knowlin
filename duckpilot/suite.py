@@ -57,7 +57,7 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
      "serielles Protokoll geplant."),
     ("knowlets", "Knowlets", "Verkörperungen, Tricks und Tänze teilen", "fertig", "",
      "Charakter, Tricks und Tänze als Paket speichern, auf Hugging Face teilen und laden – nur Daten, nie Personen."),
-    ("lab", "Knowlin Lab", "Trainingshalle für Module, die Bewegung lernen", "geplant", "0.49",
+    ("lab", "Knowlin Lab", "Trainingshalle für Module, die Bewegung lernen", "geplant", "0.50",
      "Training, Parcours und Policies als eigener Bereich – heute bei der Microduck unter Lernen."),
     # seit 0.38.55 „Mentor“ statt „Ohne Körper“ (Maintainer: Knowlin ist über Tailscale und Sprachchat ohnehin überall –
     # neu ist, dass der Mensch der Körper und Lehrer ist; Konzept „Mentor – Lernen durch Zuschauen“)

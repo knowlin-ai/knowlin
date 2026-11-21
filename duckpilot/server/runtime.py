@@ -234,6 +234,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.haus_dienst: Any = None                           # setzt routes/haus.py
         self.zubehoer_dienst: Any = None                       # setzt routes/zubehoer.py (Rollen, Rennen, Polaroid; 0.47)
         self.marionette_dienst: Any = None                     # setzt routes/marionette.py (seit 0.48)
+        self.ablauf_dienst: Any = None                         # setzt routes/ablauf.py (seit 0.49)
         self._wire()
 
     # ── Aufbau ────────────────────────────────────────────────────────────
@@ -294,6 +295,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.runner.haus_aufraeumen = lambda ziel, sauger=True: self.haus_dienst.aufraeumen_start(ziel, sauger)
         self.runner.haus_rundgang = lambda: self.haus_dienst.rundgang_start()   # Rundgang (seit 0.46)
         self.runner.zubehoer_dienst = self.zubehoer_dienst     # Zubehör der Microduck (seit 0.47)
+        self.runner.ablauf_dienst = self.ablauf_dienst         # Ablauf-Baukasten (seit 0.49)
         self.runner.englisch = lambda: str(getattr(self.config, "sprache", "de")).startswith("en")
         self.runner.pollen = PollenAdapter(self)
         self.runner.free_training = self.free_training
@@ -1149,6 +1151,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             self.alltag.emergency_stop()
             if self.marionette_dienst is not None:
                 self.marionette_dienst.not_aus()
+            if self.ablauf_dienst is not None:
+                self.ablauf_dienst.not_aus()                 # Ablauf-Baukasten (seit 0.49)
             await self.engine.not_aus("Not-Aus")
         elif kind == "koerper":
             await self.koerper_betreten()

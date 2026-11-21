@@ -714,6 +714,10 @@ class FallbackBrain:
         if hb is not None:                                        # Smart Home ohne Sprachmodell (seit 0.45)
             return Reply(hb.get("text") or hb.get("fehler") or "", [{"tool": "haus", "input": {"text": text}, "result": hb}],
                          "einfach")
+        ab = await self.runner._ablauf_befehl(text) if hasattr(self.runner, "_ablauf_befehl") else None
+        if ab is not None:                                        # Abläufe ohne Sprachmodell (0.49)
+            return Reply(ab.get("text") or ab.get("fehler") or "", [{"tool": "ablauf", "input": {"text": text},
+                                                                     "result": ab}], "einfach")
         zb = await self.runner._zubehoer_befehl(text) if hasattr(self.runner, "_zubehoer_befehl") else None
         if zb is not None:                                        # Rollen, Rennen, Polaroid ohne Sprachmodell (0.47)
             return Reply(zb.get("text") or zb.get("fehler") or "", [{"tool": "zubehoer", "input": {"text": text},

@@ -1,0 +1,36 @@
+/* Ablauf-Baukasten und Duck Cards (seit 0.49). Nur Tokens. */
+[data-part="ablauf"] [hidden] { display: none; }
+.ab-palette { display: flex; flex-wrap: wrap; gap: var(--spacing-02); margin: var(--spacing-03) 0; }
+.ab-karte { font: inherit; font-size: var(--t-small); padding: var(--spacing-02) var(--spacing-03); border: 1px solid var(--line);
+  border-left: 4px solid var(--_farbe, var(--line-strong)); border-radius: var(--r-control); background: var(--surface-raised);
+  color: var(--ink); cursor: grab; min-height: var(--control-h-sm); }
+@media (hover: hover) and (pointer: fine) { .ab-karte:hover { background: var(--surface-hover); } }
+.ab-karte:focus-visible, .ab-schritt:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ab-gehen { --_farbe: var(--data-1); }
+.ab-schauen { --_farbe: var(--axis-yaw); }
+.ab-trick { --_farbe: var(--accent); }
+.ab-laut { --_farbe: var(--warning); }
+.ab-klammer { --_farbe: var(--ink-3); }
+.ab-reihe-wahl { margin: var(--spacing-03) 0; }
+.ab-reihe-titel { margin: var(--spacing-04) 0 var(--spacing-02); font-size: var(--t-body); font-weight: 600; }
+.ab-reihe { list-style: none; margin: 0; padding: var(--spacing-02); min-height: var(--control-h-lg); display: grid; gap: var(--spacing-02);
+  border: 1px dashed var(--line-strong); border-radius: var(--r-card); background: var(--surface-sunken); counter-reset: ab; }
+.ab-schritt { counter-increment: ab; display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-02);
+  margin-left: calc(var(--tiefe, 0) * var(--spacing-05)); padding: var(--spacing-02) var(--spacing-03);
+  border-left: 4px solid var(--_farbe, var(--line-strong)); border-radius: var(--r-control); background: var(--surface-raised); cursor: grab; }
+.ab-schritt::before { content: counter(ab) "."; color: var(--ink-3); font-variant-numeric: tabular-nums; min-width: 2ch; }
+.ab-schritt b { font-weight: 600; margin-right: auto; }
+.ab-zusatz { width: auto; min-height: var(--control-h-sm); font-size: var(--t-small); }
+.ab-mini { min-width: var(--control-h-sm); }
+.ab-stand { min-height: 1.5em; padding: var(--spacing-03) 0; color: var(--ink-2); }
+.ab-name, .ab-mal { flex: 1 1 10rem; }
+.ab-mal { flex: 0 1 8rem; }
+.ab-bild { position: relative; margin: var(--spacing-03) 0; border-radius: var(--r-card); overflow: hidden; background: var(--media-bg); }
+.ab-bild video, .ab-bild canvas { display: block; width: 100%; height: auto; }
+.ab-bild canvas { position: absolute; inset: 0; height: 100%; color: var(--good); }
+.ab-erkannt { font-size: var(--t-small); color: var(--ink-2); }
+.ab-meldungen { margin: var(--spacing-03) 0; padding-left: var(--spacing-05); font-size: var(--t-small); color: var(--ink-2); }
+.ab-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--spacing-03); }
+.ab-eintrag { padding: var(--spacing-03); border-radius: var(--r-card); background: var(--surface-raised); }
+.ab-eintrag b { margin-right: auto; }
+.ab-kartenzeile { margin: var(--spacing-02) 0 0; font-size: var(--t-small); color: var(--ink-2); }

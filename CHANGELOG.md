@@ -9,6 +9,34 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.49.0 – 2026-11-21 – Ablauf-Baukasten und Duck Cards
+
+### Neu
+- **Ablauf-Baukasten** (Steuern → Ablauf): Schritte anklicken oder in eine Reihe ziehen – gehen (mit Tempo), drehen,
+  anhalten, schauen, Tricks, Laute, Wiederholen … Ende (bis 10×, auch verschachtelt) – und abspielen. Blick als Zusatz
+  beim Gehen und Drehen. Eine zweite Reihe **„Wenn sie fällt“** läuft, sobald sie nach einem Sturz wieder steht.
+  Speichern unter einem Namen; per Stimme ohne Sprachmodell: „Spiel den Ablauf Kreis“, „Welche Abläufe gibt es?“
+  (Werkzeug `ablauf`). Läuft auf jedem Körper: Was er nicht kann, überspringt er und nennt es am Ende.
+- **Duck Cards lesen:** die freien Karten von Microduck Studio (Format `duck-cards/0`, CC BY 4.0, unabhängiges Projekt)
+  hinlegen und vor die Webcam halten – Knowlin macht daraus denselben Ablauf und sagt, welche Karte nicht passt.
+  Zu jedem gespeicherten Ablauf stehen die Karten, die man dafür hinlegt; Druckvorlage und Format sind verlinkt.
+
+### Geändert
+- Baukasten und Kartenleser nutzen eine Regel: der Baukasten legt die Karten gedanklich hin, der Server liest sie wie
+  echte Karten (`ablauf.py`).
+- Geplant: 0.50 Aufmerksamkeit suchen und Knowlin Lab als Bereich; 0.51 Websuche und Routinen in Knowlets,
+  Choreografie zum Ziehen.
+
+### Sicherheit
+- Kein Start in der Sperre nach dem Not-Aus; der Not-Aus (Knopf, Esc, „Stopp“) beendet den Ablauf sofort. Jeder Schritt
+  läuft über die gewohnten Werkzeuge mit ihren Grenzen (Tempo höchstens 0,25 m/s, Kopf in seinen Winkeln).
+- Ein Ablauf ist nur Daten mit festen Arten und Grenzen (höchstens 60 Schritte, 3 Ebenen) – nichts wird als Code
+  ausgeführt.
+- Die Karten erkennt der Browser selbst (js-aruco2, MIT); an Knowlin gehen nur Kartennummern und Lagen, kein Bild.
+
+### Nicht geprüft
+- Duck Cards mit echter Webcam und gedruckten Karten (geprüft mit erzeugten AprilTags), echte Körper.
+
 ## 0.48.0 – 2026-11-21 – Mentor als eigenes Modul, Marionette und Vormachen in der Quest
 
 ### Neu

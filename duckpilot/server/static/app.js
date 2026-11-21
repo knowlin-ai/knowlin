@@ -197,6 +197,7 @@ function handle(msg) {
     case 'spiel_alle': return window.dispatchEvent(new CustomEvent('knowlin:spiel', { detail: msg }));   // spiele_alle.js
     case 'mentor': return mentor.meldung(msg);
     case 'rennen': case 'polaroid': return window.dispatchEvent(new CustomEvent('knowlin:zubehoer', { detail: msg }));   // zubehoer.js
+    case 'ablauf': return window.dispatchEvent(new CustomEvent('knowlin:ablauf', { detail: msg }));   // ablauf.js
   }
 }
 

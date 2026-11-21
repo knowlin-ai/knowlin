@@ -19,6 +19,7 @@ from ..motion import behaviors as B
 from ..motion import koerper_tanz as KT
 from ..motion.apportieren import Apportieren
 from ..motion.engine import MotionEngine
+from .tools_ablauf import ABLAUF_TOOL, AblaufWerkzeuge
 from .tools_absicht import ABSICHT_TOOL, ARM_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge, werkbank_werkzeuge
 from .tools_erinnern import ERINNER_TOOLS, ErinnerWerkzeuge
 from .tools_gespraech import WETTER_TOOL, GespraechWerkzeuge
@@ -611,7 +612,8 @@ LOGGED_EVENTS = {"fall": "Sturz", "kick_miss": "Kick ins Leere", "pick_miss": "A
 
 
 class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge, LichtWerkzeuge,
-                 GespraechWerkzeuge, HausWerkzeuge, ZubehoerWerkzeuge):
+                 GespraechWerkzeuge, HausWerkzeuge, ZubehoerWerkzeuge,
+                 AblaufWerkzeuge):
     def __init__(self, engine: MotionEngine, memory: "Memory | None" = None) -> None:
         self.engine = engine
         self.memory = memory
@@ -660,7 +662,7 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
             tools = [*tools, FREE_TRAINING_TOOL]
         eig = self.engine.backend.eigenschaften()
         be = self.engine.backend                  # nur anbieten, was dieser Körper wirklich kann (seit 0.38.6 vollständig)
-        tools = [t for t in [*tools, ZUBEHOER_TOOL] if fehlt_dem_koerper(t["name"], be) is None]   # Zubehör 0.47
+        tools = [t for t in [*tools, ZUBEHOER_TOOL, ABLAUF_TOOL] if fehlt_dem_koerper(t["name"], be) is None]   # Zubehör 0.47
         tools = [*tools, ABSICHT_TOOL, SELBSTBILD_TOOL]      # Aktionskatalog und Selbstbild (seit 0.38.43, G2)
         tools = [*tools, *ERINNER_TOOLS, WETTER_TOOL]        # Tagesrückblick und Weltbild (0.39), Wetter (0.40)
         if getattr(self, "haus", None) is not None:
@@ -794,6 +796,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
                 result = await self._haus(args or {})
             elif name == "zubehoer":
                 result = await self._zubehoer(args or {})
+            elif name == "ablauf":
+                result = await self._ablauf(args or {})
             elif name == "arm":
                 result = await self._arm(args or {})
             elif name in ("greifen", "ablegen"):

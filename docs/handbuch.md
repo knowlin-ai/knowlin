@@ -1621,6 +1621,26 @@ Verkörperung unter **Lernen → Mentor**.
 - **Datenschutz:** An Knowlin gehen nur drei Zahlen bzw. 21 Handpunkte – kein Bild, keine Raumdaten der Brille.
   Gespeichert werden Lernziele (`mentor.json`) und Bewegungen (`marionette.json`), nichts über Personen.
 
+## Ablauf-Baukasten und Duck Cards (seit 0.49)
+
+Unter **Steuern → Ablauf** baust du eine kleine Reihe von Schritten und spielst sie ab – auf jedem Körper.
+
+- **Baukasten:** Karte anklicken (kommt ans Ende) oder in die Reihe ziehen. Verschieben mit Ziehen oder den Pfeilen,
+  entfernen mit ✕. Gehen hat ein Tempo (langsam, normal, schnell), Gehen, Drehen und Anhalten einen Blick dabei.
+  „Wiederholen“ und „Ende wiederholen“ klammern Schritte (bis 10×, auch verschachtelt). Ein Schritt gehen ist 30 cm,
+  drehen 90°.
+- **Wenn sie fällt:** Schritte in der zweiten Reihe laufen, sobald sie nach einem Sturz wieder steht (bis 20 s Warten);
+  die erste Reihe endet beim Sturz.
+- **Speichern und abspielen:** mit Namen speichern; „Spiel den Ablauf Kreis“ oder „Welche Abläufe gibt es?“ geht auch
+  ohne Sprachmodell. Was der Körper nicht kann (etwa Schuss ohne Beine), wird übersprungen und am Ende genannt.
+- **Duck Cards:** die freien Karten von [Microduck Studio](https://microduckstudio.com/cards/) (CC BY 4.0, ein
+  unabhängiges Projekt) ausdrucken, von links nach rechts hinlegen, Tempo und Blick direkt darunter, „Wenn sie fällt“
+  als neue Reihe. „Karten lesen“ öffnet die Webcam; „In den Baukasten“ übernimmt, was erkannt ist. Die Zahl auf
+  „Wiederholen“ ist handschriftlich – die stellst du im Feld „Wiederholen“ ein. Unbekannte Karten beenden das Lesen dort.
+- **Datenschutz:** Die Karten erkennt dein Browser. An Knowlin gehen nur Kartennummern und Lagen, kein Bild; die Webcam
+  ist nur an, solange „Karten lesen“ offen ist.
+- **Sicherheit:** In der Sperre nach dem Not-Aus startet kein Ablauf; der Not-Aus beendet ihn sofort.
+
 ## Zubehör der Microduck (seit 0.47)
 
 Pollens Zubehörpaket bringt zwei Rollen zum Anklemmen, einen Laserpointer, einen Ball, NFC-Tags und ein NFC-Polaroid.

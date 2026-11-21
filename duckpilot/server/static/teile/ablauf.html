@@ -1,0 +1,62 @@
+          <div data-part="ablauf" hidden>
+            <header class="page-head">
+              <h2>Ablauf</h2>
+              <p>Bau einen kleinen Ablauf aus Schritten – gehen, drehen, schauen, Tricks, Laute, wiederholen – und spiel ihn ab.
+                Oder leg die freien Duck Cards vor die Webcam: Knowlin liest sie und macht daraus denselben Ablauf.
+                Was dieser Körper nicht kann, überspringt er und sagt es.</p>
+              <details class="explain"><summary>Was passiert mit dem Webcam-Bild?</summary>
+                <p>Die Karten erkennt dieser Browser selbst. An Knowlin gehen nur die Kartennummern und wo sie liegen – kein Bild.
+                  Die Webcam ist nur an, solange „Karten lesen“ offen ist. Gespeichert werden nur deine Abläufe.</p>
+              </details>
+            </header>
+            <div class="grid grid--halves">
+              <section class="card set-card g-half" aria-labelledby="ab-bau-titel">
+                <h3 id="ab-bau-titel">Baukasten</h3>
+                <p class="field-help">Karte anklicken oder in die Reihe ziehen. In der Reihe verschieben: ziehen oder die Pfeile.</p>
+                <div class="ab-palette" id="ab-palette" role="group" aria-label="Schritte zum Hinzufügen"></div>
+                <div class="seg seg--sm ab-reihe-wahl" role="radiogroup" aria-label="Wohin kommt der nächste Schritt?">
+                  <label><input type="radio" name="ab-ziel" value="haupt" checked><span>Ablauf</span></label>
+                  <label><input type="radio" name="ab-ziel" value="sturz"><span>Wenn sie fällt</span></label>
+                </div>
+                <h4 class="ab-reihe-titel" id="ab-haupt-titel">Ablauf</h4>
+                <ol class="ab-reihe" id="ab-haupt" aria-labelledby="ab-haupt-titel" data-reihe="haupt"></ol>
+                <h4 class="ab-reihe-titel" id="ab-sturz-titel">Wenn sie fällt <span class="field-help">– läuft, sobald sie wieder steht</span></h4>
+                <ol class="ab-reihe" id="ab-sturz" aria-labelledby="ab-sturz-titel" data-reihe="sturz"></ol>
+                <div class="ab-stand" id="ab-stand" aria-live="polite"></div>
+                <div class="input-row">
+                  <button type="button" class="btn btn--primary btn--sm" id="ab-start">Abspielen</button>
+                  <button type="button" class="btn btn--danger btn--sm" id="ab-stopp" hidden>Anhalten</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="ab-leeren">Leeren</button>
+                </div>
+                <div class="input-row">
+                  <label class="field ab-name"><span class="field-label">Name</span><input type="text" class="input" id="ab-name" maxlength="40" autocomplete="off"></label>
+                  <button type="button" class="btn btn--ghost btn--sm" id="ab-speichern">Speichern</button>
+                </div>
+              </section>
+              <section class="card set-card g-half pc-oder-sicher" aria-labelledby="ab-karten-titel">
+                <h3 id="ab-karten-titel">Duck Cards lesen</h3>
+                <p class="field-help">Karten von links nach rechts hinlegen, Tempo und Blick direkt darunter, „Wenn sie fällt“ als neue Reihe.
+                  Dann die Webcam darauf richten.</p>
+                <div class="input-row">
+                  <button type="button" class="btn btn--primary btn--sm" id="ab-kamera">Karten lesen</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="ab-kamera-zu" hidden>Webcam aus</button>
+                  <label class="field ab-mal"><span class="field-label">Wiederholen</span><input type="number" class="input" id="ab-mal" min="1" max="10" value="2"></label>
+                </div>
+                <div class="ab-bild" id="ab-bild" hidden>
+                  <video id="ab-video" muted playsinline aria-label="Webcam-Bild – es verlässt diesen Browser nicht"></video>
+                  <canvas id="ab-rahmen" aria-hidden="true"></canvas>
+                </div>
+                <p class="ab-erkannt" id="ab-erkannt" aria-live="polite" hidden></p>
+                <button type="button" class="btn btn--primary btn--sm" id="ab-uebernehmen" hidden>In den Baukasten</button>
+                <ul class="ab-meldungen" id="ab-meldungen"></ul>
+                <p class="field-help">Die Karten zum Ausdrucken: <a href="https://microduckstudio.com/cards/print/" target="_blank" rel="noopener">Duck Cards drucken</a>
+                  · <a href="https://microduckstudio.com/cards/spec/" target="_blank" rel="noopener">Format</a>.
+                  Duck Cards von Microduck Studio, CC BY 4.0 – ein unabhängiges Projekt, nicht von Pollen.</p>
+              </section>
+              <section class="card set-card" aria-labelledby="ab-liste-titel">
+                <h3 id="ab-liste-titel">Gespeicherte Abläufe</h3>
+                <p class="field-help">Auch per Stimme: „Spiel den Ablauf …“. Unter jedem Ablauf stehen die Karten, die man dafür hinlegt.</p>
+                <ul class="ab-liste" id="ab-liste"></ul>
+              </section>
+            </div>
+          </div>
