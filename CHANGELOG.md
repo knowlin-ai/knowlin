@@ -9,6 +9,27 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.49.1 – 2026-11-21 – Update ohne Hänger, sichtbare Rollen, Tore zum Durchfahren
+
+### Behoben
+- **Nach dem In-App-Update** wirkte Knowlin wie hängen geblieben: Der erste Start nach dem Update stand bis zu zwei
+  Minuten auf „Körper, Stimme und Gedächtnis werden aufgebaut“. Die Startseite sagt jetzt, welcher Teil gerade lädt
+  („gerade: Stimme“), und nach 30 s, dass der erste Start nach einem Update so lange dauern kann. Ein Start mitten im
+  Update (Doppelklick, weil das Fenster still wartet) fährt nicht mehr die alte Fassung hoch, die der Installer dann hart
+  beendet – er zeigt nur ein Warte-Fenster, das zu Knowlin wechselt, sobald es antwortet. Der Installer startet
+  geschlossene Programme nicht mehr selbst neu (`RestartApplications=no`); das neue Knowlin startet wie bisher.
+- **Rollen im Simulator kaum zu sehen:** Sie saßen in Fußfarbe unter den Füßen. Jetzt blaue Schiene, schwarze Räder mit
+  gelben Naben, breiter als der Fuß, und sie hebt sich auf den Rollen an.
+- **Tore im Arena-Rennen sahen aus wie Zäune:** jetzt Bögen zum Durchfahren mit Pfeilen am Boden in Fahrtrichtung.
+- **Zubehör-Menü:** „Rollen abnehmen“ ist ein richtiger Knopf; „geduckt“ heißt „In die Hocke gehen“ und ist erklärt.
+- **3D-Ansicht auf einmal weiß:** Setzt die Grafikkarte die Ansicht zurück (etwa wenn die Stimme gleichzeitig auf der
+  Grafikkarte rechnet), steht dort jetzt ein Hinweis mit „3D-Ansicht neu laden“; kommt die Grafik zurück, lädt das
+  Fenster einmal von selbst neu.
+
+### Nicht geprüft
+- Das Update selbst mit dem neuen Installer (erst beim nächsten Update von 0.49.1 aus), WebGL-Verlust auf echter
+  AMD-Grafik.
+
 ## 0.49.0 – 2026-11-21 – Ablauf-Baukasten und Duck Cards
 
 ### Neu

@@ -101,7 +101,7 @@ export function initBeenden(h) {
         gemeldet = i;
         $('quit-done-title').textContent = `Knowlin ${p.version_neu || ''} startet …`.replace('  ', ' ');
         $('quit-done-text').textContent = 'Gleich geschafft – das Fenster lädt sich dann von selbst neu.';
-        schritte(liste, 'startet', p.schritt || '');
+        schritte(liste, 'startet', (p.schritt || '') + (p.teil ? ` (gerade: ${p.teil})` : ''));
         continue;
       }
       if (p && p.version && (p.version !== oldVersion || (weg && !update) || (!update && i > 20))) {
@@ -186,7 +186,7 @@ export function initBeenden(h) {
       $('update-text').textContent = (r && r.fehler) || 'Das Update ging nicht.';
       return;
     }
-    done(`Knowlin ${r.version} wird installiert …`, 'Knowlin beendet sich, installiert und startet von selbst neu – meist in ein bis drei Minuten. Das Fenster lädt sich dann neu.');
+    done(`Knowlin ${r.version} wird installiert …`, 'Knowlin beendet sich, installiert und startet von selbst neu – meist in zwei bis vier Minuten. Bitte in der Zeit nicht selbst starten; das Fenster lädt sich dann neu.');
     schritte(SCHRITTE_UPDATE, 'installieren');
     waitForRestart(info && info.version, true);
   });

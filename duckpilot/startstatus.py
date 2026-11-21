@@ -12,6 +12,11 @@ Statusdienst:
 
 Kurz bevor der eigentliche Server startet, gibt der Statusdienst den Port wieder frei. Nur lesend, dieselbe Adresse wie
 der Server, keine Daten über dich.
+
+Seit 0.49.1 (Maintainer: „das In-App-Update führt dazu, dass er sich nicht neu verbinden kann“ – der Aufbau stand nach
+dem Update 100 s auf „Körper, Stimme und Gedächtnis werden aufgebaut“): Ein Beobachter schaut alle zwei Sekunden, in
+welchem Teil der Start gerade steckt („gerade: Stimme“), und schreibt bei langen Starts die Stelle ins Protokoll. Nach
+30 s sagt die Seite, dass der erste Start nach einem Update dauern kann und man nicht neu starten soll.
 """
 
 from __future__ import annotations
@@ -19,6 +24,7 @@ from __future__ import annotations
 import html
 import json
 import logging
+import os
 import sys
 import threading
 import time
@@ -40,14 +46,37 @@ class StartStatus:
         self.schritt = "Programm wird geladen"
         self.t0 = time.monotonic()
         self._server: _Dienst | None = None
+        self.teil = ""
+        self._beobachten = False
 
     def stand(self) -> dict:
         # "app": ein zweiter Doppelklick erkennt das startende Knowlin und öffnet nur ein Fenster dazu
         return {"app": "duckpilot", "startet": True, "version_neu": self.version, "schritt": self.schritt,
-                "seit_s": round(time.monotonic() - self.t0, 1)}
+                "teil": self.teil, "seit_s": round(time.monotonic() - self.t0, 1)}
 
     def setzen(self, schritt: str) -> None:
         self.schritt = schritt
+
+    def beobachten(self, faden: int | None = None, takt_s: float = 2.0, protokoll_s: float = 15.0) -> None:
+        """Wo steckt der Start gerade? Schaut in den Startfaden (Standard: Hauptfaden) und setzt `teil`; was länger
+        als `protokoll_s` dauert, kommt mit Datei und Zeile ins Protokoll – damit ein langsamer Start sich finden lässt."""
+        faden = faden if faden is not None else threading.main_thread().ident
+        self._beobachten = True
+
+        def schauen() -> None:
+            naechstes = protokoll_s
+            while self._beobachten:
+                time.sleep(takt_s)
+                stelle = startstelle(sys._current_frames().get(faden))
+                if stelle is None:
+                    continue
+                self.teil = teil_von(stelle[0])
+                seit = time.monotonic() - self.t0
+                if seit >= naechstes:
+                    naechstes = seit + protokoll_s
+                    log.info("Start nach %.0f s noch bei „%s“: %s:%s in %s", seit, self.schritt, *stelle)
+
+        threading.Thread(target=schauen, name="startbeobachter", daemon=True).start()
 
     def starten(self, host: str, port: int) -> bool:
         """Port belegen und antworten; False, wenn der Port (noch) nicht frei ist – dann ohne Statusdienst."""
@@ -81,10 +110,41 @@ class StartStatus:
 
     def beenden(self) -> None:
         """Port freigeben – kurz bevor der eigentliche Server ihn braucht."""
+        self._beobachten = False
         if self._server is not None:
             self._server.shutdown()
             self._server.server_close()
             self._server = None
+
+
+# Teile des Programms, wie man sie im Fenster nennt (erster Ordner unter duckpilot/ bzw. Dateiname)
+TEILE = (("voice", "Stimme"), ("speech", "Stimme"), ("physics", "Physik"), ("acrobatics", "Physik"),
+         ("kollision", "Physik"), ("memory", "Gedächtnis"), ("erfahrung", "Gedächtnis"), ("brain", "Denken"),
+         ("backends", "Körper"), ("koerper", "Körper"), ("modell", "Körper"), ("haus", "Smart Home"),
+         ("alltag", "Alltag"), ("kalender", "Alltag"), ("skills", "Tricks"), ("hub", "Tricks"), ("motion", "Bewegung"))
+
+
+def startstelle(frame) -> tuple[str, int, str] | None:
+    """Tiefster Rahmen im duckpilot-Paket (Datei relativ zum Paket, Zeile, Funktion); sonst der tiefste überhaupt."""
+    paket = os.path.dirname(os.path.abspath(__file__))
+    tiefster = None
+    eigener = None
+    while frame is not None:
+        datei = frame.f_code.co_filename
+        if tiefster is None:
+            tiefster = (os.path.basename(datei), frame.f_lineno, frame.f_code.co_name)
+        if eigener is None and os.path.abspath(datei).startswith(paket):
+            eigener = (os.path.relpath(datei, paket).replace(os.sep, "/"), frame.f_lineno, frame.f_code.co_name)
+        frame = frame.f_back
+    return eigener or tiefster
+
+
+def teil_von(datei: str) -> str:
+    teile = datei.replace("\\", "/").lower().split("/")
+    for schluessel, name in TEILE:
+        if any(t == schluessel or t.startswith(schluessel) for t in teile):
+            return name
+    return "Programmteile"
 
 
 SEITE = """<!doctype html><html lang="de"><head><meta charset="utf-8">
@@ -96,6 +156,8 @@ font:16px/1.5 system-ui,sans-serif;text-align:center;padding:16px}}p{{color:#c6c
 @keyframes l{{from{{transform:translateX(-100%)}}to{{transform:translateX(340%)}}}}
 @media (prefers-reduced-motion:reduce){{.bar i{{animation:none;width:100%;opacity:.5}}}}</style></head>
 <body><main><h1>Knowlin startet …</h1><p id="schritt">{schritt}</p><p id="zeit"></p>
+<p id="geduld" hidden>Der erste Start nach einem Update dauert manchmal zwei, drei Minuten – Windows prüft die neuen
+Dateien. Bitte nicht neu starten, das Fenster lädt sich von selbst.</p>
 <div class="bar" role="progressbar" aria-label="Knowlin startet"><i></i></div></main>
 <script>
 // Kein Neuladen per Meta-Refresh: In der kurzen Lücke, bis der eigentliche Server den Port übernimmt, zeigte der Browser
@@ -105,7 +167,9 @@ async function frag() {{
     const p = await (await fetch('/api/ping', {{ cache: 'no-store' }})).json();
     if (p.version) {{ location.reload(); return; }}
     if (p.schritt) document.getElementById('schritt').textContent = p.schritt;
-    if (p.seit_s != null) document.getElementById('zeit').textContent = 'seit ' + Math.round(p.seit_s) + ' s';
+    if (p.seit_s != null) document.getElementById('zeit').textContent = (p.teil ? 'gerade: ' + p.teil + ' · ' : '')
+      + 'seit ' + Math.round(p.seit_s) + ' s';
+    document.getElementById('geduld').hidden = !(p.seit_s > 30);
   }} catch (e) {{ /* kurz nicht erreichbar – gleich noch einmal */ }}
   setTimeout(frag, 1000);
 }}

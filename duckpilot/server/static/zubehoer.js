@@ -118,7 +118,7 @@ export function initZubehoer({ $, api, toast, showView }) {
     const key = `${an}${geduckt}`;
     if (key === rollen) return;
     rollen = key;
-    $('zb-rollen-stand').textContent = tr(an ? (geduckt ? 'Rollen dran – geduckt' : 'Rollen dran') : 'Rollen ab');
+    $('zb-rollen-stand').textContent = tr(an ? (geduckt ? 'Rollen dran – in der Hocke' : 'Rollen dran') : 'Rollen ab');
     $('zb-rollen-an').hidden = an;
     $('zb-rollen-ab').hidden = !an;
     $('zb-geduckt-feld').hidden = !an;

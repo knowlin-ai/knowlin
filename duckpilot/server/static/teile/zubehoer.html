@@ -13,14 +13,18 @@
             <div class="grid grid--halves zb-karten" id="zb-karten">
               <section class="card set-card g-half" aria-labelledby="zb-rollen-titel">
                 <h3 id="zb-rollen-titel">Rollen</h3>
-                <p class="field-help">Zwei Rollen an die Füße klemmen – dann fährt sie Rollschuh: schneller, rollt nach, lenkt weicher und kann
-                  nicht seitwärts trippeln. Geduckt ist sie noch schneller. Aufheben, Schuss und Rolle gehen mit Rollen nicht.
-                  An- und abklemmen nur im Stand. Der Not-Aus wirkt wie immer: sofort Stillstand.</p>
+                <p class="field-help">Zwei Rollen an die Füße klemmen – dann fährt sie Rollschuh: schneller, rollt nach, lenkt weicher und
+                  kann nicht seitwärts trippeln. Aufheben, Schuss und Rolle gehen mit Rollen nicht. An- und abklemmen nur im
+                  Stand. Der Not-Aus wirkt wie immer: sofort Stillstand. Fahren im Cockpit mit WASD oder dem Steuerkreuz.</p>
                 <div class="zb-stand" id="zb-rollen-stand" aria-live="polite">Rollen ab</div>
                 <div class="input-row ks-knoepfe">
                   <button type="button" class="btn btn--primary btn--sm" id="zb-rollen-an">Rollen anklemmen</button>
-                  <button type="button" class="btn btn--ghost btn--sm" id="zb-rollen-ab" hidden>Rollen abnehmen</button>
-                  <label class="switch" id="zb-geduckt-feld" hidden><input type="checkbox" id="zb-geduckt"><span>geduckt</span></label>
+                  <button type="button" class="btn btn--sm" id="zb-rollen-ab" hidden>Rollen abnehmen</button>
+                </div>
+                <div class="zb-geduckt" id="zb-geduckt-feld" hidden>
+                  <label class="switch"><input type="checkbox" id="zb-geduckt" aria-describedby="zb-geduckt-hilfe"><span>In die Hocke gehen</span></label>
+                  <p class="field-help" id="zb-geduckt-hilfe">Wie ein Skater: Knie gebeugt, tiefer Schwerpunkt – auf Rollen noch schneller.
+                    Im Rennen gibt es dafür eine eigene Bestzeit („geduckt“).</p>
                 </div>
               </section>
               <section class="card set-card g-half braucht-beine" aria-labelledby="zb-rennen-titel">

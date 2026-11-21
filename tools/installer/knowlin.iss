@@ -44,6 +44,8 @@ ArchitecturesInstallIn64BitMode=x64compatible
 CloseApplications=yes
 ; Läuft Knowlin noch, bittet Setup es zu beenden (Restart Manager) – nur Programme, die Dateien aus diesem Ordner nutzen
 CloseApplicationsFilter=*.exe,*.dll,*.pyd
+; Nicht wieder starten, was der Installer schließen musste (0.49.1): das neue Knowlin startet der [Run]-Eintrag
+RestartApplications=no
 VersionInfoVersion={#Version}
 VersionInfoCompany=Knowlin
 VersionInfoDescription=Knowlin – one mind, many bodies

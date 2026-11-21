@@ -38,6 +38,7 @@ import { $, el, css, toast, REDUCED } from './ui.js';                  // seit 0
 import { initEreignisse } from './ereignisse.js';
 import { initKachel } from './kachel.js';
 import { initTouchFahren } from './touchfahren.js';
+import { initWebglWache } from './webgl_wache.js';
 import { initGedaechtnis } from './gedaechtnis_ui.js';
 import { initEinstellungen } from './einstellungen_ui.js';
 import { initKopfleiste } from './kopfleiste.js';
@@ -57,6 +58,7 @@ import { initOffenlegung } from './offenlegung.js';
 document.body.classList.add('booting');
 
 const scene = new Scene3D($('view'));
+initWebglWache($('view'), $('view').closest('.stage'), (t) => uebersetzeText(t) || t);   // 0.49.1
 const map = new MapView($('map'));
 let raum = null;                       // Raum kennenlernen – liefert auch die Karte fürs Lagebild
 const cloud = new PointStore();

@@ -3,18 +3,23 @@
 // Füßen jedes Bild (Fußpunkte des Originalmodells oder die Knöchel der einfachen Ente) und drehen sich mit der Fahrt.
 import * as THREE from './vendor/three.module.min.js';
 
-const RAD_R = 0.009;            // m – Radius der Rollen
-const UNTER_FUSS = 0.006;       // m – so weit unter dem Fußpunkt sitzt die Achse
+const RAD_R = 0.011;            // m – Radius der Rollen
+const HOEHE = 2 * RAD_R + 0.006;  // m – so weit heben die Rollen sie an (Rad plus Schiene)
 
+// Eine Rolle wie Pollens Rollschuh: dunkle Schiene unter dem Fuß, zwei schwarze Räder mit hellen Naben – breiter als der
+// Fuß, damit man sie sieht (0.49.1, Maintainer: „Rollen dran – sehe sie aber nicht im Simulator“)
 function rolle() {
   const g = new THREE.Group();
-  const schiene = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.006, 0.022),
-    new THREE.MeshStandardMaterial({ color: 0x3a3f47, roughness: 0.6 }));
-  schiene.position.y = RAD_R + 0.002;
+  const schiene = new THREE.Mesh(new THREE.BoxGeometry(0.066, 0.006, 0.032),
+    new THREE.MeshStandardMaterial({ color: 0x2a6fdb, roughness: 0.5 }));
+  schiene.position.y = 2 * RAD_R + 0.003;
   g.add(schiene);
-  const gummi = new THREE.MeshStandardMaterial({ color: 0xf2b134, roughness: 0.45 });
-  g.raeder = [-0.016, 0.016].map((x) => {
-    const r = new THREE.Mesh(new THREE.CylinderGeometry(RAD_R, RAD_R, 0.02, 16).rotateX(Math.PI / 2), gummi);
+  const gummi = new THREE.MeshStandardMaterial({ color: 0x1c1c1e, roughness: 0.7 });
+  const nabe = new THREE.MeshStandardMaterial({ color: 0xf2b134, roughness: 0.4 });
+  g.raeder = [-0.022, 0.022].map((x) => {
+    const r = new THREE.Group();
+    r.add(new THREE.Mesh(new THREE.CylinderGeometry(RAD_R, RAD_R, 0.03, 20).rotateX(Math.PI / 2), gummi));
+    r.add(new THREE.Mesh(new THREE.CylinderGeometry(RAD_R * 0.45, RAD_R * 0.45, 0.032, 12).rotateX(Math.PI / 2), nabe));
     r.position.set(x, RAD_R, 0);
     g.add(r);
     return r;
@@ -28,22 +33,27 @@ function fuesse(duck) {
   return (duck?.legs || []).map((l) => l.ankle);
 }
 
+// Ein Tor zum Durchfahren (0.49.1, Maintainer: „sehen wie Zäune aus“): ein Bogen statt Pfosten mit Querlatte, dazu
+// Pfeile am Boden in Fahrtrichtung (lokales +x) und eine Linie zwischen den Pfosten. Start/Ziel rot, sonst blau.
 function torBogen(t) {
   const g = new THREE.Group();
   const farbe = t.nr === 0 ? 0xe5484d : 0x3e8ed0;
   const m = new THREE.MeshStandardMaterial({ color: farbe, roughness: 0.5 });
-  for (const s of [-1, 1]) {
-    const p = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.16, 10), m);
-    p.position.set(0, 0.08, s * t.breite / 2);
-    g.add(p);
-  }
-  const fahne = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.03, t.breite), m);
-  fahne.position.y = 0.16;
-  g.add(fahne);
-  const linie = new THREE.Mesh(new THREE.PlaneGeometry(0.02, t.breite).rotateX(-Math.PI / 2),
-    new THREE.MeshBasicMaterial({ color: farbe, transparent: true, opacity: 0.6 }));
+  const r = t.breite / 2;
+  const bogen = new THREE.Mesh(new THREE.TorusGeometry(r, 0.007, 10, 32, Math.PI).rotateY(Math.PI / 2), m);
+  g.add(bogen);
+  const boden = new THREE.MeshBasicMaterial({ color: farbe, transparent: true, opacity: 0.7 });
+  const linie = new THREE.Mesh(new THREE.PlaneGeometry(0.012, t.breite).rotateX(-Math.PI / 2), boden);
   linie.position.y = 0.002;
   g.add(linie);
+  for (const dx of [-0.09, 0.06]) {            // zwei Pfeile „>“: hier hindurch
+    for (const s of [-1, 1]) {
+      const strich = new THREE.Mesh(new THREE.PlaneGeometry(0.06, 0.012).rotateX(-Math.PI / 2), boden);
+      strich.rotation.y = s * 0.7;
+      strich.position.set(dx - 0.012, 0.002, s * 0.018);
+      g.add(strich);
+    }
+  }
   g.position.set(t.x, 0, -t.y);
   g.rotation.y = t.richtung;
   g.traverse((o) => { o.raycast = () => {}; });
@@ -53,7 +63,7 @@ function torBogen(t) {
 export function initRollen3D(scene) {
   if (!scene || !scene.scene) return { strecke() {}, geist() {}, naechstes() {} };
   const paar = [rolle(), rolle()];
-  let an = false, geduckt = false, tempo = 0, yaw = 0, drehung = 0;
+  let an = false, tempo = 0, yaw = 0, drehung = 0;
   let tore = null, torObjekte = [], geistWeg = null, geistStart = 0;
   const geistPunkt = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 12),
     new THREE.MeshBasicMaterial({ color: 0xbfe3ff, transparent: true, opacity: 0.55 }));
@@ -66,7 +76,6 @@ export function initRollen3D(scene) {
     const z = st.zubehoer || {};
     const jetzt = !!z.rollen;
     if (jetzt !== an) { an = jetzt; for (const r of paar) { if (an) scene.scene.add(r); else scene.scene.remove(r); } }
-    geduckt = !!z.geduckt;
     tempo = (st.twist && st.twist.vx) || 0;
     yaw = st.yaw || 0;
   });
@@ -79,6 +88,7 @@ export function initRollen3D(scene) {
     vorher?.apply(scene.scene, args);
     const t = performance.now(), dt = Math.min(0.1, (t - zuletzt) / 1000);
     zuletzt = t;
+    if (scene.duck?.root) scene.duck.root.position.y = an ? HOEHE : 0;   // auf den Rollen steht sie höher
     if (an) {
       drehung += (tempo / RAD_R) * dt;
       const fs = fuesse(scene.duck);
@@ -87,7 +97,7 @@ export function initRollen3D(scene) {
         r.visible = !!f;
         if (!f) return;
         f.getWorldPosition(p);
-        r.position.set(p.x, Math.max(0, p.y - UNTER_FUSS - RAD_R - (geduckt ? 0.002 : 0)), p.z);
+        r.position.set(p.x, 0, p.z);
         r.rotation.y = yaw;
         for (const rad of r.raeder) rad.rotation.z = -drehung;
         r.updateMatrixWorld(true);

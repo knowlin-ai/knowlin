@@ -57,6 +57,9 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             if st["art"] == "installer":
                 setup = await asyncio.to_thread(akt.installer_laden, neu["installer"])
                 akt.melden("installieren")
+                from ...aktualisieren import update_merken
+
+                update_merken(akt.ordner, neu["version"])        # Start in der Zwischenzeit: nur warten (0.49.1)
                 await asyncio.to_thread(akt.installer_starten, setup)
             else:
                 await asyncio.to_thread(akt.paket_aktualisieren, neu["version"])

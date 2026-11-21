@@ -42,8 +42,54 @@ MAX_BYTES = 300 * 1024 * 1024
 TAG_S = 24 * 3600
 
 
+MERKER = "update_laeuft.json"
+MERKER_S = 10 * 60
+
+
 class UpdateFehler(RuntimeError):
     pass
+
+
+def update_merken(ordner: Path, version: str) -> None:
+    """Vor dem Beenden fürs Update: Ein Start in der Zwischenzeit (Doppelklick, weil das Fenster still wartet) soll nicht
+    die alte Fassung hochfahren, die der Installer gleich hart beendet (Fund 21.11.: alter Start mitten im Update)."""
+    try:
+        (Path(ordner) / "updates").mkdir(parents=True, exist_ok=True)
+        (Path(ordner) / "updates" / MERKER).write_text(json.dumps({"version": version, "zeit_s": time.time()}),
+                                                     encoding="utf-8")
+    except OSError:
+        log.debug("Update-Merker", exc_info=True)
+
+
+def update_laeuft(ordner: Path, jetzt: float | None = None) -> str | None:
+    """Läuft gerade ein Update (höchstens zehn Minuten alt)? Dann die Version, sonst None."""
+    try:
+        d = json.loads((Path(ordner) / "updates" / MERKER).read_text(encoding="utf-8"))
+        alter = (jetzt if jetzt is not None else time.time()) - float(d.get("zeit_s") or 0)
+        return str(d.get("version") or "") or None if 0 <= alter < MERKER_S else None
+    except (OSError, ValueError, TypeError, AttributeError):
+        return None
+
+
+def update_vergessen(ordner: Path) -> None:
+    try:
+        (Path(ordner) / "updates" / MERKER).unlink()
+    except OSError:
+        pass
+
+
+def warteseite(url: str, version: str) -> str:
+    """Seite fürs Fenster, solange der Installer läuft: wartet, bis Knowlin wieder antwortet, und geht dann hin."""
+    import html as h
+    import urllib.parse
+
+    seite = (f"<!doctype html><meta charset=utf-8><title>Knowlin wird aktualisiert</title><body style='margin:0;display:grid;"
+             "place-items:center;min-height:100vh;background:#161616;color:#f4f4f4;font:16px/1.5 system-ui,sans-serif;"
+             f"text-align:center;padding:16px'><main><h1>Knowlin {h.escape(version)} wird installiert …</h1><p style="
+             "'color:#c6c6c6'>Knowlin startet danach von selbst – dieses Fenster geht dann hin.</p></main><script>"
+             f"const u={json.dumps(url)};async function f(){{try{{await fetch(u+'/api/ping',{{mode:'no-cors',"
+             "cache:'no-store'});location.href=u;return}}catch(e){{}}setTimeout(f,1500)}}setTimeout(f,1500)</script>")
+    return "data:text/html;charset=utf-8," + urllib.parse.quote(seite)
 
 
 def version_tupel(text: str) -> tuple[int, int, int] | None:

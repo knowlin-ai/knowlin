@@ -103,6 +103,17 @@ def main(argv: list[str] | None = None) -> None:
         cfg.app_mode = True
         threading.Thread(target=refresh_shortcut_icons, name="icons", daemon=True).start()
         cfg.hintergrund = bool(args.hintergrund)
+        from . import aktualisieren as AK
+        from . import settings as S
+
+        if args.neustart:
+            AK.update_vergessen(S.data_dir())        # der Installer ist durch – der Merker hat ausgedient (0.49.1)
+        elif AK.update_laeuft(S.data_dir()) and not already_running(url):
+            # Doppelklick mitten im Update: nicht die alte Fassung starten (der Installer beendet sie hart), nur warten
+            restart_log("Start während des Updates – zeige nur die Warteseite")
+            if not args.hintergrund:
+                open_window(AK.warteseite(url, AK.update_laeuft(S.data_dir()) or ""))
+            return
         if args.neustart:          # nach „Neu starten“: warten, bis der alte Prozess den Port freigegeben hat
             import time
 
@@ -120,6 +131,8 @@ def main(argv: list[str] | None = None) -> None:
             startstatus = StartStatus(__version__)
             if not startstatus.starten(cfg.host, cfg.port):
                 startstatus = None
+            else:
+                startstatus.beobachten()         # wo der Start steckt – im Fenster und bei langen Starts im Protokoll
         if already_running(url) and startstatus is None:  # zweiter Doppelklick: nur ein weiteres Fenster
             if not args.hintergrund:
                 open_window(fenster)      # dasselbe laufende Knowlin – ein Kern, ein Gedächtnis
