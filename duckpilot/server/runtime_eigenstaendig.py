@@ -27,6 +27,9 @@ TAKT_S = 1.0
 SATZ_ANTEIL = 0.35          # so oft sagt ein verspielter Charakter etwas dazu
 RUECKBLICK_RUHE_S = 600.0   # so lange kein Kontakt → Ruhephase für den Rückblick (seit 0.38.45)
 RUECKBLICK_ABSTAND_S = 3600.0
+AUFMERKSAMKEIT_STILLE_S = 15 * 60.0   # so lange kein Kontakt, dann darf sie zu dir kommen (seit 0.50)
+AUFMERKSAMKEIT_ABSTAND_S = 45 * 60.0  # danach frühestens wieder – Nähe drängt nie
+BETRACHTER_S = 30.0                   # so frisch muss die Meldung „hier sitzt du“ aus einem offenen Fenster sein
 
 
 class EigenstaendigTeil:
@@ -137,7 +140,41 @@ class EigenstaendigTeil:
             eigenschaften=frozenset(be.eigenschaften()), skills=tuple(be.skills() or ()), sitzt=st.sitting,
             tricks=tricks, dinge=self._eigen_dinge(), pollen=pollen,
             gestalt=tuple(gestalt_standard(self.config.modul) if gestalt is None else gestalt),
-            fehlt=lambda name: fehlt_dem_koerper(name, be))
+            fehlt=lambda name: fehlt_dem_koerper(name, be), zu_dir=self.aufmerksamkeit_ziel())
+
+    def aufmerksamkeit_ziel(self, jetzt: float | None = None) -> tuple[float, float] | None:
+        """Darf sie jetzt Aufmerksamkeit suchen (seit 0.50)? Dann der Haltepunkt vor dir, sonst None.
+
+        Nur wenn: eingeschaltet, lange Stille (kein Kontakt seit STILLE_S), seit dem letzten Mal mindestens ABSTAND_S,
+        ein Fenster ist offen und meldet, wo du sitzt (die Kamera der 3D-Ansicht), und du bist weiter als 0,9 m weg."""
+        from ..motion.aufmerksamkeit import haltepunkt
+
+        if not getattr(self.config, "aufmerksamkeit", True):
+            return None
+        jetzt = time.monotonic() if jetzt is None else jetzt
+        if jetzt - self.engine.kontakt_at < AUFMERKSAMKEIT_STILLE_S:
+            return None
+        if jetzt - getattr(self, "_aufmerksamkeit_zuletzt", -1e9) < AUFMERKSAMKEIT_ABSTAND_S:
+            return None
+        b = getattr(self, "betrachter", None)
+        if b is None or jetzt - b[2] > BETRACHTER_S:
+            return None
+        st = self.backend.state()
+        if math.hypot(b[0] - st.x, b[1] - st.y) < 0.9:
+            return None
+        return haltepunkt((st.x, st.y), (b[0], b[1]))
+
+    def betrachter_setzen(self, msg: dict[str, Any]) -> None:
+        """Wo du sitzt – die Kamera der 3D-Ansicht auf den Boden gebracht, in den Raum geklemmt (nur Simulator)."""
+        try:
+            x, y = float(msg["x"]), float(msg["y"])
+        except (KeyError, TypeError, ValueError):
+            return
+        welt = getattr(self.backend, "world_model", None)
+        if welt is None or not (math.isfinite(x) and math.isfinite(y)):
+            return
+        w, d = welt.width / 2 - 0.25, welt.depth / 2 - 0.25
+        self.betrachter = (max(-w, min(w, x)), max(-d, min(d, y)), time.monotonic())
 
     def _eigen_dinge(self) -> list[dict[str, Any]]:
         """Dinge im Zimmer mit Richtung und Entfernung: was sie sieht, im Simulator auch, was sie nicht im Blick hat."""
@@ -217,6 +254,12 @@ class EigenstaendigTeil:
             if name is None:                                   # keine Geste frei („Ausgeglichen“, Pause): umschauen
                 ok = (await self.runner.run("look_around", {"seconds": 6})).get("ok")
                 return "schaut sich von sich aus um" if ok else False
+            return True
+        if wahl.art == "aufmerksamkeit":                       # seit 0.50: vorsichtig zu dir, dann hochschauen
+            from ..motion.aufmerksamkeit import AufmerksamkeitSuchen
+
+            self._aufmerksamkeit_zuletzt = time.monotonic()
+            eng.run(AufmerksamkeitSuchen((wahl.args["x"], wahl.args["y"]), laut=self.config.entenlaute != "aus"))
             return True
         if wahl.art == "pollen":                               # Reachy: Aufnahme aus Pollens Bibliothek
             res = await self.reachy_spielen(str(wahl.args.get("name")), ton=self.config.humor >= 0.5)

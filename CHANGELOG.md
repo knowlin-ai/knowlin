@@ -9,6 +9,33 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.50.0 – 2026-11-21 – Aufmerksamkeit suchen, Knowlin Lab als Bereich, Raum aus der Quest
+
+### Neu
+- **Aufmerksamkeit suchen** (Charakter → Persönlichkeit, Schalter, Standard an): War es 15 Minuten still, kommt sie
+  vorsichtig (8 cm/s) zu dir, bleibt einen halben Meter vor dir stehen und schaut zu dir hoch – mit einem leisen Gurren,
+  wenn Entenlaute an sind. Wo „du“ bist, sagt die Kamera der 3D-Ansicht: Nur solange ein Fenster offen ist und beobachtet.
+  Höchstens alle 45 Minuten, nie gesprochen (Nähe drängt nie), nur im Simulator und nur bei Körpern mit Beinen.
+- **Knowlin Lab als eigener Bereich** (Kachel auf der Startseite, Lernen → Lab, im Kopf unter Wissen): alle Lernwege an
+  einem Ort – Akrobatik, Parcours, Training (Körper mit Trainingshalle), Laufen lernen (Vierbeiner), Vormachen und üben
+  (Arme mit Greifer), Mentor – mit den Körpern, die sie gehen können, und dem, was schon gelernt ist.
+- **Raum aus der Quest** (nicht mit echter Brille geprüft): In der VR-Ansicht „Raum übernehmen“ misst Boden und
+  Flächen (WebXR plane-detection). Im Lab erscheint der Grundriss; „Im Simulator benutzen“ ersetzt im einfachen
+  Simulator das Wohnzimmer durch dein Zimmer (Tische, Sofa, Regal als Möbel), „Wieder das Wohnzimmer“ zurück.
+
+### Geändert
+- Geplant: 0.51 Websuche und Routinen in Knowlets, Choreografie zum Ziehen.
+
+### Sicherheit
+- Aufmerksamkeit suchen hält jede Sperre ein (Not-Aus-Sperre, hochgehoben, Ruhemodus, Gespräch …); der Not-Aus beendet
+  es sofort. Am echten Roboter geht sie nie von selbst los.
+- Das Zimmer wechselt nur im Stand und nicht in der Sperre; steht sie danach außerhalb oder in einem Möbel, setzt der
+  Simulator sie in die Mitte.
+- Von der Brille kommen nur Maße (Meter), von der 3D-Ansicht nur zwei Zahlen – keine Bilder.
+
+### Nicht geprüft
+- Raum aus der Quest mit echter Quest 3 (Flächenerkennung, Ausrichtung), Aufmerksamkeit suchen über lange Zeit am PC.
+
 ## 0.49.1 – 2026-11-21 – Update ohne Hänger, sichtbare Rollen, Tore zum Durchfahren
 
 ### Behoben

@@ -5,6 +5,7 @@
 // - Hand (nur Körper mit Arm, nur mit Hand-Tracking): 21 Gelenke der rechten Hand, aus deiner Sicht projiziert wie ein
 //   Kamerabild, das dich ansieht → dieselbe Nachricht wie beim Vormachen per Webcam ({type: 'mentor_hand'}).
 // Ins Netz gehen nur diese Zahlen; Bilder und Raumdaten der Brille bleiben in der Brille. Not-Aus: wie in vr.js.
+import { vermessen } from './vr_raum.js';           // Raum aus der Quest (seit 0.50)
 import * as THREE from './vendor/three.module.min.js';
 
 const TAKT_MS = 66;
@@ -54,10 +55,13 @@ export function initVRVormachen({ send, eig, anker }) {
   const kopfKnopf = tafel('Kopf vormachen');
   const aufKnopf = tafel('Aufnehmen');
   aufKnopf.position.y = -0.075;
-  gruppe.add(kopfKnopf, aufKnopf);
+  const raumKnopf = tafel('Raum übernehmen');        // seit 0.50: Zimmer fürs Knowlin Lab
+  raumKnopf.position.y = -0.15;
+  gruppe.add(kopfKnopf, aufKnopf, raumKnopf);
   gruppe.position.set(0.32, 0.22, 0);
   gruppe.visible = false;
   anker.add(gruppe);
+  let raumWunsch = false;
   let kopfAn = false, null0 = null, aufnahme = false, zuletzt = 0, handZuletzt = 0, handDa = false;
   const q = new THREE.Quaternion(), blick = new THREE.Matrix4(), p = new THREE.Vector3(), kam = new THREE.Vector3();
 
@@ -81,9 +85,11 @@ export function initVRVormachen({ send, eig, anker }) {
     // Abdrücken: trifft der Strahl die Tafel? Dann schalten und true (sonst macht vr.js weiter)
     abdruecken(strahl) {
       if (!gruppe.visible) return false;
-      const hit = strahl.intersectObjects([kopfKnopf, aufKnopf], false)[0];
+      const hit = strahl.intersectObjects([kopfKnopf, aufKnopf, raumKnopf], false)[0];
       if (!hit) return false;
-      if (hit.object === kopfKnopf) kopfSchalten(!kopfAn); else aufnahmeSchalten();
+      if (hit.object === kopfKnopf) kopfSchalten(!kopfAn);
+      else if (hit.object === raumKnopf) { raumWunsch = true; raumKnopf.zeichnen('misst …', true); }
+      else aufnahmeSchalten();
       return true;
     },
     // Führt gerade eine Hand den Arm? Dann ist „Finger zusammen“ ein Greifen, kein Abdrücken
@@ -94,6 +100,16 @@ export function initVRVormachen({ send, eig, anker }) {
       if (gruppe.visible) { kamera.getWorldPosition(kam); gruppe.lookAt(kam); }
       const sicht = frame.getViewerPose(raum);
       if (!sicht) return;
+      if (raumWunsch) {                               // Raum übernehmen: Flächen messen, nur Zahlen an Knowlin
+        raumWunsch = false;
+        const daten = vermessen(frame, raum, anker);
+        if (!daten) raumKnopf.zeichnen('kein Boden erkannt', false);
+        else {
+          fetch('/api/lab/raum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(daten) })
+            .then((x) => x.json()).then((r) => raumKnopf.zeichnen(r && r.ok ? 'Raum übernommen' : 'zu klein/groß', !!(r && r.ok)))
+            .catch(() => raumKnopf.zeichnen('geht nicht', false));
+        }
+      }
       const t = performance.now();
       if (kopfAn && eig().has('kopf') && t - zuletzt >= TAKT_MS) {
         const o = sicht.transform.orientation;

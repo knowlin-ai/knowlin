@@ -30,7 +30,7 @@ VERSION = 3          # 2 = seit 0.38.6 (Reparatur geerbter Reachy-Profile), 3 = 
 # Charakter (`energie`/`humor`, anfangs passend zum Körper verteilt, siehe `start`) – einzeln anpassbar in ihrem Körper
 # oder als Punkt in Knowlins Feld – dazu die Eigenschaften ihrer Gestalt (`eigenschaften`, siehe `GESTALT`) und wie
 # eigenständig sie sich ohne Befehle beschäftigt (`eigenstaendig`).
-FIGUR_KEYS = ("duck_name", "wake_word", "energie", "humor", "eigenschaften", "idle_life", "eigenstaendig", "plaudern", "tts",
+FIGUR_KEYS = ("duck_name", "wake_word", "energie", "humor", "eigenschaften", "idle_life", "eigenstaendig", "aufmerksamkeit", "plaudern", "tts",
               "stimme_motor", "stimme_piper", "stimme_qwen", "qwen_qualitaet", "entenhaft", "entenlaute", "klang_hoehe",
               "klang_farbe", "weitere_enten", "model_style", "farbe", "avatar")
 

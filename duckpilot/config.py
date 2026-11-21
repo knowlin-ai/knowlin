@@ -90,6 +90,7 @@ class Config:
     notaus_danach: str = "weiter"              # danach: „weiter“ wie vorher oder „still“, bis du sie ansprichst
     kollision_protest: bool = True             # Kollisionsmodus: beschwert sich ab und zu (Quak, Geste, Satz)
     reachy_begruessung: bool = True            # Reachy Mini grüßt beim Aufwecken (Geste und kurzer Satz, seit 0.38.13)
+    aufmerksamkeit: bool = True                # nach langer Stille vorsichtig näher kommen (seit 0.50, nur Simulator)
     eigenstaendig: float | str = 0.4           # ohne Befehle selbst etwas tun: 0 nur auf Ansprache … 1 lebendig (alt: Stufen)
     radio_adressen: list[str] = field(default_factory=list)   # zuletzt genutzte Webradios (Mitwippen), höchstens 5
     updates_suchen: bool = True                # seit 0.38.32: einmal am Tag bei GitHub nach einer neuen Version sehen
@@ -170,6 +171,7 @@ class Config:
             "kollision_protest": self.kollision_protest,
             "reachy_begruessung": self.reachy_begruessung,
             "eigenstaendig": self.eigenstaendig,
+            "aufmerksamkeit": self.aufmerksamkeit,
             "radio_adressen": list(self.radio_adressen),
             "updates_suchen": self.updates_suchen,
         }

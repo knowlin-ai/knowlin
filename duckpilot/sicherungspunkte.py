@@ -45,7 +45,7 @@ AUTO_BEHALTEN = 14
 VOR_BEHALTEN = 10
 MAX_DATEI = 20 * 1024 * 1024
 MAX_ZIP = 60 * 1024 * 1024
-CHARAKTER_KEYS = ("energie", "humor", "eigenschaften", "eigenstaendig", "idle_life", "plaudern")
+CHARAKTER_KEYS = ("energie", "humor", "eigenschaften", "eigenstaendig", "aufmerksamkeit", "idle_life", "plaudern")
 _RAUM = re.compile(r"^raum/(karte|sichtungen)-[a-z_]{1,32}\.json$")
 _ID = re.compile(r"^\d{8}-\d{6}(-\d+)?-[a-z\-]{3,24}$")
 

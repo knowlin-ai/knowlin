@@ -1,0 +1,37 @@
+      <!-- Knowlin Lab als eigener Bereich (seit 0.50): Lernwege aller Körper und der Raum aus der Quest -->
+      <section class="view view-lab" id="view-lab" aria-label="Knowlin Lab" hidden>
+        <div class="page"><div class="page-inner">
+          <header class="page-head">
+            <h2>Knowlin Lab</h2>
+            <p>Hier lernen die Körper Bewegung: was jeder lernen kann, was schon gelernt ist – und das eigene Zimmer aus der
+              Quest als Übungsraum im Simulator.</p>
+            <details class="explain"><summary>Was speichert der Raum aus der Quest?</summary>
+              <p>Nur Maße in Metern: wie groß der Boden ist und wo Tisch, Sofa oder Regal stehen. Keine Bilder, keine Raumkarte
+                der Brille, nichts über Personen. Löschen geht jederzeit.</p>
+            </details>
+          </header>
+          <section class="card set-card lab-wege" aria-labelledby="lab-wege-titel">
+            <h3 id="lab-wege-titel">Lernwege</h3>
+            <p class="field-help">Was dieser Körper lernen kann, lässt sich gleich öffnen; die anderen nennen, welcher Körper es kann
+              (umschalten auf der Startseite).</p>
+            <ul class="lab-liste" id="lab-wege"></ul>
+          </section>
+          <div class="grid grid--halves">
+            <section class="card set-card g-half" aria-labelledby="lab-gelernt-titel">
+              <h3 id="lab-gelernt-titel">Schon gelernt</h3>
+              <ul class="lab-gelernt" id="lab-gelernt" aria-live="polite"></ul>
+            </section>
+            <section class="card set-card g-half" aria-labelledby="lab-raum-titel">
+              <h3 id="lab-raum-titel">Raum aus der Quest</h3>
+              <p class="field-help">In der Quest: Cockpit → „In VR ansehen“, Roboter hinstellen, einmal langsam umschauen und auf der
+                Tafel „Raum übernehmen“. Danach kann der einfache Simulator dein Zimmer statt des Wohnzimmers benutzen.</p>
+              <div class="lab-raum" id="lab-raum" aria-live="polite"></div>
+              <div class="input-row">
+                <button type="button" class="btn btn--primary btn--sm" id="lab-raum-an" hidden>Im Simulator benutzen</button>
+                <button type="button" class="btn btn--sm" id="lab-raum-aus" hidden>Wieder das Wohnzimmer</button>
+                <button type="button" class="btn btn--ghost btn--sm" id="lab-raum-weg" hidden>Messung löschen</button>
+              </div>
+            </section>
+          </div>
+        </div></div>
+      </section>

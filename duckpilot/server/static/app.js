@@ -39,6 +39,7 @@ import { initEreignisse } from './ereignisse.js';
 import { initKachel } from './kachel.js';
 import { initTouchFahren } from './touchfahren.js';
 import { initWebglWache } from './webgl_wache.js';
+import { initBetrachter } from './betrachter.js';
 import { initGedaechtnis } from './gedaechtnis_ui.js';
 import { initEinstellungen } from './einstellungen_ui.js';
 import { initKopfleiste } from './kopfleiste.js';
@@ -133,7 +134,7 @@ function connect() {
 function send(obj) {
   const text = JSON.stringify(obj);
   if (ws && ws.readyState === 1) ws.send(text);
-  else if (obj.type !== 'drive' && obj.type !== 'listening' && outbox.length < 20) outbox.push(text);
+  else if (!['drive', 'listening', 'betrachter'].includes(obj.type) && outbox.length < 20) outbox.push(text);
 }
 async function api(path, method = 'GET', body) {
   const res = await fetch(path, {
@@ -1295,4 +1296,5 @@ else if (direkt || startView === 'cockpit') {
 }
 else showView('start');
 initHandyLeiste();
+initBetrachter(scene, send);   // wo du sitzt – für „Aufmerksamkeit suchen“ (0.50)
 window.duckpilot = { scene, map, send, showView, renderTasks, akrobatik, alltag, kollision, ctl, get state() { return lastState; } };

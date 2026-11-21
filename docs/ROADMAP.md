@@ -5,8 +5,6 @@ Versions are a plan, not a promise.
 
 | Version | Feature | What it means |
 | --- | --- | --- |
-| 0.50 | Seeking attention | When nobody has talked to her for a long time, she carefully comes closer and draws attention to herself. |
-| 0.50 | Knowlin Lab as an area | The training hall as its own area – plus the room from the Quest in the simulator. |
 | 0.51 | Web search and routines | Knowlets may look things up on the web and start fixed routines at a set time. |
 | 0.51 | Drag-and-drop choreography | Build dances on a timeline: drag moves in, shift them, listen. |
 | with the real robot | Real Microduck | Commissioning with a dry run, digital twin with early warning. |

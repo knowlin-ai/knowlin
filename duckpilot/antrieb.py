@@ -22,7 +22,7 @@ STIMMUNG = {"neugier": "neugierig", "naehe": "anhänglich", "ruhe": "müde", "ko
 # Welche eigene Beschäftigung welches Bedürfnis stillt (Arten aus `motion/eigenstaendig.angebot`)
 STILLT = {
     "umschauen": "neugier", "erkunden": "neugier", "ding": "neugier", "anschauen": "neugier",
-    "gefuehl": "naehe", "pollen": "naehe", "zuwenden": "naehe", "antennen": "naehe",
+    "gefuehl": "naehe", "pollen": "naehe", "zuwenden": "naehe", "antennen": "naehe", "aufmerksamkeit": "naehe",
     "sitzen": "ruhe",
     "trick": "koennen", "tanzen": "koennen", "ball": "koennen", "laufen": "koennen", "aufstehen": "koennen",
     "armgeste": "koennen",

@@ -1621,6 +1621,25 @@ Verkörperung unter **Lernen → Mentor**.
 - **Datenschutz:** An Knowlin gehen nur drei Zahlen bzw. 21 Handpunkte – kein Bild, keine Raumdaten der Brille.
   Gespeichert werden Lernziele (`mentor.json`) und Bewegungen (`marionette.json`), nichts über Personen.
 
+## Aufmerksamkeit suchen (seit 0.50)
+
+Unter **Charakter → Persönlichkeit → Verhalten** steht der Schalter „Aufmerksamkeit suchen“ (an). War es 15 Minuten
+still und ist ein Knowlin-Fenster offen, kommt sie langsam zu dir – zur Kamera der 3D-Ansicht, die für dich vor dem
+Bildschirm steht –, bleibt einen halben Meter davor stehen und schaut zu dir hoch; mit Entenlauten gurrt sie leise.
+Sie spricht dabei nicht und macht es höchstens alle 45 Minuten. Nur im Simulator, nur mit Beinen, nie in einer Sperre;
+der Not-Aus beendet es sofort. Ganz aus: Schalter aus oder „Von sich aus beschäftigen“ ganz links.
+
+## Knowlin Lab (seit 0.50)
+
+Die Kachel **Knowlin Lab** auf der Startseite (oder Lernen → Lab) zeigt alle Lernwege: Akrobatik, Parcours, Training,
+Laufen lernen, Vormachen und üben, Mentor – mit den Körpern, die sie gehen können. Was der wache Körper kann, öffnet
+„Öffnen“. Darunter steht, was schon gelernt ist.
+
+**Raum aus der Quest** (mit echter Brille noch nicht geprüft): In der Quest Cockpit → „In VR ansehen“, Roboter
+hinstellen, einmal langsam umschauen, auf der Tafel „Raum übernehmen“. Im Lab erscheint der Grundriss; „Im Simulator
+benutzen“ macht dein Zimmer zum Raum des einfachen Simulators (Tische, Sofa, Regal als Möbel), „Wieder das Wohnzimmer“
+schaltet zurück. Gespeichert werden nur Maße, keine Bilder.
+
 ## Ablauf-Baukasten und Duck Cards (seit 0.49)
 
 Unter **Steuern → Ablauf** baust du eine kleine Reihe von Schritten und spielst sie ab – auf jedem Körper.

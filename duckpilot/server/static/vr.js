@@ -88,7 +88,7 @@ export function initVR({ $, send, toast, getConfig }) {
     renderer.xr.setReferenceSpaceType('local-floor');
     try {
       session = await navigator.xr.requestSession('immersive-ar', {
-        requiredFeatures: ['hit-test'], optionalFeatures: ['local-floor', 'dom-overlay', 'hand-tracking'], domOverlay: { root: $('vr-overlay') },
+        requiredFeatures: ['hit-test'], optionalFeatures: ['local-floor', 'dom-overlay', 'hand-tracking', 'plane-detection'], domOverlay: { root: $('vr-overlay') },
       });
     } catch (e) { toast(`VR startet nicht: ${e.message || e}`, true); renderer.dispose(); renderer = null; return; }
     await renderer.xr.setSession(session);

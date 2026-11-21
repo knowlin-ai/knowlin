@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="/static/bereiche/spiele.css">
   <link rel="stylesheet" href="/static/bereiche/zubehoer.css">
   <link rel="stylesheet" href="/static/bereiche/ablauf.css">
+  <link rel="stylesheet" href="/static/bereiche/lab.css">
 </head>
 <body class="im-kopf">
   <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -881,6 +882,7 @@
       </section>
 
       <!--#teil mentor-->
+      <!--#teil lab-->
 
       <!-- Gedächtnis -->
       <section class="view view-memory" id="view-memory" aria-label="Gedächtnis" hidden>
@@ -1461,6 +1463,8 @@
                 </div>
                 <p class="field-help" id="eigen-help">Ohne Befehle sucht sie sich nach einer Weile selbst etwas, passend zum Charakter – ganz links nie, in der Mitte ab und zu, rechts oft. Am echten Roboter nur Gesten.</p>
               </div>
+              <!-- Aufmerksamkeit suchen (seit 0.50) -->
+              <label class="switch braucht-beine"><input type="checkbox" data-set="aufmerksamkeit"><span>Aufmerksamkeit suchen <small>war es lange still (15 Minuten), kommt sie vorsichtig zu dir und schaut zu dir hoch – höchstens alle 45 Minuten, ohne zu sprechen, nur im Simulator und nur, solange ein Fenster offen ist</small></span></label>
               <!-- Reachy: Begrüßung beim Aufwecken (0.38.13) -->
               <label class="switch nur-reachy"><input type="checkbox" data-set="reachy_begruessung"><span>Beim Aufwecken grüßen <small>Antennen hoch, Kopf heben, nicken – und ein kurzer Gruß mit Tageszeit und deinem Namen</small></span></label>
             </section>

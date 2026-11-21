@@ -8,6 +8,7 @@ import { initZubehoer } from './zubehoer.js';
 import { initAblauf } from './ablauf.js';
 import { initLeistungsmodus } from './leistung.js';
 import { initMentorSeite } from './mentor_seite.js';
+import { initLabSeite } from './lab_seite.js';
 import { vorschauKachel } from './skills.js';
 import { initTricksReiter } from './tricks_reiter.js';
 import { initTricksSuche } from './tricks_suche.js';
@@ -89,6 +90,7 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   initAblauf({ $, api, toast });   // Ablauf-Baukasten und Duck Cards (seit 0.49)
   initLeistungsmodus();
   initMentorSeite({ $, api, el, toast, send, showView });         // Mentor als eigenes Modul (seit 0.48)
+  initLabSeite({ $, api, toast, showView });                       // Knowlin Lab als Bereich (seit 0.50)
   async function loadTricks(p = 'tricks') {
     if (p === 'tricks' && document.body.classList.contains('koerper-bittle')) belloLernt.zeigen();
     if (p === 'spiele') alleSpiele?.laden();

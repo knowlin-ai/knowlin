@@ -19,8 +19,8 @@ export const GROUPS = [
   { id: 'charakter', tabs: [{ view: 'persoenlichkeit', label: 'Persönlichkeit' }, { view: 'stimme', part: 'stimme', label: 'Stimme' },
     { view: 'stimme', part: 'gespraech', label: 'Gespräch' }, { view: 'memory', label: 'Gedächtnis' },
     { view: 'knowlets', label: 'Knowlets' }] },
-  { id: 'lernen', tabs: [{ view: 'akrobatik', label: 'Akrobatik' }, { view: 'parcours', label: 'Parcours' }, { view: 'training', label: 'Training' },
-    { view: 'mentor', label: 'Mentor' }] },                           // Mentor (seit 0.48): auch im Körper
+  { id: 'lernen', tabs: [{ view: 'lab', label: 'Lab' }, { view: 'akrobatik', label: 'Akrobatik' }, { view: 'parcours', label: 'Parcours' },
+    { view: 'training', label: 'Training' }, { view: 'mentor', label: 'Mentor' }] },   // Lab als Bereich (seit 0.50)                           // Mentor (seit 0.48): auch im Körper
 
   { id: 'system', tabs: [{ view: 'dashboard', label: 'Körper' }, { view: 'settings', label: 'Einstellungen' },
     { view: 'tricks', part: 'pakete', label: 'Erweiterungen' }] },
@@ -28,6 +28,6 @@ export const GROUPS = [
   { id: 'start', tabs: [{ view: 'start' }], kopf: true },           // Knowlin-Startseite (seit 0.38), ohne Leistenknopf
   // Kopf zuerst (seit 0.38.4): auf Knowlins Seiten die geteilten Bereiche, ohne die Körperbereiche
   { id: 'wissen', tabs: [{ view: 'memory', label: 'Gedächtnis' }, { view: 'knowlets', label: 'Knowlets' },
-    { view: 'mentor', label: 'Mentor' }], kopf: true },               // Mentor als eigenes Modul (seit 0.48)
+    { view: 'mentor', label: 'Mentor' }, { view: 'lab', label: 'Lab' }], kopf: true },   // Mentor (0.48), Lab (0.50)
   { id: 'einstellungen', tabs: [{ view: 'settings', label: 'Einstellungen' }, { view: 'stimme', part: 'stimme', label: 'Knowlins Stimme' }], kopf: true },
 ];

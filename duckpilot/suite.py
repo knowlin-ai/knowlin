@@ -57,8 +57,8 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
      "serielles Protokoll geplant."),
     ("knowlets", "Knowlets", "Verkörperungen, Tricks und Tänze teilen", "fertig", "",
      "Charakter, Tricks und Tänze als Paket speichern, auf Hugging Face teilen und laden – nur Daten, nie Personen."),
-    ("lab", "Knowlin Lab", "Trainingshalle für Module, die Bewegung lernen", "geplant", "0.50",
-     "Training, Parcours und Policies als eigener Bereich – heute bei der Microduck unter Lernen."),
+    ("lab", "Knowlin Lab", "Trainingshalle für Module, die Bewegung lernen", "fertig", "",
+     "Alle Lernwege an einem Ort – Akrobatik, Parcours, Training, Laufen lernen, Vormachen – und dein Zimmer aus der Quest."),
     # seit 0.38.55 „Mentor“ statt „Ohne Körper“ (Maintainer: Knowlin ist über Tailscale und Sprachchat ohnehin überall –
     # neu ist, dass der Mensch der Körper und Lehrer ist; Konzept „Mentor – Lernen durch Zuschauen“)
     ("mentor", "Mentor", "Du zeigst, Knowlin lernt – mit Handy, Webcam oder Brille", "fertig", "",
@@ -79,7 +79,7 @@ KOERPER_NAME = {"duckpilot": "Microduck", "reachy-mini": "Reachy Mini", "open-du
                 "so101": "SO-101", "stackchan": "Stack-chan", "bittle": "Bittle X", "mentor": "Mentor"}
 
 # Werkzeug-Kacheln, die eine Seite in Knowlin öffnen (seit 0.38.5)
-ANSICHT = {"knowlets": "knowlets", "mentor": "mentor"}
+ANSICHT = {"knowlets": "knowlets", "mentor": "mentor", "lab": "lab"}
 
 # Modul-Kachel → Einstellung `modul` (welcher Körper dranhängt); seit 0.38.1 auch Reachy Mini
 KOERPER_MODUL = {"duckpilot": "duckpilot", "reachy-mini": "reachy_mini", "open-duck-mini": "open_duck_mini",

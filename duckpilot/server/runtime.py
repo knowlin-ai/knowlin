@@ -235,6 +235,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.zubehoer_dienst: Any = None                       # setzt routes/zubehoer.py (Rollen, Rennen, Polaroid; 0.47)
         self.marionette_dienst: Any = None                     # setzt routes/marionette.py (seit 0.48)
         self.ablauf_dienst: Any = None                         # setzt routes/ablauf.py (seit 0.49)
+        self.lab_dienst: Any = None                            # setzt routes/lab.py (seit 0.50)
         self._wire()
 
     # ── Aufbau ────────────────────────────────────────────────────────────
@@ -272,6 +273,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             self.backend.avatar = cfg.avatar
         self._schwarm()
         self._new_runner()
+        if getattr(self, "lab_dienst", None) is not None:      # Zimmer aus der Quest auch nach dem Körperwechsel (0.50)
+            self.lab_dienst.raum_anwenden()
 
     def _new_runner(self) -> None:
         self.runner = ToolRunner(self.engine, self.memory)
@@ -1130,6 +1133,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             self._laser_message(msg)
         elif kind == "mensch":
             self._person_message(msg)
+        elif kind == "betrachter":                 # wo du sitzt (Kamera der 3D-Ansicht) – Aufmerksamkeit suchen (0.50)
+            self.betrachter_setzen(msg)
         elif kind == "tool":
             args = msg.get("args") or {}
             if msg.get("name") == "power" and args.get("action") in ("sit_down", "rest"):

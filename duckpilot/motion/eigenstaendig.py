@@ -100,6 +100,7 @@ class Lage:
     pollen: tuple[str, ...] = ()               # Reachy: Namen der geladenen Emotionen aus Pollens Bibliothek
     gestalt: tuple[str, ...] = ()              # gewählte Eigenschaften der Gestalt (neugier, tollpatsch, antennen …)
     fehlt: Callable[[str], str | None] = lambda name: None   # brain/tools.fehlt_dem_koerper, von der Laufzeit
+    zu_dir: tuple[float, float] | None = None  # Haltepunkt vor dir, wenn sie Aufmerksamkeit suchen darf (seit 0.50)
 
 
 @dataclass
@@ -174,6 +175,9 @@ def angebot(lage: Lage, energie: float, humor: float, rng: random.Random | None 
         return _filtern([b for b in out if b.art in ("geste", "umschauen", "aufstehen", "antennen")], lage)
 
     # Ortsbewegung – nur im Simulator
+    if beine and lage.zu_dir is not None:              # lange Stille: vorsichtig zu dir (seit 0.50) – geht allem vor
+        add(Beschaeftigung("aufmerksamkeit", "kommt nach langer Stille vorsichtig zu dir", 50.0, None,
+                           {"x": round(lage.zu_dir[0], 3), "y": round(lage.zu_dir[1], 3)}, ort=True))
     if beine:
         add(Beschaeftigung("erkunden", "erkundet von sich aus das Zimmer", 0.5 + 2.0 * e + neugier, "explore",
                            {"seconds": round(20 + 25 * e), "speed": round(0.08 + 0.08 * e, 3)}, ort=True,

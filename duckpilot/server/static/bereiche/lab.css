@@ -1,0 +1,18 @@
+/* Knowlin Lab als Bereich (seit 0.50). Nur Tokens. */
+.view-lab [hidden] { display: none; }
+.lab-liste { list-style: none; margin: var(--spacing-03) 0 0; padding: 0; display: grid; gap: var(--spacing-03);
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+.lab-weg { display: grid; gap: var(--spacing-02); align-content: start; padding: var(--spacing-04); border-radius: var(--r-card);
+  background: var(--surface-raised); border: 1px solid var(--line-soft); }
+.lab-weg--jetzt { border-color: var(--accent-line); }
+.lab-weg b { font-weight: 600; }
+.lab-weg .field-help { margin: var(--spacing-01) 0 0; }
+.lab-weg .btn { justify-self: start; }
+.lab-wer { margin: 0; font-size: var(--t-small); color: var(--ink-2); }
+.lab-gelernt { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--spacing-02); }
+.lab-gelernt b { font-weight: 600; }
+.lab-raum { display: grid; gap: var(--spacing-02); margin: var(--spacing-03) 0; }
+.lab-raum p { margin: 0; color: var(--ink-2); font-size: var(--t-small); }
+.lab-plan { width: 100%; max-width: 22rem; height: auto; }
+.lab-plan-boden { fill: var(--surface-sunken); stroke: var(--line-strong); stroke-width: 0.03; }
+.lab-plan-moebel { fill: var(--accent-soft); stroke: var(--accent-line); stroke-width: 0.02; }

@@ -1174,6 +1174,27 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Ablauf: Baukasten spielt ab, Duck-Cards-Leser erkennt die Karten", "fertig" in lauf and erkannt == [2, 84],
              f"{lauf} · erkannt {erkannt}")
 
+    # 13q · Seit 0.50: Knowlin Lab – Lernwege da, Zimmer aus einer Messung benutzen und zurück; Aufmerksamkeit-Schalter
+    page.evaluate("() => window.duckpilot.showView('lab')")
+    page.wait_for_timeout(1500)
+    wege = page.evaluate("() => document.querySelectorAll('#lab-wege .lab-weg').length")
+    messung = {"boden": [[-1.2, -1.0], [1.2, -1.0], [1.2, 1.0], [-1.2, 1.0]],
+               "flaechen": [{"art": "table", "x": 0.6, "y": 0.4, "breite": 0.5, "tiefe": 0.5, "hoehe": 0.45}]}
+    page.evaluate("(m) => fetch('/api/lab/raum', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                  " body: JSON.stringify(m)})", messung)
+    an = page.evaluate("() => fetch('/api/lab/raum/aktiv', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                       " body: JSON.stringify({aktiv: true})}).then(r => r.json())")
+    page.evaluate("() => window.duckpilot.showView('lab')")
+    page.wait_for_timeout(1500)
+    b.foto(page, "13q-lab", "Lernen → Lab: Lernwege, Gelerntes, Raum aus der Quest")
+    aus = page.evaluate("() => fetch('/api/lab/raum/aktiv', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                        " body: JSON.stringify({aktiv: false})}).then(r => r.json())")
+    page.evaluate("() => fetch('/api/lab/raum', {method: 'DELETE'})")
+    schalter = page.evaluate("() => !!document.querySelector('input[data-set=aufmerksamkeit]')")
+    b.pruefe("Knowlin Lab: Lernwege, Zimmer aus der Quest benutzen und zurück, Schalter „Aufmerksamkeit suchen“",
+             wege >= 6 and an.get("ok") and an.get("raum", {}).get("aktiv") and aus.get("ok") and schalter,
+             f"{wege} Lernwege · an {an.get('text') or an.get('fehler')} · aus {aus.get('text') or aus.get('fehler')}")
+
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")
     lm = page.evaluate("() => fetch('/api/anbieter/modelle', {method: 'POST', headers: {'Content-Type': 'application/json'},"
