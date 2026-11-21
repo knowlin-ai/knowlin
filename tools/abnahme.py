@@ -1081,6 +1081,13 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Smart Home: „Vor dem Saugroboter aufräumen“ antwortet ehrlich", any(w in meldung for w in ("Korb", "aufwecken", "räume")),
              meldung)
 
+    # Seit 0.48: vor Zubehör und Mentor aufwecken – Rennen und Marionette brauchen eine stehende Ente
+    page.evaluate("() => window.duckpilot.send({type: 'tool', name: 'power', args: {action: 'stand_up'}})")
+    try:
+        page.wait_for_function("() => (window.duckpilot.state || {}).powered === true", timeout=20000)
+    except Exception:  # noqa: BLE001
+        pass
+    page.wait_for_timeout(2500)
     # 13n · Seit 0.47: Zubehör der Microduck – Rollen anklemmen, Polaroid malt einen Traum, Rennen stellt sich auf
     page.evaluate("() => window.duckpilot.showView('tricks', 'zubehoer')")
     page.wait_for_timeout(1500)

@@ -14,7 +14,7 @@ const winkel = (d) => ((d + 540) % 360) - 180;
 export function initMentorSeite({ $, api, el, toast, send, showView }) {
   const seite = $('view-mentor');
   if (!seite) return { laden() {} };
-  let stand = null, mar = null, zuletzt = 0, handyAn = false, null0 = null, nimmtAuf = false;
+  let mar = null, zuletzt = 0, handyAn = false, null0 = null, nimmtAuf = false;
 
   const senden = (g, n, r, quelle) => {
     const t = performance.now();
@@ -90,11 +90,11 @@ export function initMentorSeite({ $, api, el, toast, send, showView }) {
   const fehler = (r) => toast(tr((r && r.fehler) || 'Das ging nicht'), true);
   async function aendern(body) {
     const r = await api('/api/mentor/ziel', 'POST', body).catch((e) => ({ fehler: e.message }));
-    if (!r || r.ok === false) fehler(r); else { stand = r; zeigeZiele(r); }
+    if (!r || r.ok === false) fehler(r); else zeigeZiele(r);
   }
   async function loeschen(id) {
     const r = await fetch(`/api/mentor/ziel/${encodeURIComponent(id)}`, { method: 'DELETE' }).then((x) => x.json()).catch(() => null);
-    if (!r || r.ok === false) fehler(r); else { stand = r; zeigeZiele(r); }
+    if (!r || r.ok === false) fehler(r); else zeigeZiele(r);
   }
   $('mt-neu').addEventListener('submit', (ev) => {
     ev.preventDefault();
@@ -249,7 +249,7 @@ export function initMentorSeite({ $, api, el, toast, send, showView }) {
 
   async function laden() {
     const [d, m] = await Promise.all([api('/api/mentor').catch(() => null), api('/api/marionette').catch(() => null)]);
-    if (d && d.ok !== false) { stand = d; zeigeZiele(d); }
+    if (d && d.ok !== false) zeigeZiele(d);
     if (m) { zeigeMar(m); aufnahmeZeigen(!!m.nimmt_auf); }
   }
   // Seite sichtbar → neu laden (ohne Zeile in app.js: die Seite beobachtet ihr eigenes hidden)
