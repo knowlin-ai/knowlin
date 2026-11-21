@@ -324,6 +324,21 @@ ABSTAND_JS = """() => {
       if (ueberein && luecke >= -2 && luecke < soll) funde.push(`${name(liste[i])} (${Math.round(luecke)} px)`);
     }
   }
+  // seit 0.50.1 („wieder Abstandsprobleme“): Karten untereinander brauchen Luft, nichts läuft rechts über den Rand
+  const karten = [...document.querySelectorAll('main .card')].filter(sichtbar);
+  for (let i = 0; i < karten.length; i++) for (let j = 0; j < karten.length; j++) {
+    if (i === j || karten[i].contains(karten[j]) || karten[j].contains(karten[i])) continue;
+    const a = karten[i].getBoundingClientRect(), c = karten[j].getBoundingClientRect();
+    const luecke = c.top - a.bottom;
+    if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 8 && luecke >= -2 && luecke < 8)
+      funde.push(`Karten zu dicht: ${name(karten[i])} / ${name(karten[j])} (${Math.round(luecke)} px)`);
+  }
+  const breite = document.documentElement.clientWidth;
+  if (document.documentElement.scrollWidth > breite + 1) {
+    const zu = [...document.querySelectorAll('main *')].filter((e) => sichtbar(e) && e.getBoundingClientRect().right > breite + 1
+      && !e.closest('[role=tablist], .subnav, .tabs'));
+    funde.push(`läuft rechts über (${document.documentElement.scrollWidth} > ${breite}): ${zu.slice(0, 3).map(name).join(', ')}`);
+  }
   return funde;
 }"""
 
@@ -526,7 +541,8 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     ueberdeckungen(page, b, "Quacki")
     kopfzeile(page, b)
     handyansicht(page, b)
-    abstaende(page, b, "Tanzen und Team", (("tricks", "tanz"), ("tricks", "team")))
+    abstaende(page, b, "Tanzen, Team, Zubehör, Ablauf, Lab, Mentor", (("tricks", "tanz"), ("tricks", "team"),
+              ("tricks", "zubehoer"), ("tricks", "ablauf"), ("lab", None), ("mentor", None)))
     page.evaluate("() => window.duckpilot.showView('cockpit')")
     page.wait_for_timeout(1500)
 
@@ -1194,6 +1210,30 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Knowlin Lab: Lernwege, Zimmer aus der Quest benutzen und zurück, Schalter „Aufmerksamkeit suchen“",
              wege >= 6 and an.get("ok") and an.get("raum", {}).get("aktiv") and aus.get("ok") and schalter,
              f"{wege} Lernwege · an {an.get('text') or an.get('fehler')} · aus {aus.get('text') or aus.get('fehler')}")
+
+    # 13r · Seit 0.51: Choreografie zum Ziehen – Tanz öffnen, aus der Palette antippen, Block wählen und löschen
+    tanz = {"bpm": 120, "start": 0, "schritte": [{"t": 0, "takte": 2, "art": "nicken"}, {"t": 4, "takte": 2, "art": "wippen"}]}
+    page.evaluate("(c) => fetch('/api/choreo/speichern', {method: 'POST', headers: {'Content-Type': 'application/json'},"
+                  " body: JSON.stringify({name: 'Abnahme-Zeitleiste', choreo: c})})", tanz)
+    page.evaluate("() => window.duckpilot.showView('tricks', 'tanz')")
+    page.wait_for_timeout(1500)
+    page.locator("#tanz-liste li", has_text="Abnahme-Zeitleiste").locator("button", has_text="Bearbeiten").first.click()
+    page.wait_for_timeout(800)
+    chips = page.locator("#tanz-palette .tanz-chip").count()
+    vorher = page.locator("#tanz-schritte li:not(.tanz-teil)").count()
+    page.locator("#tanz-palette .tanz-chip").first.click()
+    page.wait_for_timeout(300)
+    nachher = page.locator("#tanz-schritte li:not(.tanz-teil)").count()
+    box = page.locator("#tanz-zeitleiste").bounding_box()
+    page.mouse.click(box["x"] + 6, box["y"] + 90)                       # erster Block in der oberen Spur
+    page.keyboard.press("Delete")
+    page.wait_for_timeout(300)
+    geloescht = page.locator("#tanz-schritte li:not(.tanz-teil)").count()
+    b.foto(page, "13r-zeitleiste", "Tanzen: Palette und Zeitleiste zum Ziehen")
+    page.evaluate("() => fetch('/api/choreo', {method: 'DELETE', headers: {'Content-Type': 'application/json'},"
+                  " body: JSON.stringify({name: 'Abnahme-Zeitleiste'})})")
+    b.pruefe("Choreografie zum Ziehen: Palette, Einfügen, Block löschen", chips >= 5 and nachher == vorher + 1
+             and geloescht == nachher - 1, f"{chips} Bausteine · {vorher} → {nachher} → {geloescht} Schritte")
 
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")

@@ -25,6 +25,7 @@ SCHRITTE: dict[str, str] = {
     "freuen": "sich freuen",
     "aktiv": "aufwachen",
     "ruhe": "zur Ruhe",
+    "wissen": "Wissen zum Thema",              # seit 0.51: kurz in der Wikipedia nachschlagen (wenn eingeschaltet)
 }
 TAGE: dict[str, tuple[int, ...]] = {
     "taeglich": (0, 1, 2, 3, 4, 5, 6),
@@ -53,7 +54,8 @@ def zeit_pruefen(roh: Any) -> str:
     return f"{h:02d}:{mi:02d}"
 
 
-def pruefen(name: Any, zeit: Any = "", tage: Any = "taeglich", schritte: Any = (), ansage: Any = "") -> dict[str, Any]:
+def pruefen(name: Any, zeit: Any = "", tage: Any = "taeglich", schritte: Any = (), ansage: Any = "",
+            thema: Any = "") -> dict[str, Any]:
     """Eine neue Routine aus Eingaben – wirft ValueError mit einem Satz, den man versteht."""
     name = re.sub(r"\s+", " ", str(name or "")).strip()[:40]
     if not name:
@@ -75,8 +77,14 @@ def pruefen(name: Any, zeit: Any = "", tage: Any = "taeglich", schritte: Any = (
     ansage = re.sub(r"\s+", " ", str(ansage or "")).strip()[:MAX_TEXT]
     if not liste and not ansage:
         raise ValueError("Die Routine braucht mindestens einen Schritt oder eine Ansage.")
-    return {"id": uuid.uuid4().hex[:8], "name": name, "zeit": zeit_pruefen(zeit), "tage": tage,
-            "schritte": liste, "ansage": ansage, "an": True, "zuletzt": ""}
+    thema = re.sub(r"\s+", " ", str(thema or "")).strip()[:60]
+    if "wissen" in liste and not thema:
+        raise ValueError("Für „Wissen zum Thema“ bitte ein Thema angeben, z. B. „Mond“.")
+    r = {"id": uuid.uuid4().hex[:8], "name": name, "zeit": zeit_pruefen(zeit), "tage": tage,
+         "schritte": liste, "ansage": ansage, "an": True, "zuletzt": ""}
+    if "wissen" in liste:
+        r["thema"] = thema
+    return r
 
 
 def faellig(routinen: list[dict[str, Any]], jetzt: datetime) -> list[dict[str, Any]]:
@@ -116,6 +124,7 @@ def finden(routinen: list[dict[str, Any]], ref: str) -> dict[str, Any] | None:
 def beschreiben(r: dict[str, Any]) -> str:
     """„Morgen – werktags um 07:30: Tagesüberblick, Wetter“."""
     wann = f"{TAGE_TEXT.get(r.get('tage', ''), '')} um {r['zeit']}" if r.get("zeit") else "nur auf Zuruf"
-    teile = (["Ansage"] if r.get("ansage") else []) + [SCHRITTE[s] for s in r.get("schritte", []) if s in SCHRITTE]
+    teile = (["Ansage"] if r.get("ansage") else []) + [
+        f"Wissen über „{r.get('thema', '')}“" if s == "wissen" else SCHRITTE[s] for s in r.get("schritte", []) if s in SCHRITTE]
     aus = "" if r.get("an", True) else " (pausiert)"
     return f"{r['name']} – {wann}{aus}: {', '.join(teile)}"

@@ -185,13 +185,14 @@ def test_every_tool_executes():
             "wetter": {},                                           # seit 0.40: ohne Dienst/Ort ehrlich „nein“
             "zubehoer": {"aktion": "rollen_an"},                    # seit 0.47: Rollen im einfachen Simulator
             "ablauf": {"aktion": "liste"},                          # seit 0.49: ohne Server ehrlich „nein“
+            "nachschlagen": {"begriff": "Mond"},                    # seit 0.51: ohne Server/aus ehrlich „nein“
         }
         assert set(calls) == {t["name"] for t in r.tools()}  # ohne Gedächtnis: die Bewegungswerkzeuge
         for name, args in calls.items():
             res = await r.run(name, args)
             assert res.get("ok", True) is not False or name in ("skill", "trick_vom_hub", "choreo", "enten",
                                                                   "wo_gesehen", "karte", "team", "absicht",
-                                                                  "tagesrueckblick", "weltbild", "wetter", "zubehoer", "ablauf"), (name, res)
+                                                                  "tagesrueckblick", "weltbild", "wetter", "zubehoer", "ablauf", "nachschlagen"), (name, res)
     run(go())
 
 

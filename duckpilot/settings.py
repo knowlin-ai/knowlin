@@ -71,7 +71,8 @@ EDITABLE: dict[str, Any] = {
     "klang_farbe": "plusminus",                # Klangsignatur: dunkler −1 … heller +1
     "entenlaute": ("aus", "selten", "manchmal", "oft"),
     "plaudern": bool,
-    "aufmerksamkeit": bool,                    # seit 0.50: nach langer Stille vorsichtig näher kommen (Simulator)
+    "aufmerksamkeit": bool,
+    "websuche": bool,                          # seit 0.51: in der Wikipedia nachschlagen (Standard aus)                    # seit 0.50: nach langer Stille vorsichtig näher kommen (Simulator)
     "ins_wort_fallen": bool,                   # seit 0.40: Dazwischensprechen hält die Stimme an
     "qwen_geduldig": bool,
     "schnellbefehle": bool,

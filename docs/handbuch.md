@@ -1621,6 +1621,22 @@ Verkörperung unter **Lernen → Mentor**.
 - **Datenschutz:** An Knowlin gehen nur drei Zahlen bzw. 21 Handpunkte – kein Bild, keine Raumdaten der Brille.
   Gespeichert werden Lernziele (`mentor.json`) und Bewegungen (`marionette.json`), nichts über Personen.
 
+## Choreografie zum Ziehen (seit 0.51)
+
+Unter **Steuern → Tanzen** einen Tanz öffnen (Musikstück wählen oder gespeicherten Tanz „Bearbeiten“). Über der
+Zeitleiste stehen die Bausteine. Ziehen in die Zeitleiste setzt den Baustein an diese Stelle, Antippen an die
+Startmarke. Blöcke lassen sich verschieben (die anderen rücken nach), am rechten Rand länger oder kürzer ziehen (1–64
+Takte), anklicken und Entf löscht, ← → rückt. In der Liste darunter hat jeder Schritt ein ✕. Zum Anhören: Startmarke
+setzen, „Ab Marke proben“.
+
+## Im Netz nachschlagen (seit 0.51)
+
+Unter **System → Einstellungen → Knowlin** „Im Netz nachschlagen“ einschalten (Standard aus). Dann geht „Schlag Ada
+Lovelace nach“ oder „Was steht in der Wikipedia über den Mond?“ – auch ohne Sprachmodell. Knowlin liest die ersten zwei
+Sätze aus der Wikipedia vor und nennt die Quelle. An die Wikipedia geht nur der Suchbegriff. Routinen (Alltag →
+Routinen) haben den Schritt „Wissen zum Thema“ mit einem Thema. Knowlets können Routinen mitbringen; sie kommen
+pausiert an.
+
 ## Aufmerksamkeit suchen (seit 0.50)
 
 Unter **Charakter → Persönlichkeit → Verhalten** steht der Schalter „Aufmerksamkeit suchen“ (an). War es 15 Minuten

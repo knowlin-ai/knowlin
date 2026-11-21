@@ -3,7 +3,7 @@
 
 const SCHRITTE = [
   ['ueberblick', 'Tagesüberblick'], ['wetter', 'Wetter'], ['todos', 'To-dos vorlesen'],
-  ['freuen', 'sich freuen'], ['aktiv', 'aufwachen'], ['ruhe', 'zur Ruhe'],
+  ['freuen', 'sich freuen'], ['aktiv', 'aufwachen'], ['ruhe', 'zur Ruhe'], ['wissen', 'Wissen zum Thema'],
 ];
 
 export function initRoutinen({ $, el, api, toast, command, row, del }) {
@@ -20,6 +20,7 @@ export function initRoutinen({ $, el, api, toast, command, row, del }) {
     cb.addEventListener('change', () => {
       const gegen = { aktiv: 'ruhe', ruhe: 'aktiv' }[wert];
       if (cb.checked && gegen) schritte.querySelector(`input[value="${gegen}"]`).checked = false;
+      if (wert === 'wissen') $('al-rt-thema').hidden = !cb.checked;   // Thema nur mit „Wissen“ (seit 0.51)
     });
     lab.append(cb, document.createTextNode(` ${text}`));
     return lab;
@@ -29,7 +30,8 @@ export function initRoutinen({ $, el, api, toast, command, row, del }) {
     e.preventDefault();
     const gewaehlt = [...schritte.querySelectorAll('input:checked')].map((c) => c.value);
     command({ aktion: 'routine_anlegen', text: $('al-rt-name').value, wann: $('al-rt-zeit').value,
-      tage: $('al-rt-tage').value, schritte: gewaehlt, ansage: $('al-rt-ansage').value }, $('al-rt-msg'), e.target);
+      tage: $('al-rt-tage').value, schritte: gewaehlt, ansage: $('al-rt-ansage').value,
+      thema: $('al-rt-thema').value }, $('al-rt-msg'), e.target);
   });
 
   function renderRoutinen(data) {

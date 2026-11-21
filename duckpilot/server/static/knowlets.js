@@ -52,6 +52,10 @@ export function initKnowlets({ $, api, el, toast, isRemote }) {
     $('kn-auftraege').replaceChildren(...((daten.auftraege || []).length
       ? daten.auftraege.map((a) => { const h = haken('kn-auftrag', a.titel, false); h.querySelector('input').value = a.id; return h; })
       : [el('span', 'field-help', tr('Noch keine – sag Ari z. B. „sortier rot nach links und merk dir das als Rot links“.'))]));
+    // Routinen (seit 0.51): kommen beim Empfänger pausiert an
+    $('kn-routinen').replaceChildren(...((daten.routinen || []).length
+      ? daten.routinen.map((n) => haken('kn-routine', n, false))
+      : [el('span', 'field-help', tr('Noch keine – unter Alltag → Routinen anlegen.'))]));
     const liz = $('kn-lizenz');
     if (!liz.options.length) liz.replaceChildren(...daten.lizenzen.map((l) => { const o = el('option', null, l); o.value = l; return o; }));
     const sich = $('kn-sicherungen');
@@ -78,6 +82,7 @@ export function initKnowlets({ $, api, el, toast, isRemote }) {
       tricks: [...document.querySelectorAll('input[name="kn-trick"]:checked')].map((i) => i.value),
       taenze: [...document.querySelectorAll('input[name="kn-tanz"]:checked')].map((i) => i.value),
       auftraege: [...document.querySelectorAll('input[name="kn-auftrag"]:checked')].map((i) => i.value),
+      routinen: [...document.querySelectorAll('input[name="kn-routine"]:checked')].map((i) => i.value),
       titel: $('kn-titel').value.trim(), beschreibung: $('kn-beschreibung').value.trim(),
       urheber: $('kn-urheber').value.trim(), lizenz: $('kn-lizenz').value,
     };
@@ -124,6 +129,15 @@ export function initKnowlets({ $, api, el, toast, isRemote }) {
       g.append(d);
       teile.push(g);
     }
+    if ((r.routinen || []).length) {                     // seit 0.51: kommen pausiert an
+      const g = el('fieldset', 'knowlet-gruppe');
+      g.append(el('legend', 'field-label', tr('Routinen (kommen pausiert an)')));
+      const d = el('div');
+      for (const x of r.routinen) d.append(haken('kn-ueb-routine', x.name, true, x.beschreibung ? ` – ${x.beschreibung}` : ''));
+      g.append(d);
+      if (r.nachschlagen) g.append(el('p', 'field-help', tr('Eine Routine schlägt in der Wikipedia nach – das geht nur, wenn „Im Netz nachschlagen“ eingeschaltet ist (System → Einstellungen → Knowlin).')));
+      teile.push(g);
+    }
     const z = el('div', 'knowlet-zeile');
     const ok = el('button', 'btn btn--primary', tr(`Zu ${r.ziel.figur} übernehmen`));
     ok.type = 'button';
@@ -145,6 +159,7 @@ export function initKnowlets({ $, api, el, toast, isRemote }) {
       tricks: [...document.querySelectorAll('input[name="kn-ueb-trick"]:checked')].map((i) => i.value),
       taenze: [...document.querySelectorAll('input[name="kn-ueb-tanz"]:checked')].map((i) => i.value),
       auftraege: [...document.querySelectorAll('input[name="kn-ueb-auftrag"]:checked')].map((i) => i.value),
+      routinen: [...document.querySelectorAll('input[name="kn-ueb-routine"]:checked')].map((i) => i.value),
     };
     const r = await (await post('/api/knowlets/uebernehmen', body)).json().catch(() => ({ ok: false }));
     if (!r.ok) { toast(r.fehler || tr('Übernehmen ging nicht'), true); return; }

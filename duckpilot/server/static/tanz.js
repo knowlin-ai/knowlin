@@ -4,6 +4,7 @@
 // anpasst, probt und speichert. Die Ente tanzt im Takt, diese Seite spielt die Musik.
 
 import { uebersetzeText } from './i18n.js';
+import { initZiehen } from './tanz_ziehen.js';   // Choreografie zum Ziehen (seit 0.51)
 import { initMitwippen } from './mitwippen.js';
 
 const tr = (text) => uebersetzeText(text) || text;
@@ -344,6 +345,7 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
   const nameText = (n) => namen[n] || gestenName(n);
   let ende = 0;
   let marke = 0;
+  let vorschau = {};        // Ziehen in der Zeitleiste: {gewaehlt, geist: {i, t}} (seit 0.51)
 
   const taktS = () => 240 / (choreo?.bpm || 110);
   const farbe = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
@@ -411,6 +413,17 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
       const text = tr(s.name ? (s.art === 'pose' ? s.name : nameText(s.name)) : artText(s.art));
       if (x(s.takte * tl) > 40) { g.fillStyle = farbe('--ink-on-accent'); g.fillText(text, x(s.t) + 4, y + 18); }
     }
+    // Gewählter Block und beim Ziehen die Einfügestelle (seit 0.51)
+    const sel = choreo.schritte[vorschau.gewaehlt];
+    if (sel) {
+      const y = sel.art === 'pose' || sel.art === 'gefuehl' ? 112 : 78;
+      g.strokeStyle = farbe('--ink'); g.lineWidth = 2;
+      g.strokeRect(x(sel.t) + 1, y - 1, Math.max(2, x(sel.takte * tl) - 2), 30);
+    }
+    if (vorschau.geist) {
+      g.fillStyle = farbe('--accent');
+      g.fillRect(x(vorschau.geist.t) - 1, 72, 3, 72);
+    }
     // Startmarke und Abspielkopf
     g.fillStyle = farbe('--warning');
     g.beginPath(); g.moveTo(x(marke) - 6, 0); g.lineTo(x(marke) + 6, 0); g.lineTo(x(marke), 9); g.fill();
@@ -429,6 +442,17 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
     zeitleiste();
   });
   new ResizeObserver(() => zeitleiste()).observe(leinwand);
+  const ziehen = initZiehen(leinwand, $('tanz-palette'), {
+    choreo: () => choreo, laenge, taktS, marke: () => marke,
+    schritte: (neu) => { choreo.schritte = neu; },
+    neuTakten: () => neuTakten(),
+    zeichnen: (v) => { vorschau = v || {}; zeitleiste(); },
+    standard: (art) => {
+      const s = { t: choreo.schritte.length ? Math.min(...choreo.schritte.map((x) => x.t)) : choreo.start, takte: ['pose', 'gefuehl', 'pause', 'trick'].includes(art) ? 1 : 2, art };
+      if (MIT_NAME.has(art)) s.name = (art === 'pose' ? posen : art === 'gefuehl' ? gefuehle : gesten)[0] || '';
+      return s;
+    },
+  });
 
   function namenWahl(s) {
     const sel = el('select', 'input');
@@ -540,7 +564,11 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
         if (!MIT_NAME.has(s.art)) delete s.name; else s.name = '';
         zeichne();
       });
-      li.append(takte, art, MIT_NAME.has(s.art) ? namenWahl(s) : el('span'));
+      const weg = el('button', 'btn btn--ghost btn--sm', '✕');
+      weg.type = 'button';
+      weg.setAttribute('aria-label', `${tr('Schritt')} ${i + 1} ${tr('entfernen')}`);
+      weg.addEventListener('click', () => { choreo.schritte.splice(i, 1); neuTakten(); });
+      li.append(takte, art, MIT_NAME.has(s.art) ? namenWahl(s) : el('span'), weg);
       box.append(li);
     });
     $('tanz-aktionen').hidden = false;
@@ -552,7 +580,8 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
 
   // Nach einer Änderung der Taktzahl rücken die folgenden Schritte nach (lückenlos ab dem ersten Schlag).
   function neuTakten() {
-    let t = choreo.schritte[0]?.t ?? choreo.start;
+    // ab dem Start bzw. frühesten Schritt (nach Verschieben, Einfügen, Löschen – seit 0.51)
+    let t = Math.min(choreo.start || 0, ...choreo.schritte.map((s) => s.t));   // nach Löschen vorn: ab dem Start
     for (const s of choreo.schritte) { s.t = Math.round(t * 1000) / 1000; t += s.takte * taktS(); }
     choreo.dauer = Math.round(t * 100) / 100;
     zeichne();
@@ -592,6 +621,7 @@ export function initTanz({ $, api, el, toast, send, gestenName = (k) => k }) {
     arten = Array.isArray(d.arten) && d.arten.length ? d.arten : ARTEN;
     gefuehle = d.gefuehle || [];
     namen = d.namen || {};
+    ziehen.palette(arten.filter((a) => a !== 'pose' || posen.length), (a) => tr(artText(a)));
     const ul = $('tanz-liste');
     ul.replaceChildren();
     if (!d.taenze?.length) ul.append(el('li', 'field-help', 'Noch kein Tanz gespeichert.'));

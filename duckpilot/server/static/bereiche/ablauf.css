@@ -11,7 +11,7 @@
 .ab-trick { --_farbe: var(--accent); }
 .ab-laut { --_farbe: var(--warning); }
 .ab-klammer { --_farbe: var(--ink-3); }
-.ab-reihe-wahl { margin: var(--spacing-03) 0; }
+.ab-reihe-wahl { margin: var(--spacing-04) 0 var(--spacing-03); }
 .ab-reihe-titel { margin: var(--spacing-04) 0 var(--spacing-02); font-size: var(--t-body); font-weight: 600; }
 .ab-reihe { list-style: none; margin: 0; padding: var(--spacing-02); min-height: var(--control-h-lg); display: grid; gap: var(--spacing-02);
   border: 1px dashed var(--line-strong); border-radius: var(--r-card); background: var(--surface-sunken); counter-reset: ab; }
@@ -34,3 +34,10 @@
 .ab-eintrag { padding: var(--spacing-03); border-radius: var(--r-card); background: var(--surface-raised); }
 .ab-eintrag b { margin-right: auto; }
 .ab-kartenzeile { margin: var(--spacing-02) 0 0; font-size: var(--t-small); color: var(--ink-2); }
+/* Abstände (0.50.1, Maintainer: „wieder Abstandsprobleme“): Knöpfe neben Feldern unten bündig, nicht gestreckt;
+   lange Kartenzeilen und Knopfreihen brechen um statt über den Rand zu laufen */
+[data-part="ablauf"] .input-row { flex-wrap: wrap; align-items: flex-end; margin-top: var(--spacing-04); }
+[data-part="ablauf"] .input-row .btn { align-self: flex-end; }
+.ab-stand:empty { display: none; }
+.ab-eintrag .input-row { margin-top: 0; align-items: center; }
+.ab-kartenzeile { overflow-wrap: anywhere; }

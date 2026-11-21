@@ -56,10 +56,12 @@ def register(app: FastAPI, runtime: Runtime) -> None:
 
         alle_a = eigene()
         wahl_a = {n: alle_a[n] for n in b.get("auftraege") or [] if n in alle_a}
+        alle_r = {r["name"]: r for r in runtime.alltag.planner.data.get("routinen", [])}       # seit 0.51
+        wahl_r = {n: alle_r[n] for n in b.get("routinen") or [] if n in alle_r}
         daten = K.packe(titel=b.get("titel") or "", beschreibung=b.get("beschreibung") or "",
                         urheber=b.get("urheber") or "", lizenz=b.get("lizenz") or "CC-BY-4.0", modul=modul,
                         figur=figur_werte(modul) if b.get("figur") else None, tricks=wahl_t, taenze=wahl_c,
-                        version=__version__, auftraege=wahl_a)
+                        version=__version__, auftraege=wahl_a, routinen=wahl_r)
         return daten, K.pruefe(daten)["steckbrief"]
 
     def merke(paket: dict[str, Any]) -> dict[str, Any]:
@@ -98,6 +100,7 @@ def register(app: FastAPI, runtime: Runtime) -> None:
 
         return JSONResponse({"figuren": figuren, "taenze": [c["name"] for c in runtime.choreos.liste()],
                              "auftraege": [{"id": k, "titel": v["titel"]} for k, v in eigene().items()],
+                             "routinen": [r["name"] for r in runtime.alltag.planner.data.get("routinen", [])],
                              "lizenzen": list(K.LIZENZEN), "hub": {"schluessel": token}, "gesichert": gesichert})
 
     @app.post("/api/knowlets/packen")
@@ -186,6 +189,16 @@ def register(app: FastAPI, runtime: Runtime) -> None:
                 if k is None:
                     return fehler(K.KnowletFehler(grund))
                 getan.append(f"Auftrag {paket['auftraege'][n]['titel']}")
+        for n in [n for n in b.get("routinen") or [] if n in paket.get("routinen", {})]:   # seit 0.51: pausiert
+            planer = runtime.alltag.planner
+            r = dict(paket["routinen"][n])
+            r["name"] = K.freier_name(r["name"], {x["name"] for x in planer.data.get("routinen", [])})
+            try:
+                neu = planer.add_routine(**r)
+            except ValueError as exc:
+                return fehler(exc)
+            planer.routine_an(neu["id"], False)                # erst einschalten, wenn man sie kennt
+            getan.append(f"Routine {neu['name']} (pausiert)")
         if not getan:
             return fehler(K.KnowletFehler("Nichts ausgewählt."))
         offen.pop(str(b.get("id")), None)

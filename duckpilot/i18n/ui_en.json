@@ -4025,5 +4025,16 @@
  "Eine eigene Gangart in der Physik lernen und unter den Gangarten wählen.": "Learn an own gait in physics and pick it among the gaits.",
  "Mit der Hand vor der Webcam zeigen, als Auftrag merken, selbst üben.": "Show it with your hand in front of the webcam, save it as a task, practise alone.",
  "Lernziele, Fortschritt, Kopf führen mit Handy oder Quest.": "Learning goals, progress, guiding the head with phone or Quest.",
- "Alle Lernwege an einem Ort – Akrobatik, Parcours, Training, Laufen lernen, Vormachen – und dein Zimmer aus der Quest.": "All ways to learn in one place – acrobatics, obstacle course, training, learning to walk, demonstrating – and your room from the Quest."
+ "Alle Lernwege an einem Ort – Akrobatik, Parcours, Training, Laufen lernen, Vormachen – und dein Zimmer aus der Quest.": "All ways to learn in one place – acrobatics, obstacle course, training, learning to walk, demonstrating – and your room from the Quest.",
+ "Bewegungen zum Hineinziehen": "Moves to drag in",
+ "In die Zeitleiste ziehen oder antippen (kommt an die Startmarke). Blöcke verschieben, am rechten Rand länger ziehen, anklicken und Entf löscht, ← → rückt.": "Drag into the timeline or tap (lands at the start marker). Move blocks, drag the right edge to lengthen, click and Del removes, ← → shifts.",
+ "Im Netz nachschlagen": "Look things up online",
+ "kurze Antworten aus der Wikipedia, wenn du fragst („Schlag Ada Lovelace nach“) oder eine Routine den Schritt „Wissen“ hat – an die Wikipedia geht nur der Suchbegriff, nichts über dich": "short answers from Wikipedia when you ask (“Look up Ada Lovelace”) or a routine has the “Knowledge” step – only the search term goes to Wikipedia, nothing about you",
+ "Thema für Wissen": "Topic for knowledge",
+ "Thema für „Wissen“, z. B. Mond (braucht „Im Netz nachschlagen“)": "Topic for “Knowledge”, e.g. Moon (needs “Look things up online”)",
+ "Wissen zum Thema": "Knowledge on a topic",
+ "Noch keine – unter Alltag → Routinen anlegen.": "None yet – create them under Everyday → Routines.",
+ "Routinen (kommen pausiert an)": "Routines (arrive paused)",
+ "Eine Routine schlägt in der Wikipedia nach – das geht nur, wenn „Im Netz nachschlagen“ eingeschaltet ist (System → Einstellungen → Knowlin).": "A routine looks things up on Wikipedia – that only works with “Look things up online” switched on (System → Settings → Knowlin).",
+ "entfernen": "remove"
 }

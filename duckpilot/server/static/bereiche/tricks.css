@@ -143,3 +143,14 @@
 /* Reiter je Quelle (seit 0.38.66) */
 .tricks-reiter { display: flex; flex-wrap: wrap; gap: var(--spacing-02); margin-top: var(--spacing-04); }
 .reiter-aus { display: none !important; }
+
+/* Choreografie zum Ziehen (seit 0.51): Palette über der Zeitleiste, Löschen je Zeile */
+.tanz-palette { display: flex; flex-wrap: wrap; gap: var(--spacing-02); margin-bottom: var(--spacing-03); }
+.tanz-chip { font: inherit; font-size: var(--t-small); min-height: var(--control-h-sm); padding: var(--spacing-01) var(--spacing-03);
+  border: 1px solid var(--line); border-left: 4px solid var(--data-1); border-radius: var(--r-control); background: var(--surface-raised);
+  color: var(--ink); cursor: grab; }
+.tanz-chip--pose { border-left-color: var(--accent); }
+.tanz-chip--gefuehl, .tanz-chip--trick { border-left-color: var(--data-2); }
+.tanz-chip--pause { border-left-color: var(--line-strong); }
+.tanz-chip:focus-visible, .tanz-zeitleiste canvas:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.tanz-schritte li:not(.tanz-teil) { grid-template-columns: 4rem 3.5rem 1fr 1fr auto; }

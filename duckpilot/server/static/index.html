@@ -859,6 +859,7 @@
               <fieldset class="knowlet-gruppe"><legend class="field-label">Tricks</legend><div id="kn-tricks"></div></fieldset>
               <fieldset class="knowlet-gruppe"><legend class="field-label">Tänze</legend><div id="kn-taenze"></div></fieldset>
               <fieldset class="knowlet-gruppe"><legend class="field-label">Aufträge an der Werkbank</legend><div id="kn-auftraege"></div></fieldset>
+              <fieldset class="knowlet-gruppe"><legend class="field-label">Routinen</legend><div id="kn-routinen"></div></fieldset>
               <label class="field"><span class="field-label">Name des Knowlets</span><input class="input" type="text" id="kn-titel" maxlength="40"></label>
               <label class="field"><span class="field-label">Beschreibung (optional)</span><textarea class="input" id="kn-beschreibung" rows="2" maxlength="400"></textarea></label>
               <label class="field"><span class="field-label">Urheber (optional, öffentlich sichtbar)</span><input class="input" type="text" id="kn-urheber" maxlength="80" autocomplete="off"></label>
@@ -1033,6 +1034,8 @@
               <label class="field"><span class="field-label">Dein Name</span><input class="input" type="text" data-set="nutzer_name" maxlength="40" autocomplete="off" placeholder="Mensch"></label>
               <label class="field pc-only"><span class="field-label">Stadt fürs Wetter</span><input class="input" type="text" data-set="wetter_ort" maxlength="60" autocomplete="off" placeholder="z. B. Berlin" aria-describedby="wetter-hilfe"></label>
               <p class="field-help pc-only" id="wetter-hilfe">Nur die Stadt, nie dein Standort. Fragst du nach dem Wetter, geht der Stadtname an Open-Meteo (ohne Konto, ohne Schlüssel); sonst nichts.</p>
+              <!-- Im Netz nachschlagen (seit 0.51) -->
+              <label class="switch pc-only"><input type="checkbox" data-set="websuche"><span>Im Netz nachschlagen <small>kurze Antworten aus der Wikipedia, wenn du fragst („Schlag Ada Lovelace nach“) oder eine Routine den Schritt „Wissen“ hat – an die Wikipedia geht nur der Suchbegriff, nichts über dich</small></span></label>
               <span class="field-label" id="grund-label">Grundcharakter von Knowlin</span>
               <div id="pad-knowlin" class="pad-knowlin"></div>
               <p class="field-help">Punkt ziehen oder mit den Pfeiltasten verschieben. Die kleinen Punkte sind die Verkörperungen – zieh sie,
@@ -1979,6 +1982,7 @@
                 <select class="select" id="al-rt-tage" aria-label="An welchen Tagen"><option value="taeglich">täglich</option><option value="werktags">werktags</option><option value="wochenende">am Wochenende</option></select>
                 <input class="input" id="al-rt-ansage" maxlength="200" placeholder="Ansage zu Beginn (optional), z. B. Guten Morgen!" aria-label="Ansage zu Beginn">
                 <fieldset class="al-rt-schritte"><legend class="field-label">Schritte</legend><div id="al-rt-schritte"></div></fieldset>
+                <input class="input" id="al-rt-thema" maxlength="60" placeholder="Thema für „Wissen“, z. B. Mond (braucht „Im Netz nachschlagen“)" aria-label="Thema für Wissen" hidden>
                 <button class="btn" type="submit">Anlegen</button>
               </form>
               <p class="field-msg" id="al-rt-msg" aria-live="polite"></p>

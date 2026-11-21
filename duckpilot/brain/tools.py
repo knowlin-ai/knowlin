@@ -35,6 +35,7 @@ from .tools_lab import (  # noqa: F401 – Werkzeuge der Trainingshalle, seit 0.
 )
 from .tools_licht import LICHT_TOOL, LichtWerkzeuge
 from .tools_raum import RaumWerkzeuge
+from .tools_wissen import NACHSCHLAGEN_TOOL, WissenWerkzeuge
 from .tools_zubehoer import ZUBEHOER_TOOL, ZubehoerWerkzeuge
 
 if TYPE_CHECKING:
@@ -613,7 +614,7 @@ LOGGED_EVENTS = {"fall": "Sturz", "kick_miss": "Kick ins Leere", "pick_miss": "A
 
 class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge, LichtWerkzeuge,
                  GespraechWerkzeuge, HausWerkzeuge, ZubehoerWerkzeuge,
-                 AblaufWerkzeuge):
+                 AblaufWerkzeuge, WissenWerkzeuge):
     def __init__(self, engine: MotionEngine, memory: "Memory | None" = None) -> None:
         self.engine = engine
         self.memory = memory
@@ -662,7 +663,7 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
             tools = [*tools, FREE_TRAINING_TOOL]
         eig = self.engine.backend.eigenschaften()
         be = self.engine.backend                  # nur anbieten, was dieser Körper wirklich kann (seit 0.38.6 vollständig)
-        tools = [t for t in [*tools, ZUBEHOER_TOOL, ABLAUF_TOOL] if fehlt_dem_koerper(t["name"], be) is None]   # Zubehör 0.47
+        tools = [t for t in [*tools, ZUBEHOER_TOOL, ABLAUF_TOOL, NACHSCHLAGEN_TOOL] if fehlt_dem_koerper(t["name"], be) is None]   # Zubehör 0.47
         tools = [*tools, ABSICHT_TOOL, SELBSTBILD_TOOL]      # Aktionskatalog und Selbstbild (seit 0.38.43, G2)
         tools = [*tools, *ERINNER_TOOLS, WETTER_TOOL]        # Tagesrückblick und Weltbild (0.39), Wetter (0.40)
         if getattr(self, "haus", None) is not None:
@@ -798,6 +799,8 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
                 result = await self._zubehoer(args or {})
             elif name == "ablauf":
                 result = await self._ablauf(args or {})
+            elif name == "nachschlagen":
+                result = await self._nachschlagen(args or {})
             elif name == "arm":
                 result = await self._arm(args or {})
             elif name in ("greifen", "ablegen"):

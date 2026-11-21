@@ -55,3 +55,10 @@ body.is-fern:not(.ist-sicher) .pc-oder-sicher { display: none !important; }
 .mt-leiste[hidden] { display: none; }
 .mt-leiste-text { font-weight: 600; padding: 0 var(--spacing-02); }
 @media (max-width: 671.98px) { .mt-neu { grid-template-columns: 1fr; } }
+/* Abstände (0.50.1, Maintainer: „wieder Abstandsprobleme“): mehr Luft in Zielen und Übungen, „Anlegen“ so hoch wie
+   das Eingabefeld */
+.mt-neu .btn { min-height: var(--control-h-md); }
+.mt-ziel, .mt-bewegung, .mt-uebung { padding: var(--spacing-04); }
+.mt-ziel-stand { margin-top: var(--spacing-03); }
+.mt-uebung { gap: var(--spacing-03); }
+.mt-uebung .btn { margin-top: var(--spacing-02); }

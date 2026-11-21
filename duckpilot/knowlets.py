@@ -34,6 +34,7 @@ MAX_DATEI = 512 * 1024
 MAX_TRICKS = 40
 MAX_TAENZE = 20
 MAX_AUFTRAEGE = 20                    # Werkbank-Aufträge für Arme (seit 0.38.54) – nur Daten, geprüft wie eigene
+MAX_ROUTINEN = 10                     # Routinen (seit 0.51) – feste Schritte, kommen pausiert an
 LIZENZEN = ("CC-BY-4.0", "CC-BY-SA-4.0", "CC0-1.0", "CC-BY-NC-4.0")
 MODULE = ("duckpilot", "reachy_mini", "open_duck_mini")       # eingebaute Körper mit Verkörperung (Hub-Tags)
 KOERPER = {"duckpilot": "Microduck", "reachy_mini": "Reachy Mini", "open_duck_mini": "Open Duck Mini v2"}
@@ -59,7 +60,7 @@ def koerper_name(modul: str) -> str:
 FIGUR_TEILEN = ("duck_name", "wake_word", "energie", "humor", "emotions", "idle_life", "plaudern", "stimme_piper",
                 "entenhaft", "entenlaute", "klang_hoehe", "klang_farbe")
 
-_DATEI = re.compile(r"^(knowlet\.json|figur\.json|LIESMICH\.md|(tricks|taenze|auftraege)/[^/\\]{1,80}\.json)$")
+_DATEI = re.compile(r"^(knowlet\.json|figur\.json|LIESMICH\.md|(tricks|taenze|auftraege|routinen)/[^/\\]{1,80}\.json)$")
 _STEUER = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
 
 
@@ -87,7 +88,8 @@ def _dateiname(n: str) -> str:
 def packe(*, titel: str, beschreibung: str = "", urheber: str = "", lizenz: str = "CC-BY-4.0", modul: str,
           figur: dict[str, Any] | None = None, tricks: dict[str, dict[str, Any]] | None = None,
           taenze: dict[str, dict[str, Any]] | None = None, version: str = "",
-          auftraege: dict[str, dict[str, Any]] | None = None) -> bytes:
+          auftraege: dict[str, dict[str, Any]] | None = None,
+          routinen: dict[str, dict[str, Any]] | None = None) -> bytes:
     """Ein Knowlet bauen. `figur` sind Einstellungswerte der Verkörperung; es wird nur `FIGUR_TEILEN` übernommen."""
     from .choreo import pruefe as choreo_pruefe
     from .werkbank_auftrag import pruefen as auftrag_pruefen
@@ -100,7 +102,7 @@ def packe(*, titel: str, beschreibung: str = "", urheber: str = "", lizenz: str 
     if lizenz not in LIZENZEN:
         raise KnowletFehler("Bitte eine der angebotenen Lizenzen wählen.")
     dateien: dict[str, Any] = {}
-    inhalt: dict[str, Any] = {"figur": False, "tricks": [], "taenze": [], "auftraege": []}
+    inhalt: dict[str, Any] = {"figur": False, "tricks": [], "taenze": [], "auftraege": [], "routinen": []}
     if figur:
         dateien["figur.json"] = {k: figur[k] for k in FIGUR_TEILEN if k in figur}
         inhalt["figur"] = True
@@ -122,8 +124,13 @@ def packe(*, titel: str, beschreibung: str = "", urheber: str = "", lizenz: str 
         if sauber is not None:
             dateien[f"auftraege/{_dateiname(n)}.json"] = sauber
             inhalt["auftraege"].append(sauber["titel"])
-    if not (inhalt["figur"] or inhalt["tricks"] or inhalt["taenze"] or inhalt["auftraege"]):
-        raise KnowletFehler("Das Knowlet ist leer – Verkörperung, Tricks, Tänze oder Aufträge auswählen.")
+    for n, r in list((routinen or {}).items())[:MAX_ROUTINEN]:
+        sauber = _routine(r)
+        if sauber is not None:
+            dateien[f"routinen/{_dateiname(n)}.json"] = sauber
+            inhalt["routinen"].append(sauber["name"])
+    if not (inhalt["figur"] or inhalt["tricks"] or inhalt["taenze"] or inhalt["auftraege"] or inhalt["routinen"]):
+        raise KnowletFehler("Das Knowlet ist leer – Verkörperung, Tricks, Tänze, Aufträge oder Routinen auswählen.")
     steckbrief = {"format": FORMAT, "name": titel, "beschreibung": text(beschreibung, 400),
                   "urheber": text(urheber, 80), "lizenz": lizenz, "fuer": modul,
                   "erstellt": time.strftime("%Y-%m-%d"), "knowlin": version, "inhalt": inhalt}
@@ -136,6 +143,20 @@ def packe(*, titel: str, beschreibung: str = "", urheber: str = "", lizenz: str 
     if len(out) > MAX_PAKET:
         raise KnowletFehler("Das Knowlet wird zu groß – weniger Tricks oder Tänze auswählen.")
     return out
+
+
+def _routine(r: Any) -> dict[str, Any] | None:
+    """Eine Routine fürs Knowlet: nur Name, Uhrzeit, Tage, Schritte aus der festen Liste, Ansage, Thema (seit 0.51)."""
+    from . import routinen as R
+
+    if not isinstance(r, dict):
+        return None
+    try:
+        p = R.pruefen(r.get("name"), r.get("zeit", ""), r.get("tage", "taeglich"), r.get("schritte") or [],
+                      r.get("ansage", ""), r.get("thema", ""))
+    except (ValueError, TypeError):
+        return None
+    return {k: p[k] for k in ("name", "zeit", "tage", "schritte", "ansage", "thema") if k in p}
 
 
 # ── Prüfen ────────────────────────────────────────────────────────────────
@@ -154,7 +175,7 @@ def pruefe(daten: bytes) -> dict[str, Any]:
     except zipfile.BadZipFile as exc:
         raise KnowletFehler("Das ist kein Knowlet (keine ZIP-Datei).") from exc
     infos = z.infolist()
-    if len(infos) > 2 + MAX_TRICKS + MAX_TAENZE + MAX_AUFTRAEGE + 1:
+    if len(infos) > 2 + MAX_TRICKS + MAX_TAENZE + MAX_AUFTRAEGE + MAX_ROUTINEN + 1:
         raise KnowletFehler("Zu viele Dateien im Paket.")
     gesamt = 0
     roh: dict[str, Any] = {}
@@ -203,6 +224,7 @@ def pruefe(daten: bytes) -> dict[str, Any]:
     tricks: dict[str, dict[str, Any]] = {}
     taenze: dict[str, dict[str, Any]] = {}
     auftraege: dict[str, dict[str, Any]] = {}
+    routinen: dict[str, dict[str, Any]] = {}
     for pfad, d in sorted(roh.items()):
         if pfad.startswith("tricks/"):
             if not isinstance(d, dict) or not isinstance(d.get("keyframes"), list) or not d["keyframes"]:
@@ -229,10 +251,15 @@ def pruefe(daten: bytes) -> dict[str, Any]:
             if sauber is None:
                 raise KnowletFehler(f"Auftrag ungültig ({text(pfad, 80)}): {grund}")
             auftraege[sauber["titel"]] = sauber
-    if not (figur or tricks or taenze or auftraege):
+        elif pfad.startswith("routinen/"):                        # feste Schritte, nie Code (seit 0.51)
+            sauber = _routine(d)
+            if sauber is None:
+                raise KnowletFehler(f"Routine ungültig: {text(pfad, 80)}")
+            routinen[sauber["name"]] = sauber
+    if not (figur or tricks or taenze or auftraege or routinen):
         raise KnowletFehler("Das Knowlet ist leer.")
     return {"steckbrief": steckbrief, "figur": figur, "tricks": tricks, "taenze": taenze, "auftraege": auftraege,
-            "liesmich": roh.get("LIESMICH.md", "")}
+            "routinen": routinen, "liesmich": roh.get("LIESMICH.md", "")}
 
 
 def vorschau(paket: dict[str, Any], vorhanden_tricks: set[str], vorhanden_taenze: set[str]) -> dict[str, Any]:
@@ -247,7 +274,16 @@ def vorschau(paket: dict[str, Any], vorhanden_tricks: set[str], vorhanden_taenze
                        for n, c in paket["taenze"].items()],
             "auftraege": [{"name": n, "beschreibung": a.get("beschreibung", "")}
                           for n, a in paket.get("auftraege", {}).items()],
+            "routinen": [{"name": n, "beschreibung": _routine_text(r)} for n, r in paket.get("routinen", {}).items()],
+            # Möchte im Netz nachschlagen (Schritt „Wissen“) – braucht „Im Netz nachschlagen“ (seit 0.51)
+            "nachschlagen": any("wissen" in r.get("schritte", []) for r in paket.get("routinen", {}).values()),
             "liesmich": paket.get("liesmich", "")}
+
+
+def _routine_text(r: dict[str, Any]) -> str:
+    from .routinen import beschreiben
+
+    return beschreiben({**r, "an": False})
 
 
 def freier_name(n: str, belegt: set[str]) -> str:

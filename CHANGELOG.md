@@ -9,6 +9,34 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.51.0 – 2026-11-21 – Choreografie zum Ziehen, Nachschlagen und Routinen in Knowlets, Abstände
+
+### Neu
+- **Choreografie zum Ziehen** (Steuern → Tanzen, wenn ein Tanz offen ist): Über der Zeitleiste stehen die Bausteine
+  (Bein zu Bein, Wiegen, Drehen, Nicken, … Gefühl, Pose, Pause). In die Zeitleiste ziehen oder antippen (kommt an die
+  Startmarke); Blöcke verschieben, am rechten Rand länger oder kürzer ziehen, anklicken und Entf löscht, ← → rückt.
+  In der Liste darunter hat jeder Schritt ein ✕. „Ab Marke proben“ spielt ab der Stelle.
+- **Im Netz nachschlagen** (System → Einstellungen → Knowlin, Standard aus): kurze Antworten aus der Wikipedia –
+  „Schlag Ada Lovelace nach“, „Was steht in der Wikipedia über den Mond?“, auch ohne Sprachmodell (Werkzeug
+  `nachschlagen`). Die ersten zwei Sätze mit Quelle, nichts dazuerfunden.
+- **Routinen mit „Wissen zum Thema“**: Eine Routine kann zur Uhrzeit etwas nachschlagen („Abends: Wissen über den Mond“).
+- **Routinen in Knowlets**: Knowlets können Routinen mitbringen; sie kommen beim Empfänger pausiert an. Schlägt eine
+  davon nach, sagt die Vorschau, dass es dafür „Im Netz nachschlagen“ braucht.
+
+### Behoben
+- **Abstände** (Maintainer: „wieder Abstandsprobleme“): Lab-Karten berühren sich nicht mehr; im Ablauf-Baukasten
+  stehen Knöpfe neben Feldern unten bündig und nicht gestreckt; „Gespeicherte Abläufe“ lief am Handy rechts über;
+  im Mentor mehr Luft in Zielen und Übungen, „Anlegen“ so hoch wie das Feld. Die Abnahme prüft jetzt auch Zubehör,
+  Ablauf, Lab und Mentor, Karten untereinander und Überlauf nach rechts.
+
+### Sicherheit
+- Nachschlagen ist aus, bis man es einschaltet; an die Wikipedia geht nur der Suchbegriff, nichts über Personen oder aus
+  dem Gedächtnis; Antworten bleiben nur einen Tag im Speicher; Offline-Modus fragt nichts.
+- Routinen aus Knowlets sind nur Daten aus der festen Schrittliste und laufen erst, wenn man sie einschaltet.
+
+### Nicht geprüft
+- Wikipedia aus dem echten Netz (hier gesperrt, geprüft mit nachgebauten Antworten), Ziehen mit Touch am Handy.
+
 ## 0.50.0 – 2026-11-21 – Aufmerksamkeit suchen, Knowlin Lab als Bereich, Raum aus der Quest
 
 ### Neu

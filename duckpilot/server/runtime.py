@@ -228,6 +228,9 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         from ..wetter import Wetter
 
         self.wetter = Wetter()                                  # nur auf Nachfrage, Open-Meteo (seit 0.40)
+        from ..nachschlagen import Nachschlagen
+
+        self.nachschlagen = Nachschlagen()                      # Wikipedia, nur eingeschaltet und auf Nachfrage (0.51)
         from ..haus import Haus, tresor_lesen, tresor_schreiben
 
         self.haus = Haus(S.data_dir(), tresor_lesen, tresor_schreiben)   # Smart Home (seit 0.45), lokal
@@ -299,6 +302,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.runner.haus_rundgang = lambda: self.haus_dienst.rundgang_start()   # Rundgang (seit 0.46)
         self.runner.zubehoer_dienst = self.zubehoer_dienst     # Zubehör der Microduck (seit 0.47)
         self.runner.ablauf_dienst = self.ablauf_dienst         # Ablauf-Baukasten (seit 0.49)
+        self.runner.nachschlagen_dienst = getattr(self, "nachschlagen", None)   # Wikipedia (seit 0.51)
+        self.runner.websuche_an = lambda: bool(getattr(self.config, "websuche", False))
         self.runner.englisch = lambda: str(getattr(self.config, "sprache", "de")).startswith("en")
         self.runner.pollen = PollenAdapter(self)
         self.runner.free_training = self.free_training

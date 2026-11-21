@@ -16,3 +16,6 @@
 .lab-plan { width: 100%; max-width: 22rem; height: auto; }
 .lab-plan-boden { fill: var(--surface-sunken); stroke: var(--line-strong); stroke-width: 0.03; }
 .lab-plan-moebel { fill: var(--accent-soft); stroke: var(--accent-line); stroke-width: 0.02; }
+/* Abstände (0.50.1): zwischen der Lernwege-Karte und den Karten darunter derselbe Abstand wie im Raster */
+.lab-wege { margin-bottom: var(--grid-gap); }
+.lab-raum .input-row, .view-lab .input-row { flex-wrap: wrap; }

@@ -65,7 +65,8 @@ class AlltagPack(Pack):
                 "(timer|erinnerung|termin|todo|routine) und text/id. routine: eine Routine jetzt starten (text = Name). "
                 "routinen: alle Routinen zeigen. routine_anlegen: text (Name), optional wann (Uhrzeit wie 7:30, leer = "
                 "nur auf Zuruf), tage (taeglich|werktags|wochenende), schritte (ueberblick, wetter, todos, freuen, "
-                "aktiv, ruhe), ansage (Satz zu Beginn). ruhe: Ruhemodus (hinsetzen, Motoren aus, wacht bei Fälligem "
+                "aktiv, ruhe, wissen), ansage (Satz zu Beginn), thema (für wissen: Begriff, der in der Wikipedia "
+                "nachgeschlagen wird – nur wenn Nachschlagen eingeschaltet ist). ruhe: Ruhemodus (hinsetzen, Motoren aus, wacht bei Fälligem "
                 "auf). aktiv: aufwachen und wieder mitmachen. ansehen: ein Bild der Kamera (am Roboter die Kopfkamera, im "
                 "Simulator die PC-Webcam oder die Simulator-Ansicht) bekommen, um es zu beschreiben, Text vorzulesen "
                 "(aufgabe=vorlesen: wörtlich und vollständig vorlesen, nichts erfinden; Unleserliches sagen) oder eine "
@@ -86,6 +87,7 @@ class AlltagPack(Pack):
                     "tage": {"type": "string", "enum": list(routinen.TAGE)},
                     "schritte": {"type": "array", "items": {"type": "string", "enum": list(routinen.SCHRITTE)}},
                     "ansage": {"type": "string"},
+                    "thema": {"type": "string"},
                     "id": {"type": "string"},
                     "aufgabe": {"type": "string", "enum": ["beschreiben", "vorlesen", "frage"]},
                     "frage": {"type": "string"},
@@ -258,6 +260,13 @@ class AlltagService:
         res = await asyncio.to_thread(dienst.abfrage, str(getattr(self.rt.config, "wetter_ort", "") or ""), "heute")
         return satz(res)
 
+    async def _wissen_satz(self, thema: str) -> str:
+        dienst = getattr(self.rt, "nachschlagen", None)
+        if dienst is None:
+            return ""
+        res = await asyncio.to_thread(dienst.frage, thema, bool(getattr(self.rt.config, "websuche", False)))
+        return f"{res['text']} (Wikipedia)" if res.get("ok") else res.get("fehler", "")
+
     async def routine(self, r: dict[str, Any], anlass: str = "zuruf") -> dict[str, Any]:
         """Schritte in fester Reihenfolge: aufwachen → Geste → eine Ansage mit allem → zur Ruhe."""
         if self._routine_laeuft:
@@ -277,6 +286,8 @@ class AlltagService:
                 teile.append(self.planner.brief())
             if "wetter" in s:
                 teile.append(await self._wetter_satz())
+            if "wissen" in s and r.get("thema"):             # seit 0.51: nur eingeschaltet, nur der Suchbegriff geht raus
+                teile.append(await self._wissen_satz(r["thema"]))
             if "todos" in s:
                 offen = [t["text"] for t in self.planner.data["todos"] if not t["erledigt"]]
                 teile.append(("Auf der Liste: " + ", ".join(offen[:8]) + ".") if offen else "Die To-do-Liste ist leer.")
@@ -423,7 +434,8 @@ class AlltagService:
                     else "Es gibt noch keine Routinen.", "routinen": [r["name"] for r in rs]}
         if act == "routine_anlegen":
             r = p.add_routine(name=text, zeit=a.get("wann") or "", tage=a.get("tage") or "taeglich",
-                              schritte=a.get("schritte") or [], ansage=a.get("ansage") or "")
+                              schritte=a.get("schritte") or [], ansage=a.get("ansage") or "",
+                              thema=a.get("thema") or "")
             return {"ok": True, "antwort": f"Routine angelegt: {routinen.beschreiben(r)}.", "routine": r}
         if act == "ansehen":
             return await self._look(a)
