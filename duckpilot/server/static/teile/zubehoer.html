@@ -39,14 +39,16 @@
               </section>
               <section class="card set-card g-half" aria-labelledby="zb-polaroid-titel">
                 <h3 id="zb-polaroid-titel">NFC-Polaroid</h3>
-                <p class="field-help">Die kleine Farb-E-Ink-Karte an ihren Kopf halten – dann zeigt sie, wovon sie träumt. Bis die Karte da ist,
-                  malt Knowlin das Bild hier (200 × 200 Punkte, wenige Farben wie auf E-Ink).</p>
+                <p class="field-help">Die kleine Farb-E-Ink-Karte bekommt über NFC ein Bild: ein Foto aus ihrer Kamera (wie bei Pollen) oder –
+                  an den Kopf gehalten – wovon sie träumt. Bis die Karte da ist, malt Knowlin das Bild hier (200 × 200 Punkte, wenige Farben
+                  wie auf E-Ink).</p>
                 <div class="zb-polaroid">
                   <canvas id="zb-polaroid-bild" width="200" height="200" role="img" aria-label="Polaroid: noch kein Traum"></canvas>
                   <p class="zb-polaroid-text" id="zb-polaroid-text" aria-live="polite">Noch kein Traum.</p>
                 </div>
                 <div class="input-row ks-knoepfe">
-                  <button type="button" class="btn btn--primary btn--sm" id="zb-polaroid-halten">An den Kopf halten</button>
+                  <button type="button" class="btn btn--primary btn--sm" id="zb-polaroid-foto">Foto machen</button>
+                  <button type="button" class="btn btn--sm" id="zb-polaroid-halten">An den Kopf halten</button>
                   <a class="btn btn--ghost btn--sm" id="zb-polaroid-laden" download="knowlin-traum.png" href="#" hidden>Bild speichern</a>
                 </div>
               </section>

@@ -1601,6 +1601,26 @@ eigenen Netz, ohne Herstellerwolke und ohne Marke, die fest eingebaut wäre.
   Adressen. Adressen im Internet (z. B. die Cloud-Adresse von Home Assistant) nimmt Knowlin nicht an. Meldungen sind
   nur Text, nie Bilder. „Trennen“ löscht Token bzw. Schlüssel.
 
+## Mentor (seit 0.48)
+
+Der Mentor ist ein eigenes Modul: Kachel „Mentor“ auf der Startseite, im Kopf unter **Wissen → Mentor**, in jeder
+Verkörperung unter **Lernen → Mentor**.
+
+- **Lernziele:** Schreib in einem Satz auf, was sie lernen soll, und für welchen Körper; Häkchen = erledigt. Darunter
+  steht, was schon gelernt ist – mit echten Zahlen: Aris Aufgabe („im Test 9 von 10 geschafft“), gemerkte Aufträge,
+  Bellos gelernte Gangart, gemerkte Kopfbewegungen.
+- **Marionette:** Ihren Kopf führen. Am PC mit der Maus im Feld (oder Pfeiltasten, Pos1 = Mitte), am Handy mit „Mit dem
+  Handy führen“: Die Lage beim Start ist die Mitte, dann drehen, nicken, neigen; eine kleine Leiste über der 3D-Ansicht
+  nimmt auf und beendet. „Aufnehmen“ → bewegen → „Stopp“ → Namen eingeben → „Merken“; „Nachmachen“ spielt die Bewegung
+  ab. Für jeden Körper mit Kopf; ein Arm folgt stattdessen der Hand (Vormachen).
+- **In der Quest:** Im Cockpit „In VR ansehen“, Roboter auf den Boden stellen. Neben ihm erscheint eine Tafel: „Kopf
+  vormachen“ (ihr Kopf folgt deinem), „Aufnehmen“. Mit Hand-Tracking führt deine rechte Hand Aris Arm (Finger zusammen =
+  greifen). Not-Aus: Greiftaste oder der rote Knopf. Nicht mit echter Brille geprüft.
+- **Sicherheit:** Nach dem Not-Aus und ohne Strom folgt der Kopf nicht; der Not-Aus beendet Führen, Aufnahme und
+  Nachmachen. Kommt keine neue Lage, schaut sie nach 0,6 s wieder selbst.
+- **Datenschutz:** An Knowlin gehen nur drei Zahlen bzw. 21 Handpunkte – kein Bild, keine Raumdaten der Brille.
+  Gespeichert werden Lernziele (`mentor.json`) und Bewegungen (`marionette.json`), nichts über Personen.
+
 ## Zubehör der Microduck (seit 0.47)
 
 Pollens Zubehörpaket bringt zwei Rollen zum Anklemmen, einen Laserpointer, einen Ball, NFC-Tags und ein NFC-Polaroid.
@@ -1614,7 +1634,8 @@ das Polaroid dazu – vorerst im einfachen Simulator. Der Reiter erscheint nur b
   ins Ziel. „Selbst fahren lassen“ oder „Ich lenke“ (dann im Cockpit mit Steuerkreuz oder Tastatur). Die Uhr läuft ab
   der Startlinie; Bestzeiten gibt es zu Fuß, auf Rollen und geduckt. Zur besten Fahrt wird der Weg gespeichert, beim
   nächsten Rennen fährt die **Geisterente** (ein heller Punkt) mit.
-- **NFC-Polaroid:** „An den Kopf halten“ oder „Wovon träumst du?“ – sie erzählt, wovon sie geträumt hat, und das Bild
+- **NFC-Polaroid:** „Foto machen“ (seit 0.48, wie Pollens `photo.take`) bringt das Bild ihrer Kopfkamera im E-Ink-Stil
+  aufs Polaroid. „An den Kopf halten“ oder „Wovon träumst du?“ – sie erzählt, wovon sie geträumt hat, und das Bild
   erscheint wie auf der 1,54-Zoll-Farb-E-Ink-Karte (200 × 200 Punkte, sechs Farben). „Bild speichern“ lädt es herunter.
   Der Traum kommt aus dem Tagesrückblick (was heute am häufigsten vorkam, die Stimmung des Tages), nicht aus einem
   Sprachmodell.

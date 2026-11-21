@@ -470,7 +470,7 @@ def test_oberflaeche_schickt_keine_bilder():
     assert "export const BASIS = '/api/spiele/hand/dateien';" in hand
     assert "await import(`${this.basis}/vision_bundle.mjs`)" in hand and hand.count("import(") == 1
     assert "modelAssetPath: `${this.basis}/hand_landmarker.task`" in hand
-    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    app = (STATIC / "app.js").read_text(encoding="utf-8") + (STATIC / "gruppen.js").read_text(encoding="utf-8")
     assert "initKameraSpiele({ $, api, toast, scene," in app and "case 'spiel':" in app and "part: 'spiele'" in app
     assert "hand.js" not in app and "vision_bundle" not in app                                   # nichts beim Start
     assert "const NUR_REACHY = [];" in (STATIC / "modul.js").read_text(encoding="utf-8")   # Spiele für alle (0.44)

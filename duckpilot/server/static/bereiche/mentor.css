@@ -16,3 +16,42 @@ body.is-fern:not(.ist-sicher) .pc-oder-sicher { display: none !important; }
 /* Bello lernt laufen (seit 0.43) */
 .bello-lernt { display: grid; gap: var(--spacing-02); margin-block-end: var(--spacing-05); }
 .bello-lernt .key-actions button[hidden] { display: none; }
+
+/* ── Mentor als eigenes Modul (seit 0.48): Lernziele, Marionette, Übungen ── */
+.view-mentor [hidden] { display: none; }
+.mt-zahlen { display: flex; flex-wrap: wrap; gap: var(--spacing-02) var(--spacing-06); margin: 0 0 var(--spacing-05); }
+.mt-zahlen dt { color: var(--ink-2); font-size: var(--t-small); }
+.mt-zahlen dd { margin: 0 var(--spacing-04) 0 var(--spacing-02); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mt-neu { display: grid; grid-template-columns: 1fr auto auto; gap: var(--spacing-03); align-items: end; margin: var(--spacing-03) 0; }
+.mt-liste, .mt-uebungen { list-style: none; margin: var(--spacing-03) 0 0; padding: 0; display: grid; gap: var(--spacing-03); }
+.mt-ziel, .mt-bewegung, .mt-uebung { padding: var(--spacing-03); border-radius: var(--r-control); background: var(--surface-raised); }
+.mt-ziel-kopf { display: flex; align-items: center; gap: var(--spacing-03); }
+.mt-ziel-kopf b { flex: 1; font-weight: 600; }
+.mt-ziel.is-done b { text-decoration: line-through; color: var(--ink-2); }
+.mt-ziel-stand { display: flex; align-items: center; gap: var(--spacing-03); margin-top: var(--spacing-02); font-size: var(--t-small); color: var(--ink-2); }
+.mt-ziel-stand .bar { max-width: 160px; }
+.mt-bewegung { display: flex; align-items: center; gap: var(--spacing-03); }
+.mt-bewegung b { flex: 1; font-weight: 600; }
+.mt-bewegung span { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.mt-uebungen { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.mt-uebung { display: grid; gap: var(--spacing-02); align-content: start; }
+.mt-uebung .field-help { margin: 0; }
+.mt-uebung .btn { justify-self: start; }
+.mt-uebung.is-off { opacity: 0.6; }
+.mt-unter { margin: var(--spacing-05) 0 0; font-size: var(--t-body); font-weight: 600; }
+.mt-feld { position: relative; height: 160px; margin: var(--spacing-03) 0; border-radius: var(--r-card); background: var(--surface-raised);
+  touch-action: none; cursor: grab; box-shadow: inset 0 0 0 1px var(--line); }
+.mt-feld::before, .mt-feld::after { content: ""; position: absolute; background: var(--line); }
+.mt-feld::before { left: 50%; top: var(--spacing-03); bottom: var(--spacing-03); width: 1px; }
+.mt-feld::after { top: 50%; left: var(--spacing-03); right: var(--spacing-03); height: 1px; }
+.mt-feld:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mt-feld.is-off { opacity: 0.5; pointer-events: none; }
+.mt-punkt { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+  background: var(--accent); z-index: 1; pointer-events: none; }
+.mt-name { min-width: 160px; }
+.mt-leiste { position: fixed; left: 50%; bottom: calc(var(--spacing-08) + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  display: flex; align-items: center; gap: var(--spacing-03); padding: var(--spacing-02) var(--spacing-03); z-index: 40;
+  border-radius: var(--r-pill); background: var(--surface-raised); box-shadow: var(--e-2); }
+.mt-leiste[hidden] { display: none; }
+.mt-leiste-text { font-weight: 600; padding: 0 var(--spacing-02); }
+@media (max-width: 671.98px) { .mt-neu { grid-template-columns: 1fr; } }

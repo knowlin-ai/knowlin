@@ -15,7 +15,7 @@ from duckpilot.server.oberflaeche import seite
 
 STATIC = Path(__file__).resolve().parent.parent / "duckpilot" / "server" / "static"
 HTML = seite()
-APP = (STATIC / "app.js").read_text(encoding="utf-8")
+APP = (STATIC / "app.js").read_text(encoding="utf-8") + (STATIC / "gruppen.js").read_text(encoding="utf-8")   # Reiter seit 0.48 in gruppen.js
 
 
 def _block(start: str) -> str:
@@ -31,7 +31,8 @@ def test_module_ehrlich_fertig_oder_geplant():
     # seit 0.38.1 ist Reachy Mini fertig (im Simulator) – nicht aktiv, also ohne „verbunden“
     reachy = next(m for m in ms if m["id"] == "reachy-mini")
     assert reachy["stand"] == "fertig" and reachy["modul"] == "reachy_mini" and not reachy["aktiv"] and "verbunden" not in reachy
-    rest = [m for m in ms[1:] if m["id"] not in ("reachy-mini", "open-duck-mini", "so101", "stackchan", "bittle", "knowlets")]   # fertig seit 0.38.4/.5/.51/.58/.59
+    rest = [m for m in ms[1:] if m["id"] not in ("reachy-mini", "open-duck-mini", "so101", "stackchan", "bittle", "knowlets",
+                                                "mentor")]   # fertig seit 0.38.4/.5/.51/.58/.59, Mentor seit 0.48
     kn = next(m for m in ms if m["id"] == "knowlets")
     assert kn["stand"] == "fertig" and kn["ansicht"] == "knowlets" and kn["art"] == "werkzeug" and "modul" not in kn
     assert rest and all(m["stand"] in ("geplant", "anleitung") for m in rest)

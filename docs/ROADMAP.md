@@ -5,8 +5,7 @@ Versions are a plan, not a promise.
 
 | Version | Feature | What it means |
 | --- | --- | --- |
-| 0.48 | Mentor as its own module | The mentor gets its own page: learning goals, progress and exercises in one place. |
-| 0.48 | Puppet and VR demonstration | Guide her with your phone or demonstrate in the Quest with head and hands – she copies it. |
+| 0.49 | Sequence builder and Duck Cards | Drag moves into a sequence – or hold printed Duck Cards up to the camera; runs on every body. |
 | 0.49 | Seeking attention | When nobody has talked to her for a long time, she carefully comes closer and draws attention to herself. |
 | 0.49 | Knowlin Lab as an area | The training hall as its own area – plus the room from the Quest in the simulator. |
 | 0.50 | Web search and routines | Knowlets may look things up on the web and start fixed routines at a set time. |

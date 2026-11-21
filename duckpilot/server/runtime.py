@@ -233,6 +233,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.haus = Haus(S.data_dir(), tresor_lesen, tresor_schreiben)   # Smart Home (seit 0.45), lokal
         self.haus_dienst: Any = None                           # setzt routes/haus.py
         self.zubehoer_dienst: Any = None                       # setzt routes/zubehoer.py (Rollen, Rennen, Polaroid; 0.47)
+        self.marionette_dienst: Any = None                     # setzt routes/marionette.py (seit 0.48)
         self._wire()
 
     # ── Aufbau ────────────────────────────────────────────────────────────
@@ -1142,8 +1143,12 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
             await self._mentor_hand(msg)
         elif kind == "mentor_ende":
             self._mentor = None
+        elif kind in ("marionette", "marionette_ende") and self.marionette_dienst is not None:
+            await self.marionette_dienst.nachricht(msg)      # Marionette (seit 0.48): drei Zahlen, kein Bild
         elif kind == "stop":
             self.alltag.emergency_stop()
+            if self.marionette_dienst is not None:
+                self.marionette_dienst.not_aus()
             await self.engine.not_aus("Not-Aus")
         elif kind == "koerper":
             await self.koerper_betreten()

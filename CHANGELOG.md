@@ -9,6 +9,36 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.48.0 – 2026-11-21 – Mentor als eigenes Modul, Marionette und Vormachen in der Quest
+
+### Neu
+- **Mentor als eigenes Modul** (Startseite → Kachel „Mentor“, im Kopf unter Wissen, im Körper unter Lernen): Lernziele,
+  Fortschritt und Übungen an einem Ort. Eigene Lernziele als Satz mit Körper und „erledigt“; darunter, was schon gelernt
+  ist – Aris Aufgabe mit echter Trefferquote, gemerkte Aufträge, Bellos gelernte Gangart, gemerkte Kopfbewegungen.
+  Übungen zeigen, welcher Körper sie braucht.
+- **Marionette:** Ihren Kopf führen – am Handy durch Neigen und Drehen (Lage beim Start = Mitte, kleine Leiste über der
+  3D-Ansicht), am PC mit der Maus oder den Pfeiltasten im Feld. „Aufnehmen“ merkt sich die Bewegung (bis 60 s, je
+  Körperart), „Nachmachen“ spielt sie ab. Für jeden Körper mit Kopf: Microduck, Reachy, Odi, Stacki, Bello.
+- **Vormachen in der Quest** (nicht mit echter Brille geprüft): Schalttafel neben dem Roboter – „Kopf vormachen“ lässt
+  ihren Kopf deinem folgen, „Aufnehmen“ merkt sich die Bewegung. Mit Hand-Tracking führt deine rechte Hand Aris Arm
+  wie beim Vormachen per Webcam (Finger zusammen = greifen).
+- **Polaroid mit Foto** (wie Pollens `photo.take`): „Foto machen“ bringt das Bild ihrer Kopfkamera aus dem Simulator
+  im E-Ink-Stil aufs Polaroid. Der Traum aus 0.47 bleibt („An den Kopf halten“).
+
+### Geändert
+- Die Bereiche der Leiste und ihre Reiter stehen in `static/gruppen.js` (app.js hatte keinen Platz mehr).
+- Geplant: 0.49 Ablauf-Baukasten und Duck Cards (gedruckte Karten von microduckstudio.com lesen, zusätzlich verlinken),
+  Aufmerksamkeit suchen, Knowlin Lab als Bereich; 0.50 Websuche und Routinen in Knowlets, Choreografie zum Ziehen.
+
+### Sicherheit
+- In der Sperre nach dem Not-Aus und stromlos folgt der Kopf nicht und nichts wird nachgemacht; der Not-Aus beendet
+  Führen, Aufnahme und Nachmachen sofort. Kommt keine neue Lage, schaut sie nach 0,6 s wieder selbst.
+- An Knowlin gehen nur drei Zahlen (drehen, nicken, neigen) bzw. 21 Handpunkte – keine Bilder, keine Raumdaten der Brille.
+
+### Nicht geprüft
+- Marionette am echten Handy (iOS fragt nach den Bewegungssensoren), Vormachen mit echter Quest und Hand-Tracking,
+  echte Körper.
+
 ## 0.47.0 – 2026-11-20 – Zubehör der Microduck: Rollen, Arena-Rennen, Polaroid
 
 ### Neu

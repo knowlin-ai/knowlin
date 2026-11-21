@@ -6,6 +6,7 @@ import { initAlleSpiele } from './spiele_alle.js';
 import { initVR } from './vr.js';
 import { initZubehoer } from './zubehoer.js';
 import { initLeistungsmodus } from './leistung.js';
+import { initMentorSeite } from './mentor_seite.js';
 import { vorschauKachel } from './skills.js';
 import { initTricksReiter } from './tricks_reiter.js';
 import { initTricksSuche } from './tricks_suche.js';
@@ -82,9 +83,10 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   let emotionsLoaded = false;
   const belloLernt = initBelloLernt({ $, api, toast });   // Bello lernt laufen (seit 0.43)
   const alleSpiele = initAlleSpiele({ $, api, toast, showView });   // Spiele für jeden Körper (seit 0.44)
-  initVR({ $, send, toast, getConfig });
+  initVR({ $, send, toast, getConfig });   // VR mit der Quest (seit 0.44; Vormachen seit 0.48)
   const zubehoer = initZubehoer({ $, api, toast, showView });   // Zubehör der Microduck (seit 0.47)
-  initLeistungsmodus();   // VR mit der Quest (seit 0.44, nicht geprüft)
+  initLeistungsmodus();
+  initMentorSeite({ $, api, el, toast, send, showView });         // Mentor als eigenes Modul (seit 0.48)
   async function loadTricks(p = 'tricks') {
     if (p === 'tricks' && document.body.classList.contains('koerper-bittle')) belloLernt.zeigen();
     if (p === 'spiele') alleSpiele?.laden();

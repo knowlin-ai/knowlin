@@ -8,6 +8,7 @@
 // Ins Netz geht nichts; Kamera- und Raumdaten der Brille bleiben in der Brille, hierher kommt nur der Abdrück-Punkt.
 import * as THREE from './vendor/three.module.min.js';
 import { figurFuer } from './portraet3d.js';
+import { initVRVormachen } from './vr_vormachen.js';     // Kopf und Hand vormachen (seit 0.48)
 
 export function initVR({ $, send, toast, getConfig }) {
   const knopf = $('vr-start');
@@ -31,9 +32,10 @@ export function initVR({ $, send, toast, getConfig }) {
 
   const text = (t) => { $('vr-text').textContent = t; };
   const eig = () => new Set((getConfig() || {}).eigenschaften || []);
-  const notaus = () => send({ type: 'stop' });
+  const notaus = () => { send({ type: 'stop' }); vormachen?.ende(); };
 
   window.addEventListener('knowlin:state', (ev) => { letzter = ev.detail; });
+  const vormachen = initVRVormachen({ send, eig, anker });
 
   // Simulator (x vorn, y links, z oben) → Anker (three.js: X = x, Y = z, Z = −y), relativ zur Lage beim Hinstellen
   function aufAnker(st) {
@@ -52,13 +54,16 @@ export function initVR({ $, send, toast, getConfig }) {
       ursprung = { x: letzter.x, y: letzter.y };
       gesetzt = true;
       marke.visible = false;
-      text('Abdrücken auf dem Boden: lauf dahin · auf ihm: anstupsen · Greiftaste: Not-Aus');
+      text('Abdrücken auf dem Boden: lauf dahin · auf ihm: anstupsen · Tafel: Kopf vormachen · Greiftaste: Not-Aus');
+      vormachen.zeigen(true);
       return;
     }
     const c = ev.target;
     const m = new THREE.Matrix4().extractRotation(c.matrixWorld);
     strahl.ray.origin.setFromMatrixPosition(c.matrixWorld);
     strahl.ray.direction.set(0, 0, -1).applyMatrix4(m);
+    if (vormachen.abdruecken(strahl)) return;
+    if (vormachen.handFuehrt()) return;                 // Finger zusammen = Ari greift, nicht abdrücken
     if (figur && strahl.intersectObject(figur.root, true).length) {
       if (eig().has('beruehrung')) send({ type: 'tool', name: 'beruehren', args: { art: 'streicheln' } });
       else send({ type: 'tool', name: 'absicht', args: { aktion: 'freuen' } });
@@ -83,7 +88,7 @@ export function initVR({ $, send, toast, getConfig }) {
     renderer.xr.setReferenceSpaceType('local-floor');
     try {
       session = await navigator.xr.requestSession('immersive-ar', {
-        requiredFeatures: ['hit-test'], optionalFeatures: ['local-floor', 'dom-overlay'], domOverlay: { root: $('vr-overlay') },
+        requiredFeatures: ['hit-test'], optionalFeatures: ['local-floor', 'dom-overlay', 'hand-tracking'], domOverlay: { root: $('vr-overlay') },
       });
     } catch (e) { toast(`VR startet nicht: ${e.message || e}`, true); renderer.dispose(); renderer = null; return; }
     await renderer.xr.setSession(session);
@@ -121,10 +126,12 @@ export function initVR({ $, send, toast, getConfig }) {
       }
       figur.root.visible = gesetzt;
     }
+    if (gesetzt) vormachen.bild(frame, renderer.xr.getReferenceSpace(), renderer.xr.getCamera());
     renderer.render(szene, kamera);
   }
 
   function aufraeumen() {
+    vormachen.ende();
     if (renderer) { renderer.setAnimationLoop(null); renderer.dispose(); }
     if (figur) anker.remove(figur.root);
     renderer = session = hitQuelle = null;

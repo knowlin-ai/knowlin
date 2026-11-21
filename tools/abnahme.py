@@ -163,7 +163,7 @@ ENTE_ERLAUBT = re.compile(r"Open Duck|Microduck|Duck Mini|Quacki|\b(intelligente
 DUCKPILOT_ERLAUBT = re.compile(r"Python-Paket duckpilot|Python package duckpilot|Codenamen der Module: duckpilot|"
                                r"module code names: duckpilot|%LOCALAPPDATA%\\duckpilot|duckpilot\.toml|-m duckpilot")
 KOERPER_ANSICHTEN = [("cockpit", None), ("tricks", "tricks"), ("tricks", "tanz"), ("tricks", "team"), ("tricks", "hub"),
-                     ("tricks", "spiele"), ("tricks", "zubehoer"), ("alltag", None), ("umgebung", None), ("persoenlichkeit", None),
+                     ("tricks", "spiele"), ("tricks", "zubehoer"), ("mentor", None), ("alltag", None), ("umgebung", None), ("persoenlichkeit", None),
                      ("stimme", "stimme"), ("stimme", "gespraech"), ("memory", None), ("knowlets", None),
                      ("akrobatik", None), ("parcours", None), ("training", None), ("dashboard", None),
                      ("settings", None), ("tricks", "pakete")]
@@ -1107,6 +1107,34 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
                   " body: JSON.stringify({an: false})})")
     b.pruefe("Zubehör: Arena-Rennen startet oder sagt ehrlich, warum nicht",
              bool(rennen.get("ok")) or any(w in (rennen.get("fehler") or "") for w in ("aufwecken", "Not-Aus")), str(rennen))
+
+    # 13o · Seit 0.48: Mentor als Modul – Lernziel anlegen, Kopf im Feld führen (Marionette), Ziel wieder löschen
+    page.evaluate("() => window.duckpilot.showView('cockpit')")
+    page.wait_for_timeout(1500)
+    page.evaluate("() => window.duckpilot.showView('mentor')")
+    page.wait_for_timeout(1500)
+    page.fill("#mt-neu-text", "Abnahme: nicken lernen")
+    page.click("#mt-neu button[type=submit]")
+    try:
+        page.wait_for_function("() => /Abnahme: nicken lernen/.test(document.getElementById('mt-ziele').textContent)", timeout=6000)
+    except Exception:  # noqa: BLE001
+        pass
+    ziel = "Abnahme: nicken lernen" in (page.text_content("#mt-ziele") or "")
+    box = page.locator("#mt-feld").bounding_box()
+    gedreht = None
+    if box:
+        page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+        page.mouse.down()
+        for i in range(25):
+            page.mouse.move(box["x"] + box["width"] * 0.12, box["y"] + box["height"] * (0.5 - 0.01 * i))
+            page.wait_for_timeout(70)
+        gedreht = page.evaluate("() => ((window.duckpilot.state || {}).head || {}).head_yaw")
+        page.mouse.up()
+    b.foto(page, "13o-mentor", "Lernen → Mentor: Lernziele, Marionette, Übungen")
+    b.pruefe("Mentor: Lernziel angelegt, Kopf folgt dem Feld (Marionette)", ziel and (gedreht or 0) > 0.15,
+             f"Ziel: {ziel} · Kopf drehen {gedreht}")
+    page.evaluate("""() => fetch('/api/mentor').then(r => r.json()).then(d => Promise.all(d.ziele.filter(z => z.eigen)
+        .map(z => fetch('/api/mentor/ziel/' + z.id, {method: 'DELETE'}))))""")
 
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")

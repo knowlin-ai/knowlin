@@ -21,6 +21,7 @@ import { initEnten } from './enten.js';
 import { initAussehen } from './aussehen.js';
 import { initRaum } from './raum.js';
 import { initKnowlets } from './knowlets.js';
+import { GROUPS } from './gruppen.js';                  // Bereiche und Reiter (0.48)
 import { initSicherung } from './sicherung.js';
 import { initKoerperwahl } from './koerperwahl.js';
 import { setzeModul } from './modul.js';
@@ -323,34 +324,6 @@ function modelShort(m) {
   return ({ 'claude-sonnet-5-5': 'Sonnet 5.5', 'claude-haiku-5-5': 'Haiku 5.5', 'claude-opus-5-5': 'Opus 5.5' })[m] || m;
 }
 
-// ── Bereiche ───────────────────────────────────────────────────────────
-// Fünf Bereiche in der Leiste, nach dem, was man tut:
-//   Steuern   – sie bewegen, mit ihr reden, Tricks abspielen
-//   Alltag    – Uhr, Timer, Erinnerungen, Termine, To-dos (Erweiterung „Alltagsbuddy“)
-//   Charakter – wer sie ist: Persönlichkeit, Stimme, Gespräch (womit sie denkt), Gedächtnis
-//   Lernen    – Neues beibringen: Akrobatik, Parcours, Training
-//   System    – Zustand und Pflege, Einstellungen, Erweiterungen
-// Bereiche mit mehreren Seiten zeigen oben Reiter. Ein Reiter ist eine Seite (view) oder ein Teil
-// einer Seite (part, über data-part).
-const GROUPS = [
-  { id: 'steuern', tabs: [{ view: 'cockpit', label: 'Cockpit' }, { view: 'tricks', part: 'tricks', label: 'Tricks' },
-    { view: 'tricks', part: 'tanz', label: 'Tanzen' }, { view: 'tricks', part: 'team', label: 'Team' },
-    { view: 'tricks', part: 'hub', label: 'Vom Hub' }, { view: 'tricks', part: 'spiele', label: 'Spiele' },
-    { view: 'tricks', part: 'zubehoer', label: 'Zubehör' }] },
-  { id: 'alltag', tabs: [{ view: 'alltag' }] },
-  { id: 'umgebung', tabs: [{ view: 'umgebung' }] },                 // seit 0.38: eigener Bereich (Befund, Wahl)
-  { id: 'charakter', tabs: [{ view: 'persoenlichkeit', label: 'Persönlichkeit' }, { view: 'stimme', part: 'stimme', label: 'Stimme' },
-    { view: 'stimme', part: 'gespraech', label: 'Gespräch' }, { view: 'memory', label: 'Gedächtnis' },
-    { view: 'knowlets', label: 'Knowlets' }] },
-  { id: 'lernen', tabs: [{ view: 'akrobatik', label: 'Akrobatik' }, { view: 'parcours', label: 'Parcours' }, { view: 'training', label: 'Training' }] },
-  { id: 'system', tabs: [{ view: 'dashboard', label: 'Körper' }, { view: 'settings', label: 'Einstellungen' },
-    { view: 'tricks', part: 'pakete', label: 'Erweiterungen' }] },
-  { id: 'design', tabs: [{ view: 'design' }] },
-  { id: 'start', tabs: [{ view: 'start' }], kopf: true },           // Knowlin-Startseite (seit 0.38), ohne Leistenknopf
-  // Kopf zuerst (seit 0.38.4): auf Knowlins Seiten die geteilten Bereiche, ohne die Körperbereiche
-  { id: 'wissen', tabs: [{ view: 'memory', label: 'Gedächtnis' }, { view: 'knowlets', label: 'Knowlets' }], kopf: true },
-  { id: 'einstellungen', tabs: [{ view: 'settings', label: 'Einstellungen' }, { view: 'stimme', part: 'stimme', label: 'Knowlins Stimme' }], kopf: true },
-];
 const KOERPER_GRUPPEN = new Set(['steuern', 'charakter', 'lernen', 'system']);
 let imKopf = true;                     // auf Knowlins Seiten (Kopf) oder in einer Verkörperung (Körper)
 const hiddenTabs = new Set();          // z. B. „memory“, wenn das Gedächtnis aus ist

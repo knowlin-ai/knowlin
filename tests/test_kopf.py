@@ -309,7 +309,7 @@ def test_stimmen_seite_im_kopf():
     from pathlib import Path
 
     static = Path(__file__).resolve().parents[1] / "duckpilot" / "server" / "static"
-    app = (static / "app.js").read_text(encoding="utf-8")
+    app = (static / "app.js").read_text(encoding="utf-8") + (static / "gruppen.js").read_text(encoding="utf-8")
     assert "{ view: 'stimme', part: 'stimme', label: 'Knowlins Stimme' }], kopf: true }" in app   # erreichbar ohne Körper
     stimme = (static / "stimme.js").read_text(encoding="utf-8")
     assert "kopf_stimme_motor" in stimme and "...fuer()" in stimme

@@ -4,6 +4,7 @@
 // Fehlerstreuung, damit es aussieht wie auf der Karte. Nichts davon verlässt den Browser, außer du speicherst es.
 import { initRollen3D } from './rollen3d.js';
 import { uebersetzeText } from './i18n.js';
+import * as THREE from './vendor/three.module.min.js';
 
 const tr = (t) => uebersetzeText(t) || t;
 const PALETTE = [[18, 18, 18], [250, 250, 245], [200, 40, 40], [240, 200, 40], [40, 80, 170], [50, 140, 70]];
@@ -76,6 +77,33 @@ export function malePolaroid(canvas, t) {
   ctx.fillText(worte.length > 28 ? `${worte.slice(0, 27)}…` : worte, w / 2, h - 15);
 }
 
+// Foto wie bei Pollen (seit 0.48, Pollens photo.take): das Bild ihrer Kopfkamera aus dem Simulator, auf E-Ink gebracht
+export function malFoto(canvas, scene) {
+  const w = canvas.width, h = canvas.height;
+  const ziel = new THREE.WebGLRenderTarget(w, h);
+  ziel.texture.colorSpace = THREE.SRGBColorSpace;
+  scene._placePovCam(1);
+  const r = scene.renderer, vorher = r.getRenderTarget();
+  r.setRenderTarget(ziel);
+  r.render(scene.scene, scene.povCam);
+  r.setRenderTarget(vorher);
+  const px = new Uint8Array(w * h * 4);
+  r.readRenderTargetPixels(ziel, 0, 0, w, h, px);
+  ziel.dispose();
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const img = ctx.createImageData(w, h);
+  for (let y = 0; y < h; y++) img.data.set(px.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4);   // WebGL steht Kopf
+  ctx.putImageData(img, 0, 0);
+  einfaerben(ctx, w, h);
+  ctx.fillStyle = '#fafaf5';
+  ctx.fillRect(0, h - 24, w, 24);
+  ctx.fillStyle = '#121212';
+  ctx.font = '600 12px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(new Date().toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }), w / 2, h - 12);
+}
+
 export function initZubehoer({ $, api, toast, showView }) {
   if (!$('zb-karten')) return { laden() {} };
   let d3 = null;                                     // die 3D-Ansicht gibt es erst, wenn app.js fertig ist
@@ -121,7 +149,7 @@ export function initZubehoer({ $, api, toast, showView }) {
     if (!stand) return;
     $('zb-grund').hidden = stand.verfuegbar;
     $('zb-grund').textContent = stand.grund ? tr(stand.grund) : '';
-    for (const id of ['zb-rollen-an', 'zb-rennen-selbst', 'zb-rennen-lenken', 'zb-polaroid-halten']) $(id).disabled = !stand.verfuegbar;
+    for (const id of ['zb-rollen-an', 'zb-rennen-selbst', 'zb-rennen-lenken', 'zb-polaroid-halten', 'zb-polaroid-foto']) $(id).disabled = !stand.verfuegbar;
     rollen = null;
     zeigeRollen(stand.zubehoer);
     zeigeBest(stand.bestzeiten, stand.arten);
@@ -145,6 +173,18 @@ export function initZubehoer({ $, api, toast, showView }) {
   $('zb-rennen-lenken').addEventListener('click', () => starten(false));
   $('zb-rennen-stopp').addEventListener('click', () => api('/api/zubehoer/rennen', 'POST', { aktion: 'stopp' }).catch(() => null));
 
+  $('zb-polaroid-foto').addEventListener('click', () => {
+    const scene = window.duckpilot?.scene;
+    if (!scene || !scene.povCam) { toast(tr('Die 3D-Ansicht ist noch nicht bereit.'), true); return; }
+    const c = $('zb-polaroid-bild');
+    try { malFoto(c, scene); } catch (e) { toast(`${tr('Foto ging nicht')}: ${e.message || e}`, true); return; }
+    c.setAttribute('aria-label', tr('Polaroid: Foto aus ihrer Kamera'));
+    $('zb-polaroid-text').textContent = tr('Foto aus ihrer Kamera.');
+    const a = $('zb-polaroid-laden');
+    a.href = c.toDataURL('image/png');
+    a.download = 'knowlin-foto.png';
+    a.hidden = false;
+  });
   $('zb-polaroid-halten').addEventListener('click', async () => {
     const r = await api('/api/zubehoer/polaroid', 'POST', {}).catch((e) => ({ fehler: e.message }));
     if (!r || r.ok === false) fehler(r);
@@ -160,6 +200,7 @@ export function initZubehoer({ $, api, toast, showView }) {
       $('zb-polaroid-text').textContent = m.text;
       const a = $('zb-polaroid-laden');
       a.href = c.toDataURL('image/png');
+      a.download = 'knowlin-traum.png';
       a.hidden = false;
       return;
     }
