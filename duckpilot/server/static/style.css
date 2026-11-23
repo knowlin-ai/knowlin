@@ -1168,6 +1168,16 @@ input[type=checkbox] { width: 16px; height: 16px; margin: 0; }
 .vet-table tbody th { font-weight: 400; color: var(--ink); }
 .vet-table tr.is-retired { color: var(--ink-3); }
 .care-vet-events { margin: var(--spacing-03) 0 0; padding-left: var(--spacing-05); font-size: var(--t-caption); color: var(--ink-2); }
+.care-volume { border-top: 1px solid var(--line-soft); padding-top: var(--spacing-04); display: grid; gap: var(--spacing-03); }
+.care-volume label { font-size: var(--t-small); color: var(--ink); display: flex; justify-content: space-between; gap: var(--spacing-04); }
+.care-volume input[type="range"] { width: 100%; max-width: 420px; }
+.care-photos { border-top: 1px solid var(--line-soft); padding-top: var(--spacing-04); }
+.care-photos summary { cursor: pointer; font-size: var(--t-small); color: var(--ink); }
+.care-photos summary small { color: var(--ink-3); margin-left: var(--spacing-03); }
+.care-photo-list { list-style: none; margin: var(--spacing-04) 0 0; padding: 0; display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--spacing-04); }
+.care-photo { display: grid; gap: var(--spacing-02); min-width: 0; }
+.care-photo img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-control); background: var(--line-soft); }
 
 /* Abgleich Training ↔ Roboter */
 .tr-align summary { cursor: pointer; font-size: var(--t-body); }

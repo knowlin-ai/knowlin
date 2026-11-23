@@ -276,6 +276,9 @@ def sperre(engine: Any, *, haeufigkeit: Any, im_koerper: bool = True, ruhe: bool
         return "eine gelernte Bewegung läuft"
     if engine.busy() or bool(getattr(engine.backend, "beschaeftigt", lambda: False)()):   # Arm mitten im Auftrag (0.38.54)
         return "beschäftigt"
+    fremd = getattr(engine.backend, "pollen_steuert", None)       # Pollens autod, Fußball, Laser (seit 0.52)
+    if callable(fremd) and (grund := fremd()):
+        return grund
     if spiel:
         return "ein Spiel läuft"
     if gespraech or getattr(engine, "_speech", None):

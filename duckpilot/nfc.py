@@ -9,8 +9,13 @@ Woher die Berührung kommt:
 - **Handy** (Chrome unter Android, Web NFC): auf der Alltag-Seite „Tags lesen“ – nur über eine https-Adresse,
   also mit Tailscale. Das ist heute der Weg.
 - **Ohne Lesegerät:** „Auslösen“ in der Liste – zum Ausprobieren im Simulator.
-- **Roboter:** Pollens `nfcd` liest Tags bisher nur zum Koppeln eines Gamepads und meldet sie nicht weiter.
-  Sobald robotd Tag-Ereignisse anbietet, ruft das robotd-Backend `touched()` auf.
+- **Roboter:** Pollens `nfcd` handelt bei seinen eigenen Tags selbst (Gamepad koppeln, Gehen, Rollen, Laser, Fußball,
+  „die Ente allein“, Foto) und meldet Berührungen nicht weiter. Knowlin sieht danach nur, welches Spiel läuft
+  (robot.state, `backends/robotd.py` `pollen_an`).
+
+Pollens Tags (seit 0.52): Trägt ein Tag einen von Pollens Texten (`walk_mode`, `soccer_mode` …, Pollens
+`docs/robot/nfc-tags.md`), schlägt Knowlin beim ersten Berühren den passenden eigenen Satz vor – so tun Pollens Karten
+auch im Simulator, was auf der Karte steht. Der Satz lässt sich danach wie jeder andere ändern.
 
 Die Zuordnungen liegen lokal in `nfc_tags.json` im Datenordner.
 """
@@ -28,6 +33,24 @@ UID_RE = re.compile(r"^[A-Za-z0-9_-]{2,40}$")
 MAX_TAGS = 50
 MAX_SATZ = 200
 VORSCHLAEGE = ("setz dich", "steh auf", "tanz", "zeig mir, wie du lachst", "sag hallo", "Ruhemodus", "lauf zum Ball und schieß ihn")
+
+
+# Pollens Tag-Texte → Name und Knowlins Satz (None: das macht nur der echte Roboter, Knowlin sagt es nur)
+POLLEN_TAGS: dict[str, tuple[str, str | None]] = {
+    "walk_mode": ("Pollen: Gehen", "Rollen ab"),
+    "roller_skating_mode": ("Pollen: Rollschuh", "Rollen an"),
+    "laser_mode": ("Pollen: Laser", "folge dem Laser"),
+    "soccer_mode": ("Pollen: Fußball", "spiel Ball mit mir"),
+    "autonomous_mode": ("Pollen: Ente allein", "streif ein bisschen herum"),
+    "take_photo": ("Pollen: Foto", None),
+    "microduck_gamepad_pairing": ("Pollen: Gamepad koppeln", None),
+}
+
+
+def pollen_tag(text: Any) -> str | None:
+    """Pollens Regel: Der ganze Text ist die Nachricht – Leerzeichen außen egal, Groß/klein egal."""
+    key = str(text or "").strip().lower()
+    return key if key in POLLEN_TAGS else None
 
 
 def normalize_uid(uid: Any) -> str | None:
@@ -89,18 +112,29 @@ class TagStore:
             return True
         return False
 
-    def touched(self, uid: Any) -> dict[str, Any]:
-        """Ein Tag wurde berührt. Unbekannt → wird als neuer Tag ohne Satz gemerkt."""
+    def touched(self, uid: Any, text: Any = None) -> dict[str, Any]:
+        """Ein Tag wurde berührt. Unbekannt → wird als neuer Tag gemerkt; trägt er einen von Pollens Texten, mit
+        Pollens Namen und Knowlins passendem Satz (seit 0.52), sonst ohne Satz."""
         key = normalize_uid(uid)
         if not key:
             return {"ok": False, "fehler": "Diese Tag-Kennung verstehe ich nicht."}
         tag = self.find(key)
         neu = tag is None
+        pollen = pollen_tag(text)
         if neu:
-            res = self.put(key)
+            name, satz = POLLEN_TAGS[pollen] if pollen else (None, None)
+            res = self.put(key, name, satz)
             if not res["ok"]:
                 return res
             tag = res["tag"]
         tag["zuletzt"] = time.strftime("%Y-%m-%d %H:%M")
         self._save()
-        return {"ok": True, "tag": tag, "neu": neu, "satz": tag.get("satz") or ""}
+        res = {"ok": True, "tag": tag, "neu": neu, "satz": tag.get("satz") or ""}
+        if pollen:
+            res["pollen"] = pollen
+            if POLLEN_TAGS[pollen][1] is None and not res["satz"]:
+                res["hinweis"] = ("Das ist Pollens Gamepad-Karte – sie koppelt am echten Roboter ein Gamepad."
+                                  if pollen == "microduck_gamepad_pairing" else
+                                  "Das ist Pollens Foto-Karte – am echten Roboter macht sie ein Foto (Roboter-Pflege → "
+                                  "Fotos der Ente). Im Simulator: Steuern → Zubehör → Foto machen.")
+        return res

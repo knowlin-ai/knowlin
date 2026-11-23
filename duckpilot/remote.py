@@ -55,6 +55,7 @@ PC_ONLY: list[tuple[str, re.Pattern[str]]] = [(m, re.compile(p)) for m, p in [
     ("POST", r"^/api/reachy/laden$"),           # Pollens Reachy-Modell und Bewegungen nachladen (seit 0.38.2)
     ("POST", r"^/api/reachy/apps/installieren$"),   # Pollens Apps auf den Reachy installieren nur am PC (seit 0.38.19)
     ("POST", r"^/api/pflege/einspielen$"),
+    ("*", r"^/api/pflege/fotos?(/|$)"),     # Fotos der Ente zeigen die Wohnung – nur am PC (seit 0.52)
     ("POST", r"^/api/modell/laden$"),       # Pollens Robotermodell von GitHub laden
     ("POST", r"^/api/verknuepfung$"),       # Verknüpfungen auf dem Desktop anlegen (seit 0.38)
     ("POST", r"^/api/szene$"),              # Simulator zurücksetzen nur am PC (seit 0.38)
@@ -88,7 +89,7 @@ PC_ONLY: list[tuple[str, re.Pattern[str]]] = [(m, re.compile(p)) for m, p in [
 ]]
 # Einstellungen, die ein Handy nicht ändern darf: wohin duckpilot sich verbindet, welches (bezahlte) Modell,
 # wohin Gespräche gehen, ob es ein Gedächtnis gibt
-PC_ONLY_SETTINGS = {"backend", "robot", "tof", "updater", "media", "configd", "model", "gehirn", "lokal_adresse",
+PC_ONLY_SETTINGS = {"backend", "robot", "tof", "updater", "media", "configd", "nfcd", "model", "gehirn", "lokal_adresse",
                     "anbieter", "anbieter_modell", "anbieter_adresse",
                     "lokal_modell", "memory", "stt", "whisper_model", "sim_physik", "modul", "reachy_adresse",
                     "koerper_optionen", "wetter_ort"}

@@ -751,6 +751,17 @@
               </div>
               <ol class="care-vet-events" id="care-vet-events"></ol>
             </details>
+            <div class="care-volume" id="care-volume" hidden>
+              <label for="care-volume-range">Lautstärke <output id="care-volume-val" for="care-volume-range"></output></label>
+              <input type="range" id="care-volume-range" min="0" max="100" step="5" value="70">
+              <p class="care-vet-note" id="care-volume-note" aria-live="polite"></p>
+            </div>
+            <details class="care-photos nur-microduck" id="care-photos" hidden>
+              <summary>Fotos der Ente <small>Pollens Polaroid-Fotos, nur am PC</small></summary>
+              <p class="care-vet-note" id="care-photo-note" aria-live="polite"></p>
+              <div class="care-actions"><button type="button" class="btn btn--sm" id="care-photo-take">Foto machen</button></div>
+              <ul class="care-photo-list" id="care-photo-list"></ul>
+            </details>
             <div class="care-update">
               <p class="care-update-state" id="care-update-state"></p>
               <div class="care-actions">
@@ -762,7 +773,7 @@
             <div class="care-logs">
               <div class="care-actions">
                 <select class="select select--sm" id="care-unit" aria-label="Dienst">
-                  <option>robotd</option><option>mediad</option><option>updaterd</option><option>configd</option><option>tofd</option><option>padd</option><option>btd</option>
+                  <option>robotd</option><option>mediad</option><option>updaterd</option><option>configd</option><option>tofd</option><option>padd</option><option>btd</option><option>nfcd</option><option>autod</option>
                 </select>
                 <button type="button" class="btn btn--sm btn--ghost" id="care-logs-btn">Protokoll ansehen</button>
               </div>

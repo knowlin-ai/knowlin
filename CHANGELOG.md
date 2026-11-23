@@ -9,6 +9,43 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.52.0 – 2026-11-23 – Pollens Protokoll 68: Fotos, Lautstärke, Pollens Spiele und NFC-Karten
+
+### Neu
+- **Fotos der Ente** (System → Zustand → Roboter-Pflege, Pollens `nfcd` ab Protokoll 64): Vorschau, Öffnen, Löschen
+  (zwei Klicks); **Foto machen** (ab Protokoll 68) lässt sie posieren und knipsen. Tunnel `-L 7905:/run/nfcd/nfc.sock`,
+  Einstellung `nfcd`.
+- **Lautstärke** der Ente als Regler (robotd `robot.volume` / `robot.setVolume`, ab Protokoll 66).
+- **Was gerade läuft:** Gehen oder Rollen und Pollens Spiele (Fußball, Laser verfolgen, „die Ente allein“) aus
+  `robot.mode` und `robot.state`; dazu die **Motorleistung nach Akku** (Goal PWM aus `robot.health`).
+- **Pollens NFC-Karten:** Liest das Handy einen Tag mit einem von Pollens Texten (`walk_mode`, `roller_skating_mode`,
+  `laser_mode`, `soccer_mode`, `autonomous_mode`), legt Knowlin ihn mit Namen und passendem Satz an; `take_photo` und
+  die Gamepad-Karte erklärt es.
+- **Verbindungstest** nennt, welche Knowlin-Funktionen einer älteren Ente fehlen und dass sie ein Update bei zu altem
+  Betriebssystem (ONNX Runtime unter 1.23) selbst ablehnt.
+- Protokolle von `nfcd` und `autod` in der Roboter-Pflege; Handbuch: Pollens `workout_test` (Getriebe prüfen).
+
+### Geändert
+- Knowlin spricht Pollens Protokoll 68 (daemon 0.23.1, bisher 50). Ältere Enten gehen weiter; was ihnen fehlt, sagt
+  Knowlin statt einen Fehler zu zeigen.
+
+### Behoben
+- **Akku in der Roboter-Pflege:** Die Karte las `battery.fraction`, robotd meldet `battery.percent` – am echten Roboter
+  stand dort nie ein Akkustand (gefunden beim Abgleich am 23.11.).
+- Der Test-Roboter beantwortet einen ungültigen Aufruf jetzt mit einem Fehler, statt die Verbindung zu schließen.
+
+### Sicherheit
+- **Pollens Spiele haben Vorrang:** Läuft Pollens „Ente allein“, Fußball oder Laser verfolgen (z. B. per NFC-Karte am
+  Kopf der Ente), fängt Knowlin nichts Eigenes an (eigene Beschäftigung, Aufmerksamkeit suchen) – sonst stritten
+  zwei Programme um die Beine. Der Not-Aus wirkt wie immer sofort.
+- Fotos zeigen die Wohnung: nur am PC (`/api/pflege/foto…` gesperrt fürs Handy), bleiben auf der Ente, nur Pollens
+  Dateinamen werden angefragt (kein Pfad, kein „..“), höchstens 8 MB je Foto.
+- Lautstärke wird auf 0–100 begrenzt, bevor sie an robotd geht.
+
+### Nicht geprüft
+- Alles am echten Roboter (die Microduck ist noch nicht ausgeliefert): geprüft gegen den Test-Roboter, der Pollens
+  Aufrufe nachbaut (Abgleich mit Pollens `duck-ipc-proto` vom 23.11.2026). Web NFC mit Pollens Karten am Handy.
+
 ## 0.51.0 – 2026-11-21 – Choreografie zum Ziehen, Nachschlagen und Routinen in Knowlets, Abstände
 
 ### Neu

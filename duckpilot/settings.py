@@ -42,6 +42,7 @@ EDITABLE: dict[str, Any] = {
     "updater": str,
     "media": str,
     "configd": str,
+    "nfcd": str,
     "tricks": "repos",
     "pakete": "packs",
     "model_style": ("original", "einfach"),
@@ -183,7 +184,7 @@ def validate(patch: dict[str, Any]) -> dict[str, Any]:
                 raise ValueError(f"{key}: darf nicht leer sein")
             if key == "kopf_name" and not value:
                 value = "Knowlin"
-            if key in ("tof", "updater", "media", "configd") and not value:
+            if key in ("tof", "updater", "media", "configd", "nfcd") and not value:
                 value = None
         elif rule == "wetter_ort":
             from .wetter import ort_pruefen

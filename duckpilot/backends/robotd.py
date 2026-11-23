@@ -36,7 +36,41 @@ from .sim import display_joints
 
 log = logging.getLogger(__name__)
 
-API_VERSION = 50          # duck-ipc-proto, Stand 6.11.2026 – robotd meldet die Version nur, lehnt nicht ab
+API_VERSION = 68          # duck-ipc-proto, Stand 23.11.2026 (daemon 0.23.1) – robotd meldet die Version nur, lehnt nicht ab
+
+# Was Knowlin ab welcher Protokollversion der Ente nutzt (Abgleich mit Pollens duck-ipc-proto, 23.11.2026). Eine ältere
+# Ente antwortet auf die neuen Aufrufe „METHOD_NOT_FOUND“ – Knowlin sagt dann, welches Update fehlt, statt zu raten.
+FUNKTIONEN_AB: tuple[tuple[int, str, str], ...] = (
+    (64, "fotos", "Fotos der Ente ansehen und löschen"),
+    (66, "lautstaerke", "Lautstärke einstellen"),
+    (67, "schalter", "sehen, welches Spiel der Ente gerade läuft"),
+    (68, "foto_machen", "ein Foto machen lassen"),
+)
+# Pollens Schalter im robot.state (v52 Laser, v58 Fußball, v60 „die Ente allein“ = autod): solange einer an ist,
+# bewegt Pollens eigene Software die Ente – Knowlin fängt dann nichts Eigenes an (`pollen_steuert`).
+POLLEN_SCHALTER: tuple[tuple[str, str], ...] = (("autonomous", "Ente allein"), ("soccer", "Fußball"),
+                                                ("laser", "Laser verfolgen"))
+
+
+def fehlende_funktionen(api_version: Any) -> list[str]:
+    """Was diese Ente (Protokoll `api_version`) von Knowlins Funktionen noch nicht kann."""
+    if not isinstance(api_version, int):
+        return []
+    return [text for ab, _key, text in FUNKTIONEN_AB if api_version < ab]
+
+
+def kann(api_version: Any, funktion: str) -> bool:
+    """Kann eine Ente mit dieser Protokollversion die Funktion? Unbekannte Version: ausprobieren lassen."""
+    if not isinstance(api_version, int):
+        return True
+    return all(api_version >= ab for ab, key, _ in FUNKTIONEN_AB if key == funktion)
+
+
+def pollen_schalter(params: Any) -> list[str]:
+    """Welche von Pollens Spielen laut robot.state (oder robot.mode) gerade an sind – Namen auf Deutsch."""
+    if not isinstance(params, dict):
+        return []
+    return [name for key, name in POLLEN_SCHALTER if params.get(key)]
 MOVING_POLICIES = {"walk", "stand", "held", "roller", ""}
 SEATED_POLICIES = {"seated"}
 CAM_HEIGHT = 0.21         # m, ToF über dem Boden im Stand (Schätzung)
@@ -208,6 +242,7 @@ class RobotdBackend(DuckBackend):
         self._last_skill: str | None = None
         self._closing = False
         self.info: dict[str, Any] = {}
+        self.pollen_an: list[str] = []          # Pollens Spiele, die gerade laufen (aus robot.state)
         self._phase = 0.0
         self._phase_at = time.monotonic()
 
@@ -285,6 +320,15 @@ class RobotdBackend(DuckBackend):
         if fallen and not self._was_fallen:
             self.emit("fall", message="Umgefallen (robotd meldet fallen)")
         self._was_fallen = fallen
+        schalter = pollen_schalter(params)
+        if schalter != self.pollen_an:
+            if schalter:
+                self.emit("pollen_modus", an=schalter,
+                          message=f"Pollens {' und '.join(schalter)} ist an (NFC-Tag, Gamepad oder Pollens App) – "
+                                  "die Ente bewegt sich selbst; Knowlin fängt nichts Eigenes an")
+            else:
+                self.emit("pollen_modus", an=[], message="Pollens Spiele sind wieder aus")
+            self.pollen_an = schalter
         skill = self._skill_from(params.get("policy", ""))
         if skill != self._last_skill:
             if skill:
@@ -329,6 +373,38 @@ class RobotdBackend(DuckBackend):
         if method == "tof.frame" and isinstance(params, dict):
             self._tof = list(params.get("distance_mm") or [])
             self._tof_status = list(params.get("status") or [])
+
+    def pollen_steuert(self) -> str | None:
+        """Warum gerade Pollens eigene Software die Ente bewegt – oder None (für die Sperre der eigenen Beschäftigung)."""
+        if self.pollen_an:
+            return f"Pollens {' und '.join(self.pollen_an)} läuft"
+        return None
+
+    # ── Was robotd seit Protokoll 64–68 dazu kann ─────────────────────────
+    def _kann(self, funktion: str) -> IntentResult | None:
+        """None, wenn die Ente es kann; sonst die Antwort mit dem Hinweis aufs Update."""
+        if kann(self.info.get("api_version"), funktion):
+            return None
+        text = next(t for _ab, k, t in FUNKTIONEN_AB if k == funktion)
+        return IntentResult(False, f"Diese Ente kann „{text}“ noch nicht (Protokoll {self.info.get('api_version')}) – "
+                                   "Update unter Roboter-Pflege")
+
+    async def lautstaerke(self) -> dict[str, Any]:
+        """robot.volume (v66): Lautsprecher in Prozent, und ob die Platine einen Regler hat."""
+        if (nein := self._kann("lautstaerke")) is not None:
+            raise RpcError(nein.reason)
+        return await self._call("robot.volume", {}, timeout=3.0) or {}
+
+    async def lautstaerke_setzen(self, prozent: Any) -> dict[str, Any]:
+        """robot.setVolume (v66): 0–100, über 100 lehnt robotd ab – hier schon begrenzt."""
+        if (nein := self._kann("lautstaerke")) is not None:
+            raise RpcError(nein.reason)
+        wert = max(0, min(100, int(round(float(prozent)))))
+        return await self._call("robot.setVolume", {"volume": wert}, timeout=3.0) or {}
+
+    async def modus(self) -> dict[str, Any]:
+        """robot.mode: Gangart (walk/roller) und – seit v58/v60/v67 – welche Spiele an sind."""
+        return await self._call("robot.mode", {}, timeout=3.0) or {}
 
     @staticmethod
     def _skill_from(policy: str) -> str | None:

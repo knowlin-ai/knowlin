@@ -25,6 +25,7 @@ class Config:
     updater: str | None = None                 # updaterd-Socket für Tricks vom Hub (optional)
     media: str | None = None                   # mediad-Socket für die Kamera (optional, sonst robotd-Port + 3)
     configd: str | None = None                 # configd-Socket für WLAN, System, Protokolle (sonst robotd-Port + 4)
+    nfcd: str | None = None                    # nfcd-Socket für die Fotos der Ente (sonst robotd-Port + 5, seit 0.52)
     tricks: list[str] = field(default_factory=list)   # vorgemerkte Hub-Repos (org/name)
     # aktive Skill-Pakete (duckpilot/skills). Seit 0.38.34 auch Pollens App-Bewegungen und Community-Tricks mit
     # Vorschauvideos – auf einem neuen PC war die Tricks-Seite sonst leer („fehlt hier nicht noch was?“)

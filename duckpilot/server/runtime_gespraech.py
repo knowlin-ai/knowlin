@@ -23,9 +23,10 @@ class GespraechTeil:
     """Mischklasse für `Runtime` – nicht allein benutzbar."""
 
     # ── NFC-Tags ─────────────────────────────────────────────────────────
-    async def nfc_touched(self, uid: Any, remote: bool = False) -> dict[str, Any]:
-        """Ein Tag wurde berührt (Handy, Probe-Knopf, später der Roboter): seinen Satz wie einen Befehl ausführen."""
-        res = self.nfc.touched(uid)
+    async def nfc_touched(self, uid: Any, remote: bool = False, text: Any = None) -> dict[str, Any]:
+        """Ein Tag wurde berührt (Handy, Probe-Knopf): seinen Satz wie einen Befehl ausführen. `text` ist der Text auf
+        dem Tag – erkennt Knowlin darin eine von Pollens Karten, schlägt es den passenden Satz vor (seit 0.52)."""
+        res = self.nfc.touched(uid, text if isinstance(text, str) else None)
         if not res.get("ok"):
             return res
         tag = res["tag"]

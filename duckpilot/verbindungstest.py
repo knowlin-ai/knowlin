@@ -16,7 +16,7 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-from .backends.robotd import API_VERSION, RpcConnection, _find_fraction, parse_address
+from .backends.robotd import API_VERSION, RpcConnection, _find_fraction, fehlende_funktionen, parse_address
 
 KOERPER = ("microduck", "reachy_mini", "open_duck_mini")
 WARTEN_S = 3.0
@@ -66,10 +66,17 @@ async def pruefe_microduck(adresse: str, warten: float = WARTEN_S) -> dict[str, 
             return _ergebnis(schritte)
         theirs = info.get("api_version") if isinstance(info, dict) else None
         dienst = info.get("daemon_version") if isinstance(info, dict) else None
-        if isinstance(theirs, int) and theirs != API_VERSION:
+        fehlt = fehlende_funktionen(theirs)
+        if fehlt:
+            schritte.append(_schritt("Version", "hinweis",
+                                     f"robotd spricht Protokoll {theirs}, Knowlin {API_VERSION}. Steuern geht, es fehlt noch: "
+                                     f"{', '.join(fehlt)}. Update unter Roboter-Pflege – ist das Betriebssystem der Ente "
+                                     "zu alt (ONNX Runtime unter 1.23), lehnt sie das Update selbst ab und nennt das "
+                                     "OS-Update, das zuerst dran ist."))
+        elif isinstance(theirs, int) and theirs != API_VERSION:
             schritte.append(_schritt("Version", "hinweis",
                                      f"robotd spricht Protokoll {theirs}, Knowlin {API_VERSION}. Meist geht es trotzdem – "
-                                     "bei Fehlern die Software der Ente aktualisieren."))
+                                     "bei Fehlern Knowlin aktualisieren."))
         else:
             schritte.append(_schritt("Version", "ok", f"Protokoll {theirs or API_VERSION}" + (f", robotd {dienst}" if dienst else "")))
         try:

@@ -923,8 +923,15 @@ getippter Befehl, mit allen Sicherheitsregeln; kurze Befehle laufen ohne Claude.
   Handy-Fernbedienung über Tailscale. Auf „Tags lesen“ tippen, Tag an die Rückseite halten. Ein unbekannter Tag
   wird gemerkt und fragt nach Name und Satz. Beschreiben muss man ihn nicht – erkannt wird er an seiner Seriennummer.
 - **Ohne Lesegerät:** „Tag zum Ausprobieren anlegen“ und „Auslösen“ – zum Testen im Simulator.
-- **Am Roboter:** Pollens `nfcd` liest Tags bisher nur zum Koppeln eines Gamepads und meldet sie nicht weiter.
-  Sobald robotd Tag-Ereignisse anbietet, hängt duckpilot sie hier an.
+- **Pollens Karten** (seit 0.52): Trägt ein Tag einen von Pollens Texten, legt Knowlin ihn beim ersten Lesen am Handy
+  gleich mit Namen und passendem Satz an – `walk_mode` → „Rollen ab“, `roller_skating_mode` → „Rollen an“,
+  `laser_mode` → „folge dem Laser“, `soccer_mode` → „spiel Ball mit mir“, `autonomous_mode` → „streif ein bisschen
+  herum“. `take_photo` und die Gamepad-Karte erklärt Knowlin nur (das kann nur der echte Roboter). Den Satz kann man
+  danach ändern.
+- **Am Roboter:** Pollens `nfcd` handelt bei seinen eigenen Karten selbst (Gamepad koppeln, Gehen, Rollen, Laser,
+  Fußball, „die Ente allein“, Foto) und meldet Berührungen nicht weiter. Knowlin sieht aber, was danach läuft: Ist eines
+  von Pollens Spielen an, zeigt Knowlin das und **fängt nichts Eigenes an** (keine eigene Beschäftigung, kein „Aufmerksamkeit
+  suchen“), damit die beiden sich nicht um die Beine streiten. Ein `walk_mode`-Tag schaltet Pollens Spiele wieder aus.
 - Die Zuordnungen liegen in `nfc_tags.json` im lokalen Datenordner.
 
 ## Folg mir
@@ -987,11 +994,19 @@ Unter System → Zustand, sobald der echte Roboter verbunden ist – über Polle
 SSH-Konsole:
 
 - **Zustand:** Name, Seriennummer, Laufzeit, WLAN (configd), Gesundheit, Akku, CPU- und
-  Motortemperatur (robotd).
+  Motortemperatur (robotd). Seit 0.52 auch die **Motorleistung nach Akku** (Goal PWM: robotd senkt sie bei vollem Akku,
+  damit die Motoren etwa 6 V sehen) und **was gerade läuft** – Gehen oder Rollen und Pollens Spiele (Fußball, Laser
+  verfolgen, „die Ente allein“).
+- **Lautstärke** (seit 0.52, robotd ab Protokoll 66): ein Regler von 0 bis 100 %; die Ente merkt sich den Wert über
+  einen Neustart. Hat die Platine keinen Regler, sagt Knowlin das.
+- **Fotos der Ente** (seit 0.52, Pollens `nfcd` ab Protokoll 64): die Bilder, die sie mit der Polaroid-Karte oder auf
+  Zuruf macht – als Vorschau, zum Öffnen und zum Löschen (zwei Klicks). **Foto machen** (ab Protokoll 68) lässt sie
+  posieren, mit dem Licht herunterzählen und knipsen; das Bild erscheint nach etwa sieben Sekunden. Die Fotos zeigen
+  die Wohnung: Sie bleiben auf der Ente, Knowlin holt sie nur zum Anzeigen und **nur am PC**, nie aufs Handy.
 - **Updates:** nach einem neuen Stand suchen, **Probelauf** (lädt und prüft alles, tauscht nichts)
   und **einspielen** (zwei Klicks). Verlangt der Roboter dafür Root-Rechte, nennt duckpilot den
   Befehl für die Konsole.
-- **Protokolle** von robotd, mediad, updaterd, configd, tofd, padd und btd.
+- **Protokolle** von robotd, mediad, updaterd, configd, tofd, padd, btd, nfcd und autod.
 - **Pflegeheft der Motoren** (`robot.vetbook`): je Gelenk Stunden unter Strom, Weg in Umdrehungen,
   heißeste Temperatur und ausgelöste Schutzschaltungen (Hitze, Geber, Stoß, Überlast), dazu die
   letzten Einträge. Motoren mit den meisten Auslösern stehen unter „Zuerst ansehen“.
@@ -1002,7 +1017,12 @@ prüfen (Nachlauf ab 6° bzw. 14°, Last ab 70 % bzw. 90 %). Stromlos oder gest�
 Die einfache Simulation hat keine Motoren und zeigt nur Winkel.
 
 Tunnel für alles (leere Adressfelder folgen dieser Reihenfolge):
-`ssh -N -L 7900:/run/robotd.sock -L 7901:/run/tofd/tof.sock -L 7902:/run/updaterd.sock -L 7903:/run/mediad/media.sock -L 7904:/run/configd.sock microduck@<IP>`
+`ssh -N -L 7900:/run/robotd.sock -L 7901:/run/tofd/tof.sock -L 7902:/run/updaterd.sock -L 7903:/run/mediad/media.sock -L 7904:/run/configd.sock -L 7905:/run/nfcd/nfc.sock microduck@<IP>`
+
+**Getriebe prüfen:** Pollens `workout_test` (seit daemon 0.23) sucht beschädigte Zahnräder. Die Ente liegt dabei auf dem
+Rücken und bewegt jedes Gelenk langsam durch; robotd hält dafür an. Das läuft nur auf dem Roboter selbst:
+`ssh microduck@<IP> sudo python3 workout_test.py` (etwa 3,5 Minuten, „PASS“ oder „FAIL“ je Gelenk). Knowlin startet
+es bewusst nicht von außen – das Pflegeheft zeigt, welche Motoren man zuerst prüfen sollte.
 
 WLAN einrichten und den Roboter koppeln bleibt bei Pollens App (Bluetooth).
 
@@ -1416,6 +1436,8 @@ Pollen plant die ersten Auslieferungen vor Weihnachten 2026. Dann:
    ```
    ssh -N -L 7900:/run/robotd.sock -L 7901:/run/tofd/tof.sock -L 7902:/run/updaterd.sock microduck@<IP-der-Ente>
    ```
+   Für Roboter-Pflege und Fotos zusätzlich `-L 7904:/run/configd.sock -L 7905:/run/nfcd/nfc.sock` (siehe
+   Roboter-Pflege).
    Das leitet drei lokale Ports auf die Unix-Sockets des Roboters um – derselbe Weg, den Pollen für
    den Gamepad-Daemon vom Laptop aus beschreibt. 7902 (`updaterd`) braucht es nur für Tricks vom Hub.
 3. **Umschalten:** System → Einstellungen → Körper → „Echter Roboter“. Die Adressen sind schon passend
@@ -1426,6 +1448,10 @@ Pollen plant die ersten Auslieferungen vor Weihnachten 2026. Dann:
    „schau nach links“ sagen. Dreht der Kopf falsch herum, unter System → Einstellungen → Körper →
    Kopf-Kalibrierung „Drehen umkehren“ anhaken. Ebenso für Nicken.
 5. **Gamepad nicht gleichzeitig benutzen** – Pad und duckpilot senden beide Fahrbefehle.
+   **Software der Ente aktuell halten:** Der Verbindungstest sagt, welche Knowlin-Funktionen einer älteren Ente noch
+   fehlen (Fotos ab Protokoll 64, Lautstärke ab 66, laufende Spiele ab 67, „Foto machen“ ab 68). Ist ihr Betriebssystem
+   zu alt (ONNX Runtime unter 1.23), lehnt die Ente ein neues Daemon-Update selbst ab und nennt das OS-Update, das
+   zuerst dran ist – dann zuerst das OS über Pollens Weg aktualisieren.
 6. **Laute** kommen dann aus der Ente selbst (ihre eigene Stimmbank), nicht mehr aus dem PC.
 
 Was sich gegenüber dem Simulator ändert: Objekte („Ball“, „Socke“) kennt duckpilot auf dem echten

@@ -23,7 +23,10 @@ export function initPflege({ $, api, el, getConfig }) {
       const h = r.gesundheit.daten || {};
       const parts = [h.healthy === false ? (h.degraded ? 'eingeschränkt' : 'nicht gesund') : 'gesund'];
       if (h.reason) parts.push(h.reason);
-      if (h.battery && h.battery.fraction != null) parts.push(`Akku ${Math.round(h.battery.fraction * 100)} %`);
+      // robotd meldet battery.percent (0–100); fraction nur bei älteren Test-Gegenstellen (Fund 23.11.: nie ein Akku sichtbar)
+      const akku = h.battery ? (h.battery.percent != null ? h.battery.percent : h.battery.fraction != null ? h.battery.fraction * 100 : null) : null;
+      if (akku != null) parts.push(`Akku ${Math.round(akku)} %`);
+      if (h.goal_pwm != null) parts.push(`Motorleistung nach Akku (Goal PWM ${h.goal_pwm})`);
       if (h.cpu_temp_c != null) parts.push(`CPU ${Math.round(h.cpu_temp_c)} °C`);
       if (h.motors && h.motors.max_temp_c != null) parts.push(`Motoren bis ${Math.round(h.motors.max_temp_c)} °C`);
       add('Zustand', parts.join(' · '));
@@ -33,8 +36,81 @@ export function initPflege({ $, api, el, getConfig }) {
       const d = Array.isArray(comps) ? comps.find((c) => c.component === 'daemon') || comps[0] : null;
       add('Software', d ? `${d.installed || '?'}${d.phase && d.phase !== 'idle' ? ` · ${d.phase}` : ''}` : '?');
     } else add('Software (updaterd)', bad(r.updates));
+    if (r.modus && r.modus.ok) {
+      const m = r.modus.daten || {};
+      const spiele = m.spiele || [];
+      add('Läuft gerade', `${m.mode === 'roller' ? 'Rollen' : 'Gehen'}${spiele.length ? ` · Pollens ${spiele.join(', ')} – Knowlin fängt nichts Eigenes an` : ''}`);
+    }
+    renderVolume(r.lautstaerke);
     renderVetbook(r.pflegeheft);
+    loadPhotos();
   }
+
+  // Lautstärke (robotd ab Protokoll 66)
+  function renderVolume(v) {
+    const box = $('care-volume');
+    if (!box) return;
+    box.hidden = !(v && v.ok);
+    if (!v || !v.ok) return;
+    const d = v.daten || {};
+    $('care-volume-range').value = d.volume != null ? d.volume : 70;
+    $('care-volume-val').textContent = `${$('care-volume-range').value} %`;
+    $('care-volume-note').textContent = d.mixer === false ? 'Diese Platine hat keinen Regler – der Wert wird nur gemerkt.' : '';
+  }
+  let volTimer = null;
+  $('care-volume-range')?.addEventListener('input', (e) => {
+    $('care-volume-val').textContent = `${e.target.value} %`;
+    clearTimeout(volTimer);
+    volTimer = setTimeout(async () => {
+      const r = await api('/api/pflege/lautstaerke', 'POST', { prozent: Number(e.target.value) }).catch(() => ({ ok: false, fehler: 'keine Antwort' }));
+      if (!r.ok) $('care-volume-note').textContent = r.fehler || 'nicht gesetzt';
+    }, 250);
+  });
+
+  // Fotos der Ente (nfcd ab Protokoll 64, „Foto machen“ ab 68) – nur am PC, die Bilder zeigen die Wohnung
+  async function loadPhotos() {
+    const box = $('care-photos');
+    if (!box) return;
+    const r = await api('/api/pflege/fotos').catch(() => null);
+    const list = $('care-photo-list');
+    list.replaceChildren();
+    box.hidden = !r;
+    if (!r) return;
+    if (!r.ok) { $('care-photo-note').textContent = r.fehler || 'Fotos nicht erreichbar'; return; }
+    $('care-photo-note').textContent = r.fotos.length ? `${r.fotos.length} Foto${r.fotos.length === 1 ? '' : 's'} auf der Ente` : 'Noch keine Fotos auf der Ente.';
+    for (const f of r.fotos) {
+      const li = el('li', 'care-photo');
+      const img = el('img');
+      img.alt = `Foto vom ${f.name.replace('_', ' um ').replace(/-(\d\d)-(\d\d)(-\d+)?$/, ':$1:$2')}`;
+      img.loading = 'lazy';
+      img.src = `/api/pflege/foto/${encodeURIComponent(f.name)}?vorschau=1`;
+      const open = el('a', 'btn btn--ghost btn--sm', 'Öffnen');
+      open.href = `/api/pflege/foto/${encodeURIComponent(f.name)}`;
+      open.target = '_blank';
+      open.rel = 'noopener';
+      const del = el('button', 'btn btn--ghost btn--sm', 'Löschen');
+      del.type = 'button';
+      let armed = null;
+      del.addEventListener('click', async () => {
+        if (!armed) { del.textContent = 'Wirklich löschen?'; armed = setTimeout(() => { armed = null; del.textContent = 'Löschen'; }, 4000); return; }
+        clearTimeout(armed); armed = null;
+        await api(`/api/pflege/foto/${encodeURIComponent(f.name)}`, 'DELETE').catch(() => null);
+        loadPhotos();
+      });
+      const actions = el('div', 'care-actions');
+      actions.append(open, del);
+      li.append(img, actions);
+      list.append(li);
+    }
+  }
+  $('care-photo-take')?.addEventListener('click', async (e) => {
+    const b = e.target;
+    b.disabled = true;
+    $('care-photo-note').textContent = 'Sie posiert, zählt mit dem Licht herunter und knipst …';
+    const r = await api('/api/pflege/fotos', 'POST').catch(() => ({ ok: false, fehler: 'keine Antwort' }));
+    if (!r.ok) { $('care-photo-note').textContent = r.fehler || 'kein Foto'; b.disabled = false; return; }
+    setTimeout(() => { b.disabled = false; loadPhotos(); }, 8000);     // Pollen: etwa sieben Sekunden bis zum Bild
+  });
 
   const TRIP_WORDS = { overheat: 'Hitze', encoder: 'Geber', shock: 'Stoß', overload: 'Überlast' };
   function renderVetbook(v) {

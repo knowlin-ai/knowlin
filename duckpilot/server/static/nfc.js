@@ -59,10 +59,23 @@ export function initNfc(h) {
     $('nfc-add').hidden = false;
   }
 
-  async function touch(uid) {
-    const r = await api('/api/nfc/beruehrt', 'POST', { uid }).catch(() => null);
+  async function touch(uid, text) {
+    const r = await api('/api/nfc/beruehrt', 'POST', { uid, ...(text ? { text } : {}) }).catch(() => null);
     if (!r || !r.ok) { toast(r ? r.fehler : 'Keine Antwort', true); return; }
+    if (r.hinweis) { toast(r.hinweis); return; }
+    if (r.pollen && r.neu && r.satz) { toast(`Pollens Karte „${r.tag.name}“ – Knowlin macht daraus: ${r.satz}`); return; }
     if (r.neu || !r.satz) { toast(`Neuer Tag erkannt – was soll „${r.tag.name}“ auslösen?`); openForm(r.tag); }
+  }
+
+  // Pollens Karten tragen einen Text (NDEF text oder text/plain): den ersten lesen, sonst nichts
+  function tagText(message) {
+    for (const rec of (message && message.records) || []) {
+      const mime = rec.recordType === 'mime' && /^text\/plain/i.test(rec.mediaType || '');
+      if ((rec.recordType === 'text' || mime) && rec.data) {
+        try { return new TextDecoder(rec.encoding || 'utf-8').decode(rec.data).slice(0, 80); } catch { return ''; }
+      }
+    }
+    return '';
   }
 
   // Ein berührter Tag (auch von einem anderen Gerät): kurz zeigen, neue gleich zum Zuordnen öffnen
@@ -93,7 +106,7 @@ export function initNfc(h) {
         await reader.scan();
         b.textContent = 'Liest Tags …';
         b.disabled = true;
-        reader.onreading = (ev) => { if (ev.serialNumber) touch(ev.serialNumber); };
+        reader.onreading = (ev) => { if (ev.serialNumber) touch(ev.serialNumber, tagText(ev.message)); };
         reader.onreadingerror = () => toast('Tag nicht lesbar – noch einmal halten', true);
       } catch (err) {
         reader = null;

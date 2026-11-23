@@ -32,5 +32,5 @@ def register(app: FastAPI, runtime: Runtime) -> None:
     @app.post("/api/nfc/beruehrt")
     async def nfc_touch(request: Request) -> JSONResponse:
         body = await _json_body(request)
-        res = await runtime.nfc_touched(body.get("uid"), remote=_is_remote(request))
+        res = await runtime.nfc_touched(body.get("uid"), remote=_is_remote(request), text=body.get("text"))
         return JSONResponse(res, status_code=200 if res.get("ok") else 400)

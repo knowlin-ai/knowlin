@@ -12,6 +12,7 @@ Gesprochen wird dasselbe Zeilen-JSON-RPC wie von robotd (und tofd für
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 import logging
 import math
@@ -26,9 +27,18 @@ log = logging.getLogger(__name__)
 NOTIFY_METHODS = {"robot.move", "robot.head", "robot.mouth", "robot.pose"}
 
 
+# Ein winziges, gültiges JPEG (1 × 1, grau) als Foto der Kopfkamera – wie Pollens nfcd es in /var/lib/robot/photos hält
+TESTFOTO = base64.b64decode(
+    "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgy"
+    "PC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q==")
+
+
 class FakeRobotd:
     def __init__(self, sim: SimBackend | None = None) -> None:
         self.sim = sim or SimBackend()
+        self.volume = 70
+        self.schalter: dict[str, Any] = {}       # Pollens Spiele: autonomous, soccer, laser (zum Testen setzbar)
+        self.fotos: dict[str, bytes] = {"2026-11-20_18-04-11": TESTFOTO}
 
     def policy_name(self) -> str:
         s = self.sim
@@ -61,6 +71,7 @@ class FakeRobotd:
             "currents_ma": [],
             "odom": {"position": [st.x, st.y, 0.12], "yaw": st.yaw},
             "t_ns": int(st.t * 1e9),
+            **{k: v for k, v in self.schalter.items() if v},
         }
 
     async def dispatch(self, method: str, p: dict[str, Any]) -> Any:
@@ -135,7 +146,32 @@ class FakeRobotd:
         if method == "robot.health":
             return {"healthy": True, "battery": {"percent": round(100 * s.battery, 1), "volts": 6.4 + 2 * s.battery},
                     "cpu_temp_c": 52.0, "control_loop": {"target_hz": 50.0, "achieved_hz": 49.8},
-                    "motors": {"max_temp_c": 41.0}}
+                    "motors": {"max_temp_c": 41.0}, "goal_pwm": 760}
+        if method == "robot.volume":
+            return {"volume": self.volume, "mixer": True}
+        if method == "robot.setVolume":
+            v = p.get("volume")
+            if not isinstance(v, int) or not 0 <= v <= 100 or set(p) != {"volume"}:
+                raise ValueError("volume: 0–100")
+            self.volume = v
+            return {"volume": v, "mixer": True}
+        if method == "robot.mode":
+            return {"mode": "walk", **{k: (v if k == "soccer" else True) for k, v in self.schalter.items() if v}}
+        # nfcd – der Test-Roboter beantwortet es auf demselben Anschluss
+        if method == "photo.list":
+            return {"photos": [{"name": n, "bytes": len(b), "taken_s": 1795000000} for n, b in sorted(self.fotos.items(), reverse=True)]}
+        if method == "photo.get":
+            name = str(p.get("name", ""))
+            if name not in self.fotos:
+                raise ValueError(f"no photo {name}")
+            data = self.fotos[name]
+            off, n = int(p.get("offset") or 0), min(int(p.get("len") or 16384), 16384)
+            return {"name": name, "total": len(data), "offset": off, "data": base64.b64encode(data[off:off + n]).decode()}
+        if method == "photo.delete":
+            return {"deleted": self.fotos.pop(str(p.get("name", "")), None) is not None}
+        if method == "photo.take":
+            self.fotos[f"2026-11-23_12-00-{len(self.fotos):02d}"] = TESTFOTO
+            return {"accepted": True}
         if method == "robot.vetbook":
             from ..api import JOINT_NAMES
 
@@ -237,6 +273,9 @@ class FakeRobotd:
                 except PermissionError as exc:
                     if msg_id is not None:
                         await send({"jsonrpc": "2.0", "id": msg_id, "error": {"code": -32000, "message": str(exc)}})
+                except ValueError as exc:
+                    if msg_id is not None:
+                        await send({"jsonrpc": "2.0", "id": msg_id, "error": {"code": -32602, "message": str(exc)}})
                 except KeyError:
                     if msg_id is not None:
                         await send({"jsonrpc": "2.0", "id": msg_id,
