@@ -104,6 +104,9 @@ def test_englische_seite_mit_eigener_adresse_und_hreflang(tmp_path):
     assert daten["downloadUrl"].endswith(".exe") and len(daten["screenshot"]) >= 3 and daten["featureList"]
     # alle Dateien eine Ebene höher – keine relativen Pfade, die unter /en/ ins Leere zeigen
     lose = re.findall(r'(?:src|href|srcset)="(?!\.\./|https?:|#|mailto|data:|/)[^"]+"', en)
+    from website_koerper import KOERPER  # seit 0.52.1: Körper-Seiten liegen unter /en/<slug>/
+
+    lose = [x for x in lose if x not in {f'href="{k["slug"]}/"' for k in KOERPER}]
     assert not lose, lose[:5]
     assert not re.findall(r'url\("(?!\.\./)', en)
     karte = (ziel / "sitemap.xml").read_text(encoding="utf-8")
@@ -113,3 +116,43 @@ def test_englische_seite_mit_eigener_adresse_und_hreflang(tmp_path):
 def test_sprache_folgt_der_adresse_nicht_dem_browser():
     quelle = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
     assert "navigator.language" not in quelle and "location.href = SEITE[l]" in quelle
+
+
+def test_eine_seite_je_koerper_mit_hreflang_sitemap_und_links(tmp_path):
+    """Seit 0.52.1: /microduck/, /en/microduck/ … – eigene Titel und Beschreibungen, gegenseitig per hreflang verbunden."""
+    from website_koerper import KOERPER, adresse, pfade
+
+    ziel = bauen(tmp_path / "seite")
+    karte = (ziel / "sitemap.xml").read_text(encoding="utf-8")
+    titel = set()
+    for pfad in pfade():
+        s = (ziel / pfad).read_text(encoding="utf-8")
+        sprache = "en" if pfad.startswith("en/") else "de"
+        slug = pfad.removeprefix("en/").split("/")[0]
+        assert f'<html lang="{sprache}">' in s and s.count("<h1") == 1 and s.count("<title>") == 1
+        t = re.search(r"<title>([^<]+)</title>", s).group(1)
+        b = re.search(r'<meta name="description" content="([^"]+)"', s).group(1)
+        assert t.endswith("– Knowlin") and len(t) <= 60 and 70 <= len(b) <= 160, (pfad, len(t), len(b))
+        titel.add(t)
+        assert f'<link rel="canonical" href="{adresse(slug, sprache)}">' in s
+        for l in ("de", "en"):
+            assert f'hreflang="{l}" href="{adresse(slug, l)}"' in s
+        daten = json.loads(re.search(r'<script type="application/ld\+json">(.+?)</script>', s).group(1))
+        assert {g["@type"] for g in daten["@graph"]} == {"WebPage", "BreadcrumbList"}
+        assert f"<loc>{adresse(slug, sprache)}</loc>" in karte
+        assert 'src="/bilder/' in s and ".dpm" not in s          # Bilder ja, Pollens Modelldateien nie
+    assert len(titel) == len(pfade()) == 2 * len(KOERPER)    # jeder Titel nur einmal
+    for start in ("index.html", "en/index.html"):
+        s = (ziel / start).read_text(encoding="utf-8")
+        for k in KOERPER:
+            assert f'<a href="{k["slug"]}/">' in s
+
+
+def test_koerperseiten_mit_pollens_bild_nennen_die_lizenz(tmp_path):
+    from website_koerper import KOERPER
+
+    ziel = bauen(tmp_path / "seite")
+    for k in KOERPER:
+        s = (ziel / k["slug"] / "index.html").read_text(encoding="utf-8")
+        haupt = s.split("<main")[1].split("</main>")[0]
+        assert ("CC BY-NC-SA 4.0" in haupt) == k["pollen"], k["slug"]

@@ -127,6 +127,36 @@ def main() -> int:
         fremd = sorted({u for u in obs["anfragen"] if not u.startswith(url) and not u.startswith(("data:", "blob:"))})
         b.pruefe("Keine Anfragen an fremde Server", not fremd, ", ".join(fremd[:3]))
 
+        # 1b · seit 0.52.1: eine Seite je Körper (de/en) – axe hell und dunkel, kein Überlauf am Handy, Dateien da,
+        #      Sprachlinks auf die passende andere Seite, Startseite verlinkt jede
+        from website_koerper import KOERPER, pfade
+
+        obs_k = {"fehler": [], "anfragen": [], "fehlend": []}
+        probleme, ueber, falsch = [], [], []
+        for pfad in pfade():
+            adresse_k = url + pfad.removesuffix("index.html")
+            for thema, breite in (("light", 1280), ("dark", 360)):
+                ctx, p = seite(br, adresse_k, breite=breite, thema=thema, beobachten=obs_k)
+                probleme += [f"{pfad} {thema}: {v}" for v in axe(p, axe_js)]
+                if ueberlauf(p) > 0:
+                    ueber.append(f"{pfad} {breite}px")
+                if thema == "light":
+                    andere = p.eval_on_selector(".koerper-sprache a:not([aria-current])", "a => a.getAttribute('href')")
+                    soll = ("/" + pfad.removeprefix("en/")) if pfad.startswith("en/") else "/en/" + pfad
+                    if andere != soll.removesuffix("index.html"):
+                        falsch.append(f"{pfad} → {andere}")
+                ctx.close()
+        ctx, p = seite(br, url)
+        verlinkt = p.eval_on_selector_all(".koerper-links a", "as => as.map(a => a.getAttribute('href'))")
+        ctx.close()
+        b.pruefe(f"Körper-Seiten: {len(pfade())} Seiten ohne Befund in axe (hell, dunkel)", not probleme, "; ".join(probleme[:3]))
+        b.pruefe("Körper-Seiten: kein Überlauf, keine fehlenden Dateien, keine fremden Anfragen",
+                 not ueber and not obs_k["fehlend"] and not obs_k["fehler"]
+                 and not [u for u in obs_k["anfragen"] if not u.startswith(url) and not u.startswith("data:")],
+                 "; ".join(ueber[:2] + obs_k["fehlend"][:2] + obs_k["fehler"][:2]))
+        b.pruefe("Körper-Seiten: Sprachumschalter zeigt auf dieselbe Seite in der anderen Sprache", not falsch, "; ".join(falsch[:3]))
+        b.pruefe("Startseite verlinkt jede Körper-Seite", verlinkt == [f"{k['slug']}/" for k in KOERPER], str(verlinkt))
+
         # 2 · Barrierefreiheit (axe) und Bilder je Sprache, Thema, Breite
         for sprache in ("de", "en"):
             for thema in ("light", "dark"):

@@ -9,6 +9,24 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.52.1 – 2026-11-24 – Schneller Start, eine Website-Seite je Körper
+
+### Behoben
+- **Langsamer Start unter Windows:** Knowlin wartete beim Start auf das Claude-Paket (`import anthropic`) – auf dem
+  Laptop des Maintainers 40 bis 140 s, weil der Virenschutz jede der vielen Dateien prüft (Startbeobachter, 21.–23.11.).
+  Das Paket lädt jetzt im Hintergrund (`brain/claude_zugang.py`); erst eine Frage an Claude wartet darauf, wenn es
+  noch nicht da ist. Regressionstest `tests/test_claude_zugang.py`.
+
+### Neu
+- **knowlin.de: eine Seite je Körper**, deutsch und englisch (`/microduck/`, `/en/microduck/`, `/reachy-mini/`,
+  `/open-duck-mini/`, `/so-101/`, `/stack-chan/`, `/bittle-x/`) – eigener Titel, Beschreibung, hreflang,
+  Brotkrumen-Daten, in der Sitemap und von der Startseite verlinkt (`tools/website_koerper.py`). Die Website-Prüfung
+  nimmt alle zwölf Seiten mit (axe hell/dunkel, Handy-Breite, Sprachumschalter).
+
+### Nicht geprüft
+- Ob der Start bei dir jetzt schneller ist: bitte nach dem Update einmal neu starten; `duckpilot.log` zeigt
+  „Start nach … s: bereit“ und, falls es noch hängt, wo.
+
 ## 0.52.0 – 2026-11-23 – Pollens Protokoll 68: Fotos, Lautstärke, Pollens Spiele und NFC-Karten
 
 ### Neu

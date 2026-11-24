@@ -91,13 +91,16 @@ ROBOTS = "User-agent: *\nAllow: /\nSitemap: {adresse}sitemap.xml\n"
 
 
 def sitemap() -> str:
+    from website_koerper import sitemap_eintraege
+
     tag = time.strftime("%Y-%m-%d")
     paar = (f'<xhtml:link rel="alternate" hreflang="de" href="{ADRESSE}"/>'
             f'<xhtml:link rel="alternate" hreflang="en" href="{ADRESSE_EN}"/>')
     return ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
             'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
             f"  <url><loc>{ADRESSE}</loc><lastmod>{tag}</lastmod>{paar}</url>\n"
-            f"  <url><loc>{ADRESSE_EN}</loc><lastmod>{tag}</lastmod>{paar}</url>\n</urlset>\n")
+            f"  <url><loc>{ADRESSE_EN}</loc><lastmod>{tag}</lastmod>{paar}</url>\n"
+            + sitemap_eintraege(tag) + "</urlset>\n")
 
 
 def englisch(seite: str) -> str:
@@ -261,7 +264,10 @@ def bauen(ziel: Path) -> Path:
     muster = ("_*", "*.md") if MIT_AUSPROBIEREN else ("_*", "*.md", "demo")
     shutil.copytree(QUELLE, ziel, ignore=shutil.ignore_patterns(*muster))
     text = (QUELLE / "index.html").read_text(encoding="utf-8")
+    from website_koerper import alle, links_startseite
+
     text = text.replace("{{DOWNLOAD}}", download_url()).replace("{{VERSION}}", version()).replace("{{FAHRPLAN}}", fahrplan())
+    text = text.replace("{{KOERPER_SEITEN}}", links_startseite())
     kopf, koerper = teilen(text)
     beschreibung = re.search(r'<meta name="description" content="([^"]+)"', kopf).group(1)
     seite = KOPF.format(adresse=ADRESSE, basis=ADRESSE, beschreibung=beschreibung, daten=strukturiert(beschreibung)) + kopf + "</head>\n<body>\n" + koerper + "\n</body>\n</html>\n"
@@ -272,6 +278,10 @@ def bauen(ziel: Path) -> Path:
     adresse = anschrift()
     for name in RECHT:
         (ziel / f"{name}.html").write_text(rechtsseite(name, kopf, beschreibung, fuss, adresse or PLATZHALTER), encoding="utf-8")
+    stil = kopf[kopf.index("<style>"):kopf.index("</style>") + len("</style>")]
+    for pfad, inhalt in alle(stil, fuss, download_url()).items():        # seit 0.52.1: eine Seite je Körper
+        (ziel / pfad).parent.mkdir(parents=True, exist_ok=True)
+        (ziel / pfad).write_text(inhalt, encoding="utf-8")
     if MIT_AUSPROBIEREN:
         (ziel / "ausprobieren.html").write_text(unterseite("ausprobieren", AUSPROBIEREN,
                                                            (QUELLE / "_ausprobieren.html").read_text(encoding="utf-8"),

@@ -258,12 +258,9 @@ class DuckAgent:
         self.client = None
         self.last_error: str | None = None
         if config.api_key:
-            try:
-                import anthropic
+            from .claude_zugang import ClaudeZugang
 
-                self.client = anthropic.AsyncAnthropic(api_key=config.api_key)
-            except ImportError:
-                self.last_error = "Python-Paket 'anthropic' fehlt (pip install anthropic)"
+            self.client = ClaudeZugang(config.api_key)     # SDK lädt im Hintergrund – der Start wartet nicht (0.52.1)
         self._seen_events = 0.0
         from .local import LocalBrain
 
