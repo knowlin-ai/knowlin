@@ -1078,6 +1078,12 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Spiele: „Ente sagt“ beginnt mit einer Ansage", any(w in (ansage or "") for w in ("sagt", "Zeig", "Nimm")), ansage)
     page.click("#sp-sagt-stopp")
 
+    # Seit 0.52: Esc weiter oben ist ein Not-Aus. Ob seine Sperre (Standard 120 s) bis hier abgelaufen ist, hing von der
+    # Rechnerzeit ab – dann stand die Ente für Smart Home, Mentor und Ablauf nicht auf. Für diese Schritte die kürzeste
+    # wählbare Sperre (15 s) einstellen und abwarten; die Sperre selbst bleibt unverändert, danach wieder 120 s.
+    einstellen(page, {"notaus_sperre_s": 15})
+    page.wait_for_timeout(16000)
+
     # 13m · Seit 0.45: Smart Home unter Alltag – Karte da, Cloud-Adressen abgewiesen, Aufräumen sagt ehrlich, was fehlt
     page.evaluate("() => window.duckpilot.showView('alltag')")
     page.wait_for_timeout(1500)
@@ -1189,6 +1195,8 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.foto(page, "13p-ablauf", "Steuern → Ablauf: Baukasten und Duck Cards")
     b.pruefe("Ablauf: Baukasten spielt ab, Duck-Cards-Leser erkennt die Karten", "fertig" in lauf and erkannt == [2, 84],
              f"{lauf} · erkannt {erkannt}")
+
+    einstellen(page, {"notaus_sperre_s": 120})
 
     # 13q · Seit 0.50: Knowlin Lab – Lernwege da, Zimmer aus einer Messung benutzen und zurück; Aufmerksamkeit-Schalter
     page.evaluate("() => window.duckpilot.showView('lab')")
