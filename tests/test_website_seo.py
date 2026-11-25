@@ -156,3 +156,13 @@ def test_koerperseiten_mit_pollens_bild_nennen_die_lizenz(tmp_path):
         s = (ziel / k["slug"] / "index.html").read_text(encoding="utf-8")
         haupt = s.split("<main")[1].split("</main>")[0]
         assert ("CC BY-NC-SA 4.0" in haupt) == k["pollen"], k["slug"]
+
+
+def test_steckbrief_fuehrt_auf_die_koerperseite():
+    """Rückmeldung 25.11. („Ich dachte es gibt nun Unterseiten?“): jeder Steckbrief hat einen sichtbaren Knopf dorthin."""
+    from website_koerper import KOERPER
+
+    s = (Path(__file__).resolve().parents[1] / "website" / "index.html").read_text(encoding="utf-8")
+    seiten = dict(re.findall(r"(\w+): '([a-z0-9-]+)'", s.split("const SEITEN = {")[1].split("}")[0]))
+    assert sorted(seiten.values()) == sorted(k["slug"] for k in KOERPER)
+    assert "koerper-seite-knopf" in s and "Alles zu ${k.name}" in s and "Everything about ${k.name}" in s

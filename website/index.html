@@ -242,6 +242,7 @@ section { padding-block: clamp(72px, 10vw, 136px); }
 .steckbrief .hersteller { font-family: var(--schrift-mono); font-size: 0.8125rem; color: var(--tinte-3); letter-spacing: 0.02em; }
 .steckbrief dl { margin: 6px 0 0; display: grid; gap: 0; border-top: 1px solid var(--linie); }
 .steckbrief dl div { display: grid; grid-template-columns: 9.5em 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--linie); }
+.steckbrief .koerper-seite-knopf { justify-self: start; }
 .steckbrief dt { color: var(--tinte-3); font-size: 0.9375rem; }
 .steckbrief dd { margin: 0; font-size: 0.9375rem; }
 .verweise { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 0; padding: 0; list-style: none; }
@@ -951,6 +952,7 @@ profil = Koerper(
   };
   const RAUS = '<svg class="raus" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9"/></svg>';
 
+  const SEITEN = { microduck: 'microduck', reachy: 'reachy-mini', odi: 'open-duck-mini', ari: 'so-101', stackchan: 'stack-chan', bittle: 'bittle-x' };
   let aktiv = 'microduck';
   // Bildnachweis unter der Bühne (seit 0.38.40): Pollens Modelle mit Lizenz, Odi mit seinem offenen Modell
   const NACHWEIS = {
@@ -1009,7 +1011,12 @@ profil = Koerper(
       a.href = url; a.rel = 'noopener'; a.textContent = sprache() === 'en' ? en : de;
       a.insertAdjacentHTML('beforeend', RAUS); li.append(a); ul.append(li);
     }
-    box.append(von, h, p, dl, ul);
+    // Seit 0.52.1: eine eigene Seite je Körper – relativ, geht also auch unter /en/
+    const seite = document.createElement('a');
+    seite.className = 'knopf knopf--rand koerper-seite-knopf';
+    seite.href = `${SEITEN[aktiv]}/`;
+    seite.textContent = sprache() === 'en' ? `Everything about ${k.name} →` : `Alles zu ${k.name} →`;
+    box.append(von, h, p, dl, seite, ul);
     const img = document.querySelector('.buehne img');
     img.alt = k.alt;
   }
