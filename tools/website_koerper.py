@@ -313,11 +313,4 @@ def sitemap_eintraege(tag: str) -> str:
     return "".join(zeilen)
 
 
-def links_startseite() -> str:
-    """Absatz für die Startseite unter dem Körper-Umschalter – relative Links, gehen also auch unter /en/."""
-    eintraege = " · ".join(f'<a href="{k["slug"]}/">{html.escape(k["name"])}</a>' for k in KOERPER)
-    return ('<p class="leit koerper-links"><span class="t" lang="de">Eine Seite je Körper:</span>'
-            f'<span class="t" lang="en">One page per body:</span> {eintraege}</p>')
-
-
 assert all(re.fullmatch(r"[a-z0-9-]+", k["slug"]) for k in KOERPER)

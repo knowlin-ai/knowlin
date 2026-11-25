@@ -264,10 +264,9 @@ def bauen(ziel: Path) -> Path:
     muster = ("_*", "*.md") if MIT_AUSPROBIEREN else ("_*", "*.md", "demo")
     shutil.copytree(QUELLE, ziel, ignore=shutil.ignore_patterns(*muster))
     text = (QUELLE / "index.html").read_text(encoding="utf-8")
-    from website_koerper import alle, links_startseite
+    from website_koerper import alle
 
     text = text.replace("{{DOWNLOAD}}", download_url()).replace("{{VERSION}}", version()).replace("{{FAHRPLAN}}", fahrplan())
-    text = text.replace("{{KOERPER_SEITEN}}", links_startseite())
     kopf, koerper = teilen(text)
     beschreibung = re.search(r'<meta name="description" content="([^"]+)"', kopf).group(1)
     seite = KOPF.format(adresse=ADRESSE, basis=ADRESSE, beschreibung=beschreibung, daten=strukturiert(beschreibung)) + kopf + "</head>\n<body>\n" + koerper + "\n</body>\n</html>\n"

@@ -147,7 +147,7 @@ def main() -> int:
                         falsch.append(f"{pfad} → {andere}")
                 ctx.close()
         ctx, p = seite(br, url)
-        verlinkt = p.eval_on_selector_all(".koerper-links a", "as => as.map(a => a.getAttribute('href'))")
+        verlinkt = p.eval_on_selector_all(".anker", "as => as.map(a => a.getAttribute('href'))")
         ctx.close()
         b.pruefe(f"Körper-Seiten: {len(pfade())} Seiten ohne Befund in axe (hell, dunkel)", not probleme, "; ".join(probleme[:3]))
         b.pruefe("Körper-Seiten: kein Überlauf, keine fehlenden Dateien, keine fremden Anfragen",

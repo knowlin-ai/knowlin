@@ -145,7 +145,7 @@ def test_eine_seite_je_koerper_mit_hreflang_sitemap_und_links(tmp_path):
     for start in ("index.html", "en/index.html"):
         s = (ziel / start).read_text(encoding="utf-8")
         for k in KOERPER:
-            assert f'<a href="{k["slug"]}/">' in s
+            assert f'href="{k["slug"]}/">' in s            # die Namen unter dem Netz (seit 25.11.)
 
 
 def test_koerperseiten_mit_pollens_bild_nennen_die_lizenz(tmp_path):
