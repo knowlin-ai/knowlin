@@ -9,6 +9,33 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.54.0 – 2026-11-27 – WonderDuck: Farben, Schuss, Kopfstand; Lernwege nach Hiwonders Kurs
+
+### Neu
+- **Farbe der WonderDuck:** Hiwonders vier Farbschemata Gelb (Grundfarbe), Blau, Schwarz und Weiß – unter Charakter →
+  Persönlichkeit → Aussehen (mit Vorschaubildern) und System → Einstellungen. Jedes Teil des Modells trägt seine Rolle im
+  Schema wie in Hiwonders Studio (Rumpf, Akzent, Füße, Schnabel); das Modell muss dafür nicht neu geladen werden.
+- **Schuss und Kopfstand für Wondi:** „Ball schießen“ wie bei der Microduck (links und rechts, Hiwonders `ball_kick_*`).
+  Neu der **Kopfstand** (`headstand`, Knopf „Kopfstand“, „Mach einen Kopfstand“ auch ohne Sprachmodell): nach vorn auf den
+  Kopf rollen, halten, weiter auf die Füße – im Original- und im einfachen Modell.
+- **Knowlin Lab:** zwei neue Lernwege nach Hiwonders Kurs zur WonderDuck – „Bewegungen bauen“ (Ablauf-Baukasten) und
+  „Sinne verstehen“ (Tiefensensor, Kamera, Karte), je nach Körperprofil.
+- **Roadmap:** „WonderDuck selbstständig“ (Linie folgen, Hindernissen ausweichen, Dinge tragen, Person folgen) für 0.55.
+
+### Geändert
+- Knöpfe zeigen Bewegungen nach dem, was der Körper hat (`ohne-kick`, `ohne-kopfstand`) statt nach seinem Namen:
+  „Ball schießen“ jetzt auch bei der WonderDuck.
+- knowlin.de: Körper nach Art geordnet (Enten, Köpfe, Arm & Hund), sieben Namen unter dem Netz, Menü „Körper“ gegliedert;
+  WonderDuck-Texte nennen Schuss, Kopfstand und Farben.
+
+### Sicherheit
+- Kopfstand nur aus dem Stand, wie in Hiwonders robotd; im Sitzen lehnt Wondi ab. Der Not-Aus beendet ihn sofort.
+- Purzelbaum lehnt Wondi weiter ehrlich ab – ihre Rolle gehört zum Kopfstand.
+
+### Nicht geprüft
+- Kopfstand und Schuss an einer echten WonderDuck (nur Simulator und Abgleich mit Hiwonders Quellcode, Stand 27.11.).
+  Hiwonders Farbeinstellung am Roboter bleibt getrennt von Knowlins.
+
 ## 0.53.0 – 2026-11-26 – WonderDuck von Hiwonder als siebter Körper
 
 ### Neu

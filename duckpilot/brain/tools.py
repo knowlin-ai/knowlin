@@ -241,7 +241,8 @@ TOOLS: list[dict[str, Any]] = [
     {
         "name": "skill",
         "description": "Eingebaute Bewegung des Roboters ausführen: sit_toggle (hinsetzen/aufstehen), "
-        "ground_pick (mit dem Schnabel aufheben bzw. ablegen), kick_left, kick_right, roulade (Purzelbaum vorwärts).",
+        "ground_pick (mit dem Schnabel aufheben bzw. ablegen), kick_left, kick_right, roulade (Purzelbaum vorwärts); "
+        "headstand (Kopfstand, nur wo der Körper ihn hat – WonderDuck).",
         "input_schema": {
             "type": "object",
             "properties": {"name": {"type": "string", "enum": ["sit_toggle", "ground_pick", "kick_left", "kick_right", "roulade"]}, "then": THEN},

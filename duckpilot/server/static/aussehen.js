@@ -42,6 +42,7 @@ export function initAussehen({ $, scene }) {
     try {
       r.setClearColor(new THREE.Color(flaeche).convertSRGBToLinear(), 1);
       for (const c of bilder) {
+        if (!c.offsetParent) continue;            // nur die Farben des Körpers, der gerade da ist (seit 0.54)
         scene.setFarbe(c.dataset.farbe);
         r.setRenderTarget(rt);
         r.render(scene.scene, cam);

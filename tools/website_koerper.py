@@ -103,25 +103,29 @@ KOERPER: tuple[dict, ...] = (
      "links": (("Hiwonder: WonderDuck", "https://www.hiwonder.com/products/wonderduck"),
                ("GitHub: Hiwonder/wonderduck", "https://github.com/Hiwonder/wonderduck")),
      "de": {"titel": "WonderDuck Simulator und App – Knowlin",
-            "beschreibung": "Knowlin simuliert Hiwonders WonderDuck mit ihrem 3D-Modell: laufen, sitzen, mit dem Schnabel "
-                            "greifen, per Sprache steuern – frei und quelloffen.",
+            "beschreibung": "Knowlin simuliert Hiwonders WonderDuck mit ihrem 3D-Modell: laufen, schießen, Kopfstand, mit "
+                            "dem Schnabel greifen, per Sprache steuern – frei und quelloffen.",
             "h1": "Knowlin für die WonderDuck",
             "lead": "Die WonderDuck von Hiwonder ist eine zweibeinige Ente mit 15 Gelenken, Kamera und Schnabel. Ihre "
                     "Software baut auf Pollens Microduck auf – deshalb kann Knowlin sie fast wie die Microduck steuern. "
                     "In Knowlin heißt sie Wondi.",
             "kann": ("Laufen, sitzen und mit dem Schnabel greifen im Simulator, mit Hiwonders 3D-Modell",
+                     "Ball schießen und Kopfstand – wie Hiwonders eigene Bewegungen",
+                     "In Hiwonders vier Farben: Gelb, Blau, Schwarz, Weiß",
                      "Sprechen und steuern: mit Claude, einem lokalen Modell oder ganz ohne KI",
                      "Tänze auf der Zeitleiste und Ablauf-Baukasten wie bei der Microduck",
                      "Am echten Roboter: über Hiwonders robotd, den Verbindungstest und die Roboter-Pflege"),
             "stand": "Im Simulator fertig. Die echte WonderDuck spricht dasselbe Protokoll wie die Microduck, ist aber "
                      "noch ungetestet; Fotos und Lautstärke kennt ihre Software noch nicht."},
      "en": {"titel": "WonderDuck simulator and app – Knowlin",
-            "beschreibung": "Knowlin simulates Hiwonder's WonderDuck with its 3D model: walk, sit, grab with the beak, "
-                            "control it by voice – free and open source.",
+            "beschreibung": "Knowlin simulates Hiwonder's WonderDuck with its 3D model: walk, kick, headstand, grab with "
+                            "the beak, control it by voice – free and open source.",
             "h1": "Knowlin for the WonderDuck",
             "lead": "Hiwonder's WonderDuck is a two-legged duck with 15 joints, a camera and a beak. Its software builds on "
                     "Pollen's Microduck – so Knowlin can control it almost like the Microduck. In Knowlin it is called Wondi.",
             "kann": ("Walk, sit and grab with the beak in the simulator, with Hiwonder's 3D model",
+                     "Kick the ball and do a headstand – like Hiwonder's own moves",
+                     "In Hiwonder's four colours: yellow, blue, black, white",
                      "Talk and control: with Claude, a local model or no AI at all",
                      "Dances on the timeline and the sequence builder, as with the Microduck",
                      "On the real robot: via Hiwonder's robotd, the connection test and robot care"),

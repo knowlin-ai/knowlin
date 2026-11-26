@@ -100,3 +100,11 @@ def test_kein_zimmerwechsel_in_der_sperre(client):
     client.rt.engine.notaus_gesperrt = lambda: True
     r = client.post("/api/lab/raum/aktiv", json={"aktiv": True}, headers=O)
     assert r.status_code == 400 and "Not-Aus" in r.json()["fehler"]
+
+
+def test_lernwege_nach_hiwonders_kurs():
+    """Seit 0.54: Bewegungen bauen und Sinne verstehen – die WonderDuck geht beide, der Arm hat keine Sinne fürs Zimmer."""
+    wd = {w["id"]: w for w in LB.lernwege(list(K.alle()), "wonderduck")}
+    assert wd["bewegungen"]["jetzt"] and wd["sinne"]["jetzt"] and wd["mentor"]["jetzt"]
+    assert not wd["training"]["jetzt"]                       # Physik der WonderDuck gibt es noch nicht
+    assert wd["bewegungen"]["teil"] == "ablauf" and "SO-101" not in wd["sinne"]["koerper"]

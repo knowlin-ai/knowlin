@@ -117,7 +117,7 @@ mit eigener Stimme und eigenem Charakter. Öffnen über die Kachel auf der Start
 
 ### WonderDuck (seit 0.53)
 
-Hiwonders zweibeinige Ente (Shenzhen, Auslieferung ab 7. Dezember 2026) als siebter Körper. Ihre Software baut auf
+Hiwonders zweibeinige Ente (Shenzhen, 599,99 $, Auslieferung ab 7. Dezember 2026) als siebter Körper. Ihre Software baut auf
 Pollens Microduck auf (`github.com/Hiwonder/wonderduck`, Apache-2.0): dieselben 15 Gelenke, dieselbe robotd-Schnittstelle
 (Pollens Protokoll 62). Die Verkörperung heißt **Wondi** – eine eifrige Ente, die gern Dinge im Schnabel trägt.
 
@@ -125,8 +125,13 @@ Pollens Microduck auf (`github.com/Hiwonder/wonderduck`, Apache-2.0): dieselben 
   Das Modell steht unter CC BY-NC-SA 4.0 (© Hiwonder) und liegt nicht bei Knowlin: Beim ersten Wecken lädt Knowlin es
   von Hiwonders GitHub (etwa 70 MB, fester Stand mit Prüfsumme) und baut daraus auf deinem PC ein kleines Modell
   (gut 4 MB); die 70 MB werden danach gelöscht. Bis dahin steht die einfache Ente. Im Offline-Modus wird nichts geladen.
-- **Was sie (noch) nicht hat:** Purzelbaum und Schuss zeigt Knowlin bei ihr nicht, und „Echte Physik“ gibt es nur für
-  die Microduck – mit Wondi läuft dann der einfache Simulator, mit Hinweis.
+- **Schuss und Kopfstand (seit 0.54):** „Ball schießen“ im Cockpit (oder „schieß den Ball“) wie bei der Microduck. Der
+  Kopfstand („Mach einen Kopfstand“, Knopf „Kopfstand“): Wondi rollt nach vorn auf den Kopf, hält ihn kurz und rollt
+  weiter auf die Füße – nur aus dem Stand, wie bei Hiwonders Software. Einen eigenen Purzelbaum hat sie nicht.
+- **Farbe (seit 0.54):** Charakter → Persönlichkeit → Aussehen oder System → Einstellungen: Gelb, Blau, Schwarz oder
+  Weiß – Hiwonders vier Farbschemata. Gilt nur in Knowlin; Hiwonders Studio hat seine eigene Einstellung.
+- **Was sie (noch) nicht hat:** „Echte Physik“ gibt es nur für die Microduck – mit Wondi läuft dann der einfache
+  Simulator, mit Hinweis. Hiwonders selbstständige Aufgaben (Linie folgen, Labyrinth, Person folgen) noch nicht.
 - **Echte WonderDuck (ungeprüft):** Einstellungen → Körper → WonderDuck, dann „Echter Roboter“ – derselbe Weg wie bei
   der Microduck, mit Tunnel zu Hiwonders `robotd` (Benutzer auf dem Roboter: `wonderduck`). Der Verbindungstest sagt,
   was ihrer Software fehlt (Fotos, Lautstärke, laufende Spiele, „Foto machen“). Hiwonders eigene Bedienung (WonderDuck

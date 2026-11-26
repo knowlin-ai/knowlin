@@ -2089,6 +2089,9 @@ body:not(.koerper-microduck) .nur-microduck, body.koerper-microduck .ohne-microd
 body:not(.koerper-reachy) .nur-reachy, body.keine-ente .nur-ente, body:not(.koerper-so101) .nur-so101,
 body:not(.koerper-stackchan) .nur-stackchan, body.koerper-stackchan .ohne-stackchan,
 body:not(.koerper-bittle) .nur-bittle, body.koerper-bittle .ohne-bittle,
+body:not(.koerper-wonderduck) .nur-wonderduck,                                     /* WonderDuck (seit 0.54) */
+body:not(.im-kopf).ohne-kick .braucht-kick, body:not(.im-kopf).ohne-kopfstand .braucht-kopfstand,
+body:not(.koerper-microduck):not(.koerper-wonderduck) .nur-farbwahl,
 body:not(.spielt-ttt) .nur-ttt,
 body:not(.keine-ente) .nur-anderer-tanz, body.koerper-reachy .nur-anderer-tanz,     /* Tanzhinweis für Kopf, Arm, Hund (0.43) */
 body:not(.im-kopf).ohne-kopf .braucht-kopf, body:not(.im-kopf).ohne-arm .braucht-arm { display: none; }
@@ -2319,6 +2322,10 @@ body:not(.koerper-open-duck) .nur-open-duck, body.koerper-open-duck .ohne-open-d
 .farbpunkt--graphite { background: var(--farbe-graphite); }
 .farbpunkt--lavender { background: var(--farbe-lavender); }
 .farbpunkt--sky { background: var(--farbe-sky); }
+.farbpunkt--gelb { background: var(--farbe-wd-gelb); }
+.farbpunkt--blau { background: var(--farbe-wd-blau); }
+.farbpunkt--schwarz { background: var(--farbe-wd-schwarz); }
+.farbpunkt--weiss { background: var(--farbe-wd-weiss); }
 .app-zeile .btn { align-self: center; flex: none; }
 @keyframes app-puls { from { opacity: .35; } to { opacity: 1; } }
 

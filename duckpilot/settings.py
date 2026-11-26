@@ -46,7 +46,8 @@ EDITABLE: dict[str, Any] = {
     "tricks": "repos",
     "pakete": "packs",
     "model_style": ("original", "einfach"),
-    "farbe": ("cream", "graphite", "lavender", "sky"),   # Microduck-Farben wie bei Pollen (seit 0.38.19)
+    # Microduck-Farben wie bei Pollen (seit 0.38.19), dazu die vier der WonderDuck wie bei Hiwonder (seit 0.54)
+    "farbe": ("cream", "graphite", "lavender", "sky", "gelb", "blau", "schwarz", "weiss"),
     "avatar": ("standard", "kulleraugen", "pixel", "katze"),   # Gesichter von Stack-chan (seit 0.39)
     "sim_physik": bool,
     "head_signs": "signs",

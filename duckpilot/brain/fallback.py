@@ -448,6 +448,8 @@ def _parse_part(p: str) -> tuple[str, dict[str, Any]] | None:
         return ("_pick", {"target": _ding(p)})
     if re.search(r"leg\w* .*ab|ablegen|lass .*fallen", p):
         return ("skill", {"name": "ground_pick"})
+    if "kopfstand" in p or "headstand" in p:          # WonderDuck (seit 0.54); andere lehnen ehrlich ab
+        return ("skill", {"name": "headstand"})
     if "purzel" in p or "rolle" in p or "roulade" in p:
         return ("skill", {"name": "roulade"})
     if "tanz" in p:

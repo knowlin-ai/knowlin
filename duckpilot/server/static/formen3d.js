@@ -17,6 +17,22 @@ export const FINISH = {
 
 // Farben der Microduck wie bei Pollen (seit 0.38.19); null = Farbe des Modells lassen (Cream)
 export const FARBEN = { cream: null, graphite: 0x4a4d53, lavender: 0xc6b3e6, sky: 0xa6cbe9 };
+// WonderDuck (seit 0.54): Hiwonders vier Farben wie in ihrem Studio – je Teil des Modells eine Rolle (Rumpf, Akzent,
+// Füße, Schnabel, Dunkel). gelb ist Hiwonders Grundeinstellung; blau ist das Modell, wie es geliefert wird.
+export const FARBEN_WD = {
+  gelb: { rumpf: 0xffcf29, akzent: 0x424548, fuss: 0xffcf29, schnabel: 0x424548, dunkel: 0x424548 },
+  blau: { rumpf: 0x102c60, akzent: 0xffcf29, fuss: 0xffcf29, schnabel: 0xffcf29, dunkel: 0x424548 },
+  schwarz: { rumpf: 0x424548, akzent: 0xf28c28, fuss: 0xf28c28, schnabel: 0xf28c28, dunkel: 0x424548 },
+  weiss: { rumpf: 0xf2f2f2, akzent: 0xf28c28, fuss: 0xf28c28, schnabel: 0xf28c28, dunkel: 0x424548 },
+};
+
+// Kopfstand der WonderDuck (seit 0.54, Abschnitte wie in backends/wonderduck.py): nach vorn auf den Kopf rollen, halten,
+// weiter auf die Füße rollen – Neigung des Rumpfs nach vorn (0 … 2π) über dem Fortschritt 0 … 1
+export function kopfstandNeigung(p) {
+  if (p < 0.3) return (p / 0.3) * Math.PI;
+  if (p < 0.75) return Math.PI;
+  return Math.PI + ((p - 0.75) / 0.25) * Math.PI;
+}
 
 // Abgerundeter Kasten: flache Seiten aus einem Viereck, Kanten mit k Schritten gerundet.
 // verjuengen(x, y, z) → [sy, sz] verformt danach (z. B. Kopf vorn flacher); Normalen werden neu berechnet.

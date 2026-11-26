@@ -999,6 +999,7 @@ export class Scene3D {
     this.farbe = name;
     this.realDuck?.setFarbe(name);
     this.simpleDuck?.setFarbe?.(name);
+    this.duck?.setFarbe?.(name);              // auch die WonderDuck (seit 0.54)
   }
 
   setModelStyle(style) {

@@ -55,7 +55,7 @@ FIGUREN: dict[str, dict[str, Any]] = {
     "wonderduck": {"name": "Wondi", "art": "WonderDuck", "ente": True, "gruss": "gruss.wonderduck", "start": {
         "duck_name": "Wondi", "wake_word": "wondi", "energie": 0.75, "humor": 0.2,   # eifrig
         "entenhaft": 0.5, "entenlaute": "manchmal", "klang_hoehe": 1.0, "klang_farbe": 0.1, "stimme_qwen": "",
-        "weitere_enten": 0,
+        "weitere_enten": 0, "farbe": "gelb",                     # Hiwonders Grundfarbe (seit 0.54)
     }},
     # SO-101 (seit 0.38.47, Etappe G5): ein Arm – keine Ente, keine Entenlaute, eine ruhige Stimme
     "so101": {"name": "Ari", "art": "SO-101", "ente": False, "gruss": "gruss.so101", "start": {

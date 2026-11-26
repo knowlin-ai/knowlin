@@ -18,6 +18,7 @@ export const AKTIONEN = {
   kicken: { name: 'Kicken', kurz: 'Kick', msg: { type: 'tool', name: 'skill', args: { name: 'kick_right' } } },
   aufheben: { name: 'Aufheben', kurz: 'Heben', msg: { type: 'tool', name: 'skill', args: { name: 'ground_pick' } } },
   rolle: { name: 'Purzelbaum', kurz: 'Rolle', msg: { type: 'tool', name: 'skill', args: { name: 'roulade' } } },
+  kopfstand: { name: 'Kopfstand', kurz: 'Kopf', msg: { type: 'tool', name: 'skill', args: { name: 'headstand' } } },
   freude: { name: 'Freuen', kurz: 'Juhu', msg: { type: 'tool', name: 'emote', args: { emotion: 'freude' } } },
   ja: { name: 'Nicken', kurz: 'Ja', msg: { type: 'tool', name: 'emote', args: { emotion: 'ja' } } },
   nein: { name: 'Kopf schütteln', kurz: 'Nein', msg: { type: 'tool', name: 'emote', args: { emotion: 'nein' } } },

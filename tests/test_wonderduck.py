@@ -6,6 +6,7 @@ Das Modell selbst liegt nicht im Repo (CC BY-NC-SA) – die Tests backen ein kle
 import asyncio
 import json
 import struct
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -83,12 +84,71 @@ def test_simulator_nur_was_sie_kann():
     async def go():
         sim = WonderduckSim(realtime=False)
         await sim.connect()
-        await sim.init()
+        await sim.enable(True)
+        for _ in range(60):
+            sim.step(0.05)
         return sim, await sim.do("roulade"), await sim.do("kick_left")
 
     sim, purzel, schuss = asyncio.run(go())
-    assert sim.state().koerper == "wonderduck" and sim.skills() == ["sit_toggle", "ground_pick"]
-    assert not purzel.accepted and not schuss.accepted and "WonderDuck" in purzel.reason
+    # seit 0.54 wie Hiwonders robotd: Schuss links/rechts und Kopfstand, aber kein eigener Purzelbaum
+    assert sim.state().koerper == "wonderduck"
+    assert sim.skills() == ["sit_toggle", "ground_pick", "kick_left", "kick_right", "headstand"]
+    assert not purzel.accepted and "WonderDuck" in purzel.reason and "Kopfstand" in purzel.reason
+    assert schuss.accepted
+
+
+def test_kopfstand_rollt_vor_haelt_und_landet_auf_den_fuessen():
+    from duckpilot.backends.wonderduck import KOPFSTAND_S, WonderduckSim
+
+    async def go():
+        sim = WonderduckSim(realtime=False)
+        await sim.connect()
+        await sim.enable(True)
+        for _ in range(60):
+            sim.step(0.05)
+        x0 = sim.x
+        ok = await sim.do("headstand")
+        mitten = None
+        for i in range(int(KOPFSTAND_S / 0.05) + 10):
+            sim.step(0.05)
+            if i == int(KOPFSTAND_S / 0.05 / 2):
+                mitten = sim.state()
+        return sim, ok, x0, mitten
+
+    sim, ok, x0, mitten = asyncio.run(go())
+    assert ok.accepted and mitten.skill == "headstand"
+    st = sim.state()
+    assert st.skill is None and not st.fallen and not st.sitting
+    assert 0.05 < sim.x - x0 < 0.6                  # ein Stück nach vorn gerollt
+
+
+def test_kopfstand_nur_aus_dem_stand():
+    from duckpilot.backends.wonderduck import WonderduckSim
+
+    async def go():
+        sim = WonderduckSim(realtime=False)
+        await sim.connect()
+        await sim.enable(True)
+        for _ in range(60):
+            sim.step(0.05)
+        await sim.do("sit_toggle")
+        for _ in range(60):
+            sim.step(0.05)
+        return await sim.do("headstand")
+
+    r = asyncio.run(go())
+    assert not r.accepted and "sitzt" in r.reason
+
+
+def test_farben_der_wonderduck_in_den_einstellungen():
+    from duckpilot.figuren import figur
+    from duckpilot.settings import EDITABLE
+
+    assert {"gelb", "blau", "schwarz", "weiss"} <= set(EDITABLE["farbe"])
+    assert figur("wonderduck")["start"]["farbe"] == "gelb"            # Hiwonders Grundfarbe
+    js = (Path(__file__).parents[1] / "duckpilot/server/static/formen3d.js").read_text(encoding="utf-8")
+    for name in ("gelb", "blau", "schwarz", "weiss"):
+        assert f"  {name}: {{ rumpf:" in js
 
 
 def test_physik_gibt_es_noch_nicht_und_echt_ueber_robotd():
@@ -178,3 +238,10 @@ def test_verbindungstest_prueft_sie_wie_die_microduck(monkeypatch):
     assert gerufen == ["tcp:1.2.3.4:7900"]
     assert V.fehlende_funktionen(62) == ["Fotos der Ente ansehen und löschen", "Lautstärke einstellen",
                                         "sehen, welches Spiel der Ente gerade läuft", "ein Foto machen lassen"]
+
+
+def test_kopfstand_ohne_sprachmodell():
+    from duckpilot.brain.fallback import parse
+
+    assert ("skill", {"name": "headstand"}) in parse("Mach einen Kopfstand!")
+    assert ("skill", {"name": "roulade"}) in parse("Mach einen Purzelbaum")

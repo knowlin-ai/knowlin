@@ -2969,6 +2969,13 @@
  "Prüfen liest nur – Adresse, Version, Akku. Dabei bewegt sich nichts.": "Checking only reads – address, version, battery. Nothing moves.",
  "Verbindung abgelehnt": "Connection refused",
  "Farbe deiner Microduck": "Your Microduck's colour",
+ "Farbe deiner WonderDuck": "Your WonderDuck's colour",
+ "Gelb": "Yellow",
+ "Blau": "Blue",
+ "Schwarz": "Black",
+ "Weiß": "White",
+ "Wie bei Hiwonder: vier Farben, dasselbe Innenleben. Gilt nur hier in Knowlin – am Roboter stellt Hiwonders Studio die Farbe der eigenen 3D-Ansicht ein.": "As with Hiwonder: four colours, same insides. Applies only here in Knowlin – on the robot, Hiwonder's Studio sets the colour of its own 3D view.",
+ "Die vier Farben von Hiwonder – jedes Bild zeigt deine WonderDuck in dieser Farbe. Auch unter System → Einstellungen.": "Hiwonder's four colours – each picture shows your WonderDuck in that colour. Also under System → Settings.",
  "Wie bei Pollen: vier Farben, dasselbe Innenleben. Gilt für das Original und die einfache Gestalt.": "As with Pollen: four colours, same insides. Applies to the original and the simple shape.",
  "Pollens Apps": "Pollen's apps",
  "Apps aus Pollens Katalog laufen direkt auf deinem Reachy – Knowlin startet und hält sie an. Solange eine läuft, hält sich Knowlin mit eigenen Bewegungen zurück; Esc hält auch die App an.": "Apps from Pollen's catalogue run right on your Reachy – Knowlin starts and stops them. While one runs, Knowlin holds back its own movements; Esc stops the app too.",
@@ -4060,5 +4067,11 @@
  "Das zeigt Knowlin bei der WonderDuck noch nicht – sitzen und mit dem Schnabel greifen geht": "Knowlin doesn't show that for the WonderDuck yet – sitting and grabbing with the beak work",
  "Echte Physik gibt es für die WonderDuck noch nicht – der einfache Simulator läuft": "Real physics isn't available for the WonderDuck yet – the simple simulator is running",
  "Das WonderDuck-Modell ist noch nicht geladen": "The WonderDuck model isn't loaded yet",
- "Knowlin – direkt zu Wondi (WonderDuck)": "Knowlin – straight to Wondi (WonderDuck)"
+ "Knowlin – direkt zu Wondi (WonderDuck)": "Knowlin – straight to Wondi (WonderDuck)",
+ "Kopfstand": "Headstand",
+ "macht einen Kopfstand": "does a headstand",
+ "Bewegungen bauen": "Build movements",
+ "Karten zu einem Ablauf legen, wiederholen und als Knowlet weitergeben.": "Lay cards into a sequence, repeat it and share it as a Knowlet.",
+ "Sinne verstehen": "Understand the senses",
+ "Tiefensensor, Kamera und Karte live sehen – was der Körper vom Zimmer weiß.": "See the depth sensor, camera and map live – what the body knows about the room."
 }

@@ -29,6 +29,10 @@ export function setzeModul(config, { $, hiddenTabs }) {
   const cl = document.body.classList;
   for (const x of Object.values(KOERPER)) cl.toggle(`koerper-${x.klasse}`, x === k);
   for (const e of OHNE) cl.toggle(`ohne-${e}`, !eig.has(e));
+  // Bewegungen, die nicht jeder Körper hat (seit 0.54: Schuss und Kopfstand für die WonderDuck)
+  const sk = config.skills || [];
+  cl.toggle('ohne-kick', !sk.some((s) => s.startsWith('kick_')));
+  cl.toggle('ohne-kopfstand', !sk.includes('headstand'));
   cl.toggle('keine-ente', !k.ente);                       // Entenstimme, Entenlaute, Leerlauf-Gesten nur bei Enten
   const microduck = k.klasse === 'microduck';
   for (const t of NUR_MICRODUCK) { if (microduck) hiddenTabs.delete(t); else hiddenTabs.add(t); }

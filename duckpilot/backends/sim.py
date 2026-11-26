@@ -206,7 +206,7 @@ class SimBackend(ZubehoerMixin, DuckBackend):
             nx += px
             ny += py
             speed = math.hypot(v.vx, v.vy)
-            if speed > FALL_SPEED and not self.fallen and self.skill != "roulade":
+            if speed > FALL_SPEED and not self.fallen and self.skill not in ("roulade", "headstand"):
                 self._fall(f"gegen {what} gelaufen")
             elif speed > 0.02 and self.t - self._last_bump > 1.0:
                 self._last_bump = self.t

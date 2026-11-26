@@ -3,7 +3,8 @@
 Maintainer (Plan 0.50): „Die Trainingshalle als eigener Bereich – dazu der Raum aus der Quest im Simulator.“
 
 * **Lernwege:** Was jeder Körper lernen kann – Akrobatik, Parcours und Training (Körper mit Trainingshalle), Laufen
-  lernen (Vierbeiner), Vormachen und selbst üben (Arme mit Greifer), Mentor (jeder mit Kopf). Welcher Körper was kann,
+  lernen (Vierbeiner), Vormachen und selbst üben (Arme mit Greifer), Mentor (jeder mit Kopf); seit 0.54 dazu
+  Bewegungen bauen und Sinne verstehen (nach Hiwonders Kurs zur WonderDuck). Welcher Körper was kann,
   steht im Profil (`Koerper.lab`, Fähigkeiten, Familie) – nie über den Namen.
 * **Raum aus der Quest:** Die Brille vermisst das Zimmer (WebXR „plane-detection“): Boden und Flächen wie Tische, Sofa,
   Regal. Gespeichert werden nur Maße (Meter) – keine Bilder, keine Raumkarte der Brille. Der einfache Simulator kann
@@ -35,6 +36,11 @@ LERNWEGE: tuple[tuple[str, str, str, str, str], ...] = (
     ("laufen", "Laufen lernen", "Eine eigene Gangart in der Physik lernen und unter den Gangarten wählen.", "tricks", "tricks"),
     ("vormachen", "Vormachen und üben", "Mit der Hand vor der Webcam zeigen, als Auftrag merken, selbst üben.", "cockpit", ""),
     ("mentor", "Mentor", "Lernziele, Fortschritt, Kopf führen mit Handy oder Quest.", "mentor", ""),
+    # Seit 0.54 nach Hiwonders Kurs zur WonderDuck (Bewegungsgruppen, Wahrnehmung) – mit dem, was Knowlin dafür hat
+    ("bewegungen", "Bewegungen bauen", "Karten zu einem Ablauf legen, wiederholen und als Knowlet weitergeben.",
+     "tricks", "ablauf"),
+    ("sinne", "Sinne verstehen", "Tiefensensor, Kamera und Karte live sehen – was der Körper vom Zimmer weiß.",
+     "umgebung", ""),
 )
 
 
@@ -49,6 +55,10 @@ def kann(lernweg: str, profil: Any) -> bool:
         return "greifer" in f
     if lernweg == "mentor":
         return "kopf" in f or "arm" in f
+    if lernweg == "bewegungen":
+        return "beine" in f or "kopf" in f or "arm" in f
+    if lernweg == "sinne":
+        return "tiefensensor" in f or "kamera" in f
     return False
 
 

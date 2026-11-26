@@ -3,7 +3,7 @@
 // Koordinaten wie in duck3d.js: Simulator x = vorn, y = links, z = oben → three.js X = x, Y = z, Z = -y.
 import * as THREE from './vendor/three.module.min.js';
 import { applyBodyQuat } from './duckmodel.js';
-import { allesVerschmelzen, FARBEN, rundKasten, stoff, teil } from './formen3d.js';
+import { allesVerschmelzen, FARBEN, kopfstandNeigung, rundKasten, stoff, teil } from './formen3d.js';
 
 const L_THIGH = 0.055, L_SHIN = 0.06, FOOT_H = 0.012;
 const STAND_LEG = [0, -0.0873, -0.4579, -0.0049, 0.4530], HOME_NECK = 0.3491, HOME_HEAD = 0.3491;
@@ -156,6 +156,9 @@ export class Duck {
       pitch = p * Math.PI * 2;
       y += Math.sin(p * Math.PI) * 0.04;
     }
+    if (st.skill === 'headstand') {                // WonderDuck (seit 0.54): Rumpf überkopf, Kopf am Boden
+      pitch = kopfstandNeigung(st.skill_progress || 0);
+    }
     if (st.skill === 'ground_pick') {
       pitch += Math.sin(Math.PI * Math.min(1, (st.skill_progress || 0) * 1.15)) * 0.35;
     }
@@ -170,6 +173,11 @@ export class Duck {
       if (Math.abs(this.fallAngle) > 0.05) y = Math.max(0.055 * Math.abs(Math.sin(this.fallAngle)), y * Math.cos(this.fallAngle));
       this.body.position.y = y;
       this.body.rotation.set(roll + this.fallAngle, 0, -pitch, 'XYZ');
+      if (st.skill === 'headstand') {              // tiefster Punkt auf den Boden (Kopf oder Füße)
+        this.body.position.y = 0;
+        this.root.updateMatrixWorld(true);
+        this.body.position.y = -new THREE.Box3().setFromObject(this.body).min.y;
+      }
     }
 
     if (j) {

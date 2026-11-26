@@ -12,21 +12,34 @@ Aufrufen, die Knowlin an robotd, configd und updaterd schickt, kennt sie 28 (Abg
 - Am echten Roboter: `RobotdBackend` wie bei der Microduck, nur mit eigenem Namen im Zustand. **Ungeprüft** – es gibt
   noch keine WonderDuck bei Knowlin.
 
-Hiwonders Pollen-Spiele (Fußball, Laser …) und eigene Aufrufe (Labyrinth, Hindernisse) nutzt Knowlin noch nicht.
+Bewegungen (seit 0.54, abgeglichen mit Hiwonders robotd am 27.11.): sitzen/stehen, mit dem Schnabel aufheben, Schuss
+links und rechts (`kick_left`/`kick_right`, Policies `ball_kick_*`) und der Kopfstand (`headstand`): sie rollt nach vorn
+auf den Kopf, hält ihn und rollt weiter auf die Füße. Hiwonders robotd erlaubt ihn nur aus dem Stand – hier genauso.
+Einen eigenen Purzelbaum (`roulade`) hat die WonderDuck nicht; ihre Rolle gehört zum Kopfstand.
+
+Hiwonders eigene Aufrufe (Linie folgen, Labyrinth, Person folgen) nutzt Knowlin noch nicht.
 """
 
 from __future__ import annotations
 
-from ..api import DuckState, IntentResult
+from ..api import DuckState, IntentResult, Twist
 from .sim import SimBackend
 
 ART = "wonderduck"
-SKILLS = ("sit_toggle", "ground_pick")       # sitzen und mit dem Schnabel greifen – Schuss und Purzelbaum: unbekannt
-KEINE_SKILL = "Das zeigt Knowlin bei der WonderDuck noch nicht – sitzen und mit dem Schnabel greifen geht"
+SKILLS = ("sit_toggle", "ground_pick", "kick_left", "kick_right", "headstand")
+KEINE_SKILL = ("Das kann die WonderDuck nicht – sie kann sitzen, mit dem Schnabel aufheben, links oder rechts schießen "
+               "und einen Kopfstand machen")
+KOPFSTAND_S = 6.0            # rollen (≈ 1,8 s), Kopf halten (≈ 2,7 s), weiterrollen auf die Füße
+# Abschnitte des Kopfstands (Anteil der Dauer) – Ansicht (duckmodel.js, ente3d.js) und Bewegung nutzen dieselben
+ROLLE_HIN, ROLLE_ZURUECK = 0.3, 0.75
 
 
 class WonderduckSim(SimBackend):
     koerper_art = ART
+
+    def __init__(self, *a, **kw) -> None:
+        super().__init__(*a, **kw)
+        self.extra_skills["headstand"] = KOPFSTAND_S
 
     def eigenschaften(self) -> frozenset[str]:
         return frozenset({"beine", "kopf", "schnabel", "tiefensensor", "kamera", "mikrofon", "lautsprecher",
@@ -39,6 +52,14 @@ class WonderduckSim(SimBackend):
         if skill not in SKILLS:
             return IntentResult(False, KEINE_SKILL)
         return await super().do(skill)
+
+    def _skill_twist(self) -> Twist | None:
+        """Beim Kopfstand rollt sie ein Stück nach vorn auf den Kopf und beim Abrollen noch einmal."""
+        if self.skill == "headstand":
+            p = self._skill_progress()
+            rollt = 0.05 < p < ROLLE_HIN or p > ROLLE_ZURUECK
+            return Twist(0.12 if rollt else 0.0, 0.0, 0.0)
+        return super()._skill_twist()
 
     def state(self) -> DuckState:
         st = super().state()

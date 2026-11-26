@@ -103,7 +103,7 @@ let view = 'cockpit';
 
 const SKILL_DE = {
   sit_toggle: 'setzt sich / steht auf', ground_pick: 'hebt mit dem Schnabel auf', kick_left: 'schießt links',
-  kick_right: 'schießt rechts', roulade: 'macht einen Purzelbaum', _init: 'fährt die Motoren hoch',
+  kick_right: 'schießt rechts', roulade: 'macht einen Purzelbaum', headstand: 'macht einen Kopfstand', _init: 'fährt die Motoren hoch',
   _recover: 'rappelt sich auf', _rest: 'legt sich schlafen',
 };
 

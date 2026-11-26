@@ -22,7 +22,9 @@ export function enteWaehlen(view, art) {
     }).catch((err) => console.info(`Modell ${art} nicht da, einfache Ente bleibt:`, err.message))
       .finally(() => { z.laedt = false; });
   }
-  return view.modelStyle === 'original' && z.echt ? z.echt : z.einfach || (z.einfach = new Duck(e.einfach));
+  const fig = view.modelStyle === 'original' && z.echt ? z.echt : z.einfach || (z.einfach = new Duck(e.einfach));
+  fig.setFarbe?.(view.farbe);                // WonderDuck: Hiwonders Farben (seit 0.54); Open Duck behält ihre
+  return fig;
 }
 
 // Hiwonders Modell ist fertig gebacken (Meldung „wonderduck“): fehlte es vorher (404), jetzt laden

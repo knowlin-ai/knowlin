@@ -4,7 +4,7 @@
 // MJCF-Konvention (wie der Roboter).
 import * as THREE from './vendor/three.module.min.js';
 import { toCreasedNormals } from './vendor/BufferGeometryUtils.js';
-import { allesVerschmelzen, FARBEN, FINISH } from './formen3d.js';
+import { allesVerschmelzen, FARBEN, FARBEN_WD, FINISH, kopfstandNeigung } from './formen3d.js';
 
 export { FINISH };
 
@@ -61,6 +61,18 @@ export function parseModel(buf) {
 }
 
 
+// Rolle eines Teils der WonderDuck im Farbschema – wie in Hiwonders Studio: Füße und oberer Schnabel tragen eine eigene
+// Farbe, sonst entscheidet das Material (gebacken: Gelb, Dunkelblau, Schwarz). Ältere Backstände haben keine Rolle.
+export function rolleWd(p) {
+  if (p.rolle) return p.rolle;
+  if (/^visual_p_(left|right)_ankle_01_/.test(p.name)) return 'fuss';
+  if (/^visual_p_mouth_01_/.test(p.name)) return 'schnabel';
+  const [r, g, b] = p.rgb;
+  if (r > 0.8 && g > 0.6 && b < 0.3) return 'akzent';            // Gelb
+  if (b > r && b > 0.25) return 'rumpf';                          // Dunkelblau
+  return 'dunkel';
+}
+
 const v3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
 const q4 = (q) => new THREE.Quaternion(q[1], q[2], q[3], q[0]);   // MJCF w x y z
 
@@ -93,12 +105,15 @@ export class RealDuck {
     });
     const mats = new Map();
     this.schalen = [];                       // helle Schalen – die tragen die gewählte Farbe (Cream, Graphite, …)
-    const matFor = (rgb, finish = 'plastic') => {
-      const key = `${rgb.join(',')}|${finish}`;
+    this.rollen = [];                        // WonderDuck (seit 0.54): Material und Rolle im Farbschema
+    const wd = head.art === 'wonderduck';
+    const matFor = (rgb, finish = 'plastic', rolle = null) => {
+      const key = `${rgb.join(',')}|${finish}|${rolle}`;
       if (!mats.has(key)) {
         const c = new THREE.Color().setRGB(rgb[0], rgb[1], rgb[2], THREE.SRGBColorSpace);
         const m = new THREE.MeshPhysicalMaterial({ color: c, ...(FINISH[finish] || FINISH.plastic) });
-        if (finish === 'shell' && Math.min(...rgb) > 0.7) this.schalen.push({ m, original: c.clone() });
+        if (rolle) this.rollen.push({ m, rolle, original: c.clone() });
+        else if (finish === 'shell' && Math.min(...rgb) > 0.7) this.schalen.push({ m, original: c.clone() });
         mats.set(key, m);
       }
       return mats.get(key);
@@ -131,7 +146,7 @@ export class RealDuck {
       }
     });
     for (const p of head.parts) {
-      const mesh = new THREE.Mesh(geos[p.mesh], matFor(p.rgb, p.finish));
+      const mesh = new THREE.Mesh(geos[p.mesh], matFor(p.rgb, p.finish, wd ? rolleWd(p) : null));
       mesh.position.copy(v3(p.pos));
       mesh.quaternion.copy(q4(p.quat));
       mesh.castShadow = true;
@@ -175,6 +190,11 @@ export class RealDuck {
 
   // Farbe der Schalen (nur helle Schalen, das Orange bleibt)
   setFarbe(name) {
+    if (this.rollen.length) {                // WonderDuck: unbekannte Farbe (z. B. der Microduck) → Hiwonders Gelb
+      const schema = FARBEN_WD[name] || FARBEN_WD.gelb;
+      for (const r of this.rollen) r.m.color.setHex(schema[r.rolle]);
+      return;
+    }
     const f = FARBEN[name];
     for (const s of this.schalen) {
       if (f == null) s.m.color.copy(s.original); else s.m.color.setHex(f);
@@ -248,6 +268,7 @@ export class RealDuck {
     const pose = st.pose || { z: 0, roll: 0, pitch: 0 };
     let pitch = pose.pitch, roll = pose.roll;
     if (st.skill === 'roulade') pitch = (st.skill_progress || 0) * Math.PI * 2;
+    if (st.skill === 'headstand') pitch = kopfstandNeigung(st.skill_progress || 0);
     if (st.skill === 'ground_pick') pitch += Math.sin(Math.PI * Math.min(1, (st.skill_progress || 0) * 1.15)) * 0.35;
     const foot = this._footHeight();
     let y = this._groundRef - foot + (this._groundRef < 0 ? -this._groundRef : 0) - this._sole;
@@ -257,5 +278,16 @@ export class RealDuck {
     if (Math.abs(this.fallAngle) > 0.05) y = Math.max(0.05 * Math.abs(Math.sin(this.fallAngle)), y * Math.cos(this.fallAngle));
     this.body.position.y = y;
     this.body.rotation.set(roll + this.fallAngle, 0, -pitch, 'XYZ');
+    if (st.skill === 'headstand') this._aufDenBoden();
+  }
+
+  // Kopfstand (seit 0.54): so hoch, dass der tiefste Punkt (Füße, Kamera am Kopf, Tiefensensor) auf dem Boden liegt
+  _aufDenBoden() {
+    this.body.position.y = 0;
+    this.root.updateMatrixWorld(true);
+    let low = Infinity;
+    const v = new THREE.Vector3();
+    for (const s of Object.values(this.sites)) low = Math.min(low, s.getWorldPosition(v).y);
+    if (low < Infinity) this.body.position.y = 0.018 - low;      // Kopfschale reicht etwas über die Kamera hinaus
   }
 }
