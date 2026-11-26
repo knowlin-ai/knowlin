@@ -107,14 +107,15 @@ def main() -> int:
         # 1 · Skriptfehler, fehlende Dateien, fremde Server
         obs = {"fehler": [], "anfragen": [], "fehlend": []}
         ctx, p = seite(br, url, beobachten=obs)
-        for name in ("reachy", "odi", "microduck"):
+        for gruppe, name in (("koepfe", "reachy"), ("enten", "odi"), ("enten", "microduck")):   # seit 0.53 nach Art
+            p.click(f"#gruppe-{gruppe}")
             p.click(f"[data-koerper={name}]")
             p.wait_for_timeout(400)
         p.click("#sprache-en"); p.wait_for_load_state(); p.wait_for_timeout(600)
         # seit 0.51: EN führt auf /en/ – dort alles da (Bilder, Schrift, Körper umschalten)?
         auf_en = p.url.rstrip("/").endswith("/en")
-        for name in ("reachy", "microduck"):
-            p.click(f"[data-koerper={name}]")
+        for gruppe in ("koepfe", "enten"):
+            p.click(f"#gruppe-{gruppe}")
             p.wait_for_timeout(300)
         p.evaluate("window.scrollTo(0, document.body.scrollHeight)"); p.wait_for_timeout(600)
         p.click("#sprache-de"); p.wait_for_load_state(); p.wait_for_timeout(400)
@@ -264,7 +265,7 @@ def main() -> int:
             if not info["sichtbar"]:
                 ohne_rahmen.append(info["id"])
         b.pruefe("Fokus überall sichtbar", not ohne_rahmen, ", ".join(ohne_rahmen[:5]))
-        b.pruefe("Umschalter und Kopierknopf per Tab erreichbar", "tab-microduck" in reihe and "kopieren" in reihe,
+        b.pruefe("Umschalter und Kopierknopf per Tab erreichbar", "gruppe-enten" in reihe and "kopieren" in reihe,
                  " / ".join(reihe[:12]))
         # Seit 0.38.35 (Foto: „die Schrift beim Button ist nicht mittig“): Text im Kopierknopf links und rechts gleich weit
         rand = p.evaluate("""() => { const b = document.getElementById('kopieren');
@@ -272,35 +273,41 @@ def main() -> int:
             const bb = b.getBoundingClientRect(), tb = t.getBoundingClientRect();
             return [tb.left - bb.left, bb.right - tb.right]; }""")
         b.pruefe("Kopierknopf: Text mittig", abs(rand[0] - rand[1]) <= 2, f"links {rand[0]:.1f} px, rechts {rand[1]:.1f} px")
-        p.focus("#tab-microduck")
+        # Seit 0.53 Reiter nach Art (Enten, Köpfe, Arm & Hund), darunter die Körper der Art als Knöpfe
+        p.focus("#gruppe-enten")
         p.keyboard.press("ArrowRight"); p.wait_for_timeout(400)
         gewaehlt = p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id")
         fokus = p.evaluate("document.activeElement.id")
-        b.pruefe("Pfeiltaste wählt den nächsten Körper (Fokus folgt)", gewaehlt == "tab-reachy" and fokus == "tab-reachy",
+        b.pruefe("Pfeiltaste wählt die nächste Art (Fokus folgt)", gewaehlt == "gruppe-koepfe" and fokus == "gruppe-koepfe",
                  f"{gewaehlt}/{fokus}")
-        p.keyboard.press("End"); p.wait_for_timeout(400)
-        b.pruefe("Ende springt zum letzten Körper (Bittle X, seit 0.38.59)",
-                 p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id") == "tab-bittle")
-        bittle_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
-        p.keyboard.press("ArrowLeft"); p.wait_for_timeout(400)                   # zu Stack-chan
+        knoepfe = p.evaluate("[...document.querySelectorAll('#koerper-knoepfe button')].map((b) => b.dataset.koerper)")
+        b.pruefe("Köpfe: Reachy Mini und Stack-chan", knoepfe == ["reachy", "stackchan"], str(knoepfe))
+        p.click("[data-koerper=stackchan]"); p.wait_for_timeout(400)
         stack_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
-        p.keyboard.press("ArrowLeft"); p.wait_for_timeout(400)                   # zu Ari
+        p.focus("#gruppe-koepfe"); p.keyboard.press("End"); p.wait_for_timeout(400)
+        b.pruefe("Ende springt zur letzten Art (Arm & Hund)",
+                 p.evaluate("document.querySelector('[role=tab][aria-selected=true]').id") == "gruppe-helfer")
         ari_steck = p.text_content(".steckbrief") or ""
         ari_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
-        # Fund 12.11.: Mit fest drei Spalten rutschte der vierte Reiter unter Microduck, der Schieber lag daneben
+        p.click("[data-koerper=bittle]"); p.wait_for_timeout(400)
+        bittle_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
         reihe = p.evaluate("""() => { const t = [...document.querySelectorAll('.wahl [role=tab]')];
             const s = document.querySelector('.wahl .schieber').getBoundingClientRect();
             const a = document.querySelector('.wahl [aria-selected=true]').getBoundingClientRect();
             return { zeilen: new Set(t.map((x) => Math.round(x.getBoundingClientRect().top))).size,
                      versatz: Math.round(Math.abs(s.left - a.left) + Math.abs(s.width - a.width)) }; }""")
-        b.pruefe("Alle Körper-Reiter in einer Zeile, Schieber unter dem gewählten",
+        b.pruefe("Alle Arten in einer Zeile, Schieber unter der gewählten",
                  reihe["zeilen"] == 1 and reihe["versatz"] <= 4, str(reihe))
-        p.keyboard.press("ArrowLeft"); p.wait_for_timeout(400)                   # zurück zu Odi
+        p.click("#gruppe-enten"); p.click("[data-koerper=wonderduck]"); p.wait_for_timeout(400)
+        wd = p.evaluate("[document.getElementById('buehne-nachweis').dataset.nachweis, document.getElementById('buehne-nachweis').textContent]")
+        b.pruefe("WonderDuck: Bildnachweis nennt Hiwonder und CC BY-NC-SA",
+                 wd[0] == "hiwonder" and "Hiwonder" in wd[1] and "CC BY-NC-SA 4.0" in wd[1], str(wd))
+        p.click("[data-koerper=odi]"); p.wait_for_timeout(400)
         steck = p.text_content(".steckbrief") or ""
         b.pruefe("Steckbrief passt zum gewählten Körper", "Open Duck Mini v2" in steck and "SO-101" in ari_steck,
                  f"{steck[:40]} / {ari_steck[:40]}")
         odi_nachweis = p.evaluate("document.getElementById('buehne-nachweis').dataset.nachweis")
-        p.keyboard.press("Home"); p.wait_for_timeout(400)
+        p.click("[data-koerper=microduck]"); p.wait_for_timeout(400)
         # Bildnachweis (seit 0.38.40): jedes sichtbare Bild mit Pollens Modell hat im selben Abschnitt einen Nachweis
         # mit Urheber, Lizenz und Link – die Bühne zeigt ihn je nach Körper (Odi: offenes Modell, ohne Pollen-Hinweis)
         ohne = p.evaluate("""(namen) => [...document.querySelectorAll('img[data-bild]')].filter((img) => {

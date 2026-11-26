@@ -215,6 +215,10 @@ WORTE = {
 # ── Kopfleiste mit Menü (seit 26.11., Maintainer: „wieso gibt es … bei Körper keine Dropdowns?“) ─────────────────
 # Dieselbe Leiste auf der Startseite (zweisprachig über .t-Spannen, Links relativ) und auf jeder Körper-Seite (eine
 # Sprache, Links absolut). Am Handy klappt „Menü“ sie auf; „Körper“ ist ein <details> mit allen Körper-Seiten.
+# Seit 0.53 nach Art geordnet – wie die Reiter auf der Startseite
+GRUPPEN = (("Enten", "Ducks", ("microduck", "wonderduck", "open-duck-mini")),
+           ("Köpfe", "Heads", ("reachy-mini", "stack-chan")),
+           ("Arm & Hund", "Arm & dog", ("so-101", "bittle-x")))
 MENUE = (("idee", "Idee", "Idea"), ("koerper", "Körper", "Bodies"), ("funktionen", "Funktionen", "Features"),
          ("sicherheit", "Sicherheit", "Safety"), ("fahrplan", "Fahrplan", "Roadmap"), ("loslegen", "Loslegen", "Get started"))
 
@@ -234,9 +238,12 @@ def navigation(sprache: str | None = None, aktuell: str | None = None) -> str:
             teile.append(f'<a href="{basis}#{anker}">{_t(de, en, sprache)}</a>')
             continue
         eintraege = [f'<li><a href="{basis}#koerper">{_t("Alle im Überblick", "All at a glance", sprache)}</a></li>']
-        for k in KOERPER:
-            cur = ' aria-current="page"' if k["slug"] == aktuell else ""
-            eintraege.append(f'<li><a href="{basis}{k["slug"]}/"{cur}>{html.escape(k["name"])}</a></li>')
+        nach_slug = {k["slug"]: k for k in KOERPER}
+        for gde, gen, slugs in GRUPPEN:
+            eintraege.append(f'<li class="menue-gruppe">{_t(gde, gen, sprache)}</li>')
+            for slug in slugs:
+                cur = ' aria-current="page"' if slug == aktuell else ""
+                eintraege.append(f'<li><a href="{basis}{slug}/"{cur}>{html.escape(nach_slug[slug]["name"])}</a></li>')
         teile.append(f'<details class="menue-koerper"><summary{" data-hier" if aktuell else ""}>{_t(de, en, sprache)}</summary>'
                      f'<ul>{"".join(eintraege)}</ul></details>')
     label = "Seite" if sprache != "en" else "Site"
@@ -405,3 +412,6 @@ def sitemap_eintraege(tag: str) -> str:
 
 
 assert all(re.fullmatch(r"[a-z0-9-]+", k["slug"]) for k in KOERPER)
+
+
+assert sorted(s for _, _, slugs in GRUPPEN for s in slugs) == sorted(k["slug"] for k in KOERPER)
