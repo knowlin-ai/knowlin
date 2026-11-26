@@ -16,7 +16,8 @@ from typing import Any
 
 FIGUREN_BILDER = Path(__file__).resolve().parent / "server" / "static" / "figuren"
 BILD_DATEI = {"duckpilot": "microduck.png", "reachy-mini": "reachy-mini.png", "open-duck-mini": "open-duck-mini.png",
-              "so101": "so101.png", "stackchan": "stackchan.png", "bittle": "bittle.png"}
+              "so101": "so101.png", "stackchan": "stackchan.png", "bittle": "bittle.png",
+              "wonderduck": "wonderduck.png"}
 
 
 def eigenes_portraet(kid: str) -> Path:
@@ -43,6 +44,9 @@ MODULE: tuple[tuple[str, str, str, str, str, str], ...] = (
      "Pollens Originalmodell, Emotionen und Tänze, zuhören und mitsprechen – im Simulator; echter Reachy über Pollens Daemon (ungetestet)."),
     ("open-duck-mini", "Open Duck Mini", "offener Selbstbau-Vorgänger (Antoine Pirrone)", "fertig", "",
      "Laufen, Kopf und Antennen im Simulator, mit dem offenen 3D-Modell; Ausstattung je Bau. Echte Open Duck geplant."),
+    # seit 0.53: Hiwonders WonderDuck – Pollens Software, dieselben Gelenke; Modell wird beim ersten Wecken geladen
+    ("wonderduck", "WonderDuck", "zweibeinige Ente von Hiwonder", "fertig", "",
+     "Laufen, Kopf und Schnabel im Simulator mit Hiwonders 3D-Modell; echte WonderDuck über robotd (ungetestet)."),
     # seit 0.38.51: Ari bekommt seine Kachel (Fund 12.11.: der Arm war nur über Einstellungen → Körper zu finden)
     ("so101", "SO-101", "offener Roboterarm (TheRobotStudio, LeRobot)", "fertig", "",
      "Greifen und Räumen an der eigenen Werkbank im Simulator, mit dem offenen 3D-Modell; echter Arm über LeRobot "
@@ -76,14 +80,15 @@ KERN: tuple[tuple[str, str, str], ...] = (
 # Jeder Körper hat seine Verkörperung (seit 0.38.3): Name des Körpers auf der Kachel, und ob es überhaupt ein Körper ist
 # (Lab und „Eigenes Modul“ sind Werkzeuge, keine Körper)
 KOERPER_NAME = {"duckpilot": "Microduck", "reachy-mini": "Reachy Mini", "open-duck-mini": "Open Duck Mini v2",
-                "so101": "SO-101", "stackchan": "Stack-chan", "bittle": "Bittle X", "mentor": "Mentor"}
+                "so101": "SO-101", "stackchan": "Stack-chan", "bittle": "Bittle X", "wonderduck": "WonderDuck",
+                "mentor": "Mentor"}
 
 # Werkzeug-Kacheln, die eine Seite in Knowlin öffnen (seit 0.38.5)
 ANSICHT = {"knowlets": "knowlets", "mentor": "mentor", "lab": "lab"}
 
 # Modul-Kachel → Einstellung `modul` (welcher Körper dranhängt); seit 0.38.1 auch Reachy Mini
 KOERPER_MODUL = {"duckpilot": "duckpilot", "reachy-mini": "reachy_mini", "open-duck-mini": "open_duck_mini",
-                 "so101": "so101", "stackchan": "stackchan", "bittle": "bittle"}
+                 "so101": "so101", "stackchan": "stackchan", "bittle": "bittle", "wonderduck": "wonderduck"}
 
 
 def module(koerper: str = "", aktiv: str = "duckpilot") -> list[dict[str, Any]]:

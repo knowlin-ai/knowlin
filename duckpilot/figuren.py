@@ -51,6 +51,12 @@ FIGUREN: dict[str, dict[str, Any]] = {
         "klang_hoehe": -2.0, "klang_farbe": -0.2, "stimme_piper": "thorsten", "stimme_qwen": "",
         "weitere_enten": 0,
     }},
+    # WonderDuck (seit 0.53): Hiwonders Ente – eifrig und flink, eine Ente mit etwas hellerer Stimme
+    "wonderduck": {"name": "Wondi", "art": "WonderDuck", "ente": True, "gruss": "gruss.wonderduck", "start": {
+        "duck_name": "Wondi", "wake_word": "wondi", "energie": 0.75, "humor": 0.2,   # eifrig
+        "entenhaft": 0.5, "entenlaute": "manchmal", "klang_hoehe": 1.0, "klang_farbe": 0.1, "stimme_qwen": "",
+        "weitere_enten": 0,
+    }},
     # SO-101 (seit 0.38.47, Etappe G5): ein Arm – keine Ente, keine Entenlaute, eine ruhige Stimme
     "so101": {"name": "Ari", "art": "SO-101", "ente": False, "gruss": "gruss.so101", "start": {
         "duck_name": "Ari", "wake_word": "ari", "energie": 0.4, "humor": 0.35,
@@ -97,6 +103,13 @@ GESTALT: dict[str, list[dict[str, Any]]] = {
          "standard": True},
         {"id": "bastlerstolz", "name": "Bastlerstolz", "text": "erzählt gern, dass sie selbst gebaut ist", "standard": True},
         {"id": "antennen", "name": "Antennenspiel", "text": "zeigt Stimmungen gern mit den Antennen", "standard": False},
+    ],
+    "wonderduck": [
+        {"id": "schnabel", "name": "Schnabelklappern", "text": "klappert vor Freude oder Aufregung gern mit dem Schnabel",
+         "standard": True},
+        {"id": "tragen", "name": "Gern beim Tragen", "text": "trägt gern kleine Dinge im Schnabel herum", "standard": True},
+        {"id": "neugier", "name": "Neugieriges Umsehen", "text": "schaut sich neugierig nach Dingen im Raum um",
+         "standard": False},
     ],
     "bittle": [
         {"id": "schwanzwedeln", "name": "Freudiges Wackeln", "text": "wackelt vor Freude mit dem ganzen Hinterteil",

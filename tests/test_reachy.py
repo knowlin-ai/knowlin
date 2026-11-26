@@ -244,7 +244,7 @@ def test_oberflaeche_blendet_beine_aus():
     assert "body:not(.im-kopf).ohne-beine .braucht-beine" in css and "body:not(.koerper-reachy) .nur-reachy" in css
     assert "body.keine-ente .nur-ente" in css                     # Entensachen nur bei Enten (seit 0.38.6)
     d3 = (static / "duck3d.js").read_text(encoding="utf-8")
-    assert "from './reachy3d.js'" in d3 and "'reachy_mini'" in d3 and "'open_duck_mini'" in d3
+    assert "from './reachy3d.js'" in d3 and "'reachy_mini'" in d3 and "ENTEN[this.koerper]" in d3
 
 
 def test_verworfenes_ziel_wird_erneut_geschickt():

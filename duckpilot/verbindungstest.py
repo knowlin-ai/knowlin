@@ -18,7 +18,7 @@ from typing import Any
 
 from .backends.robotd import API_VERSION, RpcConnection, _find_fraction, fehlende_funktionen, parse_address
 
-KOERPER = ("microduck", "reachy_mini", "open_duck_mini")
+KOERPER = ("microduck", "reachy_mini", "open_duck_mini", "wonderduck")
 WARTEN_S = 3.0
 
 
@@ -127,7 +127,7 @@ async def pruefe_reachy(adresse: str, warten: float = WARTEN_S) -> dict[str, Any
 
 
 async def pruefen(koerper: str, adresse: str) -> dict[str, Any]:
-    if koerper == "microduck":
+    if koerper in ("microduck", "wonderduck"):          # WonderDuck: Hiwonders robotd spricht Pollens Protokoll (0.53)
         return await pruefe_microduck(adresse)
     if koerper == "reachy_mini":
         return await pruefe_reachy(adresse)

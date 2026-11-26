@@ -52,7 +52,7 @@ export function initKoerperwahl({ $, api, save, showView, isRemote }) {
       // Reachy Mini (seit 0.38.1) ist ein anderer Körper: „Echter Roboter“ bleibt beim gewählten Körper
       const patch = k === 'robotd' ? { backend: 'robotd' }
         : k === 'reachy_sim' ? { modul: 'reachy_mini', backend: 'sim', sim_physik: false }
-          : { modul: modul === 'open_duck_mini' ? modul : 'duckpilot', backend: 'sim', sim_physik: k === 'physik' };
+          : { modul: ['open_duck_mini', 'wonderduck'].includes(modul) ? modul : 'duckpilot', backend: 'sim', sim_physik: k === 'physik' };
       await save(patch);
     });
   }

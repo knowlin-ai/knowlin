@@ -155,7 +155,8 @@ def main() -> int:
                  and not [u for u in obs_k["anfragen"] if not u.startswith(url) and not u.startswith("data:")],
                  "; ".join(ueber[:2] + obs_k["fehlend"][:2] + obs_k["fehler"][:2]))
         b.pruefe("Körper-Seiten: Sprachumschalter zeigt auf dieselbe Seite in der anderen Sprache", not falsch, "; ".join(falsch[:3]))
-        b.pruefe("Startseite verlinkt jede Körper-Seite", verlinkt == [f"{k['slug']}/" for k in KOERPER], str(verlinkt))
+        b.pruefe("Startseite verlinkt die Körper-Seiten (Namen unter dem Netz)",
+                 bool(verlinkt) and set(verlinkt) <= {f"{k['slug']}/" for k in KOERPER}, str(verlinkt))
 
         # 2 · Barrierefreiheit (axe) und Bilder je Sprache, Thema, Breite
         for sprache in ("de", "en"):

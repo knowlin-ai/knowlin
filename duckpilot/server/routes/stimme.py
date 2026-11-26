@@ -22,6 +22,7 @@ PROBE = {
     "duckpilot": "*quak quak* Hallo, ich bin {name}! So klinge ich jetzt. Gefällt dir meine Stimme?",
     "open_duck_mini": "*quak* Hallo, ich bin {name}! Selbst gebaut und startklar. Gefällt dir meine Stimme?",
     "reachy_mini": "Hallo, ich bin {name}. So klinge ich jetzt. Gefällt dir meine Stimme?",
+    "wonderduck": "*quak* Hallo, ich bin {name}! So klinge ich jetzt. Gefällt dir meine Stimme?",
 }
 
 

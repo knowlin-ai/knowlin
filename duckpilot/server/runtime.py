@@ -239,6 +239,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.marionette_dienst: Any = None                     # setzt routes/marionette.py (seit 0.48)
         self.ablauf_dienst: Any = None                         # setzt routes/ablauf.py (seit 0.49)
         self.lab_dienst: Any = None                            # setzt routes/lab.py (seit 0.50)
+        self.wonderduck_dienst: Any = None                     # setzt routes/wonderduck.py (seit 0.53)
         self._wire()
 
     # ── Aufbau ────────────────────────────────────────────────────────────
@@ -278,6 +279,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self._new_runner()
         if getattr(self, "lab_dienst", None) is not None:      # Zimmer aus der Quest auch nach dem Körperwechsel (0.50)
             self.lab_dienst.raum_anwenden()
+        if getattr(self, "wonderduck_dienst", None) is not None:   # WonderDuck: Hiwonders Modell holen, falls es fehlt (0.53)
+            self.wonderduck_dienst.beim_zuweisen()
 
     def _new_runner(self) -> None:
         self.runner = ToolRunner(self.engine, self.memory)

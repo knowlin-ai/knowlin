@@ -15,6 +15,7 @@ import { loadReachy, RealReachy } from './reachymodell.js';
 import { ladeArm, RealArm } from './arm3d.js';
 import { StackChan } from './stackchan3d.js';
 import { Bittle } from './bittle3d.js';
+import { ENTEN, enteWaehlen } from './enten3d.js';
 import { Lage, Stabilisator } from './glaetten3d.js';
 import { EffectComposer } from './vendor/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
@@ -1008,12 +1009,7 @@ export class Scene3D {
   // Welche Verkörperung steht in der Szene: Reachy Mini, wenn der Körper es sagt (seit 0.38.1), sonst die gewählte Ente
   _figurWaehlen() {
     let want = this.modelStyle === 'original' && this.realDuck ? this.realDuck : this.simpleDuck;
-    if (this.koerper === 'open_duck_mini') {
-      // Open Duck Mini (seit 0.38.4): offenes Modell (Apache-2.0) liegt bei duckpilot; bis es geladen ist die einfache Ente
-      if (!this.realOpenDuck) this.ladeOpenDuck();
-      want = this.modelStyle === 'original' && this.realOpenDuck ? this.realOpenDuck
-        : this.einfacheOpenDuck || (this.einfacheOpenDuck = new Duck('open_duck'));
-    }
+    if (ENTEN[this.koerper]) want = enteWaehlen(this, this.koerper);   // Open Duck, WonderDuck (enten3d.js)
     if (this.koerper === 'reachy_mini') {
       // Pollens Originalmodell, sobald es auf diesem PC gebacken ist (seit 0.38.2) – sonst das gezeichnete Modell
       if (!this.realReachy) this.ladeReachy();
@@ -1040,16 +1036,6 @@ export class Scene3D {
       if (this.koerper === 'so101') this._figurWaehlen();
     }).catch((e) => console.info('SO-101-Modell nicht da:', e.message))
       .finally(() => { this._ladeArm = false; });
-  }
-
-  ladeOpenDuck() {
-    if (this.realOpenDuck || this._ladeOpenDuck) return;
-    this._ladeOpenDuck = true;
-    loadModel('/static/model/open_duck_mini.dpm').then((m) => {
-      this.realOpenDuck = new RealDuck(m);
-      if (this.koerper === 'open_duck_mini') this._figurWaehlen();
-    }).catch((e) => console.info('Open-Duck-Modell nicht da, einfache Ente bleibt:', e.message))
-      .finally(() => { this._ladeOpenDuck = false; });
   }
 
   // Pollens Reachy-Modell holen (einmal; nach „reachy“-Meldung mit fertigem Modell erneut versuchen)

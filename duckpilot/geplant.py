@@ -19,7 +19,6 @@ from typing import Any
 # Microduck auf (github.com/Hiwonder/wonderduck, Apache-2.0, Protokoll 62, dieselben 15 Gelenke und Sockets). Im
 # Simulator geht das ohne Gerät; ihr 3D-Modell steht unter CC BY-NC-SA und wird wie Pollens erst beim Start geladen.
 GEPLANT: tuple[tuple[str, str, str], ...] = (
-    ("0.53", "WonderDuck im Simulator", "Hiwonders WonderDuck als siebter Körper – dieselben Gelenke wie die Microduck, eigenes Aussehen."),
     ("ab Lieferung", "Echte Microduck", "Inbetriebnahme mit Trockenlauf, digitaler Zwilling mit Frühwarnung."),
     ("ab Lieferung", "Echte WonderDuck", "Hiwonders Software baut auf Pollens auf – Knowlin spricht sie über denselben Weg wie die Microduck."),
     ("ab Lieferung", "Ari mit LeRobot", "Mit einem zweiten Arm steuern und fertige Policies laden, sobald ein SO-101 da ist."),

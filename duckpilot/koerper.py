@@ -170,6 +170,13 @@ EINGEBAUT: tuple[Koerper, ...] = (
             frozenset({"beine", "kopf", "antennen", "stimmbank", "kamera", "mikrofon", "lautsprecher", "augen_leds"}),
             "duckpilot.backends:baue_open_duck", skills=("sit_toggle", "kick_left", "kick_right"),
             quelle="https://github.com/apirrone/Open_Duck_Mini", lizenz="Apache-2.0", eingebaut=True),
+    # WonderDuck (seit 0.53): Hiwonders Ente auf Pollens Software (Protokoll 62, dieselben Gelenke) – Simulator und
+    # echter Roboter über robotd wie die Microduck (echt ungeprüft); Modell CC BY-NC-SA, beim ersten Wecken geladen
+    Koerper("wonderduck", "WonderDuck", "Hiwonder", "ente",
+            frozenset({"beine", "kopf", "schnabel", "tiefensensor", "stimmbank", "kamera", "mikrofon", "lautsprecher"}),
+            "duckpilot.backends:baue_wonderduck", skills=("sit_toggle", "ground_pick"),
+            echt="Hiwonders robotd (Pollens JSON-RPC, Protokoll 62) – ungeprüft",
+            quelle="https://github.com/Hiwonder/wonderduck", lizenz="Apache-2.0", eingebaut=True),
     Koerper("so101", "SO-101", "TheRobotStudio / Hugging Face (LeRobot)", "arm",
             frozenset({"arm", "greifer"}),
             "duckpilot.backends:baue_so101",

@@ -101,6 +101,19 @@ def baue_bittle(cfg):
     return sim
 
 
+
+def baue_wonderduck(cfg):
+    """WonderDuck von Hiwonder (seit 0.53): einfacher Simulator; echt über Hiwonders robotd (wie Pollens, ungeprüft)."""
+    from .wonderduck import WonderduckSim, echt
+
+    if cfg.backend == "robotd":
+        return echt(cfg)
+    sim = WonderduckSim()
+    if getattr(cfg, "sim_physik", False):
+        sim.limited_by = ["Echte Physik gibt es für die WonderDuck noch nicht – der einfache Simulator läuft"]
+    return sim
+
+
 def physics_problem() -> str:
     """Leer, wenn der Physik-Simulator starten kann; sonst der Grund."""
     import importlib.util

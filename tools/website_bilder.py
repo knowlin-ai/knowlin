@@ -416,7 +416,12 @@ def szene_training(page, base, sprache):
     page.wait_for_timeout(1500)
 
 
+def szene_wonderduck(page, base, sprache):
+    _koerper(page, base, "wonderduck", sprache, "Zeig mir, wie du dich freust" if sprache == "de" else "Show me how happy you are")
+
+
 SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi, "ari": szene_ari,
+          "wonderduck": szene_wonderduck,
           "stackchan": szene_stackchan, "bittle": szene_bittle, "bello_tricks": szene_bello_tricks,
           "vormachen": szene_vormachen, "tricks_suche": szene_tricks_suche,
           "werte": szene_werte,
@@ -439,6 +444,9 @@ def pollen_modelle_verlinken(ordner: Path) -> bool:
     if not ziel.exists():
         ziel.parent.mkdir(parents=True, exist_ok=True)
         ziel.symlink_to(quelle, target_is_directory=True)
+    hiwonder = data_dir() / "hiwonder-modell"                 # WonderDuck (seit 0.53), ebenso vom ersten Wecken
+    if hiwonder.exists() and not (ordner / "hiwonder-modell").exists():
+        (ordner / "hiwonder-modell").symlink_to(hiwonder, target_is_directory=True)
     return True
 
 

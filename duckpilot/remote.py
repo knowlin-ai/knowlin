@@ -52,7 +52,8 @@ PC_ONLY: list[tuple[str, re.Pattern[str]]] = [(m, re.compile(p)) for m, p in [
     ("POST", r"^/api/open-folder$"),
     ("POST", r"^/api/stimme/installieren$"),
     ("POST", r"^/api/gehirn/laden$"),
-    ("POST", r"^/api/reachy/laden$"),           # Pollens Reachy-Modell und Bewegungen nachladen (seit 0.38.2)
+    ("POST", r"^/api/reachy/laden$"),
+    ("POST", r"^/api/wonderduck/laden$"),       # Hiwonders WonderDuck-Modell nachladen (seit 0.53)           # Pollens Reachy-Modell und Bewegungen nachladen (seit 0.38.2)
     ("POST", r"^/api/reachy/apps/installieren$"),   # Pollens Apps auf den Reachy installieren nur am PC (seit 0.38.19)
     ("POST", r"^/api/pflege/einspielen$"),
     ("*", r"^/api/pflege/fotos?(/|$)"),     # Fotos der Ente zeigen die Wohnung – nur am PC (seit 0.52)

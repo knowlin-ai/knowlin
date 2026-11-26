@@ -9,6 +9,35 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.53.0 – 2026-11-26 – WonderDuck von Hiwonder als siebter Körper
+
+### Neu
+- **WonderDuck (Hiwonder) im Simulator** – Verkörperung **Wondi** (eifrig, trägt gern Dinge im Schnabel): laufen,
+  drehen, sitzen, Kopf, mit dem Schnabel greifen, tanzen, Ablauf-Baukasten. Kachel auf der Startseite, Verknüpfung zum
+  Direktstart, eigene Stimme und Persönlichkeit.
+- **Hiwonders 3D-Modell** (CC BY-NC-SA 4.0, © Hiwonder) wird beim ersten Wecken von Hiwonders GitHub geladen (fester
+  Stand, Prüfsumme, etwa 70 MB) und auf dem PC zu einem Modell von gut 4 MB gebacken (`modell/wonderduck.py`, aus dem
+  GLB: Gelenke, Ruhelage, Füße, Kamera); die Quelle wird danach gelöscht. Nie im Offline-Modus, Laden nur am PC.
+- **Echte WonderDuck über robotd:** Hiwonders Software baut auf Pollens Microduck auf (Protokoll 62, dieselben Gelenke
+  und Sockets) – Knowlin steuert sie über denselben Weg wie die Microduck; der Verbindungstest nennt, was ihr fehlt.
+- **knowlin.de:** eigene Seite für die WonderDuck (deutsch und englisch, `/wonderduck/`), im Körper-Menü und in der
+  Sitemap.
+
+### Geändert
+- Die Wahl der Enten-Modelle (Open Duck, WonderDuck) steckt in `static/enten3d.js` statt in `duck3d.js` (Grenze 64 KB).
+- Roadmap: „WonderDuck im Simulator“ erledigt; „Echte WonderDuck“ bleibt „ab Lieferung“.
+
+### Sicherheit
+- Die WonderDuck besteht Knowlins Körperprüfung (Not-Aus stromlos, Stopp, Grenzen, stromlos keine Bewegung). Der Not-Aus
+  wirkt wie bei jedem Körper sofort; danach die Sperre.
+- Nur, was der Körper kann: Purzelbaum und Schuss lehnt Wondi ehrlich ab; „Echte Physik“ gibt es nur für die Microduck
+  (mit Hinweis läuft der einfache Simulator).
+
+### Nicht geprüft
+- Alles an einer echten WonderDuck (bei Knowlin gibt es keine) – nur gegen den Test-Roboter und durch Abgleich mit
+  Hiwonders Quellcode (Stand 26.11.2026). Hiwonders eigene Aufrufe (Labyrinth, Hindernisse, Not-Entspannen) nutzt Knowlin
+  noch nicht.
+
 ## 0.52.1 – 2026-11-24 – Schneller Start, eine Website-Seite je Körper
 
 ### Behoben

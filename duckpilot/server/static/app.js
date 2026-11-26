@@ -1,4 +1,5 @@
 import { Scene3D } from './duck3d.js';
+import { enteNeuLaden } from './enten3d.js';
 import { LineChart, MapView, TofTerrain, Joints, eventItem, SHOWN_EVENTS } from './dashboard.js';
 import { Listener, playSound, speak, stopSpeaking, playPlan, germanVoices, setVoice, currentVoice, setKlang } from './voice.js';
 import { Unterbrecher } from './ins_wort.js';   // Ins Wort fallen (0.40)
@@ -196,6 +197,7 @@ function handle(msg) {
     case 'modell': return einst.renderModell(msg);
     case 'reachy': case 'reachy_ton': return reachy.nachricht(msg);
     case 'reachy_app': return reachyApps.nachricht(msg);
+    case 'wonderduck': return msg.modell?.ansicht && enteNeuLaden(scene, 'wonderduck');
     case 'spiel': return kameraSpiele.nachricht(msg);
     case 'spiel_alle': return window.dispatchEvent(new CustomEvent('knowlin:spiel', { detail: msg }));   // spiele_alle.js
     case 'mentor': return mentor.meldung(msg);
@@ -1265,8 +1267,8 @@ $('modell-laden').addEventListener('click', async () => {
 
 // Direktstart in eine Verkörperung (Verknüpfung): ist gerade eine andere im Körper, wechseln – mit Mind to Body
 async function direktZurFigur() {
-  const art = { duckpilot: 'Microduck', reachy_mini: 'Reachy Mini', open_duck_mini: 'Open Duck Mini v2', so101: 'SO-101' }[direktModul];
-  const id = { duckpilot: 'duckpilot', reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', so101: 'so101', stackchan: 'stackchan', bittle: 'bittle' }[direktModul];
+  const art = { duckpilot: 'Microduck', reachy_mini: 'Reachy Mini', open_duck_mini: 'Open Duck Mini v2', wonderduck: 'WonderDuck', so101: 'SO-101' }[direktModul];
+  const id = { duckpilot: 'duckpilot', reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', wonderduck: 'wonderduck', so101: 'so101', stackchan: 'stackchan', bittle: 'bittle' }[direktModul];
   await new Promise((r) => setTimeout(r, 1800));          // erst der Knowlin-Splash
   const anders = config.modul !== direktModul;
   await start.mindToBody({ id, modell: art, figur: anders ? art : config.duck_name }, async () => {

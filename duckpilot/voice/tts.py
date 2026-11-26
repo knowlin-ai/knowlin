@@ -114,7 +114,7 @@ DESIGN_TEXT_MODUL: dict[str, str] = {
                    "zusammen etwas ausprobieren?",
     "kopf": "Hallo. Ich bin {name}. Schön, dass du da bist – wollen wir gemeinsam etwas herausfinden?",
 }
-STANDARD_NAME = {"duckpilot": "Quacki", "open_duck_mini": "Odi", "reachy_mini": "Reachy", "kopf": "Knowlin"}
+STANDARD_NAME = {"duckpilot": "Quacki", "open_duck_mini": "Odi", "wonderduck": "Wondi", "reachy_mini": "Reachy", "kopf": "Knowlin"}
 
 
 def design_text(art: str, name: str | None) -> str:

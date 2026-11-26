@@ -19,6 +19,7 @@ const KOERPER = {
   duckpilot: { bau: async () => new RealDuck(await loadModel()), von: 0.42, dreh: -12 },
   'reachy-mini': { bau: async () => new RealReachy(await loadReachy()), von: 0.25, bis: 0.3, dreh: 20 },
   'open-duck-mini': { bau: async () => new RealDuck(await loadModel('/static/model/open_duck_mini.dpm')), von: 0.42, dreh: 25 },
+  wonderduck: { bau: async () => new RealDuck(await loadModel('/api/modell/wonderduck.dpm')), von: 0.42, dreh: -12 },
   so101: { bau: async () => new RealArm(await ladeArm()), von: 0.25, dreh: 70, gelenke: ARM_STAUNEN },
   stackchan: { bau: async () => new StackChan(), von: 0, dreh: 25, gesicht: { ausdruck: 'froh', wach: true } },
   bittle: { bau: async () => new Bittle(), von: 0, dreh: 35 },

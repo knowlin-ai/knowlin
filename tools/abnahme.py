@@ -789,8 +789,9 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
         # Einfache Darstellung passt zur Open Duck (seit 0.38.15: grau, höher, Antennen – nicht die Microduck)
         einstellen(page, {"model_style": "einfach"})
         # seit 0.38.40 wartet die Abnahme bis zu 20 s statt fest 2,5 s (bei langsamem Rechner fiel der Schritt sonst durch)
-        eigene = ("() => { const s = window.duckpilot.scene; return !!s && !!s.einfacheOpenDuck && s.duck === s.einfacheOpenDuck "
-                  "&& s.duck !== s.simpleDuck; }")
+        # seit 0.53 hält enten3d.js die Figuren (scene.enten[art].einfach)
+        eigene = ("() => { const s = window.duckpilot.scene; const e = s && s.enten && s.enten.open_duck_mini; "
+                  "return !!e && !!e.einfach && s.duck === e.einfach && s.duck !== s.simpleDuck; }")
         try:
             page.wait_for_function(eigene, timeout=20000)
         except Exception:  # noqa: BLE001 – Ergebnis prüft die nächste Zeile

@@ -98,6 +98,35 @@ KOERPER: tuple[dict, ...] = (
             "kann": ("Walk, dance and do tricks in the simulator", "Control it by voice, with or without AI",
                      "Train and compare gaits", "Play as a team with other ducks"),
             "stand": "Ready in the simulator. Connecting a built duck is planned."}},
+    {"slug": "wonderduck", "mit": "der WonderDuck", "ueber": "die WonderDuck", "bild": "wonderduck", "pollen": False,
+     "hiwonder": True, "name": "WonderDuck",
+     "links": (("Hiwonder: WonderDuck", "https://www.hiwonder.com/products/wonderduck"),
+               ("GitHub: Hiwonder/wonderduck", "https://github.com/Hiwonder/wonderduck")),
+     "de": {"titel": "WonderDuck Simulator und App – Knowlin",
+            "beschreibung": "Knowlin simuliert Hiwonders WonderDuck mit ihrem 3D-Modell: laufen, sitzen, mit dem Schnabel "
+                            "greifen, per Sprache steuern – frei und quelloffen.",
+            "h1": "Knowlin für die WonderDuck",
+            "lead": "Die WonderDuck von Hiwonder ist eine zweibeinige Ente mit 15 Gelenken, Kamera und Schnabel. Ihre "
+                    "Software baut auf Pollens Microduck auf – deshalb kann Knowlin sie fast wie die Microduck steuern. "
+                    "In Knowlin heißt sie Wondi.",
+            "kann": ("Laufen, sitzen und mit dem Schnabel greifen im Simulator, mit Hiwonders 3D-Modell",
+                     "Sprechen und steuern: mit Claude, einem lokalen Modell oder ganz ohne KI",
+                     "Tänze auf der Zeitleiste und Ablauf-Baukasten wie bei der Microduck",
+                     "Am echten Roboter: über Hiwonders robotd, den Verbindungstest und die Roboter-Pflege"),
+            "stand": "Im Simulator fertig. Die echte WonderDuck spricht dasselbe Protokoll wie die Microduck, ist aber "
+                     "noch ungetestet; Fotos und Lautstärke kennt ihre Software noch nicht."},
+     "en": {"titel": "WonderDuck simulator and app – Knowlin",
+            "beschreibung": "Knowlin simulates Hiwonder's WonderDuck with its 3D model: walk, sit, grab with the beak, "
+                            "control it by voice – free and open source.",
+            "h1": "Knowlin for the WonderDuck",
+            "lead": "Hiwonder's WonderDuck is a two-legged duck with 15 joints, a camera and a beak. Its software builds on "
+                    "Pollen's Microduck – so Knowlin can control it almost like the Microduck. In Knowlin it is called Wondi.",
+            "kann": ("Walk, sit and grab with the beak in the simulator, with Hiwonder's 3D model",
+                     "Talk and control: with Claude, a local model or no AI at all",
+                     "Dances on the timeline and the sequence builder, as with the Microduck",
+                     "On the real robot: via Hiwonder's robotd, the connection test and robot care"),
+            "stand": "Ready in the simulator. The real WonderDuck speaks the same protocol as the Microduck but is not yet "
+                     "tested; its software doesn't know photos and volume yet."}},
     {"slug": "so-101", "mit": "dem SO-101", "ueber": "den SO-101", "bild": "ari", "pollen": False, "name": "SO-101",
      "links": (("GitHub: TheRobotStudio/SO-ARM100", "https://github.com/TheRobotStudio/SO-ARM100"),
                ("GitHub: huggingface/lerobot", "https://github.com/huggingface/lerobot")),
@@ -171,19 +200,21 @@ WORTE = {
            "code": "Quelltext auf GitHub", "mehr": "Mehr über {ueber}", "andere": "Weitere Körper",
            "frei": "Frei und quelloffen (Apache-2.0), für Windows, macOS und Linux. Ein Hobbyprojekt, nicht von den Herstellern.",
            "nachweis": "Bild: Knowlin mit dem 3D-Modell – © Pollen Robotics, CC BY-NC-SA 4.0.",
+           "nachweis_hiwonder": "Bild: Knowlin mit dem 3D-Modell der WonderDuck – © Hiwonder, CC BY-NC-SA 4.0.",
            "sprung": "Zum Inhalt springen", "alt": "{name} in Knowlins Simulator, daneben das Gespräch"},
     "en": {"start": "Back to the start page", "kann": "What Knowlin does with {name}", "stand": "Status",
            "laden": "Download Knowlin", "code": "Source code on GitHub", "mehr": "More about {name}",
            "andere": "Other bodies",
            "frei": "Free and open source (Apache-2.0), for Windows, macOS and Linux. A hobby project, not by the makers.",
            "nachweis": "Image: Knowlin with the 3D model – © Pollen Robotics, CC BY-NC-SA 4.0.",
+           "nachweis_hiwonder": "Image: Knowlin with the WonderDuck 3D model – © Hiwonder, CC BY-NC-SA 4.0.",
            "sprung": "Skip to content", "alt": "{name} in Knowlin's simulator, with the conversation next to it"},
 }
 
 
 # ── Kopfleiste mit Menü (seit 26.11., Maintainer: „wieso gibt es … bei Körper keine Dropdowns?“) ─────────────────
 # Dieselbe Leiste auf der Startseite (zweisprachig über .t-Spannen, Links relativ) und auf jeder Körper-Seite (eine
-# Sprache, Links absolut). Am Handy klappt „Menü“ sie auf; „Körper“ ist ein <details> mit den sechs Seiten.
+# Sprache, Links absolut). Am Handy klappt „Menü“ sie auf; „Körper“ ist ein <details> mit allen Körper-Seiten.
 MENUE = (("idee", "Idee", "Idea"), ("koerper", "Körper", "Bodies"), ("funktionen", "Funktionen", "Features"),
          ("sicherheit", "Sicherheit", "Safety"), ("fahrplan", "Fahrplan", "Roadmap"), ("loslegen", "Loslegen", "Get started"))
 
@@ -273,7 +304,8 @@ def seite(k: dict, sprache: str, stil: str, fuss: str, download: str) -> str:
     kann = "\n".join(f"<li>{e(z)}</li>" for z in t["kann"])
     links = "\n".join(f'<li><a href="{u}" rel="noopener">{e(n)}</a></li>' for n, u in k["links"])
     weitere = "\n".join(f'<li><a href="{start}{o["slug"]}/">{e(o["name"])}</a></li>' for o in KOERPER if o is not k)
-    nachweis = f'<p class="recht-stand">{e(w["nachweis"])}</p>' if k["pollen"] else ""
+    nachweis = (f'<p class="recht-stand">{e(w["nachweis"])}</p>' if k["pollen"] else
+                f'<p class="recht-stand">{e(w["nachweis_hiwonder"])}</p>' if k.get("hiwonder") else "")
     return f"""<!doctype html>
 <html lang="{sprache}">
 <head>

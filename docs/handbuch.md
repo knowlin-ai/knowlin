@@ -115,6 +115,24 @@ mit eigener Stimme und eigenem Charakter. Öffnen über die Kachel auf der Start
   Gesicht vor der Kamera oder eine Bewegung wecken ihn wieder. Leerlauf-Gesten halten ihn nicht wach, und nach einem
   Not-Aus weckt ihn nichts von selbst. „Gute Nacht“ schickt ihn gleich schlafen.
 
+### WonderDuck (seit 0.53)
+
+Hiwonders zweibeinige Ente (Shenzhen, Auslieferung ab 7. Dezember 2026) als siebter Körper. Ihre Software baut auf
+Pollens Microduck auf (`github.com/Hiwonder/wonderduck`, Apache-2.0): dieselben 15 Gelenke, dieselbe robotd-Schnittstelle
+(Pollens Protokoll 62). Die Verkörperung heißt **Wondi** – eine eifrige Ente, die gern Dinge im Schnabel trägt.
+
+- **Im Simulator** mit Hiwonders 3D-Modell: laufen, drehen, sitzen, Kopf bewegen, mit dem Schnabel greifen, tanzen.
+  Das Modell steht unter CC BY-NC-SA 4.0 (© Hiwonder) und liegt nicht bei Knowlin: Beim ersten Wecken lädt Knowlin es
+  von Hiwonders GitHub (etwa 70 MB, fester Stand mit Prüfsumme) und baut daraus auf deinem PC ein kleines Modell
+  (gut 4 MB); die 70 MB werden danach gelöscht. Bis dahin steht die einfache Ente. Im Offline-Modus wird nichts geladen.
+- **Was sie (noch) nicht hat:** Purzelbaum und Schuss zeigt Knowlin bei ihr nicht, und „Echte Physik“ gibt es nur für
+  die Microduck – mit Wondi läuft dann der einfache Simulator, mit Hinweis.
+- **Echte WonderDuck (ungeprüft):** Einstellungen → Körper → WonderDuck, dann „Echter Roboter“ – derselbe Weg wie bei
+  der Microduck, mit Tunnel zu Hiwonders `robotd` (Benutzer auf dem Roboter: `wonderduck`). Der Verbindungstest sagt,
+  was ihrer Software fehlt (Fotos, Lautstärke, laufende Spiele, „Foto machen“). Hiwonders eigene Bedienung (WonderDuck
+  Studio unter `http://<IP>:8090`) bleibt daneben nutzbar – nicht beide gleichzeitig steuern lassen.
+- **Not-Aus:** wie bei jedem Körper sofort stromlos, danach die Sperre.
+
 ### Stack-chan (seit 0.38.58)
 
 Ein kleiner Schreibtisch-Roboter aus der Community (Apache-2.0, heute auch als Bausatz von M5Stack): ein Würfel mit

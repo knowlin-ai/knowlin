@@ -231,7 +231,7 @@ def test_koerperwahl_bleibt_beim_koerper():
     for k, klasse in (("sim", "nur-ente"), ("physik", "nur-microduck"), ("reachy_sim", "nur-reachy"), ("robotd", "ohne-open-duck")):
         assert re.search(rf'class="[^"]*{klasse}[^"]*" type="button" data-koerper="{k}"', pop), k
     js = (STATIC / "koerperwahl.js").read_text("utf-8")
-    assert "modul: modul === 'open_duck_mini' ? modul : 'duckpilot'" in js
+    assert "modul: ['open_duck_mini', 'wonderduck'].includes(modul) ? modul : 'duckpilot'" in js   # WonderDuck seit 0.53
 
 
 def test_progressive_offenlegung_im_html():
@@ -313,8 +313,7 @@ def test_reiter_werden_nach_der_koerperwahl_neu_gezeichnet():
 def test_einfache_darstellung_passt_zur_open_duck():
     """Fund aus dem Test 5.11.2026: „3D-Darstellung ‚Einfache Ente‘ sollte auch je Roboter passen“ – Odi bekam die einfache
     Microduck. Seit 0.38.15 hat die Open Duck eine eigene einfache Gestalt (grau, höher, Antennen)."""
-    js = (STATIC / "duck3d.js").read_text(encoding="utf-8")
+    js = (STATIC / "enten3d.js").read_text(encoding="utf-8")        # seit 0.53 aus duck3d.js ausgelagert
     ente = (STATIC / "ente3d.js").read_text(encoding="utf-8")       # die einfachen Gestalten (seit 0.38.18 eigenes Modul)
-    assert "new Duck('open_duck')" in js and "art === 'open_duck'" in ente
-    i = js.index("if (this.koerper === 'open_duck_mini')")
-    assert "this.simpleDuck" not in js[i:i + 400]
+    assert "einfach: 'open_duck'" in js and "new Duck(e.einfach)" in js and "art === 'open_duck'" in ente
+    assert "simpleDuck" not in js                                    # nie die einfache Microduck

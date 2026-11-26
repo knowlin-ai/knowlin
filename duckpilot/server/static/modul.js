@@ -12,6 +12,7 @@ export const KOERPER = {
   duckpilot: { klasse: 'microduck', name: 'Microduck', ente: true },
   reachy_mini: { klasse: 'reachy', name: 'Reachy Mini', ente: false },
   open_duck_mini: { klasse: 'open-duck', name: 'Open Duck Mini v2', ente: true },
+  wonderduck: { klasse: 'wonderduck', name: 'WonderDuck', ente: true },  // Hiwonder (seit 0.53)
   so101: { klasse: 'so101', name: 'SO-101', ente: false },             // Arm (seit 0.38.47, G5)
   stackchan: { klasse: 'stackchan', name: 'Stack-chan', ente: false },  // Kopf mit Gesicht (seit 0.38.58)
   bittle: { klasse: 'bittle', name: 'Bittle X', ente: false },          // Roboterhund (seit 0.38.59)

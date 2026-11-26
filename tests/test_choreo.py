@@ -427,7 +427,7 @@ def test_body_can_be_switched_from_the_top_and_extra_ducks_have_contact_shadows(
     for k in ("sim", "physik", "robotd"):
         assert f'data-koerper="{k}"' in html
     assert 'id="koerper-btn"' in html and 'aria-controls="koerper-pop"' in html
-    assert "modul: modul === 'open_duck_mini' ? modul : 'duckpilot', backend: 'sim', sim_physik: k === 'physik' }" in wahl and "btn.disabled = fern" in wahl
+    assert "modul: ['open_duck_mini', 'wonderduck'].includes(modul) ? modul : 'duckpilot', backend: 'sim', sim_physik: k === 'physik' }" in wahl and "btn.disabled = fern" in wahl
     assert "koerperwahl.update(config);" in app
     assert "_kontaktSchatten()" in d3 and "e._schatten.position.set" in d3
 

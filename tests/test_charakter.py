@@ -50,6 +50,7 @@ def test_startwerte_passen_zum_koerper():
     assert start["reachy_mini"]["energie"] < 0.34 and start["reachy_mini"]["humor"] < 0.5      # ruhig-neugierig
     assert start["open_duck_mini"]["humor"] >= 0.5                                              # tollpatschig-verspielt
     assert 0.3 < start["so101"]["energie"] < 0.5 and start["so101"]["humor"] < 0.5              # ruhig-genau (0.38.47)
+    assert start["wonderduck"]["energie"] >= 0.67                                               # eifrig (0.53)
     assert len({persona(s["energie"], s["humor"]) for s in start.values()}) == len(start)      # jede anders
 
 

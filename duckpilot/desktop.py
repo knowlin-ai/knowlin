@@ -114,6 +114,8 @@ VERKNUEPFUNGEN = {
                     "knowlin.ico"),
     "open-duck-mini": ("Knowlin - Open Duck Mini.lnk", "-m duckpilot --app --modul open_duck_mini",
                        "Knowlin – direkt zu Open Duck Mini", "knowlin.ico"),
+    "wonderduck": ("Knowlin - WonderDuck.lnk", "-m duckpilot --app --modul wonderduck", "Knowlin – direkt zu Wondi (WonderDuck)",
+                   "knowlin.ico"),
     "stackchan": ("Knowlin - Stack-chan.lnk", "-m duckpilot --app --modul stackchan", "Knowlin – direkt zu Stacki (Stack-chan)",
                   "knowlin.ico"),
     "bittle": ("Knowlin - Bittle X.lnk", "-m duckpilot --app --modul bittle", "Knowlin – direkt zu Bello (Bittle X)", "knowlin.ico"),

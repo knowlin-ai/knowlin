@@ -160,7 +160,7 @@ flowchart LR
 2. Double-click it. Python is included, no administrator rights needed. If Windows says “Windows protected your PC”,
    click **More info → Run anyway** – the installer isn't signed yet.
 3. Start Knowlin from **Knowlin** in the start menu or on the desktop. The **First steps** assistant asks for the
-   language, who you wake first (all six bodies run in the simulator right away) and what Knowlin thinks with: no model
+   language, who you wake first (all seven bodies run in the simulator right away) and what Knowlin thinks with: no model
    for now (simple commands like “walk forward”, “dance”, “stop”), a local model, or a cloud model (Claude, OpenAI,
    Gemini, Mistral, OpenRouter) with your own key. The key is stored in the operating system's vault, never in a file.
    At the end the chosen body wakes up in the cockpit, with sentences to click.

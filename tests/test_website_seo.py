@@ -155,7 +155,7 @@ def test_koerperseiten_mit_pollens_bild_nennen_die_lizenz(tmp_path):
     for k in KOERPER:
         s = (ziel / k["slug"] / "index.html").read_text(encoding="utf-8")
         haupt = s.split("<main")[1].split("</main>")[0]
-        assert ("CC BY-NC-SA 4.0" in haupt) == k["pollen"], k["slug"]
+        assert ("CC BY-NC-SA 4.0" in haupt) == (k["pollen"] or k.get("hiwonder", False)), k["slug"]
 
 
 def test_steckbrief_fuehrt_auf_die_koerperseite():
@@ -164,7 +164,7 @@ def test_steckbrief_fuehrt_auf_die_koerperseite():
 
     s = (Path(__file__).resolve().parents[1] / "website" / "index.html").read_text(encoding="utf-8")
     seiten = dict(re.findall(r"(\w+): '([a-z0-9-]+)'", s.split("const SEITEN = {")[1].split("}")[0]))
-    assert sorted(seiten.values()) == sorted(k["slug"] for k in KOERPER)
+    assert set(seiten.values()) <= {k["slug"] for k in KOERPER}         # die WonderDuck nur im Menü (seit 0.53)
     assert "koerper-seite-knopf" in s and "Alles zu ${k.name}" in s and "Everything about ${k.name}" in s
 
 

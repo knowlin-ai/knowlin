@@ -13,6 +13,8 @@ const warte = (ms) => new Promise((r) => setTimeout(r, ms));
 // Umrisse der Körper (Strich, currentColor) – kein Markenzeichen, nur die Gestalt
 const UMRISS = {
   duckpilot: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="27" cy="12" r="6"/><path d="M33 12h7l-7 3"/><path d="M23 17c-6 1-11 6-11 13 0 6 5 9 12 9s13-3 13-10c0-4-2-7-6-9"/><path d="M20 39l-2 6M28 39l2 6M15 45h6M27 45h6"/></svg>',
+  // WonderDuck (seit 0.53): dieselbe Gestalt wie die Microduck – zweibeinige Ente
+  wonderduck: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="27" cy="12" r="6"/><path d="M33 12h7l-7 3"/><path d="M23 17c-6 1-11 6-11 13 0 6 5 9 12 9s13-3 13-10c0-4-2-7-6-9"/><path d="M20 39l-2 6M28 39l2 6M15 45h6M27 45h6"/></svg>',
   'reachy-mini': '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M17 4l3 9M31 4l-3 9"/><rect x="11" y="13" width="26" height="14" rx="7"/><circle cx="19" cy="20" r="2.5"/><circle cx="29" cy="20" r="2.5"/><path d="M19 27l-2 5M29 27l2 5M24 27v5"/><path d="M13 44c0-8 4-12 11-12s11 4 11 12z"/></svg>',
   'open-duck-mini': '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 3l2 6M29 3l-2 6"/><path d="M15 15a9 6.5 0 0 1 18 0v2H15z"/><path d="M33 15.5h6"/><path d="M24 17v5"/><rect x="15" y="22" width="18" height="11" rx="5.5"/><path d="M19 33l-3 6 3 6M29 33l3 6-3 6"/></svg>',
   // SO-101: Sockel, zwei Glieder, Greifer (seit 0.38.51)
@@ -33,7 +35,7 @@ const UMRISS = {
 // Startseite fehlende Porträts selbst aus den geladenen Modellen (`portraet3d.js`) und legt sie am PC ab – bis dahin
 // steht der Umriss da.
 const BILD = (id) => `/api/portraet/${id}.png`;
-const RENDERBAR = new Set(['duckpilot', 'reachy-mini', 'open-duck-mini', 'so101', 'stackchan', 'bittle']);
+const RENDERBAR = new Set(['duckpilot', 'reachy-mini', 'open-duck-mini', 'wonderduck', 'so101', 'stackchan', 'bittle']);
 const ohneBild = new Set();             // Körper ohne Porträt (aus /api/module) – gar nicht erst anfragen
 const kisten = new Map();               // id → Porträt-Boxen auf der Seite (zum Nachreichen)
 
@@ -251,7 +253,7 @@ export function initStart({ $, api, el, toast, showView, save, isRemote, getConf
   // Zurück zu Knowlin: Porträt und Name der Verkörperung, die gerade einen Körper hat
   function zurueck() {
     const c = getConfig() || {};
-    const id = { reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', so101: 'so101', stackchan: 'stackchan', bittle: 'bittle' }[c.modul] || 'duckpilot';
+    const id = { reachy_mini: 'reachy-mini', open_duck_mini: 'open-duck-mini', wonderduck: 'wonderduck', so101: 'so101', stackchan: 'stackchan', bittle: 'bittle' }[c.modul] || 'duckpilot';
     return bodyToMind($, { id, modell: '', figur: c.duck_name || 'Quacki' });
   }
 
