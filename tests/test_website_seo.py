@@ -166,3 +166,22 @@ def test_steckbrief_fuehrt_auf_die_koerperseite():
     seiten = dict(re.findall(r"(\w+): '([a-z0-9-]+)'", s.split("const SEITEN = {")[1].split("}")[0]))
     assert sorted(seiten.values()) == sorted(k["slug"] for k in KOERPER)
     assert "koerper-seite-knopf" in s and "Alles zu ${k.name}" in s and "Everything about ${k.name}" in s
+
+
+def test_menue_mit_koerpern_auf_startseite_und_koerperseiten(tmp_path):
+    """26.11. („wieso gibt es … bei Körper keine Dropdowns?“, „nur zurück zur Startseite – sieht komisch aus“):
+    überall dieselbe Leiste mit „Körper“ zum Aufklappen und einem Menü-Knopf fürs Handy."""
+    from website_koerper import KOERPER, MENUE, pfade
+
+    ziel = bauen(tmp_path / "seite")
+    for pfad in ["index.html", "en/index.html", *pfade()]:
+        s = (ziel / pfad).read_text(encoding="utf-8")
+        assert s.count('class="menue-koerper"') == 1 and 'class="menue-knopf"' in s and "menue-knopf" in s.split("<script>")[-1]
+        nav = s.split('id="navi"')[1].split("</nav>")[0]
+        for k in KOERPER:
+            assert f'{k["slug"]}/"' in nav
+        assert all(f'#{anker}"' in nav for anker, _, _ in MENUE)
+        if pfad not in ("index.html", "en/index.html"):
+            slug = pfad.removeprefix("en/").split("/")[0]
+            assert f'href="/{"en/" if pfad.startswith("en/") else ""}{slug}/" aria-current="page"' in nav
+            assert "Zur Startseite" not in s and "Back to the start page" not in s

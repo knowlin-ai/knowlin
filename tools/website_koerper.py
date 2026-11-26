@@ -181,6 +181,64 @@ WORTE = {
 }
 
 
+# ── Kopfleiste mit Menü (seit 26.11., Maintainer: „wieso gibt es … bei Körper keine Dropdowns?“) ─────────────────
+# Dieselbe Leiste auf der Startseite (zweisprachig über .t-Spannen, Links relativ) und auf jeder Körper-Seite (eine
+# Sprache, Links absolut). Am Handy klappt „Menü“ sie auf; „Körper“ ist ein <details> mit den sechs Seiten.
+MENUE = (("idee", "Idee", "Idea"), ("koerper", "Körper", "Bodies"), ("funktionen", "Funktionen", "Features"),
+         ("sicherheit", "Sicherheit", "Safety"), ("fahrplan", "Fahrplan", "Roadmap"), ("loslegen", "Loslegen", "Get started"))
+
+
+def _t(de: str, en: str, sprache: str | None) -> str:
+    if sprache is None:
+        return f'<span class="t" lang="de">{html.escape(de)}</span><span class="t" lang="en">{html.escape(en)}</span>'
+    return html.escape(de if sprache == "de" else en)
+
+
+def navigation(sprache: str | None = None, aktuell: str | None = None) -> str:
+    """Knopf „Menü“ (nur am Handy) und die Navigation. `sprache=None`: Startseite (beide Sprachen, relative Links)."""
+    basis = "" if sprache is None else ("/en/" if sprache == "en" else "/")
+    teile = []
+    for anker, de, en in MENUE:
+        if anker != "koerper":
+            teile.append(f'<a href="{basis}#{anker}">{_t(de, en, sprache)}</a>')
+            continue
+        eintraege = [f'<li><a href="{basis}#koerper">{_t("Alle im Überblick", "All at a glance", sprache)}</a></li>']
+        for k in KOERPER:
+            cur = ' aria-current="page"' if k["slug"] == aktuell else ""
+            eintraege.append(f'<li><a href="{basis}{k["slug"]}/"{cur}>{html.escape(k["name"])}</a></li>')
+        teile.append(f'<details class="menue-koerper"><summary{" data-hier" if aktuell else ""}>{_t(de, en, sprache)}</summary>'
+                     f'<ul>{"".join(eintraege)}</ul></details>')
+    label = "Seite" if sprache != "en" else "Site"
+    return (f'<nav class="navi" id="navi" aria-label="{label}">{"".join(teile)}</nav>'
+            f'<button type="button" class="menue-knopf" aria-expanded="false" aria-controls="navi">'
+            f'{_t("Menü", "Menu", sprache)}</button>')
+
+
+MENUE_JS = """<script>
+(() => {   // Menü am Handy auf und zu, „Körper“ schließt bei Klick daneben oder Esc
+  const knopf = document.querySelector('.menue-knopf'), navi = document.getElementById('navi');
+  const liste = document.querySelector('.menue-koerper');
+  if (!knopf || !navi) return;
+  const zu = () => { navi.classList.remove('offen'); knopf.setAttribute('aria-expanded', 'false'); };
+  knopf.addEventListener('click', () => {
+    const auf = !navi.classList.contains('offen');
+    navi.classList.toggle('offen', auf);
+    knopf.setAttribute('aria-expanded', String(auf));
+  });
+  navi.addEventListener('click', (e) => { if (e.target.closest('a')) { zu(); if (liste) liste.open = false; } });
+  document.addEventListener('click', (e) => {
+    if (liste && !e.target.closest('.menue-koerper')) liste.open = false;
+    if (!e.target.closest('.leiste')) zu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (liste && liste.open) { liste.open = false; liste.querySelector('summary').focus(); }
+    else if (navi.classList.contains('offen')) { zu(); knopf.focus(); }
+  });
+})();
+</script>"""
+
+
 def adresse(slug: str, sprache: str) -> str:
     return f"{ADRESSE}{'en/' if sprache == 'en' else ''}{slug}/"
 
@@ -245,7 +303,7 @@ def seite(k: dict, sprache: str, stil: str, fuss: str, download: str) -> str:
 <a class="sprung" href="#titel">{e(w["sprung"])}</a>
 <header class="leiste"><div class="huelle">
 <a class="marke" href="{start}" aria-label="Knowlin"><img src="/bilder/zeichen-64.webp" alt="" width="30" height="30">Knowlin</a>
-<nav class="navi" aria-label="{e(t["h1"])}"><a href="{start}">{e(w["start"])}</a></nav>
+{navigation(sprache, slug)}
 <nav class="sprache koerper-sprache" aria-label="Sprache · Language">
 <a href="{adresse(slug, "de").removeprefix(ADRESSE[:-1])}" hreflang="de" lang="de"{' aria-current="page"' if sprache == "de" else ""}>DE</a>
 <a href="{adresse(slug, "en").removeprefix(ADRESSE[:-1])}" hreflang="en" lang="en"{' aria-current="page"' if sprache == "en" else ""}>EN</a>
@@ -275,14 +333,15 @@ def seite(k: dict, sprache: str, stil: str, fuss: str, download: str) -> str:
 </ul>
 </main>
 {fuss}
+{MENUE_JS}
 </body>
 </html>
 """
 
 
 ZUSATZ_STIL = """<style>
-.koerper-sprache { display: flex; gap: 4px; }
-.koerper-sprache a { display: inline-block; padding: 6px 10px; border-radius: 8px; color: inherit; text-decoration: none; }
+.koerper-sprache { display: flex; gap: 4px; border: 1px solid rgb(255 255 255 / 0.16); border-radius: var(--r-knopf); padding: 3px; }
+.koerper-sprache a { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 30px; border-radius: var(--r-knopf); color: #a2a9b3; text-decoration: none; font: 600 0.8125rem/1 var(--schrift-text); }
 .koerper-sprache a[aria-current="page"] { background: #f3f4f6; color: #07080a; }
 .koerper-seite ul { padding-left: 1.25rem; display: grid; gap: 6px; }
 .koerper-bild { margin: 28px 0 8px; }

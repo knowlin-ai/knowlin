@@ -109,6 +109,44 @@ a { color: inherit; }
 }
 .sprache button[aria-pressed="true"] { background: #f3f4f6; color: #07080a; }
 @media (max-width: 760px) { .navi { display: none; } .sprache { margin-left: auto; } }
+/* Menü mit „Körper“ zum Aufklappen (seit 26.11.) – gleiche Leiste auf den Körper-Seiten */
+.menue-koerper { position: relative; }
+.menue-koerper summary { list-style: none; cursor: pointer; color: #a2a9b3; font-size: 0.9375rem; padding-block: 6px;
+  display: flex; align-items: center; gap: 7px; }
+.menue-koerper summary::-webkit-details-marker { display: none; }
+.menue-koerper summary::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.menue-koerper[open] summary::after { transform: translateY(1px) rotate(225deg); }
+.menue-koerper[open] summary, .menue-koerper summary[data-hier] { color: #f3f4f6; }
+.menue-koerper ul { position: absolute; top: calc(100% + 12px); left: -12px; z-index: 30; min-width: 220px; margin: 0;
+  padding: 6px; list-style: none; display: grid; background: #111317; border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 12px; box-shadow: 0 18px 40px -12px rgb(0 0 0 / 0.65); }
+.menue-koerper li:first-child { border-bottom: 1px solid rgb(255 255 255 / 0.08); margin-bottom: 4px; padding-bottom: 4px; }
+.navi .menue-koerper li a { display: block; padding: 9px 10px; border-radius: 8px; color: #d4d8de; }
+.navi .menue-koerper li a::after { content: none; }
+.navi .menue-koerper li a[aria-current="page"] { color: #f6c48a; }
+@media (hover: hover) and (pointer: fine) {
+  .menue-koerper summary:hover { color: #f3f4f6; }
+  .navi .menue-koerper li a:hover { color: #f3f4f6; background: rgb(255 255 255 / 0.06); }
+}
+.menue-knopf { display: none; }
+@media (max-width: 760px) {
+  .menue-knopf { display: inline-flex; align-items: center; margin-left: auto; min-height: 36px; padding: 0 14px;
+    font: 600 0.875rem/1 var(--schrift-text); color: #f3f4f6; background: none; cursor: pointer;
+    border: 1px solid rgb(255 255 255 / 0.16); border-radius: var(--r-knopf); }
+  .menue-knopf[aria-expanded="true"] { background: #f3f4f6; color: #07080a; }
+  .leiste .huelle { gap: 12px; }
+  .sprache { margin-left: 0; }
+  .navi.offen { display: grid; position: absolute; top: 100%; left: 0; right: 0; gap: 0; margin: 0;
+    padding: 4px max(20px, env(safe-area-inset-left)) 16px; background: #07080a;
+    border-bottom: 1px solid rgb(255 255 255 / 0.1); max-height: calc(100dvh - 80px); overflow-y: auto; }
+  .navi.offen > a, .navi.offen summary { padding: 14px 0; font-size: 1.0625rem; color: #e6e8eb;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08); }
+  .navi.offen a::after { content: none; }
+  .navi.offen .menue-koerper ul { position: static; min-width: 0; padding: 4px 0 8px 12px; background: none; border: 0;
+    box-shadow: none; }
+  .navi.offen .menue-koerper li:first-child { border: 0; margin: 0; padding: 0; }
+}
 
 /* ── Knöpfe ── */
 .knopf {
@@ -447,14 +485,7 @@ footer .rechtliches a { display: inline-block; padding-block: 6px; }
 <header class="leiste">
   <div class="huelle">
     <a class="marke" href="#start" aria-label="Knowlin – Startseite"><img src="bilder/zeichen-64.webp" alt="" width="30" height="30">Knowlin</a>
-    <nav class="navi" aria-label="Seite">
-      <a href="#idee"><span class="t" lang="de">Idee</span><span class="t" lang="en">Idea</span></a>
-      <a href="#koerper"><span class="t" lang="de">Körper</span><span class="t" lang="en">Bodies</span></a>
-      <a href="#funktionen"><span class="t" lang="de">Funktionen</span><span class="t" lang="en">Features</span></a>
-      <a href="#sicherheit"><span class="t" lang="de">Sicherheit</span><span class="t" lang="en">Safety</span></a>
-      <a href="#fahrplan"><span class="t" lang="de">Fahrplan</span><span class="t" lang="en">Roadmap</span></a>
-      <a href="#loslegen"><span class="t" lang="de">Loslegen</span><span class="t" lang="en">Get started</span></a>
-    </nav>
+    {{NAVIGATION}}
     <div class="sprache" role="group" aria-label="Sprache · Language">
       <button type="button" id="sprache-de" data-sprache="de" aria-pressed="true">DE</button>
       <button type="button" id="sprache-en" data-sprache="en" aria-pressed="false">EN</button>
@@ -1403,3 +1434,4 @@ profil = Koerper(
   }
 })();
 </script>
+{{MENUE_JS}}

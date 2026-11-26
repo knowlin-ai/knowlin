@@ -42,7 +42,12 @@ def test_lernen_mit_festem_blick():
 def test_idee_von_mit_fuer_dich():
     """Vision auf der Website (14.11.): „er lernt von mir, mit mir, für mich“ – Assistenten mit Wesenszug."""
     seite = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
-    assert '<section id="idee"' in seite and 'href="#idee"' in seite
+    import sys
+
+    sys.path.insert(0, str(ROOT / "tools"))
+    from website_koerper import navigation  # die Kopfleiste kommt seit 26.11. aus website_koerper.py
+
+    assert '<section id="idee"' in seite and 'href="#idee"' in navigation()
     for teil in ("Von dir", "Mit dir", "Für dich", "From you", "With you", "For you", "Wesenszug"):
         assert teil in seite
 
