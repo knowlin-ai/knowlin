@@ -9,6 +9,31 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.55.0 – 2026-11-27 – Aufgaben: Linie folgen, Farbe folgen, folgen, ausweichen, tragen
+
+### Neu
+- **Steuern → Aufgaben** (nach Hiwonders Studio für die WonderDuck), für jeden Körper mit Beinen und Kamera: fünf
+  Karten – Linie folgen, Farbe folgen, dir folgen, Hindernissen ausweichen, Dinge tragen.
+- **Linie folgen** (`motion/aufgaben.py` `LinieFolgen`, Werkzeug `linie_folgen`): zielt auf die Linie voraus, richtet sich
+  nach ihrer Richtung, in Kurven langsamer; sucht, wenn sie weg ist, und hört nach 8 s auf. Im Simulator legt „Linie
+  legen“ ein Klebeband als Runde um den Couchtisch (`linie.py`, mit Abstand zu Möbeln und Dingen), gezeichnet in 3D.
+- **Farbe folgen** (`FarbeFolgen`, Werkzeug `farbe_folgen`): Rot, Gelb, Grün, Blau – zum nächsten Ding der Farbe und
+  davor stehen bleiben. Die Dinge im Simulator tragen jetzt ihre Farbe in der Wahrnehmung.
+- **Am echten Roboter:** `farbsicht.py` sucht Linie oder Farbe im Bild der Kopfkamera – nur solange die Aufgabe läuft,
+  ohne Bilder zu speichern – und meldet dieselben Dinge wie der Simulator.
+- Ohne Sprachmodell: „Folge der Linie“, „Folge dem Blauen“.
+
+### Geändert
+- Dinge tragen zu einem Möbel geht im Simulator auch, wenn sie es gerade nicht sieht („Bring das Klötzchen zur Kiste“).
+- Roadmap: „WonderDuck selbstständig“ erledigt.
+
+### Sicherheit
+- Alle Aufgaben laufen als Verhalten der Engine: Not-Aus beendet sofort, in der Sperre danach startet keine, der
+  Hindernis-Reflex bleibt an. Angezeigt nur für Körper mit Beinen und Kamera.
+
+### Nicht geprüft
+- Linie und Farbe am echten Roboter (Schwellen geschätzt, keine echte Kamera im Test) – nur mit erzeugten Bildern.
+
 ## 0.54.0 – 2026-11-27 – WonderDuck: Farben, Schuss, Kopfstand; Lernwege nach Hiwonders Kurs
 
 ### Neu

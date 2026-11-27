@@ -1,0 +1,12 @@
+/* Selbstständige Aufgaben (seit 0.55): Linie, Farbe, folgen, ausweichen, tragen. Nur Tokens. */
+[data-part="aufgaben"] [hidden] { display: none; }
+.af-tragen { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-04); margin: var(--spacing-03) 0; }
+.af-tragen .field { display: grid; gap: var(--spacing-02); }
+.af-meldung { min-height: 1.5em; margin-top: var(--spacing-04); }
+.af-punkt--rot { background: var(--farbe-ziel-rot); }
+.af-punkt--gelb { background: var(--farbe-ziel-gelb); }
+.af-punkt--gruen { background: var(--farbe-ziel-gruen); }
+.af-punkt--blau { background: var(--farbe-ziel-blau); }
+@media (max-width: 671.98px) {
+  .af-tragen { grid-template-columns: 1fr; }
+}

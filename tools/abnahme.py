@@ -1244,6 +1244,24 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Choreografie zum Ziehen: Palette, Einfügen, Block löschen", chips >= 5 and nachher == vorher + 1
              and geloescht == nachher - 1, f"{chips} Bausteine · {vorher} → {nachher} → {geloescht} Schritte")
 
+    # 13s · Seit 0.55: Aufgaben – Linie im Simulator legen, ihr folgen lassen, anhalten, Linie wieder weg
+    page.evaluate("() => window.duckpilot.showView('tricks', 'aufgaben')")
+    page.wait_for_timeout(1200)
+    karten = page.locator("#af-karten > section:visible").count()
+    page.click("#af-linie-legen")
+    page.wait_for_timeout(800)
+    liegt = page.evaluate("() => fetch('/api/aufgaben').then(r => r.json()).then(j => !!j.linie)")
+    page.click("#af-linie-los")
+    page.wait_for_timeout(2500)
+    laeuft = page.evaluate("() => (window.duckpilot.scene.state || {}).behavior || ''")
+    b.foto(page, "13s-aufgaben", "Steuern → Aufgaben: Linie, Farbe, folgen, ausweichen, tragen")
+    page.locator(".af-stopp").first.click()
+    page.click("#af-linie-weg")
+    page.wait_for_timeout(500)
+    weg = page.evaluate("() => fetch('/api/aufgaben').then(r => r.json()).then(j => !j.linie)")
+    b.pruefe("Aufgaben: fünf Karten, Linie legen, folgen, anhalten, wegnehmen", karten == 5 and liegt and weg,
+             f"{karten} Karten · Linie {'lag' if liegt else 'fehlte'} · Verhalten „{laeuft}“")
+
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")
     lm = page.evaluate("() => fetch('/api/anbieter/modelle', {method: 'POST', headers: {'Content-Type': 'application/json'},"

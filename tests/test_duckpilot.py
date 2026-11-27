@@ -169,6 +169,7 @@ def test_every_tool_executes():
             "dance": {"seconds": 2, "then": True}, "explore": {"seconds": 3, "then": True},
             "laser_folgen": {"seconds": 5, "then": True},
             "mir_folgen": {"seconds": 10, "then": True},
+            "linie_folgen": {"seconds": 5, "then": True}, "farbe_folgen": {"farbe": "blau", "seconds": 5, "then": True},
             "choreography": {"keyframes": [{"t": 0}, {"t": 0.5, "kopf": {"drehen": 20}}], "then": True},
             "pause": {"seconds": 0.2, "then": True}, "wait": {"max_seconds": 0.5},
             "power": {"action": "sit_down"}, "set_goofy": {"an": False}, "kopf_ruhig": {"an": True}, "stop": {},

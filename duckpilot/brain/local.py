@@ -33,7 +33,7 @@ SUGGESTED = {
 # Kleinere Modelle verlaufen sich in 30 Werkzeugen – die wichtigsten reichen.
 LOCAL_TOOLS = {
     "walk", "turn", "go_to", "approach", "umrunden", "head", "look_around", "skill", "sound", "emote", "dance", "explore", "laser_folgen", "mir_folgen",
-    "choreography", "pause", "power", "remember", "do_trick", "go_to_place", "forget", "trick_feedback",
+    "linie_folgen", "farbe_folgen", "choreography", "pause", "power", "remember", "do_trick", "go_to_place", "forget", "trick_feedback",
     "set_goofy", "stop", "get_status", "parcours_bauen", "parcours_testen", "bewegung_ueben",
     # seit 0.38.66 (Fund 15.11.: „mit Claude war es besser – auch beim Ballspielen“): Ball, Dinge und die anderen Enten.
     # Ohne diese Werkzeuge konnte das eigene Modell „schieß mir den Ball zu“ gar nicht ausführen – dann sprang die

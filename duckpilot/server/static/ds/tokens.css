@@ -133,6 +133,7 @@
   --cloud-ramp: linear-gradient(90deg, #6a6a6a 0 14%, #0f62fe 14%, #4589ff 32%, #78a9ff 50%, #a6c8ff 68%, #d0e2ff 84%, #edf5ff);
   --farbe-cream: #f4f2ec; --farbe-graphite: #4a4d53; --farbe-lavender: #c6b3e6; --farbe-sky: #a6cbe9; /* Microduck-Farben */
   --farbe-wd-gelb: #ffcf29; --farbe-wd-blau: #102c60; --farbe-wd-schwarz: #424548; --farbe-wd-weiss: #f2f2f2; /* WonderDuck (0.54) */
+  --farbe-ziel-rot: #d93a32; --farbe-ziel-gelb: #f2c230; --farbe-ziel-gruen: #3c9a4b; --farbe-ziel-blau: #3a78d0; /* Farbe folgen (0.55) */
   --laser: #e8341f;                        /* der echte Laserpunkt */
   /* Kategorien der Hirnaktivität (validiert, alle Paare; immer mit Namen) – hirn.js liest dieselben Tokens */
   --cat-wer: #3987e5; --cat-erleben: #199e70; --cat-gefuehl: #d95926; --cat-rahmen: #8d8d8d;

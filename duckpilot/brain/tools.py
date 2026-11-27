@@ -18,6 +18,8 @@ from ..api import SOUND_TAGS, Head, Twist
 from ..motion import behaviors as B
 from ..motion import koerper_tanz as KT
 from ..motion.apportieren import Apportieren
+from ..motion.aufgaben import WERKZEUGE as AUFGABEN_WERKZEUGE
+from ..motion.aufgaben import FarbeFolgen, LinieFolgen
 from ..motion.engine import MotionEngine
 from .tools_ablauf import ABLAUF_TOOL, AblaufWerkzeuge
 from .tools_absicht import ABSICHT_TOOL, ARM_TOOL, SELBSTBILD_TOOL, AbsichtWerkzeuge, werkbank_werkzeuge
@@ -360,6 +362,8 @@ TOOLS: list[dict[str, Any]] = [
                            "then": THEN},
         },
     },
+    *({**w, "input_schema": {**w["input_schema"], "properties": {**w["input_schema"]["properties"], "then": THEN}}}
+      for w in AUFGABEN_WERKZEUGE),                        # Linie und Farbe folgen (seit 0.55)
     {
         "name": "choreography",
         "description": (
@@ -536,6 +540,7 @@ def _num(d: dict[str, Any], key: str, default: float) -> float:
 MEMORY_TOOLS = {"remember", "do_trick", "go_to_place", "recall", "forget", "trick_feedback"}
 # Werkzeuge, die Beine brauchen – ein Körper ohne Beine (Reachy Mini, seit 0.38.1) bekommt sie nicht angeboten
 BEINE_TOOLS = {"walk", "drive", "go_to", "approach", "umrunden", "apportieren", "explore", "laser_folgen", "mir_folgen", "karte",
+               "linie_folgen", "farbe_folgen",
                "schiessen", "team", "skill", "go_to_place", "enten", "handeln", "trick_vom_hub", "parcours_bauen",
                "parcours_testen", "bewegung_ueben", "training_vorschlagen", "training_kostenlos", "training_auswerten"}
 # Was ein Werkzeug sonst noch vom Körper braucht (seit 0.38.6) – Eigenschaften aus `eigenschaften()`, gelernte
@@ -547,7 +552,8 @@ BRAUCHT_EIGENSCHAFT = {"explore": {"tiefensensor"}, "karte": {"tiefensensor"}, "
                        "choreography": {"kopf"}, "auftrag": {"greifer"},   # Werkbank-Aufträge (0.38.54)
                        "tictactoe": {"greifer"},
                        # seit 0.38.64: Laserpunkt und Mensch sieht der Körper nur mit eigener Kamera (Bello hat keine)
-                       "laser_folgen": {"beine", "kamera"}, "mir_folgen": {"beine", "kamera"}}
+                       "laser_folgen": {"beine", "kamera"}, "mir_folgen": {"beine", "kamera"},
+                       "linie_folgen": {"beine", "kamera"}, "farbe_folgen": {"beine", "kamera"}}
 # Drehen geht mit Beinen, Rädern oder einem drehbaren Körper (Reachy) – irgendeins davon reicht
 DREHEN = {"beine", "raeder", "koerperdrehung"}
 # Tanzen (seit 0.43 für jede Bauart): mit einem Kopf oder einem Arm – irgendeins davon reicht
@@ -748,9 +754,12 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
                 break
         else:
             pos = self._sichtung(ding)
-            if pos is None:
+            welt = getattr(self.engine.backend, "world_model", None)        # Simulator: Möbel stehen fest (seit 0.55)
+            m = next((m for m in [*(welt.boxes if welt else []), *(welt.cylinders if welt else [])]
+                      if w in m.name.lower()), None)
+            if pos is None and m is None:
                 return None
-            (x, y), name, moebel = pos, ding, False
+            (x, y), name, moebel = ((m.x, m.y), m.name, True) if pos is None else (pos, ding, False)
         d = math.hypot(st.x - x, st.y - y) or 1.0
         abstand = 0.45 if moebel else 0.22
         return (x + (st.x - x) / d * abstand, y + (st.y - y) / d * abstand), f"neben {name}"
@@ -1258,6 +1267,10 @@ class ToolRunner(LabWerkzeuge, RaumWerkzeuge, AbsichtWerkzeuge, ErinnerWerkzeuge
             return started(B.FollowMe(_num(a, "seconds", 300)))
         if name == "laser_folgen":
             return started(B.FollowLaser(_num(a, "seconds", 120)))
+        if name == "linie_folgen":
+            return started(LinieFolgen(_num(a, "seconds", 120), _num(a, "tempo", 0.1)))
+        if name == "farbe_folgen":
+            return started(FarbeFolgen(str(a.get("farbe") or "rot"), _num(a, "seconds", 120)))
         if name == "choreography":
             spec = list(a.get("keyframes") or [])
             loops = int(_num(a, "loops", 1))

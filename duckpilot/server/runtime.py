@@ -187,6 +187,9 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self.nfc = TagStore(S.settings_path().parent / "nfc_tags.json")
 
         self.laser_watch = LaserWatch()
+        from ..farbsicht import AufgabenSicht
+
+        self.aufgaben_sicht = AufgabenSicht()          # Linie und Farbe im Kamerabild des echten Roboters (seit 0.55)
         from ..augen import Eyes
         from ..faces import Faces
 
@@ -474,6 +477,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         self._tasks.append(asyncio.create_task(self._watch_update(), name="watch-update"))
         self._tasks.append(asyncio.create_task(self._watch_online_update(), name="watch-online-update"))
         self._tasks.append(asyncio.create_task(self.laser_watch.run(self), name="watch-laser"))
+        self._tasks.append(asyncio.create_task(self.aufgaben_sicht.run(self), name="watch-aufgaben"))
         self._tasks.append(asyncio.create_task(self.erfahrung.run(), name="erfahrungsnetz"))
         if self.modell.missing():
             self._tasks.append(asyncio.create_task(self.load_modell(), name="pollen-modell"))

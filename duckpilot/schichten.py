@@ -28,7 +28,8 @@ SCHICHTEN: dict[str, tuple[str, ...]] = {
         "brain", "buddy", "erfahrung_service", "voice", "faces", "augen", "nfc", "remote", "tailscale", "mdns",
         "mcp_server", "mcp_bridge", "skills.alltag", "choreo", "ablauf", "musik_struktur", "sichtungen", "tagebuch", "wetter", "nachschlagen", "routinen", "kalender_abo", "ente_sagt", "verstecken", "haus", "traum", "mentor_ziele", "lab_bereich", "knowlets", "knowlet_hub", "sicherungspunkte",
     ),
-    "motorik": ("motion", "api", "joints", "protest", "laser", "koerper_pruefung", "rennen", "marionette"),
+    "motorik": ("motion", "api", "joints", "protest", "laser", "koerper_pruefung", "rennen", "marionette", "linie",
+                "farbsicht"),
     "lab": (
         "physics", "training", "kaggle_training", "lernschleife", "mission", "acrobatics_service",
         "stossreihe_service", "kollision_service", "arm_lernen", "arm_export", "arm_schule", "arm_ueben", "ari_hub", "bello_schule",

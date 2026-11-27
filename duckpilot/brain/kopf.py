@@ -107,7 +107,8 @@ DEIN_NAME = re.compile(rf"^(?:ich nenne dich|du heißt(?: jetzt| ab jetzt| ab so
 WERKZEUG_FUER = {"_kick": "schiessen"}
 # Was eindeutig einen Körper braucht (ein Gruß ist für die einfachen Befehle auch eine Geste – für den Kopf nicht)
 KOERPERLICH = {"walk", "turn", "drive", "go_to", "approach", "umrunden", "dance", "skill", "_kick", "explore", "laser_folgen",
-               "mir_folgen", "look_around", "head", "choreography", "apportieren", "schiessen"}
+               "mir_folgen", "look_around", "head", "choreography", "apportieren", "schiessen", "linie_folgen",
+               "farbe_folgen"}
 GRUSS = re.compile(r"^(hallo|hi|hey|moin|servus|guten (morgen|tag|abend)|hello|good (morning|evening))\b", re.I)
 WAS_KANNST = re.compile(r"\b(was kannst du|was bist du|was ist knowlin|hilfe|what can you do|what are you|"
                         r"what is knowlin|help)\b", re.I)

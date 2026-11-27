@@ -203,6 +203,7 @@ function handle(msg) {
     case 'mentor': return mentor.meldung(msg);
     case 'rennen': case 'polaroid': return window.dispatchEvent(new CustomEvent('knowlin:zubehoer', { detail: msg }));   // zubehoer.js
     case 'ablauf': return window.dispatchEvent(new CustomEvent('knowlin:ablauf', { detail: msg }));   // ablauf.js
+    case 'linie': return window.dispatchEvent(new CustomEvent('knowlin:linie', { detail: msg }));   // aufgaben.js (0.55)
   }
 }
 

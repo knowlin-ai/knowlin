@@ -6,6 +6,7 @@ import { initAlleSpiele } from './spiele_alle.js';
 import { initVR } from './vr.js';
 import { initZubehoer } from './zubehoer.js';
 import { initAblauf } from './ablauf.js';
+import { initAufgaben } from './aufgaben.js';
 import { initLeistungsmodus } from './leistung.js';
 import { initMentorSeite } from './mentor_seite.js';
 import { initLabSeite } from './lab_seite.js';
@@ -88,6 +89,7 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
   initVR({ $, send, toast, getConfig });   // VR mit der Quest (seit 0.44; Vormachen seit 0.48)
   const zubehoer = initZubehoer({ $, api, toast, showView });   // Zubehör der Microduck (seit 0.47)
   initAblauf({ $, api, toast });   // Ablauf-Baukasten und Duck Cards (seit 0.49)
+  const aufgaben = initAufgaben({ $, api, toast, send });   // Linie, Farbe, folgen, ausweichen, tragen (seit 0.55)
   initLeistungsmodus();
   initMentorSeite({ $, api, el, toast, send, showView });         // Mentor als eigenes Modul (seit 0.48)
   initLabSeite({ $, api, toast, showView });                       // Knowlin Lab als Bereich (seit 0.50)
@@ -95,6 +97,7 @@ export function initTricksSeite({ $, api, el, toast, send, showView, getConfig, 
     if (p === 'tricks' && document.body.classList.contains('koerper-bittle')) belloLernt.zeigen();
     if (p === 'spiele') alleSpiele?.laden();
     if (p === 'zubehoer') zubehoer.laden();
+    if (p === 'aufgaben') aufgaben.laden();
     if (!emotionsLoaded) {
       emotionsLoaded = true;
       const list = await catalog();

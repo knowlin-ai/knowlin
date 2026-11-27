@@ -31,7 +31,7 @@ PROTOCOL_VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
 # Was andere Programme dürfen: bewegen, ausdrücken, Tricks, Status. Bewusst nicht: Gedächtnis schreiben, Training,
 # Alltag/Personen, Kamera, Einstellungen.
 ALLOWED = ("get_status", "walk", "turn", "drive", "go_to", "approach", "head", "look_around", "skill", "sound",
-           "emote", "dance", "explore", "laser_folgen", "mir_folgen", "choreography", "pause", "wait", "power", "stop",
+           "emote", "dance", "explore", "laser_folgen", "mir_folgen", "linie_folgen", "farbe_folgen", "choreography", "pause", "wait", "power", "stop",
            "kopf_ruhig", "do_trick", "go_to_place", "recall")
 INSTRUCTIONS = ("Steuert eine Microduck (kleiner zweibeiniger Entenroboter von Pollen Robotics) über duckpilot – im "
                 "Simulator oder am echten Roboter. Erst get_status, dann bewegen. `stop` hält sofort an. Nach einem "

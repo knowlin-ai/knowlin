@@ -457,6 +457,11 @@ def _parse_part(p: str) -> tuple[str, dict[str, Any]] | None:
         return ("dance", {"style": style, "seconds": _number(p, 10) if "sekund" in p else 10})
     if re.search(r"\bfolg\w* mir|\bkomm mit\b|\blauf mir nach|\bhinter mir her", p):
         return ("mir_folgen", {"seconds": _number(p, 5) * 60 if "minut" in p else _number(p, 300) if "sekund" in p else 300})
+    if re.search(r"\b(folg\w*|lauf\w*|fahr\w*)\b.*\b(linie|klebeband|strich)", p):      # seit 0.55
+        return ("linie_folgen", {"seconds": _number(p, 120) if "sekund" in p else 120})
+    if (f := re.search(r"\bfolg\w*\b.*\b(rot|gelb|grün|gruen|blau)\w*", p)) and "farbe" in p or (
+            f and re.search(r"\b(dem|der|den) (rot|gelb|grün|gruen|blau)", p)):
+        return ("farbe_folgen", {"farbe": f.group(1).replace("ü", "ue"), "seconds": 120})
     if re.search(r"laser", p):
         return ("laser_folgen", {"seconds": _number(p, 120) if "sekund" in p else 120})
     if re.search(r"kartier|karte (vom|des) (raum|zimmer|wohnung)|erkunde\w* (das|den|die) (raum|zimmer|wohnung)", p):

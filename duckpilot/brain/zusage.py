@@ -26,7 +26,7 @@ from .fallback import NOT_QUICK, parse
 
 # Vorführungen, die der Mensch sehen will – Gehen/Drehen/Kopf zählen nicht (die macht das Modell oft absichtlich anders)
 VORFUEHRUNG = {"skill", "_kick", "schiessen", "dance", "apportieren", "_pick", "laser_folgen", "mir_folgen", "karte",
-               "team"}
+               "team", "linie_folgen", "farbe_folgen"}
 # Welche Werkzeuge eine verlangte Vorführung erfüllen (Werkzeug der Befehlsregel → Werkzeuge des Modells)
 ERFUELLT = {
     "skill": {"skill"},
@@ -37,6 +37,8 @@ ERFUELLT = {
     "_pick": {"skill", "approach", "apportieren", "handeln"},
     "laser_folgen": {"laser_folgen"},
     "mir_folgen": {"mir_folgen"},
+    "linie_folgen": {"linie_folgen"},
+    "farbe_folgen": {"farbe_folgen"},
     "karte": {"karte", "explore"},
     "team": {"team", "enten"},
 }
@@ -52,7 +54,8 @@ LEHNT_AB = re.compile(r"\b(geht (gerade |leider |hier |so )?nicht|(kann|darf|wer
                       r"can'?t|cannot|won'?t|unable|not (possible|safe)|rather not)\b", re.I)
 BEWEGUNGS_WERKZEUGE = {"skill", "schiessen", "dance", "choreography", "walk", "turn", "approach", "apportieren",
                        "handeln", "laser_folgen", "mir_folgen", "explore", "karte", "do_trick", "go_to_place",
-                       "look_around", "emote", "head", "power", "team", "choreo", "drive", "go_to", "enten"}
+                       "look_around", "emote", "head", "power", "team", "choreo", "drive", "go_to", "enten",
+                       "linie_folgen", "farbe_folgen"}
 
 
 def verlangt(text: str) -> list[tuple[str, dict[str, Any]]]:

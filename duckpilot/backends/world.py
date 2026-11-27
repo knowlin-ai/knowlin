@@ -99,6 +99,13 @@ class World:
     PERSON_TTL = 3.0
     # Tor für den Elfmeter (seit 0.44): {x, y, breite} – Mitte der Torlinie an der Wand; None = kein Tor aufgestellt
     tor: dict[str, float] | None = None
+    # Klebeband-Linie zum Folgen (seit 0.55): Punkte einer geschlossenen Runde (`linie.punkte()`); None = keine
+    linie: list[tuple[float, float]] | None = None
+
+    def set_linie(self, an: bool) -> None:
+        from ..linie import punkte
+
+        self.linie = punkte() if an else None
 
     def set_laser(self, x: float | None, y: float | None, z: float = 0.0) -> None:
         if x is None or y is None:

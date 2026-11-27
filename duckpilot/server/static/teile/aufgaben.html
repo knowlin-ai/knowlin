@@ -1,0 +1,96 @@
+          <div data-part="aufgaben" hidden>
+            <header class="page-head">
+              <h2>Aufgaben</h2>
+              <p>Selbstständig unterwegs – wie in Hiwonders Studio für die WonderDuck: einer Linie folgen, einer Farbe folgen, dir
+                folgen, Hindernissen ausweichen, Dinge tragen. Geht mit jedem Körper, der Beine und eine Kamera hat. Der Not-Aus
+                beendet jede Aufgabe sofort.</p>
+              <details class="explain"><summary>Was sieht die Kamera dabei?</summary>
+                <p>Im Simulator rechnet Knowlin, was die Kamera sehen würde. Am echten Roboter sucht dieser PC im Bild der Kopfkamera nur
+                  nach der Linie oder der gewählten Farbe – ein paar Mal pro Sekunde und nur, solange die Aufgabe läuft. Kein Bild
+                  wird gespeichert. „Dir folgen“ erkennt Menschen nur als Menschen, nicht wer es ist.</p>
+              </details>
+            </header>
+            <p class="zb-grund field-help" id="af-grund" hidden></p>
+            <div class="grid grid--halves af-karten" id="af-karten">
+              <section class="card set-card g-half" aria-labelledby="af-linie-titel">
+                <h3 id="af-linie-titel">Linie folgen</h3>
+                <p class="field-help">Ein dunkles Klebeband auf dem Boden – sie hält es in der Bildmitte und läuft es ab, in Kurven langsamer.
+                  Ist die Linie weg, sucht sie kurz und hört dann auf.</p>
+                <div class="input-row ks-knoepfe af-nur-sim">
+                  <button type="button" class="btn btn--sm" id="af-linie-legen">Linie legen</button>
+                  <button type="button" class="btn btn--ghost btn--sm" id="af-linie-weg" hidden>Linie wegnehmen</button>
+                </div>
+                <p class="field-help af-nur-roboter" hidden>Am Roboter: ein dunkles, etwa 2–3 cm breites Band auf hellen Boden kleben.</p>
+                <div class="field">
+                  <span class="field-label" id="af-tempo-label">Tempo</span>
+                  <div class="seg" role="radiogroup" aria-labelledby="af-tempo-label">
+                    <label><input type="radio" name="af-tempo" value="0.07"><span>Langsam</span></label>
+                    <label><input type="radio" name="af-tempo" value="0.1" checked><span>Mittel</span></label>
+                    <label><input type="radio" name="af-tempo" value="0.14"><span>Schnell</span></label>
+                  </div>
+                </div>
+                <div class="input-row ks-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" id="af-linie-los">Losfolgen</button>
+                  <button type="button" class="btn btn--ghost btn--sm af-stopp">Anhalten</button>
+                </div>
+              </section>
+              <section class="card set-card g-half" aria-labelledby="af-farbe-titel">
+                <h3 id="af-farbe-titel">Farbe folgen</h3>
+                <p class="field-help">Sie läuft dem nächsten Ding in der Farbe nach und bleibt davor stehen. Im Wohnzimmer sind Ball und
+                  Klemmbaustein rot, das Klötzchen ist blau.</p>
+                <div class="field">
+                  <span class="field-label" id="af-farbe-label">Farbe</span>
+                  <div class="seg farbwahl" role="radiogroup" aria-labelledby="af-farbe-label" id="af-farben">
+                    <label><input type="radio" name="af-farbe" value="rot" checked><span><i class="farbpunkt af-punkt--rot" aria-hidden="true"></i>Rot</span></label>
+                    <label><input type="radio" name="af-farbe" value="gelb"><span><i class="farbpunkt af-punkt--gelb" aria-hidden="true"></i>Gelb</span></label>
+                    <label><input type="radio" name="af-farbe" value="gruen"><span><i class="farbpunkt af-punkt--gruen" aria-hidden="true"></i>Grün</span></label>
+                    <label><input type="radio" name="af-farbe" value="blau"><span><i class="farbpunkt af-punkt--blau" aria-hidden="true"></i>Blau</span></label>
+                  </div>
+                </div>
+                <div class="input-row ks-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" id="af-farbe-los">Losfolgen</button>
+                  <button type="button" class="btn btn--ghost btn--sm af-stopp">Anhalten</button>
+                </div>
+              </section>
+              <section class="card set-card g-half" aria-labelledby="af-person-titel">
+                <h3 id="af-person-titel">Dir folgen</h3>
+                <p class="field-help">Sie läuft hinter dir her und hält etwa einen halben Meter Abstand. Im Simulator führst du einen Menschen
+                  mit der Maus: in der 3D-Ansicht „Folg mir“ wählen und über den Boden ziehen.</p>
+                <div class="input-row ks-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" data-af-tool="mir_folgen" data-af-args='{"seconds":300}'>Losfolgen</button>
+                  <button type="button" class="btn btn--ghost btn--sm af-stopp">Anhalten</button>
+                </div>
+              </section>
+              <section class="card set-card g-half braucht-tiefensensor" aria-labelledby="af-ausweichen-titel">
+                <h3 id="af-ausweichen-titel">Hindernissen ausweichen</h3>
+                <p class="field-help">Mit dem Abstandssensor durchs Zimmer: geradeaus, vor Möbeln und Wänden abbiegen, ab und zu umschauen.
+                  Eine Minute lang.</p>
+                <div class="input-row ks-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" data-af-tool="explore" data-af-args='{"seconds":60}'>Loslaufen</button>
+                  <button type="button" class="btn btn--ghost btn--sm af-stopp">Anhalten</button>
+                </div>
+              </section>
+              <section class="card set-card g-half braucht-schnabel" aria-labelledby="af-tragen-titel">
+                <h3 id="af-tragen-titel">Dinge tragen</h3>
+                <p class="field-help">Hinlaufen, mit dem Schnabel aufheben, prüfen, ob es hält, und am Ziel ablegen – klappt das Aufheben
+                  nicht, setzt sie bis zu dreimal neu an.</p>
+                <div class="af-tragen">
+                  <label class="field"><span class="field-label">Was</span>
+                    <select class="input" id="af-ding">
+                      <option value="socke">Socke</option><option value="klötzchen">Klötzchen</option>
+                      <option value="klemmbaustein">Klemmbaustein</option><option value="schachfigur">Schachfigur</option>
+                    </select></label>
+                  <label class="field"><span class="field-label">Wohin</span>
+                    <select class="input" id="af-ziel">
+                      <option value="">Zu mir</option><option value="Sofa">Zum Sofa</option><option value="Regal">Zum Regal</option>
+                      <option value="Kiste">Zur Kiste</option><option value="Couchtisch">Zum Couchtisch</option>
+                    </select></label>
+                </div>
+                <div class="input-row ks-knoepfe">
+                  <button type="button" class="btn btn--primary btn--sm" id="af-tragen-los">Bringen</button>
+                  <button type="button" class="btn btn--ghost btn--sm af-stopp">Anhalten</button>
+                </div>
+              </section>
+            </div>
+            <p class="field-help af-meldung" id="af-meldung" aria-live="polite"></p>
+          </div>

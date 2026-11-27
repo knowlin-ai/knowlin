@@ -505,6 +505,15 @@ class SimBackend(ZubehoerMixin, DuckBackend):
                     "richtung_grad": round(math.degrees(rel)),  # relativ zum Rumpf, + = links
                     **(groesse.get(name, {}) if kind == "möbel" else {}),
                 })
+        from ..farbsicht import farbname
+        from ..linie import sicht
+
+        farben = {i.name: farbname(i.color) for i in self.world_model.items}
+        for o in out:                             # Farbe der Dinge (seit 0.55, für „Farbe folgen“)
+            if farben.get(o["name"]):
+                o["farbe"] = farben[o["name"]]
+        if (lin := sicht(self.x, self.y, self.yaw, self.world_model.linie)) is not None:
+            out.append(lin)                       # Klebeband voraus (seit 0.55, für „Linie folgen“)
         dot = self.world_model.laser_point()
         if dot is not None:                       # Laserpunkt: hell, auch weiter weg und schräg gut zu sehen
             d = math.hypot(dot[0] - hx, dot[1] - hy)

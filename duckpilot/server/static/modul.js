@@ -39,6 +39,8 @@ export function setzeModul(config, { $, hiddenTabs }) {
   for (const t of NUR_REACHY) { if (k.klasse === 'reachy') hiddenTabs.delete(t); else hiddenTabs.add(t); }
   // Zubehör laut Profil des Körpers (seit 0.47: Rollen, Rennen, Polaroid der Microduck)
   if ((config.zubehoer || []).length) hiddenTabs.delete('tricks/zubehoer'); else hiddenTabs.add('tricks/zubehoer');
+  // Selbstständige Aufgaben brauchen Beine und eine Kamera (seit 0.55)
+  if (eig.has('beine') && eig.has('kamera')) hiddenTabs.delete('tricks/aufgaben'); else hiddenTabs.add('tricks/aufgaben');
   // Tanzen braucht einen Kopf oder einen Arm (seit 0.43 für jede Bauart)
   if (eig.has('kopf') || eig.has('arm')) hiddenTabs.delete('tricks/tanz'); else hiddenTabs.add('tricks/tanz');
   const lernen = $('rail-lernen');

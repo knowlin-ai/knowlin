@@ -131,7 +131,7 @@ Pollens Microduck auf (`github.com/Hiwonder/wonderduck`, Apache-2.0): dieselben 
 - **Farbe (seit 0.54):** Charakter → Persönlichkeit → Aussehen oder System → Einstellungen: Gelb, Blau, Schwarz oder
   Weiß – Hiwonders vier Farbschemata. Gilt nur in Knowlin; Hiwonders Studio hat seine eigene Einstellung.
 - **Was sie (noch) nicht hat:** „Echte Physik“ gibt es nur für die Microduck – mit Wondi läuft dann der einfache
-  Simulator, mit Hinweis. Hiwonders selbstständige Aufgaben (Linie folgen, Labyrinth, Person folgen) noch nicht.
+  Simulator, mit Hinweis. Hiwonders selbstständige Aufgaben gibt es seit 0.55 unter Steuern → Aufgaben (siehe unten).
 - **Echte WonderDuck (ungeprüft):** Einstellungen → Körper → WonderDuck, dann „Echter Roboter“ – derselbe Weg wie bei
   der Microduck, mit Tunnel zu Hiwonders `robotd` (Benutzer auf dem Roboter: `wonderduck`). Der Verbindungstest sagt,
   was ihrer Software fehlt (Fotos, Lautstärke, laufende Spiele, „Foto machen“). Hiwonders eigene Bedienung (WonderDuck
@@ -982,6 +982,24 @@ Zubehör-Pack bei).
 - Sie bleibt knapp vor dem Punkt stehen und schaut ihn an, sucht ihn mit dem Kopf und dreht sich, wenn er weg ist,
   und hört nach 15 s ohne Punkt von selbst auf. Der Hindernis-Reflex bleibt an.
 - Per Sprache: „folge dem Laser“, „fang den Punkt“ – Claude nutzt dafür das Werkzeug `laser_folgen`.
+
+## Aufgaben: Linie, Farbe, folgen, ausweichen, tragen (seit 0.55)
+
+Steuern → **Aufgaben** bündelt, was Hiwonders Studio für die WonderDuck zeigt – für jeden Körper mit Beinen und Kamera
+(Microduck, WonderDuck, Open Duck). Jede Aufgabe läuft wie ein Befehl: Not-Aus beendet sie sofort, nach dem Not-Aus
+startet in der Sperre keine, und angezeigt wird nur, was der Körper kann.
+
+- **Linie folgen:** ein dunkles Klebeband auf dem Boden. Im Simulator legt „Linie legen“ eine Runde um den Couchtisch
+  (direkt neben dem Startplatz). Sie zielt auf die Linie ein Stück voraus und läuft sie ab, in Kurven langsamer; Tempo
+  langsam, mittel oder schnell. Ist die Linie weg, dreht sie sich suchend und hört nach 8 s auf. Ohne Sprachmodell:
+  „Folge der Linie“.
+- **Farbe folgen:** Rot, Gelb, Grün oder Blau – sie läuft dem nächsten Ding in der Farbe nach und bleibt etwa 25 cm
+  davor stehen. Im Wohnzimmer sind Ball und Klemmbaustein rot, das Klötzchen blau. „Folge dem Blauen“.
+- **Dir folgen** ist „Folg mir“ (unten), **Hindernissen ausweichen** ist „Erkunden“ für eine Minute, **Dinge tragen**
+  ist Apportieren mit Ziel: Was (Socke, Klötzchen, Klemmbaustein, Schachfigur) und Wohin (zu dir, Sofa, Regal, Kiste,
+  Couchtisch). Im Simulator kennt sie die Möbel auch, wenn sie sie gerade nicht sieht.
+- **Am echten Roboter (nicht geprüft):** Linie und Farbe sucht dieser PC im Bild der Kopfkamera – ein paar Mal pro
+  Sekunde, nur solange die Aufgabe läuft, ohne ein Bild zu speichern (`farbsicht.py`). Die Schwellen sind Schätzungen.
 
 ## Hindernissen ausweichen
 

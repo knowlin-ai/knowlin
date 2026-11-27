@@ -13,7 +13,7 @@ export const GROUPS = [
     { view: 'tricks', part: 'tanz', label: 'Tanzen' }, { view: 'tricks', part: 'team', label: 'Team' },
     { view: 'tricks', part: 'hub', label: 'Vom Hub' }, { view: 'tricks', part: 'spiele', label: 'Spiele' },
     { view: 'tricks', part: 'zubehoer', label: 'Zubehör' },
-    { view: 'tricks', part: 'ablauf', label: 'Ablauf' }] },
+    { view: 'tricks', part: 'ablauf', label: 'Ablauf' }, { view: 'tricks', part: 'aufgaben', label: 'Aufgaben' }] },
   { id: 'alltag', tabs: [{ view: 'alltag' }] },
   { id: 'umgebung', tabs: [{ view: 'umgebung' }] },                 // seit 0.38: eigener Bereich (Befund, Wahl)
   { id: 'charakter', tabs: [{ view: 'persoenlichkeit', label: 'Persönlichkeit' }, { view: 'stimme', part: 'stimme', label: 'Stimme' },
