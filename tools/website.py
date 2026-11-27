@@ -48,7 +48,7 @@ KOPF = """<!doctype html>
 <meta property="og:image" content="{basis}bilder/vorschau.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Knowlin – ein Kopf, viele Körper: die Startseite mit Knowlins Netz und sechs Roboter-Körpern: Microduck, Reachy Mini, Open Duck Mini, SO-101, Stack-chan und Bittle X">
+<meta property="og:image:alt" content="Knowlin – ein Kopf, viele Körper: die Startseite mit Knowlins Netz und sieben Roboter-Körpern: Microduck, Reachy Mini, Open Duck Mini, WonderDuck, SO-101, Stack-chan und Bittle X">
 <meta property="og:site_name" content="Knowlin">
 <meta property="og:locale" content="de_DE">
 <meta property="og:locale:alternate" content="en_US">
@@ -111,6 +111,9 @@ def englisch(seite: str) -> str:
     s = s.replace(f"<title>{de_titel}</title>", f"<title>{html.escape(TITEL_EN)}</title>", 1)
     s = s.replace(f'<link rel="canonical" href="{ADRESSE}">', f'<link rel="canonical" href="{ADRESSE_EN}">', 1)
     s = s.replace(f'<meta property="og:url" content="{ADRESSE}">', f'<meta property="og:url" content="{ADRESSE_EN}">', 1)
+    s = s.replace(": die Startseite mit Knowlins Netz und sieben Roboter-Körpern:",   # Vorschaubild (seit 0.54 englisch)
+                  ": the start page with Knowlin's network and seven robot bodies:").replace(
+        "Stack-chan und Bittle X\">", "Stack-chan and Bittle X\">")
     s = s.replace("Knowlin – ein Kopf, viele Körper", "Knowlin – one mind, many bodies")
     s = s.replace('<meta property="og:locale" content="de_DE">\n<meta property="og:locale:alternate" content="en_US">',
                   '<meta property="og:locale" content="en_US">\n<meta property="og:locale:alternate" content="de_DE">')

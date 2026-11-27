@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/bilder/banner.png" alt="Knowlin – ein Kopf, viele Körper: die Startseite mit dem neuronalen Netz von Knowlin und den sechs Verkörperungen: Microduck, Reachy Mini, Open Duck Mini, SO-101, Stack-chan und Bittle X" width="100%">
+  <img src="docs/bilder/banner.png" alt="Knowlin – ein Kopf, viele Körper: die Startseite mit dem neuronalen Netz von Knowlin und den sieben Verkörperungen: Microduck, Reachy Mini, Open Duck Mini, WonderDuck, SO-101, Stack-chan und Bittle X" width="100%">
 </p>
 
 <h1 align="center">Knowlin</h1>
