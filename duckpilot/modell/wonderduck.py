@@ -53,6 +53,16 @@ STELLEN = {"origin_left_foot": "left_foot", "origin_right_foot": "right_foot", "
            "origin_tof": "tof"}
 FINISH = {"body_yellow": "shell", "body_deep_blue": "shell", "body_black": "dark"}
 DICHTE_MM2 = 1.5                      # ein Dreieck je 1,5 mm² sichtbarer Fläche
+# Kopf feiner (seit 0.55.1, Maintainer: „der Kopf wirkt unsauber“): Gesichtsrahmen, Kamera und Abstandssensor sitzen
+# vorn und groß im Bild – mit 1,5 mm² wurden ihre Öffnungen zackig (Rahmen von 137 000 auf 2 400 Dreiecke).
+DICHTE_KOPF_MM2 = 0.3
+# Stand des Backens (seit 0.55.1): ältere Dateien lädt und backt Knowlin einmal neu (feinerer Kopf, Kamera-Blick)
+STAND = 2
+MAX_DREIECKE_TEIL = 36000             # Indizes sind 16 Bit: höchstens 65 535 Ecken je Teil (mit Kanten-Normalen mehr Ecken)
+
+
+def _ist_kopf(name: str) -> bool:
+    return name.startswith(("visual_p_head_", "visual_p_mouth_"))
 
 
 def offline() -> bool:
@@ -151,7 +161,9 @@ def bake(glb: Path, dest: Path, commit: str = QUELLE["commit"]) -> dict[str, Any
                 for mat, tris in dreiecke(kopf, binaer, kind["mesh"]).items():
                     key = f"{kind.get('name')}_{mat}"
                     verts, faces = weld(tris)
-                    meshes[key] = prepare(tris, budget_nach_flaeche(verts, faces, DICHTE_MM2))
+                    dichte = DICHTE_KOPF_MM2 if _ist_kopf(kind.get("name") or "") else DICHTE_MM2
+                    meshes[key] = prepare(tris, min(len(faces), MAX_DREIECKE_TEIL,
+                                                    budget_nach_flaeche(verts, faces, dichte)))
                     m = materialien[mat] if mat < len(materialien) else {}
                     rgb = (m.get("pbrMetallicRoughness", {}).get("baseColorFactor") or [0.6, 0.6, 0.6])[:3]
                     parts.append({"mesh": list(meshes).index(key), "name": key, "body": index,
@@ -202,12 +214,13 @@ def bake(glb: Path, dest: Path, commit: str = QUELLE["commit"]) -> dict[str, Any
         i_off += faces.size
     ziel = [stand[g] for g in JOINT_NAMES]
     head = {
-        "format": 2, "art": "wonderduck", "aufbereitung": AUFBEREITUNG,
+        "format": 2, "art": "wonderduck", "aufbereitung": AUFBEREITUNG, "wd_stand": STAND,
         "source": {"repo": QUELLE["repo"], "commit": commit[:7], "glb": Path(QUELLE["datei"]).name},
         "licence": "CC BY-NC-SA 4.0 – WonderDuck robot 3D model (Hiwonder), vereinfacht für Knowlin",
         "units": "Meter, MJCF-Koordinaten (z oben, x vorn)",
         "joints": JOINT_NAMES,
         "poses": {"stand": {g: stand[g] for g in JOINT_NAMES if g != "mouth"}},
+        "kamera": {"blick": [1, 0, 0], "oben": [0, 0, 1]},       # Kopfkamera schaut im Kopfrahmen nach vorn (+x)
         "von_microduck": {"stand": STAND_MICRODUCK, "ziel": ziel, "vorzeichen": [1] * len(JOINT_NAMES)},
         "meshes": mesh_meta, "bodies": bodies, "parts": parts,
         "triangles": sum(m["i"][1] // 3 for m in mesh_meta),
@@ -236,8 +249,20 @@ class WonderduckModellStore:
         p = self.dir / "ansicht.dpm"
         return p if p.exists() else None
 
+    def veraltet(self) -> bool:
+        """Gebacken mit einem älteren Stand – bis das neue fertig ist, zeigt Knowlin das alte weiter."""
+        p = self.view_path()
+        if p is None:
+            return False
+        try:
+            with open(p, "rb") as f:
+                n = struct.unpack("<I", f.read(8)[4:8])[0]
+                return int(json.loads(f.read(n)).get("wd_stand", 1)) < STAND
+        except (OSError, ValueError, struct.error):
+            return True
+
     def missing(self) -> bool:
-        return not offline() and self.view_path() is None
+        return not offline() and (self.view_path() is None or self.veraltet())
 
     def status(self) -> dict[str, Any]:
         try:
@@ -248,7 +273,7 @@ class WonderduckModellStore:
                 "repo": QUELLE["repo"], "lizenz": LIZENZ, "job": self.job}
 
     def ensure(self, progress: Callable[[str], None] | None = None, force: bool = False) -> dict[str, Any]:
-        if not force and self.view_path() is not None:
+        if not force and self.view_path() is not None and not self.veraltet():
             return {}
         if offline():
             raise RuntimeError("Offline-Modus (DUCKPILOT_OFFLINE) – das WonderDuck-Modell wird nicht geladen")

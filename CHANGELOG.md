@@ -9,6 +9,21 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.55.1 – 2026-11-28 – WonderDuck: wählbar in den Einstellungen, feinerer Kopf, Entenblick nach vorn
+
+### Behoben
+- System → Einstellungen → Körper bot die WonderDuck nicht an (nur die Startseite) – jetzt dabei; Test prüft, dass jeder
+  eingebaute Körper dort wählbar ist.
+- Kopf der WonderDuck wirkte unsauber: Gesichtsrahmen, Kamera und Abstandssensor waren zu stark vereinfacht (Rahmen
+  von 137 000 auf 2 400 Dreiecke). Kopfteile jetzt mit 0,3 mm² je Dreieck (höchstens 36 000 je Teil); das Modell hat
+  rund 490 000 Dreiecke (7 MB). Knowlin lädt und backt Hiwonders Modell dafür einmal neu (`wd_stand` 2) und zeigt bis
+  dahin das alte.
+- Entenblick der WonderDuck schaute in den eigenen Kopf (Kamerarichtung wie bei Pollens Modell entlang −z); die Datei
+  sagt jetzt, wohin die Kopfkamera schaut (`kamera`: vorn +x, oben +z).
+
+### Nicht geprüft
+- Das Neu-Laden an Martens PC (im Container mit Hiwonders Datei nachgebaut).
+
 ## 0.55.0 – 2026-11-27 – Aufgaben: Linie folgen, Farbe folgen, folgen, ausweichen, tragen
 
 ### Neu

@@ -208,6 +208,18 @@ def test_laden_backt_und_raeumt_die_quelle_weg(tmp_path, monkeypatch):
     assert out["teile"] == 16 and store.view_path() is not None and not (store.dir / "quelle.glb").exists()
     assert store.ensure() == {} and len(schritte) == 2 and store.status()["ansicht"] == "geladen"
 
+    # Regression 28.11. („der Kopf wirkt unsauber“, Entenblick im Kopf): ältere Backstände werden neu geladen
+    raw = store.view_path().read_bytes()
+    n = int.from_bytes(raw[4:8], "little")
+    import json as J
+    kopf = J.loads(raw[8:8 + n])
+    assert kopf["wd_stand"] == W.STAND and kopf["kamera"] == {"blick": [1, 0, 0], "oben": [0, 0, 1]}
+    kopf["wd_stand"] = 1
+    neu = J.dumps(kopf).encode()
+    store.view_path().write_bytes(raw[:4] + len(neu).to_bytes(4, "little") + neu + raw[8 + n:])
+    assert store.veraltet() and store.missing() and store.view_path() is not None   # alte Ansicht bleibt bis dahin
+    assert store.ensure()["teile"] == 16 and not store.veraltet()
+
 
 def test_routen_und_handy_sperre(tmp_settings, vault, tmp_path, monkeypatch):  # noqa: F811
     from duckpilot.config import load
@@ -245,3 +257,15 @@ def test_kopfstand_ohne_sprachmodell():
 
     assert ("skill", {"name": "headstand"}) in parse("Mach einen Kopfstand!")
     assert ("skill", {"name": "roulade"}) in parse("Mach einen Purzelbaum")
+
+
+def test_jeder_eingebaute_koerper_ist_in_den_einstellungen_waehlbar():
+    """Regression 28.11.: System → Einstellungen → Körper bot die WonderDuck nicht an (nur über die Startseite)."""
+    import re
+
+    from duckpilot import koerper
+
+    html = (Path(__file__).parents[1] / "duckpilot/server/static/index.html").read_text(encoding="utf-8")
+    angeboten = set(re.findall(r'name="modul" value="([^"]+)"', html))
+    eingebaut = {k.id for k in koerper.alle() if getattr(k, "eingebaut", True)} - {"lerobot"}   # eigener Assistent
+    assert eingebaut <= angeboten, eingebaut - angeboten

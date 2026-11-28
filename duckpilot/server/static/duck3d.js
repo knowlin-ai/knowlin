@@ -200,8 +200,8 @@ export class Scene3D {
     const pos = new THREE.Vector3(), q = new THREE.Quaternion();
     node.getWorldPosition(pos);
     node.getWorldQuaternion(q);
-    const dir = (site ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(1, 0, 0)).applyQuaternion(q);
-    const up = (site ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)).applyQuaternion(q);
+    const [d, u] = (site && this.duck.kameraAchsen) || (site ? [[0, 0, -1], [1, 0, 0]] : [[1, 0, 0], [0, 1, 0]]);
+    const dir = new THREE.Vector3(...d).applyQuaternion(q), up = new THREE.Vector3(...u).applyQuaternion(q);
     if (dt !== null) this.stabil.fuehren(this.povCam, pos.addScaledVector(dir, 0.004), dir, dt);
     else {
       this.povCam.position.copy(pos).addScaledVector(dir, 0.004);
