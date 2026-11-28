@@ -340,16 +340,18 @@ class KopfAgent:
                     reply = await self.anbieter.handle(text)
                 elif gehirn == "lokal" and self.local.configured:
                     reply = await self.local.handle(text)
-                elif self.client is not None:
+                elif self.figur_agent.claude_bereit:
                     reply = await self._claude(text)
                 elif self.local.configured:
                     reply = await self.local.handle(text)
                 self.last_error = None
             except Exception as exc:
-                from .agent import friendly_error
+                from .agent import friendly_error, schluessel_abgelehnt
 
                 log.warning("Kopf: KI-Modell nicht erreichbar (%s)", exc)
                 self.last_error = friendly_error(exc)
+                if schluessel_abgelehnt(exc) and self.client is not None:   # einmal sagen, dann einfache Befehle
+                    self.figur_agent.schluessel_abgelehnt = True
                 reply = None
             if reply is None:
                 reply = await self._einfach(text)

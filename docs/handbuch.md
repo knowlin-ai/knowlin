@@ -1452,7 +1452,8 @@ Handy aus weckst du sie. Ausschalten (oder die Fernbedienung ausschalten) entfer
   Updates und beim Deinstallieren erhalten.
 - **pipx:** `pipx install knowlin`, dann `knowlin --app`; unter Windows legt `knowlin --verknuepfung` die Einträge im
   Startmenü und auf dem Desktop an.
-- **Updates (seit 0.38.32):** Knowlin sieht höchstens einmal am Tag bei GitHub nach einer neuen Version. Gibt es eine,
+- **Updates (seit 0.38.32):** Knowlin sieht bei jedem Start und danach alle 6 Stunden bei GitHub nach einer neuen
+  Version (bis 0.56.1 einmal am Tag). Gibt es eine,
   steht oben „Knowlin 0.38.xx ist da“ mit „Was ist neu“. **Jetzt aktualisieren** lädt beim Installer den neuen
   Installer aus dem Release, prüft die SHA-256-Prüfsumme gegen GitHub, beendet Knowlin, installiert still und startet
   neu; mit pipx aktualisiert es das Paket. Nie, während der echte Roboter verbunden ist, und nur am PC. Abschalten und

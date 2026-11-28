@@ -101,7 +101,7 @@ EDITABLE: dict[str, Any] = {
     "eigenstaendig": "initiative",             # ohne Befehle selbst etwas tun, 0 … 1 (seit 0.38.44 stufenlos)
     "radio_adressen": "radio_urls",            # seit 0.38.13: zuletzt genutzte Webradios (Mitwippen), höchstens 5
     "kopf_stabil": bool,
-    "updates_suchen": bool,                    # seit 0.38.32: einmal am Tag bei GitHub nach Updates sehen
+    "updates_suchen": bool,                    # seit 0.38.32: beim Start und alle 6 h bei GitHub nach Updates sehen
     "memory": bool,
     "humor": "unit",
     "energie": "unit",

@@ -88,11 +88,14 @@ class GespraechTeil:
             auswahl = getattr(self, "auswahl", None)        # in der 3D-Ansicht angewählt („heb das auf“), seit 0.37.3
             if auswahl and time.monotonic() - auswahl.get("seit", 0) > 600:
                 auswahl = None
+            vorher = self.agent.online
             try:
                 reply = await self.agent.handle(mit_auswahl(text, auswahl), notify=self.broadcast)
             finally:
                 self.engine.denkt(False)
                 await self.broadcast({"type": "thinking", "on": False})
+            if self.agent.online != vorher:                # Schlüssel abgelehnt: Leiste zeigt „Einfache Befehle“ (0.56.2)
+                await self.broadcast(self.init_message())
             if not self.agent.online or reply.source not in ("claude", "lokal"):
                 self.engine.hear(text, show=True)
         if reply.source not in ("claude", "lokal"):
@@ -127,6 +130,8 @@ class GespraechTeil:
         await self.broadcast({"type": "chat", "role": "duck", "an": "kopf", "text": satz, "source": reply.source,
                               "seconds": round(reply.seconds, 2), "error": self.kopf.last_error, **reply.extra,
                               "sprache": self._speech(satz, kopf=True)})
+        if self.agent.schluessel_abgelehnt and self.kopf.last_error:   # Leiste auf „Einfache Befehle“ (0.56.2)
+            await self.broadcast(self.init_message())
 
     def _ohne_ente(self, text: str, kopf: bool = False) -> str:
         """Verkörperungen, die keine Ente sind (Reachy), quaken nicht – auch nicht in festen Sätzen der einfachen Befehle.

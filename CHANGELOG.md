@@ -9,6 +9,22 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.56.2 – 2026-11-28 – Abgelehnter Schlüssel nervt nicht mehr, Updates beim Start, Website aktuell
+
+### Geändert
+- **Updates:** Knowlin sieht jetzt bei jedem Start und danach alle 6 Stunden bei GitHub nach (vorher höchstens einmal am
+  Tag; Maintainer: „bei Programmstart nach Update schauen – nicht einmal in 24 h“). Weiter abschaltbar unter
+  Einstellungen → Über.
+- **Claude lehnt den Schlüssel ab:** Knowlin sagt es einmal und bleibt dann bei einfachen Befehlen (oder dem lokalen
+  Modell), bis ein neuer Schlüssel eingetragen ist – statt bei jeder Nachricht dieselbe rote Meldung (Maintainer: „nerv
+  doch nicht – ggf. schalte dann auf Default-Modus“). Die Leiste oben zeigt „Einfache Befehle“ mit dem Grund.
+- **Website und README:** WonderDuck in Titel, Beschreibung, Körpertabelle und Suchmaschinen-Daten; „7 Körper“ statt 6;
+  neue Kachel „Aufgaben · WonderDuck – Folgt der Linie“; „Ein Kopf, viele Körper“ beim Gedächtnis; Bildnachweis für
+  Hiwonders Modell; Startbild mit „DE | EN“ in der Kopfzeile; Wondi-Bilder mit dem feineren Kopf.
+
+### Nicht geprüft
+- Update-Suche beim Start auf Windows (im Test nachgestellt).
+
 ## 0.56.1 – 2026-11-28 – WonderDuck: feinerer Kopf, neues Modell auch beim Start
 
 ### Behoben

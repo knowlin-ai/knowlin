@@ -64,7 +64,8 @@ passenden Roboter vor und fragt, ob er ihn nutzen soll.
       <img src="docs/bilder/synapsen.png" alt="Gedächtnis: die Hirnaktivität als räumliches Netz aus Orten, Dingen, Tageszeiten und Gefühlen mit leuchtenden Verbindungen"><br>
       <strong>Gedächtnis und Erfahrungsnetz</strong><br>
       Knowlin merkt sich Orte, Dinge, Tricks und was du erzählst – und woher er es weiß: ohne Körper oder in welcher
-      Verkörperung, im Simulator oder am echten Roboter. Alles bleibt auf deinem PC.
+      Verkörperung, im Simulator oder am echten Roboter. Tricks übernimmt ein verwandter Körper mit einem Klick. Alles
+      bleibt auf deinem PC.
     </td>
   </tr>
   <tr>
@@ -84,12 +85,14 @@ passenden Roboter vor und fragt, ob er ihn nutzen soll.
 </table>
 
 <sub>Bilder mit Microduck und Reachy Mini: Knowlin mit den 3D-Modellen von Pollen Robotics – © Pollen Robotics,
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de). Diese Bilder stehen unter derselben
-Lizenz; die Modelldateien selbst liefert Knowlin nicht mit.</sub>
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de); mit der WonderDuck: Hiwonders 3D-Modell – ©
+Hiwonder, ebenso CC BY-NC-SA 4.0. Diese Bilder stehen unter derselben Lizenz; die Modelldateien selbst liefert Knowlin
+nicht mit.</sub>
 
 **Außerdem:** eigene Stimme lokal auf dem PC (Piper oder ein mit Qwen3-TTS entworfener Klang) · Spracherkennung und
 Plaudern · Simulator mit Wohnzimmer, Dingen zum Spielen und auf Wunsch echter Physik · Tricks vom Hugging Face Hub,
-Parcours und Training (kostenlos am PC oder auf Kaggle) · **Knowlets**: Charakter, Tricks und Tänze als Paket teilen –
+Parcours und Training (kostenlos am PC oder auf Kaggle) · **Aufgaben** wie in Hiwonders Kurs: Linie folgen, Farbe
+folgen, dir folgen, ausweichen, tragen · Tricks zwischen verwandten Körpern übernehmen · **Knowlets**: Charakter, Tricks und Tänze als Paket teilen –
 nur Daten, nie Wissen über Personen · Oberfläche auf Deutsch und Englisch.
 
 ### Ein Kopf mit Werten, nicht nur ein Sprachmodell
@@ -115,6 +118,7 @@ dem Tisch. Jeder Körper zeigt nur, was er kann – was fehlt (Beine, Tiefensens
 | Verkörperung | Körper | Modul | Hersteller | Im Simulator | Echter Roboter |
 |---|---|---|---|---|---|
 | **Quacki** | Microduck | duckpilot | Pollen Robotics und Hugging Face | einfach und mit echter Physik | über `robotd` (Pollens Daemon) |
+| **Wondi** | WonderDuck | duckpilot | Hiwonder | Hiwonders Modell (lädt beim ersten Wecken): laufen, schießen, Kopfstand, Aufgaben (Linie, Farbe), vier Farben | über Hiwonders `robotd` (ungetestet) |
 | **Odi** | Open Duck Mini v2 | duckpilot | Antoine Pirrone und Community | offenes Modell: laufen, Kopf, Antennen, mit Kamera ausweichen | geplant |
 | **Reachy** | Reachy Mini | deskpilot | Pollen Robotics und Hugging Face | Pollens Modell, Emotionen, Tänze, Spiele | über Pollens Daemon (ungetestet) |
 | **Ari** | SO-101 (Greifarm) | so101 | TheRobotStudio und Hugging Face | offenes Modell an eigener Werkbank: Gesten, sortieren, Türme bauen, aufräumen, Tic-Tac-Toe, lernt durch Vormachen (Export für LeRobot) | über LeRobot (ungetestet) |
@@ -137,7 +141,7 @@ flowchart LR
     Charakter["Grundcharakter und Stimme"]
   end
   Kopf --> Sicherheit{{"Sicherheit<br/>Not-Aus gewinnt immer"}}
-  Sicherheit --> Q["duckpilot<br/>Microduck · Open Duck · Bittle X"]
+  Sicherheit --> Q["duckpilot<br/>Microduck · WonderDuck · Open Duck · Bittle X"]
   Sicherheit --> R["deskpilot<br/>Reachy Mini · Stack-chan"]
   Sicherheit --> A["Arm<br/>SO-101"]
   Q --> Sim[("Simulator<br/>mit Physik")]
@@ -202,7 +206,7 @@ Spracherkennung „Lokal“, dazu einmal `.venv/bin/pip install faster-whisper`)
 | **Personen und Kamera** | Gesichter und Namen nur am PC, nur angelernt und mit Einwilligung. Kamera-Spiele werten das Bild nur im Browser aus – kein Bild verlässt den PC. |
 | **Daten** | Karte, Sichtungen und Gedächtnis bleiben auf diesem PC und gehen nie in ein Knowlet. |
 | **Kosten** | Bezahltes Training in der Cloud startet nur mit zwei Klicks. |
-| **Updates** | Einmal am Tag eine Anfrage an GitHub, ob es eine neue Version gibt (abschaltbar). Aktualisiert wird nur auf deinen Klick, mit Prüfsumme und nie, während der echte Roboter verbunden ist. |
+| **Updates** | Beim Start und danach alle 6 Stunden eine Anfrage an GitHub, ob es eine neue Version gibt (abschaltbar). Aktualisiert wird nur auf deinen Klick, mit Prüfsumme und nie, während der echte Roboter verbunden ist. |
 
 Sicherheitslücken bitte vertraulich melden: [`SECURITY.md`](SECURITY.md).
 

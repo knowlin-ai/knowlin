@@ -1,7 +1,8 @@
 """Updates (seit 0.38.32, Frage beim Launch: „Bekommen die Leute eine Update-Info und können aus dem Programm heraus
 aktualisieren?“).
 
-* **Prüfen:** höchstens einmal am Tag eine Anfrage an die GitHub-API (Release-Liste von knowlin-ai/knowlin) – nur die
+* **Prüfen:** bei jedem Start und danach alle 6 Stunden eine Anfrage an die GitHub-API (seit 0.56.2, vorher einmal
+  am Tag) (Release-Liste von knowlin-ai/knowlin) – nur die
   übliche Anfrage mit IP-Adresse, keine Daten über dich. Abschaltbar (Einstellung `updates_suchen`), im Offline-Modus nie.
 * **Aktualisieren** je nach Installationsart:
   - *installer* (Knowlin-Setup.exe): neuen Installer aus genau diesem Release laden, Prüfsumme gegen die Angabe von
@@ -39,7 +40,7 @@ BALD_S = 15 * 60          # Installer noch im Bau: nach einer Viertelstunde wied
 ASSET = re.compile(r"Knowlin-Setup-(\d+\.\d+\.\d+)\.exe")
 ERLAUBTE_HOSTS = ("github.com", "objects.githubusercontent.com", "release-assets.githubusercontent.com")
 MAX_BYTES = 300 * 1024 * 1024
-TAG_S = 24 * 3600
+ABSTAND_S = 6 * 3600                  # seit 0.56.2 (Maintainer: „bei Programmstart … nicht einmal in 24 h“), vorher 24 h
 
 
 MERKER = "update_laeuft.json"
@@ -218,11 +219,11 @@ class Aktualisierer:
                 "kann": bool(neu) and (self.art == "paket" or (self.art == "installer" and bool(neu.get("installer"))))}
 
     def pruefen(self, erzwingen: bool = False) -> dict[str, Any]:
-        """Höchstens einmal am Tag (außer erzwungen) bei GitHub nachsehen."""
+        """Höchstens alle `ABSTAND_S` (außer erzwungen, z. B. beim Start) bei GitHub nachsehen."""
         if offline():
             raise UpdateFehler("Knowlin ist offline gestellt – keine Suche nach Updates.")
         s = self._stand()
-        if not erzwingen and time.time() - float(s.get("zeit_s") or 0) < TAG_S:
+        if not erzwingen and time.time() - float(s.get("zeit_s") or 0) < ABSTAND_S:
             return self.status()
         try:
             neu = neuestes(json.loads(self._lesen(API)))
@@ -233,9 +234,9 @@ class Aktualisierer:
         self.ordner.mkdir(parents=True, exist_ok=True)
         jetzt = time.time()
         # Release schon da, Installer noch im Bau (Maintainer 12.11.: „wenn das Update noch nicht ganz abrufbereit ist“):
-        # dann nicht erst morgen wieder schauen, sondern nach einer Viertelstunde
+        # dann nicht erst Stunden später wieder schauen, sondern nach einer Viertelstunde
         if neu and neuer(neu["version"]) and self.art == "installer" and not neu.get("installer"):
-            jetzt -= TAG_S - BALD_S
+            jetzt -= ABSTAND_S - BALD_S
         self.datei.write_text(json.dumps({"zeit_s": jetzt, "zeit": time.strftime("%Y-%m-%d %H:%M"),
                                           "neu": neu if neu and neuer(neu["version"]) else None}, ensure_ascii=False),
                               encoding="utf-8")

@@ -38,7 +38,7 @@ Knowlin runs on your computer. It sends data to other systems only when you ask 
 
 - the AI provider you choose (Anthropic Claude, another provider, or a local model on your PC),
 - Hugging Face and GitHub when you download models, policies or Knowlets,
-- GitHub once a day to check for updates (can be turned off under Settings → About),
+- GitHub at start and every 6 hours to check for updates (can be turned off under Settings → About),
 - your phone, if you pair it in your home network.
 
 API keys stay in your operating system's keyring. Faces are recognised only for people you add with their consent, and

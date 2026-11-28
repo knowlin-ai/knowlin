@@ -273,6 +273,35 @@ def test_agent_rolls_back_on_api_error():
     run(go())
 
 
+
+def test_abgelehnter_schluessel_einmal_sagen_dann_einfache_befehle():
+    """Regression 28.11. („nerv doch nicht – ggf. schalte dann auf Default-Modus“): Jede Nachricht zeigte erneut
+    „Claude nimmt den API-Schlüssel nicht an“. Jetzt einmal, danach einfache Befehle ohne weiteren Claude-Aufruf."""
+    async def go():
+        sim, eng = await make()
+        agent = DuckAgent(ToolRunner(eng), AgentConfig(api_key=None))
+        aufrufe = []
+
+        class AuthenticationError(Exception):
+            status_code = 401
+
+        class Boom:
+            async def create(self, **kw):
+                aufrufe.append(1)
+                raise AuthenticationError("invalid x-api-key")
+
+        class Client:
+            messages = Boom()
+
+        agent.client = Client()
+        assert agent.online
+        await agent.handle("erzähl mir was über dein Zimmer bitte")
+        assert "API-Schlüssel" in agent.last_error and agent.schluessel_abgelehnt and not agent.online
+        reply = await agent.handle("tanz bitte einmal richtig wild für mich")
+        assert len(aufrufe) == 1 and agent.last_error is None and "nicht erreichbar" not in reply.text
+        assert eng.current is not None                     # einfache Steuerung tanzt trotzdem
+    run(go())
+
 # ── robotd-Pfad über den Fake-Server ──────────────────────────────────────
 def test_parse_address():
     assert parse_address("tcp:127.0.0.1:7900") == ("tcp", ("127.0.0.1", 7900))

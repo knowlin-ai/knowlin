@@ -25,8 +25,8 @@ ADRESSE = "https://knowlin.de/"
 ADRESSE_EN = ADRESSE + "en/"
 # Englische Seite (seit 0.51, Maintainer: „mache weiter SEO-Optimierung“): gleicher Inhalt, eigene Adresse, eigener
 # Titel und Beschreibung – Suchmaschinen sehen je Adresse eine Sprache, hreflang verbindet beide
-TITEL_EN = "Knowlin – self-learning companion for Microduck, Reachy Mini, Open Duck and SO-101"   # wie der Titel im Seitenskript
-BESCHREIBUNG_EN = ("Free open-source companion for small robots: simulate Microduck, Reachy Mini, Open Duck and SO-101 "
+TITEL_EN = "Knowlin – self-learning companion for Microduck, WonderDuck, Reachy Mini and more"   # wie der Titel im Seitenskript
+BESCHREIBUNG_EN = ("Free open-source companion for small robots: simulate Microduck, WonderDuck, Reachy Mini, Open Duck and SO-101 "
                    "on your PC, control them by voice, teach dances.")
 
 KOPF = """<!doctype html>
@@ -65,9 +65,11 @@ KOPF = """<!doctype html>
 # Suchmaschinen (seit 0.38.30): strukturierte Daten als Software-Eintrag – ohne Personennamen, Herausgeber ist „Knowlin“
 def strukturiert(beschreibung: str, adresse: str = ADRESSE, sprache: str = "de") -> str:
     # seit 0.51: Version, Download, Bildschirmfotos und Funktionen – was Suchmaschinen für Software-Einträge auswerten
-    bilder = [f"{ADRESSE}bilder/{n}-{sprache}-1600.webp" for n in ("start", "cockpit", "tanz", "training")]
-    funktionen = (("Microduck, Reachy Mini, Open Duck Mini, SO-101, Stack-chan und Bittle X im Simulator",
-                   "Simulate Microduck, Reachy Mini, Open Duck Mini, SO-101, Stack-chan and Bittle X"),
+    bilder = [f"{ADRESSE}bilder/{n}-{sprache}-1600.webp" for n in ("start", "cockpit", "tanz", "aufgaben", "training")]
+    funktionen = (("Microduck, WonderDuck, Reachy Mini, Open Duck Mini, SO-101, Stack-chan und Bittle X im Simulator",
+                   "Simulate Microduck, WonderDuck, Reachy Mini, Open Duck Mini, SO-101, Stack-chan and Bittle X"),
+                  ("Aufgaben: Linie folgen, Farbe folgen, dir folgen, ausweichen, tragen",
+                   "Tasks: follow a line, follow a colour, follow you, avoid obstacles, carry"),
                   ("Sprachsteuerung mit Claude, lokalen Modellen oder ganz ohne KI", "Voice control with Claude, local models or no AI"),
                   ("Tänze auf einer Zeitleiste, Tricks, Ablauf-Baukasten und Duck Cards",
                    "Dance timeline, tricks, sequence builder and Duck Cards"),
@@ -82,7 +84,7 @@ def strukturiert(beschreibung: str, adresse: str = ADRESSE, sprache: str = "de")
         "license": "https://www.apache.org/licenses/LICENSE-2.0",
         "codeRepository": "https://github.com/knowlin-ai/knowlin", "image": ADRESSE + "bilder/vorschau.png",
         "inLanguage": sprache, "isAccessibleForFree": True,
-        "keywords": "Microduck, Open Duck Mini, Reachy Mini, SO-101, Stack-chan, Bittle X, LeRobot, Roboter, Simulator, Claude, Sprachsteuerung, Open Source",
+        "keywords": "Microduck, WonderDuck, Hiwonder, Open Duck Mini, Reachy Mini, SO-101, Stack-chan, Bittle X, LeRobot, Roboter, Simulator, Claude, Sprachsteuerung, Open Source",
         "publisher": {"@type": "Organization", "name": "Knowlin", "url": ADRESSE},
     }, ensure_ascii=False)
 

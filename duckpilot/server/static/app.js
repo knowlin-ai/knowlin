@@ -291,6 +291,7 @@ function onInit(msg) {
   brain.title = local ? 'Ein offenes Sprachmodell läuft auf diesem PC (Ollama oder LM Studio) – ohne Internet, mit demselben Gedächtnis'
     : anderes ? 'Ein anderes KI-Modell denkt mit – dieselben Werkzeuge und Sicherheitsregeln'
     : config.online ? 'Claude versteht freie Sprache und plant Bewegungen'
+      : config.claude_abgelehnt ? 'Claude nimmt den API-Schlüssel nicht an – bis du einen neuen einträgst, gehen kurze Befehle wie „tanz“ oder „stopp“. System → Einstellungen → Claude.'
       : 'Kein API-Schlüssel – nur kurze Befehle wie „tanz“ oder „stopp“. Schlüssel unter Einstellungen.';
   // Punkt am System-Knopf nur, wenn gar kein KI-Modell denkt (seit 0.38.34; vorher auch mit lokalem/anderem Modell)
   $('settings-dot').hidden = Boolean(config.online || local || anderes);

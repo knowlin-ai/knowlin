@@ -263,6 +263,9 @@ class DuckAgent:
         self.erfahrung = None                 # Erfahrungsnetz: was ihr einfällt (setzt die Runtime)
         self.client = None
         self.last_error: str | None = None
+        # Seit 0.56.2 (Maintainer: „nerv doch nicht – ggf. schalte dann auf Default-Modus“): lehnt Claude den Schlüssel
+        # ab, sagt Knowlin das einmal und bleibt bis zu einem neuen Schlüssel bei einfachen Befehlen (oder lokalem Modell)
+        self.schluessel_abgelehnt = False
         if config.api_key:
             from .claude_zugang import ClaudeZugang
 
@@ -278,8 +281,13 @@ class DuckAgent:
 
     @property
     def online(self) -> bool:
-        return (self.client is not None or (self.config.gehirn == "lokal" and self.local.configured)
+        return (self.claude_bereit or (self.config.gehirn == "lokal" and self.local.configured)
                 or (self.config.gehirn == "anbieter" and self.anbieter.configured))
+
+    @property
+    def claude_bereit(self) -> bool:
+        """Claude ist eingerichtet und hat den Schlüssel nicht abgelehnt (seit 0.56.2)."""
+        return self.client is not None and not self.schluessel_abgelehnt
 
     def _drop_old_images(self) -> None:
         """Ältere Kamerabilder aus dem Verlauf nehmen: jedes Bild nur in der Runde, in der es gebraucht wird."""
@@ -431,7 +439,7 @@ class DuckAgent:
             except Exception as exc:
                 log.warning("Lokales Modell: %s", exc)
                 self.local.last_error = self.last_error = f"Lokales Modell: {type(exc).__name__}: {exc}"
-                reply = await (self._claude_or_fallback(text, notify) if self.client else self.fallback.handle(text))
+                reply = await (self._claude_or_fallback(text, notify) if self.claude_bereit else self.fallback.handle(text))
                 if reply.source != "claude":
                     reply.text = f"(lokales Modell nicht erreichbar – einfache Steuerung) {reply.text}"
             reply.seconds = time.monotonic() - t0
@@ -442,7 +450,9 @@ class DuckAgent:
                 self.usage.local()
             reply.seconds = time.monotonic() - t0
             return reply
-        if self.client is None:
+        if not self.claude_bereit:
+            if self.schluessel_abgelehnt:
+                self.last_error = None                  # einmal gesagt genügt – der Hinweis steht oben in der Leiste
             if self.local.configured:
                 try:
                     reply = await self.local.handle(text, notify)
@@ -564,6 +574,8 @@ class DuckAgent:
             log.exception("Claude-Aufruf")
             del self.history[mark:]  # keine halbe Runde (tool_use ohne tool_result) stehen lassen
             self.last_error = friendly_error(exc)
+            if schluessel_abgelehnt(exc):
+                self.schluessel_abgelehnt = True
             if self.local.configured:      # ohne Internet: das eigene Modell der Ente
                 try:
                     return await self.local.handle(text, notify)
@@ -678,6 +690,12 @@ def clip(text: str, limit: int) -> str:
 
 
 THINKING = ("thinking", "redacted_thinking")
+
+
+def schluessel_abgelehnt(exc: Exception) -> bool:
+    """Schlüssel ungültig oder ohne Recht aufs Modell – bleibt so, bis jemand einen neuen einträgt."""
+    return getattr(exc, "status_code", None) in (401, 403) or type(exc).__name__ in (
+        "AuthenticationError", "PermissionDeniedError")
 
 
 def friendly_error(exc: Exception) -> str:

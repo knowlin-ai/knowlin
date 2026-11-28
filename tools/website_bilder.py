@@ -420,7 +420,21 @@ def szene_wonderduck(page, base, sprache):
     _koerper(page, base, "wonderduck", sprache, "Zeig mir, wie du dich freust" if sprache == "de" else "Show me how happy you are")
 
 
-SZENEN = {"start": szene_start, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi, "ari": szene_ari,
+def szene_aufgaben(page, base, sprache):
+    """Seit 0.56.1: Wondi folgt der Linie (Steuern → Aufgaben, dann zurück ins Cockpit)."""
+    A.einstellen(page, {"modul": "wonderduck", "backend": "sim", "sim_physik": False, "sprache": sprache})
+    A.oeffnen(page, base)
+    zu(page, "cockpit", ms=4000)
+    page.evaluate("window.duckpilot.send({type:'tool',name:'power',args:{action:'stand_up'}})")
+    page.wait_for_timeout(5000)
+    zu(page, "tricks", "aufgaben")
+    klick(page, "#af-linie-legen")
+    page.wait_for_timeout(1500)
+    klick(page, "#af-linie-los")
+    zu(page, "cockpit", ms=6000)
+
+
+SZENEN = {"start": szene_start, "aufgaben": szene_aufgaben, "cockpit": szene_cockpit, "reachy": szene_reachy, "odi": szene_odi, "ari": szene_ari,
           "wonderduck": szene_wonderduck,
           "stackchan": szene_stackchan, "bittle": szene_bittle, "bello_tricks": szene_bello_tricks,
           "vormachen": szene_vormachen, "tricks_suche": szene_tricks_suche,

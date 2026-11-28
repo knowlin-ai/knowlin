@@ -3195,7 +3195,7 @@
  "keine Lizenz angegeben": "no licence given",
  "Was ist neu": "What's new",
  "Jetzt aktualisieren": "Update now",
- "Einmal am Tag nach Updates suchen": "Check for updates once a day",
+ "Beim Start und alle 6 Stunden nach Updates suchen": "Check for updates at start and every 6 hours",
  "Fragt bei GitHub, ob es eine neue Version gibt – nur die übliche Anfrage, keine Daten über dich. Aktualisiert wird nur, wenn du es willst.": "Asks GitHub whether there is a new version – just the usual request, no data about you. Knowlin only updates when you say so.",
  "Jetzt nach Updates suchen": "Check for updates now",
  "Suche …": "Checking …",
@@ -4118,5 +4118,6 @@
  "Übernommen": "Taken over",
  "schon da": "already there",
  "Die anderen Verkörperungen kennen noch keine eigenen Tricks.": "The other embodiments don't know any tricks of their own yet.",
- "Wissen, Vorlieben und Orte teilen alle Verkörperungen – was Quacki lernt, weiß Wondi auch. Tricks gehören einem Körper; zwischen Verkörperungen derselben Art (Microduck, WonderDuck, Open Duck) lassen sie sich übernehmen. Alles bleibt auf diesem PC.": "Knowledge, preferences and places are shared by all embodiments – what Quacki learns, Wondi knows too. Tricks belong to one body; between embodiments of the same kind (Microduck, WonderDuck, Open Duck) they can be taken over. Everything stays on this PC."
+ "Wissen, Vorlieben und Orte teilen alle Verkörperungen – was Quacki lernt, weiß Wondi auch. Tricks gehören einem Körper; zwischen Verkörperungen derselben Art (Microduck, WonderDuck, Open Duck) lassen sie sich übernehmen. Alles bleibt auf diesem PC.": "Knowledge, preferences and places are shared by all embodiments – what Quacki learns, Wondi knows too. Tricks belong to one body; between embodiments of the same kind (Microduck, WonderDuck, Open Duck) they can be taken over. Everything stays on this PC.",
+ "Claude nimmt den API-Schlüssel nicht an – bis du einen neuen einträgst, gehen kurze Befehle wie „tanz“ oder „stopp“. System → Einstellungen → Claude.": "Claude doesn't accept the API key – until you enter a new one, short commands like “dance” or “stop” work. System → Settings → Claude."
 }

@@ -34,7 +34,7 @@ def test_auswerten_nur_mit_pruefsumme_und_ohne_vorabversion():
     assert fremd["seite"].startswith("https://github.com/knowlin-ai/knowlin/")
 
 
-def test_pruefen_hoechstens_einmal_am_tag_und_offline_nie(tmp_path, monkeypatch):
+def test_pruefen_hoechstens_alle_6_stunden_und_offline_nie(tmp_path, monkeypatch):
     monkeypatch.delenv("DUCKPILOT_OFFLINE", raising=False)
     aufrufe = []
 
@@ -54,6 +54,37 @@ def test_pruefen_hoechstens_einmal_am_tag_und_offline_nie(tmp_path, monkeypatch)
     with pytest.raises(A.UpdateFehler, match="offline"):
         akt.pruefen(erzwingen=True)
 
+
+
+def test_beim_start_immer_danach_alle_6_stunden(monkeypatch):
+    """Maintainer 28.11.: „bei Programmstart nach Update schauen – nicht einmal in 24 h“."""
+    import asyncio
+
+    from duckpilot.server import runtime as R
+
+    assert A.ABSTAND_S == 6 * 3600
+    aufrufe, schlaf = [], []
+
+    class Akt:
+        def status(self):
+            return {}
+
+        def pruefen(self, erzwingen=False):
+            aufrufe.append(erzwingen)
+            return {}
+
+    async def sleep(s):
+        schlaf.append(s)
+        if len(schlaf) > 3:
+            raise asyncio.CancelledError
+
+    rt = R.Runtime.__new__(R.Runtime)
+    rt.aktualisierer = Akt()
+    rt.config = type("C", (), {"updates_suchen": True})()
+    monkeypatch.setattr(R.asyncio, "sleep", sleep)
+    with pytest.raises(asyncio.CancelledError):
+        asyncio.run(rt._watch_online_update())
+    assert aufrufe == [True, False, False] and schlaf[0] <= 10
 
 def test_gleiche_oder_aeltere_version_ist_kein_update(tmp_path, monkeypatch):
     monkeypatch.delenv("DUCKPILOT_OFFLINE", raising=False)
@@ -238,7 +269,7 @@ def test_installer_noch_im_bau_bald_wieder_nachsehen(tmp_path, monkeypatch):
     assert st["neu"]["installer"] is None and not st["kann"]
     alter = json.loads((tmp_path / "update.json").read_text(encoding="utf-8"))["zeit_s"]
     import time
-    assert A.TAG_S - A.BALD_S - 5 <= time.time() - alter <= A.TAG_S - A.BALD_S + 5
+    assert A.ABSTAND_S - A.BALD_S - 5 <= time.time() - alter <= A.ABSTAND_S - A.BALD_S + 5
 
 
 def test_letztes_update_in_worten(tmp_path):

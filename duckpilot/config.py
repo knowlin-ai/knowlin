@@ -95,7 +95,7 @@ class Config:
     aufmerksamkeit: bool = True                # nach langer Stille vorsichtig näher kommen (seit 0.50, nur Simulator)
     eigenstaendig: float | str = 0.4           # ohne Befehle selbst etwas tun: 0 nur auf Ansprache … 1 lebendig (alt: Stufen)
     radio_adressen: list[str] = field(default_factory=list)   # zuletzt genutzte Webradios (Mitwippen), höchstens 5
-    updates_suchen: bool = True                # seit 0.38.32: einmal am Tag bei GitHub nach einer neuen Version sehen
+    updates_suchen: bool = True                # seit 0.38.32: beim Start und alle 6 h bei GitHub nach einer neuen Version sehen
     kopf_stabil: bool = False                  # Kopf-Stabilisator: Kopf bleibt beim Laufen ruhig wie beim Huhn
     # [personality] – Punkt im X/Y-Regler
     energie: float = 0.55                      # X: ruhig 0 … 1 lebhaft

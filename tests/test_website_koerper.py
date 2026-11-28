@@ -61,7 +61,7 @@ def test_sperre_ohne_feste_zeit():
         assert not fest.search((ROOT / p).read_text(encoding="utf-8")), p
 
 
-def test_vitrine_zeigt_alle_sechs_koerper_und_das_neue():
+def test_vitrine_zeigt_alle_sieben_koerper_und_das_neue():
     """„Die Vitrine zeigt noch fast nur die Microduck; alle sechs Körper und die neuen Funktionen (Ari lernt durch
     Vormachen, Bellos Tricks, Stacki, Suche bei den Tricks) sollen vorkommen“ (Releaseplan 0.38.65)."""
     seite = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
@@ -72,7 +72,7 @@ def test_vitrine_zeigt_alle_sechs_koerper_und_das_neue():
     for bild in ("vormachen", "bello_tricks", "tricks_suche"):                 # die neuen Bilder gibt es auch
         for sprache in ("de", "en"):
             assert (ROOT / "website" / "bilder" / f"{bild}-{sprache}-1600.webp").exists(), (bild, sprache)
-    assert "<b>6</b>" in vitrine and "Was in ihr steckt" not in seite
+    assert "<b>7</b>" in vitrine and "Was in ihr steckt" not in seite
 
 
 def test_fahrplan_und_roadmap_aus_den_geplant_kacheln(tmp_path):

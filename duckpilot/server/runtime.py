@@ -874,6 +874,7 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                 "anbieter_bereit": self.agent.anbieter.configured,
                 "whisper": self.stt is not None,
                 "agent_error": self.agent.last_error,
+                "claude_abgelehnt": self.agent.schluessel_abgelehnt,   # Schlüssel abgelehnt → einfache Befehle (0.56.2)
                 "skills": self.backend.skills(),
                 "physik": bool(getattr(self.backend, "runs_policies", False)) and self.config.backend == "sim",
                 "eigenschaften": sorted(self.backend.eigenschaften()),     # Körpermodus der Oberfläche (seit 0.38.4)
@@ -1046,21 +1047,23 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
                 await self.broadcast_local(self.quit_message())
 
     async def _watch_online_update(self) -> None:
-        """Seit 0.38.32: höchstens einmal am Tag bei GitHub nach einer neuen Version sehen (abschaltbar)."""
+        """Bei GitHub nach einer neuen Version sehen (abschaltbar): seit 0.56.2 bei jedem Start, danach alle 6 Stunden."""
         from ..aktualisieren import UpdateFehler
 
-        await asyncio.sleep(20)
+        await asyncio.sleep(8)                              # Start nicht ausbremsen, aber gleich danach
+        beim_start = True
         while True:
             if getattr(self.config, "updates_suchen", True):
                 vorher = (self.aktualisierer.status().get("neu") or {}).get("version")
                 try:
-                    st = await asyncio.to_thread(self.aktualisierer.pruefen)
+                    st = await asyncio.to_thread(self.aktualisierer.pruefen, beim_start)
                 except UpdateFehler as exc:
                     log.info("Update-Suche: %s", exc)
                 else:
                     if (st.get("neu") or {}).get("version") != vorher:
                         await self.broadcast_local(self.quit_message())
-            await asyncio.sleep(6 * 3600)
+            beim_start = False
+            await asyncio.sleep(60 * 15)                      # die Grenze in pruefen() hält den Abstand von 6 Stunden
 
     def quit_message(self) -> dict[str, Any]:
         """Für den Beenden-Dialog: was läuft noch, kann man beenden, liegt eine neue Version bereit?"""
