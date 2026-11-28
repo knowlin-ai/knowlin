@@ -1201,6 +1201,13 @@ Ansicht ruhig; mit „Bewegung reduzieren“ steht sie still.
 
 ## Gedächtnis
 
+**Ein Kopf, viele Körper (seit 0.56):** Die Karte im Gedächtnis zeigt, was alle Verkörperungen teilen – Wissen und
+Vorlieben mit Herkunft (wer es gelernt hat), Orte je Zimmer (Simulator oder echtes Zimmer). Tricks gehören einem Körper;
+von einer Verkörperung derselben Art (Microduck, WonderDuck, Open Duck) übernimmt „Übernehmen“ einen Trick in die eigenen,
+mit Vermerk „von … übernommen“. Das Original bleibt bei der anderen. Alles liegt nur auf diesem PC.
+
+**Sprache (seit 0.56):** oben rechts in der Kopfzeile „DE | EN“ – ein Klick wechselt Oberfläche und Gespräch.
+
 Claude selbst lernt nichts dazu. Die Ente merkt sich aber, was du ihr beibringst, in einer Datei auf
 deinem PC. Bei jeder Nachricht bekommt Claude den passenden Ausschnitt mit, also deine Vorlieben, die
 Namen der Tricks und die nächstgelegenen Orte, was sie über dich weiß und was du zu einem Trick

@@ -4,7 +4,7 @@
 // MJCF-Konvention (wie der Roboter).
 import * as THREE from './vendor/three.module.min.js';
 import { toCreasedNormals } from './vendor/BufferGeometryUtils.js';
-import { allesVerschmelzen, FARBEN, FARBEN_WD, FINISH, kopfstandNeigung } from './formen3d.js';
+import { allesVerschmelzen, FARBEN, FARBEN_WD, FINISH, kopfstandNeigung, VISIER_WD } from './formen3d.js';
 
 export { FINISH };
 
@@ -155,6 +155,8 @@ export class RealDuck {
     }
     // Gleiche Materialien je Gelenk zusammenfassen: aus 64 Teilen werden wenige Zeichenaufrufe (Bild und Schatten)
     allesVerschmelzen(this.mj);
+    const visier = head.visier || (wd ? VISIER_WD : null);
+    if (visier) this._visier(visier, nodes[head.bodies.findIndex((b) => b.name === visier.koerper)]);
     // Schnittstelle wie die einfache Ente
     this.headRoll = this.sites.tof || this.joints.head_roll || this.body;
     this.beakTip = this.sites.mouth_tip || this.headRoll;
@@ -171,6 +173,25 @@ export class RealDuck {
     this.root.updateMatrixWorld(true);
     this._sole = new THREE.Box3().setFromObject(this.body).min.y - this._groundRef;
     if (!Number.isFinite(this._sole) || Math.abs(this._sole) > 0.03) this._sole = 0;
+  }
+
+  // Getönte Scheibe vor dem Gesicht (WonderDuck, seit 0.56 – Maintainer: „das Loch vorne im Kopf optisch geschlossen,
+  // ohne die Kamera zu verdecken“): halb durchsichtig und glänzend, die Linse bleibt sichtbar; der Entenblick sitzt davor
+  _visier(v, body) {
+    if (!body) return;
+    const w = v.breite / 2, h = v.hoehe / 2, r = Math.min(v.radius, w, h);
+    const s = new THREE.Shape();
+    s.moveTo(-w + r, -h); s.lineTo(w - r, -h); s.quadraticCurveTo(w, -h, w, -h + r); s.lineTo(w, h - r);
+    s.quadraticCurveTo(w, h, w - r, h); s.lineTo(-w + r, h); s.quadraticCurveTo(-w, h, -w, h - r); s.lineTo(-w, -h + r);
+    s.quadraticCurveTo(-w, -h, -w + r, -h);
+    const m = new THREE.Mesh(new THREE.ShapeGeometry(s, 12), new THREE.MeshPhysicalMaterial({
+      color: 0x0a0c10, transparent: true, opacity: 0.45, roughness: 0.08, metalness: 0, clearcoat: 1, depthWrite: false }));
+    m.position.copy(v3(v.mitte));
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(1, 0, 0));   // Fläche schaut nach +x
+    m.rotateZ(Math.PI / 2);                                // Breite entlang y, Höhe entlang z
+    m.renderOrder = 2;
+    m.name = 'visier';
+    body.add(m);
   }
 
   // Kopfkamera ohne Stelle im Modell (Open Duck, Fund 7.11.: „Entenblick verdeckt“ – die Kamera saß im Kopf): vorn

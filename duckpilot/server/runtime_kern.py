@@ -205,7 +205,7 @@ class KernTeil:
                        for k, v in I.PAKETE.items()},
             "grafikkarten": gpus, "gpu_vorschlag": I.suggest_gpu(gpus),
             # für welches Gerät PyTorch gebaut ist (seit 0.38.40) – „cpu“ trotz Grafikkarte → neu einrichten anbieten
-            "pytorch": I.torch_bau() if not self.installer.running() else None,
+            "pytorch": I.torch_bau_gemerkt() if not self.installer.running() else None,
             "ollama": self.pulls,
             "werte": {k: getattr(self.config, k) for k in (*sorted(VOICE_KEYS), "plaudern", "gehirn", "lokal_modell",
                                                            "lokal_adresse")},

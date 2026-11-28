@@ -1262,6 +1262,17 @@ def ablauf(page, base: str, b: Bericht, axe_js: str | None, ordner: Path) -> Non
     b.pruefe("Aufgaben: fünf Karten, Linie legen, folgen, anhalten, wegnehmen", karten == 5 and liegt and weg,
              f"{karten} Karten · Linie {'lag' if liegt else 'fehlte'} · Verhalten „{laeuft}“")
 
+    # 13t · Seit 0.56: Sprache oben in der Kopfzeile, „Ein Kopf, viele Körper“ im Gedächtnis
+    sprache = page.evaluate("() => [...document.querySelectorAll('#sprach-schnell button')].map((x) => "
+                            "[x.dataset.wert, x.getAttribute('aria-pressed'), x.offsetWidth > 0])")
+    page.evaluate("() => window.duckpilot.showView('memory')")
+    page.wait_for_timeout(800)
+    page.locator("#kw-karte").scroll_into_view_if_needed()
+    page.wait_for_timeout(1200)
+    kw = page.locator("#kw-geteilt li").count()
+    b.pruefe("Sprache DE|EN in der Kopfzeile, Karte „Ein Kopf, viele Körper“",
+             sprache == [["de", "true", True], ["en", "false", True]] and kw == 3, f"{sprache} · {kw} Zeilen")
+
     # 13j · Seit 0.38.33: „Anderes Modell“ unter Einstellungen bietet Anbieter an (vorher leer), LM Studio ohne Server: Hinweis
     anbieter = page.evaluate("() => [...document.querySelectorAll('#anbieter-pick option')].map(o => o.value)")
     lm = page.evaluate("() => fetch('/api/anbieter/modelle', {method: 'POST', headers: {'Content-Type': 'application/json'},"

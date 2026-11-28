@@ -43,3 +43,27 @@ def test_verknuepfung_als_befehl(capsys, monkeypatch):
     monkeypatch.setattr(sys, "platform", "linux")
     main(["--verknuepfung"])
     assert "nur unter Windows" in capsys.readouterr().out
+
+
+def test_torch_bau_haelt_den_start_nicht_auf(monkeypatch):
+    """Regression 28.11. (Protokoll des Maintainers: Oberfläche hing beim Start 8 s in `_installierte()`): die Stimmen-
+    Meldung fragt nur das Gemerkte ab, gerechnet wird einmal im Hintergrund und nach einer Installation neu."""
+    import threading
+    import time
+
+    from duckpilot.voice import install as I
+
+    I.torch_bau_vergessen()
+    I._BAU.clear()
+    los = threading.Event()
+    monkeypatch.setattr(I, "torch_bau", lambda: (los.wait(2), "rocm")[1])
+    t0 = time.monotonic()
+    assert I.torch_bau_gemerkt() is None and time.monotonic() - t0 < 0.5      # wartet nicht
+    los.set()
+    for _ in range(50):
+        if I.torch_bau_gemerkt() == "rocm":
+            break
+        time.sleep(0.02)
+    assert I.torch_bau_gemerkt() == "rocm"
+    I.torch_bau_vergessen()
+    assert "wert" not in I._BAU

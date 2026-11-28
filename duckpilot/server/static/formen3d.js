@@ -26,6 +26,11 @@ export const FARBEN_WD = {
   weiss: { rumpf: 0xf2f2f2, akzent: 0xf28c28, fuss: 0xf28c28, schnabel: 0xf28c28, dunkel: 0x424548 },
 };
 
+// Getönte Scheibe in der Gesichtsöffnung der WonderDuck (seit 0.56): im Rahmen des Kopfs (head_roll; Meter, x vorn,
+// z oben), knapp hinter der Kameralinse (head_camera x = 0,0605) – Maße aus Hiwonders Gesichtsrahmen. Hier statt in der
+// Modelldatei, damit niemand dafür Hiwonders Modell neu laden muss.
+export const VISIER_WD = { koerper: 'head_roll', mitte: [0.0602, 0, 0.0135], breite: 0.05, hoehe: 0.038, radius: 0.012 };
+
 // Kopfstand der WonderDuck (seit 0.54, Abschnitte wie in backends/wonderduck.py): nach vorn auf den Kopf rollen, halten,
 // weiter auf die Füße rollen – Neigung des Rumpfs nach vorn (0 … 2π) über dem Fortschritt 0 … 1
 export function kopfstandNeigung(p) {

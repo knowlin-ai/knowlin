@@ -112,6 +112,34 @@ def torch_bau() -> str | None:
     return "cuda" if sys.platform.startswith("linux") else "cpu"
 
 
+_BAU: dict[str, Any] = {}             # gemerktes Ergebnis von torch_bau() (seit 0.56)
+
+
+def torch_bau_gemerkt() -> str | None:
+    """`torch_bau()` ohne zu warten (seit 0.56): Das Durchsehen aller installierten Pakete dauerte auf einem Windows-PC
+    mit Virenschutz 8 s und lief mitten im Hauptablauf – die Oberfläche hing beim Start. Jetzt rechnet es einmal im
+    Hintergrund; bis dahin None (die Oberfläche zeigt dann einfach keinen Hinweis). Nach einer Installation vergessen."""
+    if "wert" in _BAU:
+        return _BAU["wert"]
+    if not _BAU.get("laeuft"):
+        import threading
+
+        _BAU["laeuft"] = True
+
+        def rechnen() -> None:
+            try:
+                _BAU["wert"] = torch_bau()
+            finally:
+                _BAU["laeuft"] = False
+
+        threading.Thread(target=rechnen, name="torch-bau", daemon=True).start()
+    return None
+
+
+def torch_bau_vergessen() -> None:
+    _BAU.pop("wert", None)
+
+
 def _installierte() -> list[str]:
     from importlib import metadata
 
@@ -254,6 +282,7 @@ class Installer:
                     raise RuntimeError(f"pip endete mit Code {code}")
             fehlt = missing(paket) if runner is None else []
             job["fertig"] = not fehlt
+            torch_bau_vergessen()                      # PyTorch kann jetzt anders gebaut sein
             if fehlt:
                 raise RuntimeError(f"pip ist durchgelaufen, aber es fehlt noch {', '.join(fehlt)} – "
                                    "duckpilot einmal neu starten und dann „Reparieren“")

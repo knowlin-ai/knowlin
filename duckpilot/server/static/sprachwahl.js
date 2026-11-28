@@ -56,5 +56,17 @@ export function initSprachwahl({ $ }) {
   document.addEventListener('pointerdown', (e) => { if (!liste.hidden && !e.target.closest('.sprachwahl')) schliessen(false); });
   new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) zeigeWahl(); }).observe(knopf);   // Einstellungen geladen
   zeigeWahl();
+  schnellwahl($, aktuell, (w) => { wert.value = w; zeigeWahl(); wert.dispatchEvent(new Event('input')); });
   return { zeigeWahl };
+}
+
+// DE | EN oben in der Kopfzeile (seit 0.56): ein Klick wechselt – gespeichert und neu geladen wie oben
+function schnellwahl($, aktuell, waehlen) {
+  const gruppe = $('sprach-schnell');
+  if (!gruppe) return;
+  const knoepfe = [...gruppe.querySelectorAll('button[data-wert]')];
+  const zeigen = () => { for (const b of knoepfe) b.setAttribute('aria-pressed', String(b.dataset.wert === aktuell())); };
+  for (const b of knoepfe) b.addEventListener('click', () => { if (b.dataset.wert !== aktuell()) waehlen(b.dataset.wert); });
+  zeigen();
+  new MutationObserver(zeigen).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 }

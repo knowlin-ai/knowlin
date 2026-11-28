@@ -142,6 +142,10 @@
           <button class="btn btn--ghost btn--sm" type="button" id="persona-more">Mehr unter Charakter → Persönlichkeit</button>
         </div>
       </div>
+      <div class="sprach-schnell" id="sprach-schnell" role="group" aria-label="Sprache · Language" translate="no">
+        <button type="button" data-wert="de" lang="de" title="Deutsch">DE</button>
+        <button type="button" data-wert="en" lang="en" title="English">EN</button>
+      </div>
       <button class="quit-btn pc-only" id="quit-btn" type="button" title="Knowlin beenden oder im Hintergrund weiterlaufen lassen" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8"/><path d="M6.6 6.6a7.5 7.5 0 1 0 10.8 0"/></svg>
         <span>Beenden</span>
@@ -912,6 +916,15 @@
             <p class="field-help">Aus dem Erfahrungsnetz: worüber Knowlin am meisten weiß, wie es sich anfühlt (aus Verbindungen zu Freude und Lob bzw. Schreck, Sturz und Kritik), wann zuletzt erlebt und wie sicher.</p>
             <div class="welt-gruppen" id="welt-gruppen"></div>
             <p class="field-help" id="welt-leer" hidden>Noch zu wenig erlebt. Zeig Knowlin Orte, spielt zusammen – dann füllt sich das hier.</p>
+          </section>
+          <section class="card set-card kw-karte" id="kw-karte" aria-labelledby="kw-titel">
+            <h3 id="kw-titel">Ein Kopf, viele Körper</h3>
+            <p class="field-help">Wissen, Vorlieben und Orte teilen alle Verkörperungen – was Quacki lernt, weiß Wondi auch. Tricks gehören einem
+              Körper; zwischen Verkörperungen derselben Art (Microduck, WonderDuck, Open Duck) lassen sie sich übernehmen.
+              Alles bleibt auf diesem PC.</p>
+            <ul class="kw-geteilt" id="kw-geteilt"></ul>
+            <div class="kw-andere" id="kw-andere"></div>
+            <p class="field-help" id="kw-leer" hidden>Die anderen Verkörperungen kennen noch keine eigenen Tricks.</p>
           </section>
           <section class="card tages-karte" id="tages-karte" hidden aria-labelledby="tages-titel">
             <div class="card-head">

@@ -9,6 +9,26 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.56.0 – 2026-11-28 – Sprache oben, schnellerer Start, ein Kopf für viele Körper, Scheibe für Wondi
+
+### Neu
+- **Sprache als Schnellzugriff** oben rechts in der Kopfzeile: „DE | EN“, ein Klick wechselt (wie auf Websites üblich –
+  für neue internationale Nutzer). Gespeichert wie bisher, die Seite lädt neu; auch am Handy.
+- **Ein Kopf, viele Körper** (Gedächtnis): Übersicht, was alle Verkörperungen teilen – Wissen und Vorlieben mit
+  Herkunft („gelernt von Quacki 3“), Orte je Zimmer (Simulator, echtes Zimmer) – und die Tricks der anderen.
+  Innerhalb derselben Familie (Microduck, WonderDuck, Open Duck) übernimmt ein Klick einen Trick mit Vermerk, woher er
+  kommt; das Original bleibt (`brain/wissen_teilen.py`, `GET /api/wissen/koerper`, `POST /api/wissen/trick_uebernehmen`).
+- **Getönte Scheibe vor Wondis Gesicht:** schließt die Öffnung optisch, die Kameralinse bleibt sichtbar, der Entenblick
+  sitzt davor (Maße in `formen3d.js`, kein Neuladen des Modells nötig).
+
+### Behoben
+- Start: Die Oberfläche hing beim Start bis zu 8 s, weil Knowlin im Hauptablauf alle installierten Pakete durchsah, um
+  zu erkennen, wofür PyTorch gebaut ist (Protokoll des Maintainers, Windows mit Virenschutz). Jetzt einmal im Hintergrund,
+  danach gemerkt; nach einer Installation neu.
+
+### Nicht geprüft
+- Startzeit an Martens PC nach dem Update (erwartet: etwa 8 s schneller bis „bereit“).
+
 ## 0.55.1 – 2026-11-28 – WonderDuck: wählbar in den Einstellungen, feinerer Kopf, Entenblick nach vorn
 
 ### Behoben
