@@ -22,6 +22,9 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   sitzt davor (Maße in `formen3d.js`, kein Neuladen des Modells nötig).
 
 ### Behoben
+- Update: „Knowlin antwortet nicht“ erschien während des Updates, und „Neu laden“ führte auf Edges Fehlerseite
+  (Knowlin war noch weg), von der das Fenster nicht zurückkam. Jetzt schweigt der Startwächter während Update und
+  Neustart; meldet er sonst „antwortet nicht“, lädt das Fenster von selbst neu, sobald Knowlin wieder antwortet.
 - Start: Die Oberfläche hing beim Start bis zu 8 s, weil Knowlin im Hauptablauf alle installierten Pakete durchsah, um
   zu erkennen, wofür PyTorch gebaut ist (Protokoll des Maintainers, Windows mit Virenschutz). Jetzt einmal im Hintergrund,
   danach gemerkt; nach einer Installation neu.

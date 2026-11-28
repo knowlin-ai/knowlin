@@ -162,3 +162,18 @@ def test_etag_traegt_die_version_alte_eintraege_werden_neu_geliefert(client):
     ohne = etag.split("-v")[0] + '"'                       # so fragte ein Fenster vor 0.38.66 nach
     assert client.get("/static/app.js", headers={"If-None-Match": ohne}).status_code == 200
     assert client.get("/static/app.js", headers={"If-None-Match": etag.replace(__version__, "0.0.1")}).status_code == 200
+
+
+def test_startwaechter_schweigt_beim_update_und_laedt_erst_wenn_knowlin_antwortet():
+    """Regression 28.11. (Maintainer: „bei Update sagt er ganz oft Knowlin antwortet nicht und dann neu laden führt zu“
+    Edges Fehlerseite): während Update/Neustart keine Meldung; „Neu laden“ wartet, bis /api/ping antwortet."""
+    out = _node("""
+      const k = window.knowlinVerbindung;
+      k.versuch(); k.update();
+      for (let i = 0; i < 6; i++) k.zu(1006);
+      console.log(JSON.stringify({ update: k.zustand().update, dialog: k.zustand().dialog }));""")
+    assert out == {"update": True, "dialog": False}
+    text = WAECHTER.read_text(encoding="utf-8")
+    assert "addEventListener('click', () => location.reload())" not in text
+    assert "fetch('/api/ping'" in text and "knowlinVerbindung?.update?.()" in (
+        WAECHTER.parent / "beenden.js").read_text(encoding="utf-8")

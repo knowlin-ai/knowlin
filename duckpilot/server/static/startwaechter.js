@@ -8,7 +8,7 @@
 (() => {
   const FRIST = 10000;          // ms ohne Verbindung bis zur Meldung
   const VERSUCHE = 4;           // so viele geschlossene Verbindungen nacheinander → Meldung
-  const s = { app: false, offen: false, versuche: 0, code: 0, startfehler: '', jsFehler: '', dialog: null };
+  const s = { app: false, offen: false, versuche: 0, code: 0, startfehler: '', jsFehler: '', dialog: null, update: false };
 
   // Fehler, bevor die Oberfläche läuft: nicht geladene Skripte und Skriptfehler (nur Text, nichts geht raus)
   addEventListener('error', (e) => {
@@ -38,6 +38,7 @@
       grund: 'Grund', code: 'Verbindungscode', warn: 'Letzte Warnungen im Protokoll',
       log: 'Protokoll: %LOCALAPPDATA%\\duckpilot\\duckpilot.log – vor dem Weitergeben kurz durchsehen.',
       laden: 'Neu laden', ordner: 'Protokollordner öffnen', zu: 'Schließen', ordnerNein: 'Ordner ließ sich nicht öffnen.',
+      warten: 'Sobald Knowlin wieder antwortet, lädt das Fenster von selbst neu.',
     },
     en: {
       mime: ['Scripts with the wrong type', 'Knowlin does not serve its scripts as JavaScript – so the browser does not load the interface.',
@@ -55,6 +56,7 @@
       grund: 'Reason', code: 'Connection code', warn: 'Latest warnings in the log',
       log: 'Log: %LOCALAPPDATA%\\duckpilot\\duckpilot.log – look through it before passing it on.',
       laden: 'Reload', ordner: 'Open log folder', zu: 'Close', ordnerNein: 'Could not open the folder.',
+      warten: 'As soon as Knowlin answers again, the window reloads by itself.',
     },
   };
 
@@ -83,6 +85,22 @@
     if (grund) return { art: 'start', details: grund };
     if (d.ablehnung) return { art: 'ab', details: d.ablehnung };
     return { art: 'block', details: '' };
+  }
+
+  // Neu laden erst, wenn Knowlin wieder antwortet (seit 0.56, Fund des Maintainers: „bei Update sagt er ganz oft Knowlin
+  // antwortet nicht und dann neu laden führt zu“ Edges Fehlerseite – von der kommt das Fenster nicht mehr allein zurück)
+  let wartet = false;
+  async function wartenUndLaden(msg, T) {
+    if (msg) msg.textContent = T.warten;
+    if (wartet) return;
+    wartet = true;
+    for (;;) {
+      try {
+        const r = await fetch('/api/ping', { cache: 'no-store' });
+        if (r.ok) { location.reload(); return; }
+      } catch { /* noch weg */ }
+      await new Promise((r) => setTimeout(r, 2000));
+    }
   }
 
   function el(tag, cls, text) {
@@ -126,7 +144,7 @@
     const laden = el('button', 'btn btn--primary', T.laden);
     for (const k of [zu, ordner, laden]) k.type = 'button';
     zu.addEventListener('click', () => weg());
-    laden.addEventListener('click', () => location.reload());
+    laden.addEventListener('click', () => wartenUndLaden(msg, T));
     ordner.addEventListener('click', async () => {
       try {
         const r = await fetch('/api/open-folder', { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -135,7 +153,12 @@
         msg.textContent = '';
       } catch { msg.textContent = T.ordnerNein; }
     });
-    if (b.art === 'still') ordner.hidden = true;        // ohne Antwort kann der Dienst auch keinen Ordner öffnen
+    if (b.art === 'still') {
+      ordner.hidden = true;                             // ohne Antwort kann der Dienst auch keinen Ordner öffnen
+      laden.hidden = true;                              // und Neu laden jetzt führte nur auf die Fehlerseite des Browsers
+      wartenUndLaden(null, T);                          // kommt er wieder, lädt das Fenster von selbst
+      dlg.append(el('p', 'startwaechter-rat', T.warten));
+    }
     fuss.append(zu, ordner, laden);
     dlg.append(msg, fuss);
     document.body.append(dlg);
@@ -153,7 +176,7 @@
 
   let laeuft = false;
   async function pruefen() {
-    if (laeuft) return;
+    if (laeuft || s.update) return;
     laeuft = true;
     try {
       const d = await diagnose();
@@ -170,6 +193,8 @@
       if (s.versuche >= VERSUCHE && !s.dialog) pruefen();
     },
     startfehler(grund) { s.app = true; s.startfehler = String(grund || '').slice(0, 600); pruefen(); },
+    // Update oder Neustart läuft (beenden.js): Knowlin ist absichtlich weg – keine Meldung, das Fenster lädt dann selbst
+    update() { s.update = true; weg(); },
     befund, zustand: () => ({ ...s, dialog: !!s.dialog }),     // für Tests
   };
   setTimeout(() => { if (!s.offen && !s.dialog) pruefen(); }, FRIST);

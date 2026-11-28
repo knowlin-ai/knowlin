@@ -88,6 +88,7 @@ export function initBeenden(h) {
   // Nach einem Update bis zu 10 Minuten warten (der erste Start nach einem Update dauerte bei Alex 2 Minuten: Windows
   // prüft die neuen Dateien). Solange der neue Knowlin meldet, was er tut, wird nicht aufgegeben.
   async function waitForRestart(oldVersion, update = false) {
+    globalThis.knowlinVerbindung?.update?.();   // Startwächter schweigt, solange Knowlin absichtlich weg ist (0.56)
     const liste = update ? SCHRITTE_UPDATE : SCHRITTE_NEUSTART;
     const grenze = update ? 600 : 180;
     balken($('quit-balken'), null);
