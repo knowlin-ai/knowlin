@@ -37,7 +37,7 @@ def namen_datei() -> Path:
 
 def namen_muster(datei: Path) -> re.Pattern[str] | None:
     namen = [z.strip() for z in datei.read_text(encoding="utf-8").splitlines() if z.strip() and not z.startswith("#")]
-    return re.compile(r"\b(" + "|".join(re.escape(n) for n in namen) + r")\b", re.I) if namen else None
+    return re.compile(r"\b(" + "|".join(re.escape(n) for n in namen) + r")(?:s|es|n|ns)?\b", re.I) if namen else None
 
 
 def dateien(wurzel: Path) -> list[str]:

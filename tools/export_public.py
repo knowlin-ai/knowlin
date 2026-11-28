@@ -73,7 +73,7 @@ def _private_namen() -> list[tuple[str, re.Pattern[str]]]:
     namen = [z.strip() for z in datei.read_text(encoding="utf-8").splitlines() if z.strip() and not z.startswith("#")]
     if not namen:
         return []
-    return [("privater Name", re.compile(r"\b(" + "|".join(re.escape(n) for n in namen) + r")\b", re.I))]
+    return [("privater Name", re.compile(r"\b(" + "|".join(re.escape(n) for n in namen) + r")(?:s|es|n|ns)?\b", re.I))]
 
 
 SCAN += _private_namen()

@@ -21,6 +21,10 @@ def test_waechter_findet_namen_schluessel_und_private_dateien(tmp_path):
     liste.write_text("# privat\nBeispielname\n", encoding="utf-8")
     (repo / "duckpilot" / "a.py").write_text("# Hinweis von Beispielname\nx = 1\n", encoding="utf-8")
     assert W.pruefen(repo, W.namen_muster(liste)) == ["duckpilot/a.py:1: privater Name"]
+    # Regression 28.11.: der Genitiv („an Beispielnames PC“) rutschte durch – Endungen s, es, n, ns zählen mit
+    for form in ("Beispielnames", "Beispielnamens", "Beispielnamen"):
+        (repo / "duckpilot" / "a.py").write_text(f"# am PC von {form}\nx = 1\n", encoding="utf-8")
+        assert W.pruefen(repo, W.namen_muster(liste)) == ["duckpilot/a.py:1: privater Name"], form
     (repo / "duckpilot" / "a.py").write_text("KEY = 'sk-ant-" + "a" * 30 + "'\n", encoding="utf-8")
     assert W.pruefen(repo, W.namen_muster(liste)) == ["duckpilot/a.py:1: Anthropic-Schlüssel"]
     (repo / "duckpilot" / "a.py").write_text("x = 1\n", encoding="utf-8")

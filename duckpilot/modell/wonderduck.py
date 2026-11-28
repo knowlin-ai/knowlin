@@ -57,12 +57,31 @@ DICHTE_MM2 = 1.5                      # ein Dreieck je 1,5 mm² sichtbarer Fläc
 # vorn und groß im Bild – mit 1,5 mm² wurden ihre Öffnungen zackig (Rahmen von 137 000 auf 2 400 Dreiecke).
 DICHTE_KOPF_MM2 = 0.3
 # Stand des Backens (seit 0.55.1): ältere Dateien lädt und backt Knowlin einmal neu (feinerer Kopf, Kamera-Blick)
-STAND = 2
+# Stand 3 (0.56.1): große Kopfteile (gelbe Schale, Gesicht) nicht mehr auf 36 000 Dreiecke gekappt – die Öffnung des
+# Abstandssensors oben war sonst zackig (Maintainer: „sieht auch nicht dolle aus“)
+STAND = 3
 MAX_DREIECKE_TEIL = 36000             # Indizes sind 16 Bit: höchstens 65 535 Ecken je Teil (mit Kanten-Normalen mehr Ecken)
+MAX_DREIECKE_KOPF = 120000            # Kopfteile dürfen mehr – sie werden in Stücke zu höchstens STUECK Dreiecken geteilt
+STUECK = 20000                        # 3 × 20 000 Ecken < 65 535: jedes Stück passt sicher in 16-Bit-Indizes
 
 
 def _ist_kopf(name: str) -> bool:
     return name.startswith(("visual_p_head_", "visual_p_mouth_"))
+
+
+def stuecke(pos, nrm, faces, n: int = STUECK) -> list[tuple]:
+    """Ein fertig aufbereitetes Teil in Stücke zu höchstens `n` Dreiecken teilen – nach dem Berechnen der Normalen,
+    damit an den Schnitten keine Lichtkante entsteht."""
+    import numpy as np
+
+    if len(faces) <= n:
+        return [(pos, nrm, faces)]
+    out = []
+    for a in range(0, len(faces), n):
+        f = faces[a:a + n]
+        ecken, neu = np.unique(f.reshape(-1), return_inverse=True)
+        out.append((pos[ecken], nrm[ecken], neu.reshape(-1, 3).astype(faces.dtype)))
+    return out
 
 
 def offline() -> bool:
@@ -161,15 +180,20 @@ def bake(glb: Path, dest: Path, commit: str = QUELLE["commit"]) -> dict[str, Any
                 for mat, tris in dreiecke(kopf, binaer, kind["mesh"]).items():
                     key = f"{kind.get('name')}_{mat}"
                     verts, faces = weld(tris)
-                    dichte = DICHTE_KOPF_MM2 if _ist_kopf(kind.get("name") or "") else DICHTE_MM2
-                    meshes[key] = prepare(tris, min(len(faces), MAX_DREIECKE_TEIL,
-                                                    budget_nach_flaeche(verts, faces, dichte)))
+                    kopfteil = _ist_kopf(kind.get("name") or "")
+                    dichte = DICHTE_KOPF_MM2 if kopfteil else DICHTE_MM2
+                    grenze = MAX_DREIECKE_KOPF if kopfteil else MAX_DREIECKE_TEIL
+                    fertig = prepare(tris, min(len(faces), grenze, budget_nach_flaeche(verts, faces, dichte)))
                     m = materialien[mat] if mat < len(materialien) else {}
                     rgb = (m.get("pbrMetallicRoughness", {}).get("baseColorFactor") or [0.6, 0.6, 0.6])[:3]
-                    parts.append({"mesh": list(meshes).index(key), "name": key, "body": index,
-                                  "finish": FINISH.get(m.get("name"), "plastic"), "rgb": [round(v, 4) for v in rgb],
-                                  "pos": [round(v, 7) for v in kind.get("translation", [0, 0, 0])],
-                                  "quat": _wxyz(kind.get("rotation"))})
+                    for i, stueck in enumerate(stuecke(*fertig)):
+                        name = key if i == 0 else f"{key}~{i}"
+                        meshes[name] = stueck
+                        parts.append({"mesh": list(meshes).index(name), "name": name, "body": index,
+                                      "finish": FINISH.get(m.get("name"), "plastic"),
+                                      "rgb": [round(v, 4) for v in rgb],
+                                      "pos": [round(v, 7) for v in kind.get("translation", [0, 0, 0])],
+                                      "quat": _wxyz(kind.get("rotation"))})
             elif (kind.get("name") or "").startswith("origin_"):
                 ursprung(c, index)
 

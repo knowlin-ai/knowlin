@@ -9,6 +9,25 @@ Simulator, in der Physik und gegen einen Test-Roboter geprüft, der wie `robotd`
 
 Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Nicht geprüft**.
 
+## 0.56.1 – 2026-11-28 – WonderDuck: feinerer Kopf, neues Modell auch beim Start
+
+### Behoben
+- WonderDuck: Startete Knowlin schon mit Wondi, blieb ein vor 0.55.1 gebackenes Modell liegen – mit grobem Kopf und
+  einem Entenblick, der nach unten schaute (Maintainer: „Wondi schaut immer noch nach unten“, „die Öffnung sieht
+  komisch aus“). Der Aufruf kam, bevor die Ereignisschleife lief; jetzt prüft `Runtime.start()` das Modell und lädt es
+  einmal neu. Der Entenblick schaut auch mit einem alten Modell nach vorn. Regressionstest in `tests/test_wonderduck.py`.
+- WonderDuck: Die Öffnung des Abstandssensors oben am Kopf war zackig (Maintainer: „sieht auch nicht dolle aus“) –
+  die gelbe Schale und das Gesicht wurden auf 36 000 Dreiecke gekappt. Kopfteile dürfen jetzt bis 120 000 und werden in
+  Stücke geteilt, die in 16-Bit-Indizes passen (`stuecke()`, Normalen vorher berechnet, keine Lichtkanten). Modell
+  ≈ 630 000 Dreiecke / 9 MB statt 490 000 / 7 MB; `STAND = 3` – Knowlin backt einmal neu.
+
+### Sicherheit
+- Wächter und Export-Scan erkennen private Namen jetzt auch mit Endung (Genitiv „-s“, „-ns“, Mehrzahl „-n“); zwei
+  ältere Einträge in dieser Datei sind entsprechend umformuliert.
+
+### Nicht geprüft
+- Neu backen auf Windows beim Start (im Container mit dem alten Modell des Maintainers nachgestellt: Körperwechsel und Start).
+
 ## 0.56.0 – 2026-11-28 – Sprache oben, schnellerer Start, ein Kopf für viele Körper, Scheibe für Wondi
 
 ### Neu
@@ -30,7 +49,7 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   danach gemerkt; nach einer Installation neu.
 
 ### Nicht geprüft
-- Startzeit an Martens PC nach dem Update (erwartet: etwa 8 s schneller bis „bereit“).
+- Startzeit am PC des Maintainers nach dem Update (erwartet: etwa 8 s schneller bis „bereit“).
 
 ## 0.55.1 – 2026-11-28 – WonderDuck: wählbar in den Einstellungen, feinerer Kopf, Entenblick nach vorn
 
@@ -45,7 +64,7 @@ Abschnitte je Version: **Neu**, **Geändert**, **Behoben**, **Sicherheit**, **Ni
   sagt jetzt, wohin die Kopfkamera schaut (`kamera`: vorn +x, oben +z).
 
 ### Nicht geprüft
-- Das Neu-Laden an Martens PC (im Container mit Hiwonders Datei nachgebaut).
+- Das Neu-Laden am PC des Maintainers (im Container mit Hiwonders Datei nachgebaut).
 
 ## 0.55.0 – 2026-11-27 – Aufgaben: Linie folgen, Farbe folgen, folgen, ausweichen, tragen
 

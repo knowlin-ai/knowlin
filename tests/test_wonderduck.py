@@ -236,6 +236,48 @@ def test_routen_und_handy_sperre(tmp_settings, vault, tmp_path, monkeypatch):  #
 
 
 
+def test_grosse_kopfteile_werden_geteilt_statt_gekappt():
+    """Regression 28.11. („sieht auch nicht dolle aus“): Die gelbe Kopfschale wurde auf 36 000 Dreiecke gekappt, die
+    Öffnung des Abstandssensors wurde zackig. Jetzt mehr Dreiecke, geteilt in Stücke, die in 16-Bit-Indizes passen."""
+    rng = np.random.default_rng(1)
+    pos = rng.random((90000, 3))
+    nrm = rng.integers(-127, 127, (90000, 3)).astype("i1")
+    faces = rng.integers(0, 90000, (50000, 3))
+    teile = W.stuecke(pos, nrm, faces)
+    assert len(teile) == 3 and sum(len(f) for _, _, f in teile) == 50000
+    for p, n, f in teile:
+        assert len(p) == len(n) <= 65535 and f.max() < len(p)
+    p, _, f = teile[1]
+    assert np.allclose(p[f], pos[faces[W.STUECK:2 * W.STUECK]])        # dieselben Dreiecke, nur neu nummeriert
+    assert W.MAX_DREIECKE_KOPF > W.MAX_DREIECKE_TEIL and W.STAND >= 3
+    assert W.stuecke(pos, nrm, faces[:10])[0][0] is pos
+
+def test_beim_start_mit_ihr_wird_ein_altes_modell_neu_gebacken(tmp_settings, vault, tmp_path, monkeypatch):  # noqa: F811
+    """Regression 28.11. („Wondi schaut immer noch nach unten“): Startete Knowlin schon mit der WonderDuck, blieb das
+    vor 0.55.1 gebackene Modell liegen – der Aufruf kam, bevor die Ereignisschleife lief."""
+    from duckpilot.config import load
+    from duckpilot.server.app import Runtime, create_app
+    from duckpilot.server.routes import wonderduck as R
+
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "daten"))
+    monkeypatch.delenv("DUCKPILOT_OFFLINE", raising=False)
+    geladen = []
+
+    async def laden(self, force=False):
+        geladen.append(force)
+
+    monkeypatch.setattr(R.WonderduckDienst, "laden", laden)
+    monkeypatch.setattr(W.WonderduckModellStore, "missing", lambda self: True)
+    cfg = load(memory_path=str(tmp_path / "m.json"))
+    cfg.modul = "wonderduck"
+    rt = Runtime(cfg)
+    app = create_app(rt)
+    assert geladen == []                                    # beim Bauen der Routen noch nichts
+    with TestClient(app, base_url="http://127.0.0.1:8765") as c:
+        assert c.get("/api/wonderduck").json()["aktiv"]
+    assert geladen == [False]
+
+
 def test_verbindungstest_prueft_sie_wie_die_microduck(monkeypatch):
     from duckpilot import verbindungstest as V
 

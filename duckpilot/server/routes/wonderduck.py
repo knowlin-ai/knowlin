@@ -87,5 +87,4 @@ def register(app: FastAPI, runtime: Runtime) -> None:
             return JSONResponse({"ok": False, "fehler": "lädt schon"}, status_code=409)
         spawn(dienst.laden(force=bool(body.get("neu"))))
         return JSONResponse({"ok": True})
-
-    dienst.beim_zuweisen()                  # schon beim Start die WonderDuck? Dann gleich holen
+    # schon beim Start die WonderDuck? Das prüft Runtime.start() – hier läuft noch keine Ereignisschleife

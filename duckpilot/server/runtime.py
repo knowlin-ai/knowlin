@@ -482,6 +482,8 @@ class Runtime(KernTeil, LabTeil, ReachyTeil, EigenstaendigTeil, GespraechTeil):
         if self.modell.missing():
             self._tasks.append(asyncio.create_task(self.load_modell(), name="pollen-modell"))
         self.reachy_beim_zuweisen()
+        if self.wonderduck_dienst is not None:                # erst hier läuft die Schleife (vorher blieb ein altes
+            self.wonderduck_dienst.beim_zuweisen()            # Modell beim Start liegen – bis 0.56.0)
         self._tasks.append(asyncio.create_task(self._reachy_leerlauf(), name="reachy-leerlauf"))
         self._tasks.append(asyncio.create_task(self._eigenstaendig(), name="eigenstaendig"))
         self.lokal_vorwaermen()                                 # eigenes Sprachmodell schon laden (seit 0.46.2)

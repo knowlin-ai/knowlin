@@ -167,7 +167,8 @@ export class RealDuck {
     if (!this.sites.head_camera) this.povNode = this._kopfkamera();   // Open Duck: keine Kamerastelle im Modell
     // Blickrichtung und oben an der Kamerastelle im Rahmen ihres Körpers (WonderDuck: x vorn, z oben – seit 0.55.1,
     // vorher schaute der Entenblick wie bei Pollens Modell entlang −z in den eigenen Kopf); sonst Pollens Lage
-    this.kameraAchsen = head.kamera ? [head.kamera.blick, head.kamera.oben] : null;
+    const kam = head.kamera || (wd ? { blick: [1, 0, 0], oben: [0, 0, 1] } : null);   // auch ein vor 0.55.1 gebackenes Modell
+    this.kameraAchsen = kam ? [kam.blick, kam.oben] : null;
     this._groundRef = this._footHeight();
     // Sohle liegt etwas unter dem Fußpunkt im Modell: einmal messen, damit die Ente weder schwebt noch einsinkt
     this.root.updateMatrixWorld(true);
